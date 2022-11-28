@@ -2,9 +2,10 @@ package com.cxb.storehelperserver;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 
 @SpringBootApplication
-public class StorehelperserverApplication {
+public class StorehelperserverApplication extends SpringBootServletInitializer {
 
 	public static void main(String[] args) {
 		SpringApplication.run(StorehelperserverApplication.class, args);
