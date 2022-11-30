@@ -1,7 +1,10 @@
 .DS_Store
 .mvn
-logs
+storehelpserver.mwb.bak
+logs/
 target/
+src/main/java/com/cxb/storehelperserver/mapper/
+src/main/java/com/cxb/storehelperserver/model/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/

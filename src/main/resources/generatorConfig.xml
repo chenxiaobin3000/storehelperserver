@@ -31,6 +31,11 @@
         <!-- 自定义插件 -->
         <plugin type="com.cxb.mybatis.plugins.MybatisPlugin"></plugin>
 
+        <!-- 关闭注释 -->
+        <commentGenerator>
+            <property name="suppressAllComments" value="true" />
+        </commentGenerator>
+
         <!-- 数据库配置 -->
         <jdbcConnection driverClass="com.mysql.cj.jdbc.Driver"
                         connectionURL="jdbc:mysql://localhost:3306/storehelperdb?serverTimezone=UTC&amp;useUnicode=true&amp;characterEncoding=utf-8"
@@ -57,7 +62,7 @@
             <!-- 设置一个根对象，如果设置了这个根对象，那么生成的keyClass或者recordClass会继承这个类；在Table的rootClass属性中可以覆盖该选项
                 注意：如果在key class或者record class中有root class相同的属性，MBG就不会重新生成这些属性了，包括：
                     1，属性名相同，类型相同，有相同的getter/setter方法 -->
-            <property name="rootClass" value="com.cxb.storehelperserver.model.BaseModel"/>
+            <!--<property name="rootClass" value="com.cxb.storehelperserver.model.BaseModel"/>-->
 
             <!-- 设置是否在getter方法中，对String类型字段调用trim()方法 -->
             <property name="trimStrings" value="true"/>
@@ -75,7 +80,7 @@
                 2，MIXEDMAPPER：使用混合配置，会生成Mapper接口，并适当添加合适的Annotation，但是XML会生成在XML中；
                 3，XMLMAPPER：会生成Mapper接口，接口完全依赖XML；
             注意，如果context是MyBatis3Simple：只支持ANNOTATEDMAPPER和XMLMAPPER -->
-        <javaClientGenerator type="XMLMAPPER" targetPackage="com.cxb.storehelperserver.mapper" targetProject="src/main/java">
+        <javaClientGenerator type="ANNOTATEDMAPPER" targetPackage="com.cxb.storehelperserver.mapper" targetProject="src/main/java">
             <!-- 在targetPackage的基础上，根据数据库的schema再生成一层package，最终生成的类放在这个package下，默认为false -->
             <property name="enableSubPackages" value="true"/>
         </javaClientGenerator>
@@ -119,7 +124,7 @@
             <!-- ignoreColumn设置一个MGB忽略的列，如果设置了改列，那么在生成的domain中，生成的SQL中，都不会有该列出现
                 column:指定要忽略的列的名字；delimitedColumnName：参考table元素的delimitAllColumns配置，默认为false
                 注意，一个table元素中可以有多个ignoreColumn元素-->
-            <ignoreColumn column="id"/>
+            <!--<ignoreColumn column="id"/>-->
 
             <!-- 参考 javaModelGenerator 的 constructorBased属性 -->
             <!--<property name="constructorBased" value="false"/>-->

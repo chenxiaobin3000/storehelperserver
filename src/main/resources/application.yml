@@ -35,6 +35,10 @@ spring:
       keep-alive: true
       phy-max-use-count: 100
 
+      # 修正空闲链接检测方式
+      mysql:
+        use-ping-method: false
+
   ################ redis 基础配置 ##############
   redis:
     # redis服务器地址
@@ -63,3 +67,8 @@ logging:
   config: classpath:log4j2.xml
   level:
     root: INFO
+
+################ 业务配置 ##############
+store:
+  user:
+    uid: 100000

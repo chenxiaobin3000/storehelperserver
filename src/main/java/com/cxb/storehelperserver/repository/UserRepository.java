@@ -2,10 +2,8 @@ package com.cxb.storehelperserver.repository;
 
 import com.cxb.storehelperserver.mapper.TUserMapper;
 import com.cxb.storehelperserver.model.TUser;
-import com.cxb.storehelperserver.model.TUserExample;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
@@ -22,18 +20,26 @@ public class UserRepository extends BaseRepository<TUser> {
     @Resource
     private TUserMapper tUserMapper;
 
-    @Resource
-    private RedisTemplate<String, Object> redisTemplate;
+    public UserRepository() {
+        init("user::");
+    }
 
-    /**
-     * desc:
-     */
-    public String getUserName() {
-        TUserExample userExample = new TUserExample();
-        userExample.or().andAccountEqualTo("test");
-        TUser user = tUserMapper.selectByExample(userExample).get(0);
-        redisTemplate.opsForValue().set("test", user);
-        TUser user2 = (TUser)redisTemplate.opsForValue().get("test");
-        return user.getPassword() + user2.getAccount();
+    public TUser find(int id) {
+        TUser user = getCache(String.valueOf(id));
+        if (null != user) {
+            return user;
+        }
+        return tUserMapper.selectByPrimaryKey(id);
+    }
+
+    public int insert(TUser row) {
+        int ret = tUserMapper.insert(row);
+        setCache(String.valueOf(ret), row);
+        return ret;
+    }
+
+    public int update(TUser row) {
+        setCache(String.valueOf(row.getId()), row);
+        return tUserMapper.updateByPrimaryKey(row);
     }
 }
