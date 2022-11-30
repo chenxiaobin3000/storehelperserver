@@ -1,4 +1,4 @@
-package com.cxb.storehelperserver.controller;
+package com.cxb.storehelperserver.util;
 
 import java.util.HashMap;
 

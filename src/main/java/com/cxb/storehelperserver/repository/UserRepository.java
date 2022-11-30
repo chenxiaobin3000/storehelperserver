@@ -25,7 +25,7 @@ public class UserRepository extends BaseRepository<TUser> {
     }
 
     public TUser find(int id) {
-        TUser user = getCache(String.valueOf(id));
+        TUser user = getCache(String.valueOf(id), TUser.class);
         if (null != user) {
             return user;
         }

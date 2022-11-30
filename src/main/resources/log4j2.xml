@@ -7,35 +7,13 @@
         <!--*********************控制台日志***********************-->
         <Console name="consoleAppender" target="SYSTEM_OUT">
             <!--设置日志格式及颜色-->
-            <PatternLayout
-                    pattern="%style{%d{ISO8601}}{bright,green} %highlight{%-5level} [%style{%t}{bright,blue}] %style{%C{}}{bright,yellow}: %msg%n%style{%throwable}{red}"
-                    disableAnsi="false" noConsoleNoAnsi="false"/>
+            <PatternLayout disableAnsi="false" noConsoleNoAnsi="false"
+                    pattern="%style{%d{yyyy-MM-dd HH:MM:ss}}{bright,green} %style{%-5level}{bright,blue}%style{%C{}}{bright,yellow}: %msg%n%style{%throwable}{red}"/>
         </Console>
 
         <!--*********************文件日志***********************-->
-        <!--all级别日志-->
-        <RollingFile name="allFileAppender"
-                     fileName="${LOG_HOME}/all.log"
-                     filePattern="${LOG_HOME}/$${date:yyyy-MM}/all-%d{yyyy-MM-dd}-%i.log.gz">
-            <!--设置日志格式-->
-            <PatternLayout>
-                <pattern>%d %p %C{} [%t] %m%n</pattern>
-            </PatternLayout>
-            <Policies>
-                <!-- 设置日志文件切分参数 -->
-                <!--<OnStartupTriggeringPolicy/>-->
-                <!--设置日志基础文件大小，超过该大小就触发日志文件滚动更新-->
-                <SizeBasedTriggeringPolicy size="100 MB"/>
-                <!--设置日志文件滚动更新的时间，依赖于文件命名filePattern的设置-->
-                <TimeBasedTriggeringPolicy/>
-            </Policies>
-            <!--设置日志的文件个数上限，不设置默认为7个，超过大小后会被覆盖；依赖于filePattern中的%i-->
-            <DefaultRolloverStrategy max="100"/>
-        </RollingFile>
-
         <!--debug级别日志-->
-        <RollingFile name="debugFileAppender"
-                     fileName="${LOG_HOME}/debug.log"
+        <RollingFile name="debugFileAppender" fileName="${LOG_HOME}/debug.log"
                      filePattern="${LOG_HOME}/$${date:yyyy-MM}/debug-%d{yyyy-MM-dd}-%i.log.gz">
             <Filters>
                 <!--过滤掉info及更高级别日志-->
@@ -43,23 +21,16 @@
             </Filters>
             <!--设置日志格式-->
             <PatternLayout>
-                <pattern>%d %p %C{} [%t] %m%n</pattern>
+                <pattern>%d{yyyy-MM-dd HH:MM:ss} %p %m%n</pattern>
             </PatternLayout>
             <Policies>
-                <!-- 设置日志文件切分参数 -->
-                <!--<OnStartupTriggeringPolicy/>-->
                 <!--设置日志基础文件大小，超过该大小就触发日志文件滚动更新-->
-                <SizeBasedTriggeringPolicy size="100 MB"/>
-                <!--设置日志文件滚动更新的时间，依赖于文件命名filePattern的设置-->
-                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="10 MB"/>
             </Policies>
-            <!--设置日志的文件个数上限，不设置默认为7个，超过大小后会被覆盖；依赖于filePattern中的%i-->
-            <DefaultRolloverStrategy max="100"/>
         </RollingFile>
 
         <!--info级别日志-->
-        <RollingFile name="infoFileAppender"
-                     fileName="${LOG_HOME}/info.log"
+        <RollingFile name="infoFileAppender" fileName="${LOG_HOME}/info.log"
                      filePattern="${LOG_HOME}/$${date:yyyy-MM}/info-%d{yyyy-MM-dd}-%i.log.gz">
             <Filters>
                 <!--过滤掉warn及更高级别日志-->
@@ -67,23 +38,22 @@
             </Filters>
             <!--设置日志格式-->
             <PatternLayout>
-                <pattern>%d %p %C{} [%t] %m%n</pattern>
+                <pattern>%d{yyyy-MM-dd HH:MM:ss} %p %m%n</pattern>
             </PatternLayout>
             <Policies>
             <!-- 设置日志文件切分参数 -->
             <!--<OnStartupTriggeringPolicy/>-->
             <!--设置日志基础文件大小，超过该大小就触发日志文件滚动更新-->
-            <SizeBasedTriggeringPolicy size="100 MB"/>
+            <SizeBasedTriggeringPolicy size="10 MB"/>
             <!--设置日志文件滚动更新的时间，依赖于文件命名filePattern的设置-->
             <TimeBasedTriggeringPolicy interval="1" modulate="true" />
             </Policies>
             <!--设置日志的文件个数上限，不设置默认为7个，超过大小后会被覆盖；依赖于filePattern中的%i-->
-            <!--<DefaultRolloverStrategy max="100"/>-->
+            <DefaultRolloverStrategy max="10"/>
         </RollingFile>
 
         <!--warn级别日志-->
-        <RollingFile name="warnFileAppender"
-                     fileName="${LOG_HOME}/warn.log"
+        <RollingFile name="warnFileAppender" fileName="${LOG_HOME}/warn.log"
                      filePattern="${LOG_HOME}/$${date:yyyy-MM}/warn-%d{yyyy-MM-dd}-%i.log.gz">
             <Filters>
                 <!--过滤掉error及更高级别日志-->
@@ -91,45 +61,31 @@
             </Filters>
             <!--设置日志格式-->
             <PatternLayout>
-                <pattern>%d %p %C{} [%t] %m%n</pattern>
+                <pattern>%d{yyyy-MM-dd HH:MM:ss} %p %C{} %m%n</pattern>
             </PatternLayout>
             <Policies>
-                <!-- 设置日志文件切分参数 -->
-                <!--<OnStartupTriggeringPolicy/>-->
                 <!--设置日志基础文件大小，超过该大小就触发日志文件滚动更新-->
-                <SizeBasedTriggeringPolicy size="100 MB"/>
-                <!--设置日志文件滚动更新的时间，依赖于文件命名filePattern的设置-->
-                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="10 MB"/>
             </Policies>
-            <!--设置日志的文件个数上限，不设置默认为7个，超过大小后会被覆盖；依赖于filePattern中的%i-->
-            <DefaultRolloverStrategy max="100"/>
         </RollingFile>
 
         <!--error及更高级别日志-->
-        <RollingFile name="errorFileAppender"
-                     fileName="${LOG_HOME}/error.log"
+        <RollingFile name="errorFileAppender" fileName="${LOG_HOME}/error.log"
                      filePattern="${LOG_HOME}/$${date:yyyy-MM}/error-%d{yyyy-MM-dd}-%i.log.gz">
             <!--设置日志格式-->
             <PatternLayout>
-                <pattern>%d %p %C{} [%t] %m%n</pattern>
+                <pattern>%d{yyyy-MM-dd HH:MM:ss} %p %C{} %m%n</pattern>
             </PatternLayout>
             <Policies>
-                <!-- 设置日志文件切分参数 -->
-                <!--<OnStartupTriggeringPolicy/>-->
                 <!--设置日志基础文件大小，超过该大小就触发日志文件滚动更新-->
-                <SizeBasedTriggeringPolicy size="100 MB"/>
-                <!--设置日志文件滚动更新的时间，依赖于文件命名filePattern的设置-->
-                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="10 MB"/>
             </Policies>
-            <!--设置日志的文件个数上限，不设置默认为7个，超过大小后会被覆盖；依赖于filePattern中的%i-->
-            <DefaultRolloverStrategy max="100"/>
         </RollingFile>
     </Appenders>
 
     <Loggers>
         <!-- 根日志设置 -->
-        <Root level="debug">
-            <AppenderRef ref="allFileAppender" level="all"/>
+        <Root level="info">
             <AppenderRef ref="consoleAppender" level="debug"/>
             <AppenderRef ref="debugFileAppender" level="debug"/>
             <AppenderRef ref="infoFileAppender" level="info"/>
@@ -137,12 +93,11 @@
             <AppenderRef ref="errorFileAppender" level="error"/>
         </Root>
 
-        <!--spring日志-->
-        <Logger name="org.springframework" level="info"/>
-        <!--druid数据源日志-->
+        <!-- spring日志 -->
+        <Logger name="org.springframework" level="warn"/>
+        <!-- druid数据源日志 -->
         <Logger name="druid.sql.Statement" level="warn"/>
         <!-- mybatis日志 -->
         <Logger name="org.mybatis" level="warn"/>
-        <Logger name="com.zaxxer.hikari" level="info"/>
     </Loggers>
 </Configuration>

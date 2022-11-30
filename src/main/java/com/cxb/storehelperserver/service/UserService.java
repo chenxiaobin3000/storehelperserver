@@ -26,10 +26,39 @@ public class UserService {
     @Value("${store.user.uid}")
     public int preUid;
 
-    /**
-     * desc:
-     */
-    public String getUserName() {
+    public String register() {
+        logger.info("get pre uid:" + preUid);
+        TUser user = userRepository.find(1);
+        user.setName("test2");
+        userRepository.update(user);
+        return user.getPhone();
+    }
+
+    public String login() {
+        logger.info("get pre uid:" + preUid);
+        TUser user = userRepository.find(1);
+        user.setName("test2");
+        userRepository.update(user);
+        return user.getPhone();
+    }
+
+    public String logout() {
+        logger.info("get pre uid:" + preUid);
+        TUser user = userRepository.find(1);
+        user.setName("test2");
+        userRepository.update(user);
+        return user.getPhone();
+    }
+
+    public String getUserInfo() {
+        logger.info("get pre uid:" + preUid);
+        TUser user = userRepository.find(1);
+        user.setName("test2");
+        userRepository.update(user);
+        return user.getPhone();
+    }
+
+    public String getUserList() {
         logger.info("get pre uid:" + preUid);
         TUser user = userRepository.find(1);
         user.setName("test2");

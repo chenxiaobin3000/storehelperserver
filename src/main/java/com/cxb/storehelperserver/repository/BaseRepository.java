@@ -33,8 +33,8 @@ public class BaseRepository<Model> {
     /**
      * desc: 读取缓存
      */
-    protected Model getCache(String key) {
-        return (Model)redisTemplate.opsForValue().get(cacheName + key);
+    protected Model getCache(String key, Class<Model> clazz) {
+        return clazz.cast(redisTemplate.opsForValue().get(cacheName + key));
     }
 
     /**

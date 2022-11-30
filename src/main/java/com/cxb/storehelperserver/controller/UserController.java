@@ -1,6 +1,7 @@
 package com.cxb.storehelperserver.controller;
 
 import com.cxb.storehelperserver.service.UserService;
+import com.cxb.storehelperserver.util.RestResult;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +24,19 @@ public class UserController {
     private UserService userService;
 
     /**
+     * desc: 注册
+     */
+    @PostMapping("/register")
+    public RestResult register(@RequestBody Map req) {
+        String account = (String)req.get("account");
+        String password = (String)req.get("password");
+        HashMap<String, Object> ret = new HashMap<>();
+        ret.put("account", account);
+        ret.put("sql", userService.login());
+        return RestResult.ok(ret);
+    }
+
+    /**
      * desc: 登录
      */
     @PostMapping("/login")
@@ -30,7 +44,43 @@ public class UserController {
         String account = (String)req.get("account");
         HashMap<String, Object> ret = new HashMap<>();
         ret.put("account", account);
-        ret.put("sql", userService.getUserName());
+        ret.put("sql", userService.login());
+        return RestResult.ok(ret);
+    }
+
+    /**
+     * desc: 登出
+     */
+    @PostMapping("/logout")
+    public RestResult logout(@RequestBody Map req) {
+        String account = (String)req.get("account");
+        HashMap<String, Object> ret = new HashMap<>();
+        ret.put("account", account);
+        ret.put("sql", userService.login());
+        return RestResult.ok(ret);
+    }
+
+    /**
+     * desc: 获取用户信息
+     */
+    @PostMapping("/getUserInfo")
+    public RestResult getUserInfo(@RequestBody Map req) {
+        String account = (String)req.get("account");
+        HashMap<String, Object> ret = new HashMap<>();
+        ret.put("account", account);
+        ret.put("sql", userService.login());
+        return RestResult.ok(ret);
+    }
+
+    /**
+     * desc: 获取用户信息列表
+     */
+    @PostMapping("/getUserList")
+    public RestResult getUserList(@RequestBody Map req) {
+        String account = (String)req.get("account");
+        HashMap<String, Object> ret = new HashMap<>();
+        ret.put("account", account);
+        ret.put("sql", userService.login());
         return RestResult.ok(ret);
     }
 }
