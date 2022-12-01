@@ -16,9 +16,7 @@ public class RestResult {
      * desc: 成功
      */
     public static RestResult ok() {
-        RestResult ret = new RestResult();
-        ret.data = new HashMap<>();
-        return ret;
+        return new RestResult();
     }
 
     /**
@@ -36,8 +34,19 @@ public class RestResult {
     public static RestResult fail(int code) {
         RestResult ret = new RestResult();
         ret.code = code;
-        // msg
-        ret.data = new HashMap<>();
+        ret.msg = "失败";
+        ret.data = null;
+        return ret;
+    }
+
+    /**
+     * desc: 失败
+     */
+    public static RestResult fail(int code, String msg) {
+        RestResult ret = new RestResult();
+        ret.code = code;
+        ret.msg = msg;
+        ret.data = null;
         return ret;
     }
 
@@ -47,7 +56,18 @@ public class RestResult {
     public static RestResult fail(int code, HashMap<String, Object> data) {
         RestResult ret = new RestResult();
         ret.code = code;
-        // msg
+        ret.msg = "失败";
+        ret.data = data;
+        return ret;
+    }
+
+    /**
+     * desc: 失败
+     */
+    public static RestResult fail(int code, String msg, HashMap<String, Object> data) {
+        RestResult ret = new RestResult();
+        ret.code = code;
+        ret.msg = msg;
         ret.data = data;
         return ret;
     }

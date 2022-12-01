@@ -1,7 +1,6 @@
 package com.cxb.storehelperserver.repository;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import javax.annotation.Resource;
@@ -12,9 +11,8 @@ import java.util.concurrent.TimeUnit;
  * auth: cxb
  * date: 2022/11/30
  */
+@Slf4j
 public class BaseRepository<Model> {
-    private static final Logger logger = LogManager.getLogger(BaseRepository.class);
-
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
 

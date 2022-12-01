@@ -1,9 +1,11 @@
 package com.cxb.storehelperserver.controller;
 
+import com.cxb.storehelperserver.controller.request.user.LoginValid;
 import com.cxb.storehelperserver.service.UserService;
 import com.cxb.storehelperserver.util.RestResult;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -15,11 +17,10 @@ import java.util.Map;
  * auth: cxb
  * date: 2022/11/29
  */
+@Slf4j
 @RestController
 @RequestMapping("/user")
 public class UserController {
-    private static final Logger logger = LogManager.getLogger(UserController.class);
-
     @Resource
     private UserService userService;
 
@@ -28,9 +29,9 @@ public class UserController {
      */
     @PostMapping("/register")
     public RestResult register(@RequestBody Map req) {
-        String account = (String)req.get("account");
-        String password = (String)req.get("password");
-        HashMap<String, Object> ret = new HashMap<>();
+        String account = (String) req.get("account");
+        String password = (String) req.get("password");
+        val ret = new HashMap<String, Object>();
         ret.put("account", account);
         ret.put("sql", userService.login());
         return RestResult.ok(ret);
@@ -40,10 +41,9 @@ public class UserController {
      * desc: 登录
      */
     @PostMapping("/login")
-    public RestResult login(@RequestBody Map req) {
-        String account = (String)req.get("account");
-        HashMap<String, Object> ret = new HashMap<>();
-        ret.put("account", account);
+    public RestResult login(@Validated @RequestBody LoginValid req) {
+        val ret = new HashMap<String, Object>();
+        ret.put("account", req.getAccount());
         ret.put("sql", userService.login());
         return RestResult.ok(ret);
     }
@@ -53,8 +53,8 @@ public class UserController {
      */
     @PostMapping("/logout")
     public RestResult logout(@RequestBody Map req) {
-        String account = (String)req.get("account");
-        HashMap<String, Object> ret = new HashMap<>();
+        String account = (String) req.get("account");
+        val ret = new HashMap<String, Object>();
         ret.put("account", account);
         ret.put("sql", userService.login());
         return RestResult.ok(ret);
@@ -65,8 +65,8 @@ public class UserController {
      */
     @PostMapping("/getUserInfo")
     public RestResult getUserInfo(@RequestBody Map req) {
-        String account = (String)req.get("account");
-        HashMap<String, Object> ret = new HashMap<>();
+        String account = (String) req.get("account");
+        val ret = new HashMap<String, Object>();
         ret.put("account", account);
         ret.put("sql", userService.login());
         return RestResult.ok(ret);
@@ -77,8 +77,8 @@ public class UserController {
      */
     @PostMapping("/getUserList")
     public RestResult getUserList(@RequestBody Map req) {
-        String account = (String)req.get("account");
-        HashMap<String, Object> ret = new HashMap<>();
+        String account = (String) req.get("account");
+        val ret = new HashMap<String, Object>();
         ret.put("account", account);
         ret.put("sql", userService.login());
         return RestResult.ok(ret);

@@ -1,4 +1,10 @@
 spring:
+  ################ 处理 404 异常 ##############
+  mvc:
+    throw-exception-if-no-handler-found: true
+  web:
+    resources:
+      add-mappings: false
   ################ mysql 配置 ##############
   datasource:
     druid:

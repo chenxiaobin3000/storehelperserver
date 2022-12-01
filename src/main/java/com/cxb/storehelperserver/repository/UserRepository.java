@@ -2,8 +2,7 @@ package com.cxb.storehelperserver.repository;
 
 import com.cxb.storehelperserver.mapper.TUserMapper;
 import com.cxb.storehelperserver.model.TUser;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
@@ -13,12 +12,11 @@ import javax.annotation.Resource;
  * auth: cxb
  * date: 2022/11/29
  */
+@Slf4j
 @Repository
 public class UserRepository extends BaseRepository<TUser> {
-    private static final Logger logger = LogManager.getLogger(UserRepository.class);
-
     @Resource
-    private TUserMapper tUserMapper;
+    private TUserMapper userMapper;
 
     public UserRepository() {
         init("user::");
@@ -29,17 +27,24 @@ public class UserRepository extends BaseRepository<TUser> {
         if (null != user) {
             return user;
         }
-        return tUserMapper.selectByPrimaryKey(id);
+        return userMapper.selectByPrimaryKey(id);
     }
 
-    public int insert(TUser row) {
-        int ret = tUserMapper.insert(row);
-        setCache(String.valueOf(ret), row);
-        return ret;
+    public boolean insert(TUser row) {
+        int ret = userMapper.insert(row);
+        if (ret > 0) {
+            setCache(String.valueOf(ret), row);
+            return true;
+        }
+        return false;
     }
 
-    public int update(TUser row) {
-        setCache(String.valueOf(row.getId()), row);
-        return tUserMapper.updateByPrimaryKey(row);
+    public boolean update(TUser row) {
+        int ret = userMapper.updateByPrimaryKey(row);
+        if (ret > 0) {
+            setCache(String.valueOf(row.getId()), row);
+            return true;
+        }
+        return false;
     }
 }
