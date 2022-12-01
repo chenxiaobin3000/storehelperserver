@@ -1,6 +1,7 @@
 package com.cxb.storehelperserver.controller;
 
 import com.cxb.storehelperserver.controller.request.user.LoginValid;
+import com.cxb.storehelperserver.controller.request.user.RegisterValid;
 import com.cxb.storehelperserver.service.UserService;
 import com.cxb.storehelperserver.util.RestResult;
 import lombok.extern.slf4j.Slf4j;
@@ -28,13 +29,8 @@ public class UserController {
      * desc: 注册
      */
     @PostMapping("/register")
-    public RestResult register(@RequestBody Map req) {
-        String account = (String) req.get("account");
-        String password = (String) req.get("password");
-        val ret = new HashMap<String, Object>();
-        ret.put("account", account);
-        ret.put("sql", userService.login());
-        return RestResult.ok(ret);
+    public RestResult register(@RequestBody RegisterValid req) {
+        return userService.register(req.getAccount(), req.getPassword());
     }
 
     /**

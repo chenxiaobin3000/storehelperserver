@@ -17,7 +17,7 @@ public class MybatisPlugin extends PluginAdapter {
     }
 
     /**
-     * 为mapper加注解
+     * 为 mapper 加注解
      */
     @Override
     public boolean clientGenerated(Interface interfaze, IntrospectedTable introspectedTable) {
@@ -30,7 +30,7 @@ public class MybatisPlugin extends PluginAdapter {
     }
 
     /**
-     * 为每个Example类添加limit和offset属性已经set、get方法
+     * 为每个 Example 类添加: limit/offset/groupBy/orderBy 属性和 get/set 方法
      */
     @Override
     public boolean modelExampleClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
@@ -71,26 +71,61 @@ public class MybatisPlugin extends PluginAdapter {
         topLevelClass.addMethod(getOffset);
 
         // group by
-        Field group = new Field("group", FullyQualifiedJavaType.getStringInstance());
+        FullyQualifiedJavaType type = FullyQualifiedJavaType.getStringInstance();
+        Field group = new Field("group", type);
         group.setVisibility(JavaVisibility.PRIVATE);
         topLevelClass.addField(group);
 
         Method setGroup = new Method("setGroupBy");
         setGroup.setVisibility(JavaVisibility.PUBLIC);
-        setGroup.addParameter(new Parameter(FullyQualifiedJavaType.getStringInstance(), "group"));
+        setGroup.addParameter(new Parameter(type, "group"));
         setGroup.addBodyLine("this.group = group;");
         topLevelClass.addMethod(setGroup);
 
         Method getGroup = new Method("getGroupBy");
         getGroup.setVisibility(JavaVisibility.PUBLIC);
-        getGroup.setReturnType(FullyQualifiedJavaType.getStringInstance());
+        getGroup.setReturnType(type);
         getGroup.addBodyLine("return group;");
         topLevelClass.addMethod(getGroup);
+
+        // order by asc
+        Field orderAsc = new Field("orderAsc", type);
+        orderAsc.setVisibility(JavaVisibility.PRIVATE);
+        topLevelClass.addField(orderAsc);
+
+        Method setOrderAsc = new Method("setOrderByAsc");
+        setOrderAsc.setVisibility(JavaVisibility.PUBLIC);
+        setOrderAsc.addParameter(new Parameter(type, "orderAsc"));
+        setOrderAsc.addBodyLine("this.orderAsc = orderAsc;");
+        topLevelClass.addMethod(setOrderAsc);
+
+        Method getOrderAsc = new Method("getOrderByAsc");
+        getOrderAsc.setVisibility(JavaVisibility.PUBLIC);
+        getOrderAsc.setReturnType(type);
+        getOrderAsc.addBodyLine("return orderAsc;");
+        topLevelClass.addMethod(getOrderAsc);
+
+        // order by desc
+        Field orderDesc = new Field("orderDesc", type);
+        orderDesc.setVisibility(JavaVisibility.PRIVATE);
+        topLevelClass.addField(orderDesc);
+
+        Method setOrderDesc = new Method("setOrderByDesc");
+        setOrderDesc.setVisibility(JavaVisibility.PUBLIC);
+        setOrderDesc.addParameter(new Parameter(type, "orderDesc"));
+        setOrderDesc.addBodyLine("this.orderDesc = orderDesc;");
+        topLevelClass.addMethod(setOrderDesc);
+
+        Method getOrderDesc = new Method("getOrderByDesc");
+        getOrderDesc.setVisibility(JavaVisibility.PUBLIC);
+        getOrderDesc.setReturnType(type);
+        getOrderDesc.addBodyLine("return orderDesc;");
+        topLevelClass.addMethod(getOrderDesc);
         return true;
     }
 
     /**
-     * 为Mapper.xml的selectByExample添加limit
+     * 为 Mapper.xml 的 selectByExample 添加 limit/offset/groupBy/orderBy
      */
     @Override
     public boolean sqlMapSelectByExampleWithoutBLOBsElementGenerated(
@@ -116,6 +151,18 @@ public class MybatisPlugin extends PluginAdapter {
         ifGroupNotNullElement.addAttribute(new Attribute("test", "group != null"));
         ifGroupNotNullElement.addElement(new TextElement("group by ${group}"));
         element.addElement(ifGroupNotNullElement);
+
+        // order asc
+        XmlElement ifOrderAscNotNullElement = new XmlElement("if");
+        ifOrderAscNotNullElement.addAttribute(new Attribute("test", "orderAsc != null"));
+        ifOrderAscNotNullElement.addElement(new TextElement("order by ${orderAsc} asc"));
+        element.addElement(ifOrderAscNotNullElement);
+
+        // order desc
+        XmlElement ifOrderDescNotNullElement = new XmlElement("if");
+        ifOrderDescNotNullElement.addAttribute(new Attribute("test", "orderDesc != null"));
+        ifOrderDescNotNullElement.addElement(new TextElement("order by ${orderDesc} desc"));
+        element.addElement(ifOrderDescNotNullElement);
         return true;
     }
 }
