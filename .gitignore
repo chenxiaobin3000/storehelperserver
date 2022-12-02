@@ -5,6 +5,7 @@ logs/
 target/
 src/main/java/com/cxb/storehelperserver/mapper/
 src/main/java/com/cxb/storehelperserver/model/
+src/main/resources/com/cxb/storehelperserver/mapper/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
