@@ -24,11 +24,14 @@ public class UserRepository extends BaseRepository<TUser> {
     }
 
     public TUser find(int id) {
-        TUser user = getCache(String.valueOf(id), TUser.class);
-        if (null != user) {
-            return user;
-        }
-        return userMapper.selectByPrimaryKey(id);
+        TUserExample example = new TUserExample();
+        example.or().andUidEqualTo(1);
+        return userMapper.selectOneByExample(example);
+//        TUser user = getCache(String.valueOf(id), TUser.class);
+//        if (null != user) {
+//            return user;
+//        }
+//        return userMapper.selectByPrimaryKey(id);
     }
 
     public boolean insert(TUser row) {

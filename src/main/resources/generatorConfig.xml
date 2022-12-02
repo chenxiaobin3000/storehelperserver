@@ -14,17 +14,11 @@
     <context id="mysql" defaultModelType="flat" targetRuntime="MyBatis3">
         <!-- 生成的Java文件的编码 -->
         <property name="javaFileEncoding" value="UTF-8"/>
-        <!-- 格式化java代码 -->
-        <property name="javaFormatter" value="org.mybatis.generator.api.dom.DefaultJavaFormatter"/>
-        <!-- 格式化XML代码 -->
-        <property name="xmlFormatter" value="org.mybatis.generator.api.dom.DefaultXmlFormatter"/>
-
-        <!-- beginningDelimiter和endingDelimiter：指明数据库的用于标记数据库对象名的符号，比如ORACLE就是双引号，MYSQL默认是`反引号 -->
-        <property name="beginningDelimiter" value="`"/>
-        <property name="endingDelimiter" value="`"/>
 
         <!-- 自定义插件 -->
         <plugin type="com.cxb.mybatis.plugins.MybatisPlugin"></plugin>
+        <!-- 覆盖 xml -->
+        <plugin type="org.mybatis.generator.plugins.UnmergeableXmlMappersPlugin" />
 
         <!-- 关闭注释 -->
         <commentGenerator>
@@ -38,16 +32,9 @@
                         password="123456"/>
 
         <!-- java模型创建器 -->
-        <javaModelGenerator targetPackage="com.cxb.storehelperserver.model" targetProject="src/main/java">
-            <!-- 设置一个根对象，如果设置了这个根对象，那么生成的keyClass或者recordClass会继承这个类；
-                注意：如果在key class或者record class中有root class相同的属性，MBG就不会重新生成这些属性了 -->
-            <!--<property name="rootClass" value="com.cxb.storehelperserver.model.BaseModel"/>-->
+        <javaModelGenerator targetPackage="com.cxb.storehelperserver.model" targetProject="src/main/java"/>
 
-            <!-- 设置是否在getter方法中，对String类型字段调用trim()方法 -->
-            <property name="trimStrings" value="true"/>
-        </javaModelGenerator>
-
-        <!-- 生成XML的文件生成器，如果javaClientGenerator配置中配置了需要生成XML的话，这个元素就必须配置targetPackage/targetProject -->
+        <!-- 生成XML的文件生成器 -->
         <sqlMapGenerator targetPackage="com.cxb.storehelperserver.mapper" targetProject="src/main/resources"/>
 
         <!-- 生成Mapper接口，type：XMLMAPPER：会生成Mapper接口，接口完全依赖XML；
@@ -55,6 +42,7 @@
         <javaClientGenerator type="XMLMAPPER" targetPackage="com.cxb.storehelperserver.mapper"
                              targetProject="src/main/java"/>
 
+        <!-- 需要生成的表 -->
         <table tableName="t\_%"/>
     </context>
 </generatorConfiguration>

@@ -66,6 +66,9 @@ public class UserService {
 
     public String login() {
         TUser user = userRepository.find(1);
+        if (null == user) {
+            return "null";
+        }
         user.setName("test2");
         userRepository.update(user);
         return user.getPhone();

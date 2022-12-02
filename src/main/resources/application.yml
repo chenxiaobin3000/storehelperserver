@@ -68,6 +68,12 @@ spring:
         # 连接池中的最小空闲连接 默认 0
         min-idle: 0
 
+################ mybatis 配置 ##############
+mybatis:
+  configuration:
+    # 输出 sql 语句
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
 ################ 日志配置 ##############
 logging:
   config: classpath:log4j2.xml

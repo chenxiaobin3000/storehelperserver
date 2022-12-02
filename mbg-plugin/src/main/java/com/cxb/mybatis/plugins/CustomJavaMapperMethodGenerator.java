@@ -16,77 +16,46 @@ public class CustomJavaMapperMethodGenerator extends AbstractJavaMapperMethodGen
     @Override
     public void addInterfaceElements(Interface interfaze) {
         addInterfaceSelectOne(interfaze);
-        addInterfaceSelectList(interfaze);
-        addInterfaceInsertBatch(interfaze);
-        addInterfaceDeleteBatchIds(interfaze);
+        addInterfaceSelectOneByExmaple(interfaze);
         addInterfaceSelectBatchIds(interfaze);
+        addInterfaceDeleteBatchIds(interfaze);
     }
 
     private void addInterfaceSelectOne(Interface interfaze) {
-        Set<FullyQualifiedJavaType> importedTypes = new TreeSet<FullyQualifiedJavaType>();
+        Set<FullyQualifiedJavaType> importedTypes = new TreeSet<>();
         importedTypes.add(FullyQualifiedJavaType.getNewListInstance());
         Method method = new Method(CommonName.SELECTONE);
         method.setVisibility(JavaVisibility.PUBLIC);
+
+        FullyQualifiedJavaType parameterType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
+        importedTypes.add(parameterType);
         FullyQualifiedJavaType returnType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
         method.setReturnType(returnType);
-        FullyQualifiedJavaType parameterType;
-        parameterType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
-        importedTypes.add(parameterType);
+
         method.addParameter(new Parameter(parameterType, "record"));
         initMethod(interfaze, importedTypes, method);
     }
 
-    private void addInterfaceSelectList(Interface interfaze) {
-        Set<FullyQualifiedJavaType> importedTypes = new TreeSet<FullyQualifiedJavaType>();
+    private void addInterfaceSelectOneByExmaple(Interface interfaze) {
+        Set<FullyQualifiedJavaType> importedTypes = new TreeSet<>();
+        FullyQualifiedJavaType type = new FullyQualifiedJavaType(introspectedTable.getExampleType());
+        importedTypes.add(type);
         importedTypes.add(FullyQualifiedJavaType.getNewListInstance());
-        Method method = new Method(CommonName.SELECTLIST);
+
+        Method method = new Method(CommonName.SELECTONEBYEXAMPLE);
         method.setVisibility(JavaVisibility.PUBLIC);
-        FullyQualifiedJavaType returnType = FullyQualifiedJavaType.getNewListInstance();
-        FullyQualifiedJavaType listType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
-        importedTypes.add(listType);
-        returnType.addTypeArgument(listType);
+
+        FullyQualifiedJavaType parameterType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
+        importedTypes.add(parameterType);
+        FullyQualifiedJavaType returnType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
         method.setReturnType(returnType);
-        FullyQualifiedJavaType parameterType;
-        parameterType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
-        importedTypes.add(parameterType);
-        method.addParameter(new Parameter(parameterType, "record"));
-        initMethod(interfaze, importedTypes, method);
-    }
 
-    private void addInterfaceInsertBatch(Interface interfaze) {
-        Set<FullyQualifiedJavaType> importedTypes = new TreeSet<FullyQualifiedJavaType>();
-        importedTypes.add(FullyQualifiedJavaType.getNewListInstance());
-        Method method = new Method(CommonName.INSERTBATCH);
-        method.setVisibility(JavaVisibility.PUBLIC);
-        method.setReturnType(FullyQualifiedJavaType.getIntInstance());
-
-        FullyQualifiedJavaType parameterType = FullyQualifiedJavaType.getNewListInstance();
-        FullyQualifiedJavaType listType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
-        importedTypes.add(listType);
-        parameterType.addTypeArgument(listType);
-        method.addParameter(new Parameter(parameterType, "list"));
-
-        initMethod(interfaze, importedTypes, method);
-    }
-
-    private void addInterfaceDeleteBatchIds(Interface interfaze) {
-        Set<FullyQualifiedJavaType> importedTypes = new TreeSet<FullyQualifiedJavaType>();
-        importedTypes.add(new FullyQualifiedJavaType("java.util.Collection"));
-
-        FullyQualifiedJavaType parameterType = new FullyQualifiedJavaType("Collection");
-        FullyQualifiedJavaType objectType = FullyQualifiedJavaType.getObjectInstance();
-        parameterType.addTypeArgument(objectType);
-
-        Method method = new Method(CommonName.DELETEBATCHIDS);
-        method.setVisibility(JavaVisibility.PUBLIC);
-        method.setReturnType(FullyQualifiedJavaType.getIntInstance());
-        method.addParameter(new Parameter(parameterType, "record"));
-
+        method.addParameter(new Parameter(type, "example"));
         initMethod(interfaze, importedTypes, method);
     }
 
     private void addInterfaceSelectBatchIds(Interface interfaze) {
-        Set<FullyQualifiedJavaType> importedTypes = new TreeSet<FullyQualifiedJavaType>();
+        Set<FullyQualifiedJavaType> importedTypes = new TreeSet<>();
         importedTypes.add(FullyQualifiedJavaType.getNewListInstance());
         importedTypes.add(new FullyQualifiedJavaType("java.util.Collection"));
 
@@ -102,6 +71,22 @@ public class CustomJavaMapperMethodGenerator extends AbstractJavaMapperMethodGen
 
         importedTypes.add(parameterType);
         method.addParameter(new Parameter(parameterType, "record"));
+        initMethod(interfaze, importedTypes, method);
+    }
+
+    private void addInterfaceDeleteBatchIds(Interface interfaze) {
+        Set<FullyQualifiedJavaType> importedTypes = new TreeSet<>();
+        importedTypes.add(new FullyQualifiedJavaType("java.util.Collection"));
+
+        FullyQualifiedJavaType parameterType = new FullyQualifiedJavaType("Collection");
+        FullyQualifiedJavaType objectType = FullyQualifiedJavaType.getObjectInstance();
+        parameterType.addTypeArgument(objectType);
+
+        Method method = new Method(CommonName.DELETEBATCHIDS);
+        method.setVisibility(JavaVisibility.PUBLIC);
+        method.setReturnType(FullyQualifiedJavaType.getIntInstance());
+        method.addParameter(new Parameter(parameterType, "record"));
+
         initMethod(interfaze, importedTypes, method);
     }
 

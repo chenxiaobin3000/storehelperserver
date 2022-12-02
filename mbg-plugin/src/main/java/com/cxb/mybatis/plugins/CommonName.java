@@ -7,8 +7,7 @@ package com.cxb.mybatis.plugins;
  */
 public class CommonName {
     public static final String SELECTONE = "selectOne";
-    public static final String SELECTLIST = "selectList";
-    public static final String INSERTBATCH = "insertBatch";
-    public static final String DELETEBATCHIDS = "deleteBatchIds";
+    public static final String SELECTONEBYEXAMPLE = "selectOneByExample";
     public static final String SELECTBATCHIDS = "selectBatchIds";
+    public static final String DELETEBATCHIDS = "deleteBatchIds";
 }

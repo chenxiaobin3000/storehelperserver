@@ -7,6 +7,8 @@ import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.codegen.mybatis3.MyBatis3FormattingUtilities;
 import org.mybatis.generator.codegen.mybatis3.xmlmapper.elements.AbstractXmlElementGenerator;
 
+import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
+
 /**
  * desc: 为 xml 添加 selectOne
  * auth: cxb
@@ -16,6 +18,12 @@ public class CustomAbstractXmlElementGenerator extends AbstractXmlElementGenerat
 
     @Override
     public void addElements(XmlElement parentElement) {
+        addSelectOne(parentElement);
+        addSelectOneByExample(parentElement);
+        addBatchIds(parentElement);
+    }
+
+    private void addSelectOne(XmlElement parentElement) {
         // 增加base_query
         XmlElement sql = new XmlElement("sql");
         sql.addAttribute(new Attribute("id", "base_query"));
@@ -46,35 +54,110 @@ public class CustomAbstractXmlElementGenerator extends AbstractXmlElementGenerat
         sql.addElement(selectTrimElement);
         parentElement.addElement(sql);
 
-        // 公用select
+        // column
+        XmlElement baseColumn = new XmlElement("include");
+        baseColumn.addAttribute(new Attribute("refid", "Base_Column_List"));
+
+        // select
         sb.setLength(0);
-        sb.append("select ");
-        sb.append("* ");//<include refid="Base_Column_List" />
         sb.append("from ");
         sb.append(introspectedTable.getFullyQualifiedTableNameAtRuntime());
-        TextElement selectText = new TextElement(sb.toString());
+        TextElement selectText2 = new TextElement(sb.toString());
 
-        // 公用include
-        XmlElement include = new XmlElement("include");
-        include.addAttribute(new Attribute("refid", "base_query"));
+        // query
+        XmlElement baseQuery = new XmlElement("include");
+        baseQuery.addAttribute(new Attribute("refid", "base_query"));
 
         // 增加selectOne
         XmlElement selectOne = new XmlElement("select");
         selectOne.addAttribute(new Attribute("id", CommonName.SELECTONE));
         selectOne.addAttribute(new Attribute("resultMap", "BaseResultMap"));
         selectOne.addAttribute(new Attribute("parameterType", introspectedTable.getBaseRecordType()));
-        selectOne.addElement(selectText);
-        selectOne.addElement(include);
+        selectOne.addElement(new TextElement("select "));
+        selectOne.addElement(baseColumn);
+        selectOne.addElement(selectText2);
+        selectOne.addElement(baseQuery);
+        selectOne.addElement(new TextElement("limit 1"));
         parentElement.addElement(selectOne);
+    }
 
-        // 增加selectList
-        XmlElement selectList = new XmlElement("select");
-        selectList.addAttribute(new Attribute("id", CommonName.SELECTLIST));
-        selectList.addAttribute(new Attribute("resultMap", "BaseResultMap"));
-        selectList.addAttribute(new Attribute("parameterType", introspectedTable.getBaseRecordType()));
-        selectList.addElement(selectText);
-        selectList.addElement(include);
-        parentElement.addElement(selectList);
+    private void addSelectOneByExample(XmlElement parentElement) {
+        XmlElement selectOneByExample = new XmlElement("select");
+        selectOneByExample.addAttribute(new Attribute("id", CommonName.SELECTONEBYEXAMPLE));
+        selectOneByExample.addAttribute(new Attribute("resultMap", introspectedTable.getBaseResultMapId()));
+        selectOneByExample.addAttribute(new Attribute("parameterType", introspectedTable.getExampleType()));
+
+        context.getCommentGenerator().addComment(selectOneByExample);
+
+        selectOneByExample.addElement(new TextElement("select"));
+        XmlElement ifElement = new XmlElement("if");
+        ifElement.addAttribute(new Attribute("test", "distinct"));
+        ifElement.addElement(new TextElement("distinct"));
+        selectOneByExample.addElement(ifElement);
+
+        StringBuilder sb = new StringBuilder();
+        if (stringHasValue(introspectedTable.getSelectByExampleQueryId())) {
+            sb.append('\'');
+            sb.append(introspectedTable.getSelectByExampleQueryId());
+            sb.append("' as QUERYID,");
+            selectOneByExample.addElement(new TextElement(sb.toString()));
+        }
+        selectOneByExample.addElement(getBaseColumnListElement());
+
+        sb.setLength(0);
+        sb.append("from ");
+        sb.append(introspectedTable.getAliasedFullyQualifiedTableNameAtRuntime());
+        selectOneByExample.addElement(new TextElement(sb.toString()));
+        selectOneByExample.addElement(getExampleIncludeElement());
+
+        ifElement = new XmlElement("if");
+        ifElement.addAttribute(new Attribute("test", "orderByClause != null"));
+        ifElement.addElement(new TextElement("order by ${orderByClause}"));
+        selectOneByExample.addElement(ifElement);
+
+        selectOneByExample.addElement(new TextElement("limit 1"));
+        parentElement.addElement(selectOneByExample);
+    }
+
+    private void addBatchIds(XmlElement parentElement) {
+        StringBuilder sb = new StringBuilder();
+
+        // column
+        XmlElement baseColumn = new XmlElement("include");
+        baseColumn.addAttribute(new Attribute("refid", "Base_Column_List"));
+
+        // select
+        sb.setLength(0);
+        sb.append("from ");
+        sb.append(introspectedTable.getFullyQualifiedTableNameAtRuntime());
+        TextElement selectText2 = new TextElement(sb.toString());
+
+        // 遍历batch列表
+        XmlElement foreach = new XmlElement("foreach");
+        foreach.addAttribute(new Attribute("collection", "list"));
+        foreach.addAttribute(new Attribute("item", "item"));
+        foreach.addAttribute(new Attribute("open", "("));
+        foreach.addAttribute(new Attribute("separator", ","));
+        foreach.addAttribute(new Attribute("close", ")"));
+        foreach.addElement(new TextElement("#{item}"));
+
+        //增加selectBatchIds
+        XmlElement selectBatchIdsElement = new XmlElement("select");
+        selectBatchIdsElement.addAttribute(new Attribute("id", CommonName.SELECTBATCHIDS));
+        selectBatchIdsElement.addAttribute(new Attribute("resultMap", "BaseResultMap"));
+        selectBatchIdsElement.addAttribute(new Attribute("parameterType", "java.util.List"));
+
+        selectBatchIdsElement.addElement(new TextElement("select "));
+        selectBatchIdsElement.addElement(baseColumn);
+        selectBatchIdsElement.addElement(selectText2);
+
+        sb.setLength(0);
+        sb.append("where ");
+        sb.append(MyBatis3FormattingUtilities.getEscapedColumnName(introspectedTable.getPrimaryKeyColumns().get(0)));
+        sb.append(" in");
+        selectBatchIdsElement.addElement(new TextElement(sb.toString()));
+        selectBatchIdsElement.addElement(foreach);
+        parentElement.addElement(selectBatchIdsElement);
 
         //增加DeleteBatchIds
         XmlElement deleteBatchIdsElement = new XmlElement("delete");
@@ -91,30 +174,7 @@ public class CustomAbstractXmlElementGenerator extends AbstractXmlElementGenerat
         sb.append(" in");
         deleteBatchIdsElement.addElement(new TextElement(sb.toString()));
 
-        sb.setLength(0);
-        XmlElement foreach = new XmlElement("foreach");
-        foreach.addAttribute(new Attribute("collection", "list"));
-        foreach.addAttribute(new Attribute("item", "item"));
-        foreach.addAttribute(new Attribute("open", "("));
-        foreach.addAttribute(new Attribute("separator", ","));
-        foreach.addAttribute(new Attribute("close", ")"));
-        foreach.addElement(new TextElement("#{item}"));
         deleteBatchIdsElement.addElement(foreach);
         parentElement.addElement(deleteBatchIdsElement);
-
-        //增加selectBatchIds
-        XmlElement selectBatchIdsElement = new XmlElement("select");
-        selectBatchIdsElement.addAttribute(new Attribute("id", CommonName.SELECTBATCHIDS));
-        selectBatchIdsElement.addAttribute(new Attribute("resultMap", "BaseResultMap"));
-        selectBatchIdsElement.addAttribute(new Attribute("parameterType", "java.util.List"));
-        selectBatchIdsElement.addElement(selectText);
-
-        sb.setLength(0);
-        sb.append("where ");
-        sb.append(MyBatis3FormattingUtilities.getEscapedColumnName(introspectedTable.getPrimaryKeyColumns().get(0)));
-        sb.append(" in");
-        selectBatchIdsElement.addElement(new TextElement(sb.toString()));
-        selectBatchIdsElement.addElement(foreach);
-        parentElement.addElement(selectBatchIdsElement);
     }
 }
