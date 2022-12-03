@@ -48,4 +48,11 @@ public class BaseRepository<Model> {
     protected void setCacheExpire(String key, Model value, long timeout) {
         redisTemplate.opsForValue().set(cacheName + key, value, timeout, TimeUnit.MINUTES);
     }
+
+    /**
+     * desc: 删除缓存
+     */
+    protected void delCache(String key) {
+        redisTemplate.delete(cacheName + key);
+    }
 }

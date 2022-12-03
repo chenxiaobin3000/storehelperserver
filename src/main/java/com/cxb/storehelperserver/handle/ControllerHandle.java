@@ -1,5 +1,6 @@
 package com.cxb.storehelperserver.handle;
 
+import com.cxb.storehelperserver.controller.request.IValid;
 import com.cxb.storehelperserver.service.SessionService;
 import com.cxb.storehelperserver.util.RestResult;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -83,16 +84,16 @@ public class ControllerHandle {
 
         // 会话白名单页面
         boolean check = false;
-        if (!url.equals("/user/login") && !url.equals("/user/register")) {
+        if (url.equals("/account/login") || url.equals("/account/register")) {
+            check = true;
+        } else {
             // 验证会话
             String key = request.getHeader("token");
             int uid = sessionService.check(key);
-            Map map = (Map) obj[0];
-            if (uid == (int) map.get("uid")) {
+            IValid req = (IValid) obj[0];
+            if (uid == req.getId()) {
                 check = true;
             }
-        } else {
-            check = true;
         }
 
         // 验证成功继续执行，验证失败则直接返回
@@ -109,7 +110,7 @@ public class ControllerHandle {
 
             // 直接返回
             log.info("<---" + url + ":{\"code\":-1,\"msg\":\"无效token\",\"data\":{}}");
-            return RestResult.fail(-1, "无效token");
+            return RestResult.fail("无效token");
         }
     }
 }

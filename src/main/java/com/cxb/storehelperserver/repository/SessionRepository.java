@@ -24,7 +24,27 @@ public class SessionRepository extends BaseRepository<Integer> {
         init("session::");
     }
 
-    public Integer find(String key) {
+    /**
+     * desc: 仅用于 logout 不用缓存
+     */
+    public TSession find(int id) {
+        TSessionExample example = new TSessionExample();
+        example.or().andUidEqualTo(id);
+        return sessionMapper.selectOneByExample(example);
+    }
+
+    /**
+     * desc: 对应 delete 操作
+     */
+    public int findByIdFromCache(int uid) {
+        Integer id = getCache(String.valueOf(uid), Integer.class);
+        if (null != id) {
+            return id;
+        }
+        return 0;
+    }
+
+    public Integer findByToken(String key) {
         Integer uid = getCache(key, Integer.class);
         if (null != uid) {
             return uid;
@@ -32,7 +52,7 @@ public class SessionRepository extends BaseRepository<Integer> {
 
         // 缓存没有就查询数据库
         TSessionExample example = new TSessionExample();
-        example.or().andKeyEqualTo(key);
+        example.or().andTokenEqualTo(key);
         val ret = sessionMapper.selectByExample(example);
         if (ret.isEmpty()) {
             return 0;
@@ -43,16 +63,32 @@ public class SessionRepository extends BaseRepository<Integer> {
     public boolean insert(TSession row) {
         int ret = sessionMapper.insert(row);
         if (ret > 0) {
-            setCache(row.getKey(), row.getUid());
+            setCache(row.getToken(), row.getUid());
             return true;
         }
         return false;
     }
 
+    /**
+     * desc: 修改 delete 生成的 null 数据
+     */
     public boolean update(TSession row) {
+        delCache(String.valueOf(row.getUid()));
         int ret = sessionMapper.updateByPrimaryKey(row);
         if (ret > 0) {
-            setCache(row.getKey(), row.getUid());
+            setCache(row.getToken(), row.getUid());
+            return true;
+        }
+        return false;
+    }
+
+    public boolean delete(TSession row) {
+        delCache(row.getToken());
+        row.setToken("null");
+        int ret = sessionMapper.updateByPrimaryKey(row);
+        if (ret > 0) {
+            // 改为用 uid 创建缓存，在登陆时再删除
+            setCache(String.valueOf(row.getUid()), row.getId());
             return true;
         }
         return false;

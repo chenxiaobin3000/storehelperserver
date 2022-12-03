@@ -7,7 +7,7 @@ import org.mybatis.generator.api.dom.java.*;
 import java.util.List;
 
 /**
- * desc: mapper 插件，顺序: 1
+ * desc: mapper 插件
  * auth: cxb
  * date: 2022/12/1
  */

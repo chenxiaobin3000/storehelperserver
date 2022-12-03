@@ -1,7 +1,6 @@
-package com.cxb.storehelperserver.controller.request.user;
+package com.cxb.storehelperserver.controller.request.account;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotEmpty;
@@ -11,13 +10,13 @@ import javax.validation.constraints.NotEmpty;
  * auth: cxb
  * date: 2022/12/1
  */
-@Getter
-@Setter
-public class RegisterValid {
-    @NotEmpty(message = "账号不能为空")
+@Data
+public class LoginValid {
+    @NotEmpty(message = "请输入账号")
+    @Length(min = 4, message = "账号长度不能小于4")
     private String account;
 
-    @NotEmpty(message = "密码不能为空")
+    @NotEmpty(message = "请输入密码")
     @Length(min = 32, max = 32, message = "密码格式错误")
     private String password;
 }

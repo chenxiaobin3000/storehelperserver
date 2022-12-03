@@ -2,16 +2,17 @@ package com.cxb.mybatis.plugins;
 
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.*;
 
 import java.util.List;
 
 /**
- * desc: lombok 插件，顺序: 2
+ * desc: lombok 插件
  * auth: cxb
  * date: 2022/12/1
  */
-public class LombokPlugin extends MapperPlugin {
+public class LombokPlugin extends PluginAdapter {
 
     @Override
     public boolean validate(List<String> list) {

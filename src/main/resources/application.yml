@@ -81,11 +81,9 @@ logging:
     root: INFO
 
 ################ 业务配置 ##############
-store:
-  app:
+store-app:
+  config:
     # 服务端版本号
     version: 1.0.0
-
-  user:
-    # 用户 id 前缀
-    uid: 100000
+    # 新用户默认公司id
+    group: 1

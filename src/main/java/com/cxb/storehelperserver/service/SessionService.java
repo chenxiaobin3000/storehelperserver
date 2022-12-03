@@ -28,25 +28,45 @@ public class SessionService {
         String key = randomUUID();
         TSession session = new TSession();
         session.setUid(uid);
-        session.setKey(key);
-        if (sessionRepository.insert(session)) {
-            return key;
+        session.setToken(key);
+
+        int id = sessionRepository.findByIdFromCache(uid);
+        if (0 != id) {
+            // 已存在就修改
+            if (sessionRepository.update(session)) {
+                return key;
+            }
         } else {
-            return null;
+            // 不存在则生成新的
+            if (sessionRepository.insert(session)) {
+                return key;
+            }
         }
+        return null;
     }
 
     /**
      * desc: 校验会话id，返回用户id
      */
     public int check(String key) {
-        return sessionRepository.find(key);
+        return sessionRepository.findByToken(key);
+    }
+
+    /**
+     * desc:
+     */
+    public boolean delete(int id) {
+        TSession session = sessionRepository.find(id);
+        if (null == session) {
+            return false;
+        }
+        return sessionRepository.delete(session);
     }
 
     /**
      * desc: 生成会话 id
      */
-    public String randomUUID() {
+    private String randomUUID() {
         return UUID.randomUUID().toString().replace("-", "");
     }
 }

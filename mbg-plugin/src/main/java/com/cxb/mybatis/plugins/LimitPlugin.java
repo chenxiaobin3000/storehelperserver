@@ -1,6 +1,7 @@
 package com.cxb.mybatis.plugins;
 
 import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.TextElement;
@@ -9,11 +10,11 @@ import org.mybatis.generator.api.dom.xml.XmlElement;
 import java.util.List;
 
 /**
- * desc: limit/offset/groupBy/orderBy 插件，顺序: 3
+ * desc: limit/offset/groupBy/orderBy 插件
  * auth: cxb
  * date: 2022/12/1
  */
-public class LimitPlugin extends LombokPlugin {
+public class LimitPlugin extends PluginAdapter {
 
     @Override
     public boolean validate(List<String> list) {

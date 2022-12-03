@@ -57,7 +57,7 @@ public class WebExceptionHandler {
         } else {
             msg = "参数异常";
         }
-        return RestResult.fail(-1, msg);
+        return RestResult.fail(msg);
     }
 
     /**
@@ -90,6 +90,6 @@ public class WebExceptionHandler {
             errMsg.append("\n").append(traceElement);
         }
         log.error(errMsg.toString());
-        return RestResult.fail(-1, msg);
+        return RestResult.fail(msg);
     }
 }

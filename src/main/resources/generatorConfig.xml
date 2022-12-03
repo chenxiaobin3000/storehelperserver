@@ -16,9 +16,13 @@
         <property name="javaFileEncoding" value="UTF-8"/>
 
         <!-- 自定义插件 -->
-        <plugin type="com.cxb.mybatis.plugins.MybatisPlugin"></plugin>
+        <plugin type="com.cxb.mybatis.plugins.MapperPlugin"/>
+        <plugin type="com.cxb.mybatis.plugins.LombokPlugin"/>
+        <plugin type="com.cxb.mybatis.plugins.LimitPlugin"/>
+        <plugin type="com.cxb.mybatis.plugins.SelectOnePlugin"/>
+        <plugin type="com.cxb.mybatis.plugins.GeneratedKeyPlugin"/>
         <!-- 覆盖 xml -->
-        <plugin type="org.mybatis.generator.plugins.UnmergeableXmlMappersPlugin" />
+        <plugin type="org.mybatis.generator.plugins.UnmergeableXmlMappersPlugin"/>
 
         <!-- 关闭注释 -->
         <commentGenerator>
@@ -43,6 +47,9 @@
                              targetProject="src/main/java"/>
 
         <!-- 需要生成的表 -->
-        <table tableName="t\_%"/>
+        <table tableName="t\_%">
+            <ignoreColumn column="ctime"/>
+            <ignoreColumn column="utime"/>
+        </table>
     </context>
 </generatorConfiguration>

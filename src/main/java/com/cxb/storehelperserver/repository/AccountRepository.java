@@ -24,7 +24,16 @@ public class AccountRepository extends BaseRepository<TAccount> {
         init("account::");
     }
 
-    public TAccount find(String account) {
+    /**
+     * desc: 仅用于 logout 使用，不用缓存
+     */
+    public TAccount find(int id) {
+        TAccountExample example = new TAccountExample();
+        example.or().andUidEqualTo(id);
+        return accountMapper.selectOneByExample(example);
+    }
+
+    public TAccount findByAccount(String account) {
         TAccount tAccount = getCache(account, TAccount.class);
         if (null != tAccount) {
             return tAccount;

@@ -31,20 +31,9 @@ public class RestResult {
     /**
      * desc: 失败
      */
-    public static RestResult fail(int code) {
+    public static RestResult fail(String msg) {
         RestResult ret = new RestResult();
-        ret.code = code;
-        ret.msg = "失败";
-        ret.data = null;
-        return ret;
-    }
-
-    /**
-     * desc: 失败
-     */
-    public static RestResult fail(int code, String msg) {
-        RestResult ret = new RestResult();
-        ret.code = code;
+        ret.code = -1;
         ret.msg = msg;
         ret.data = null;
         return ret;
@@ -53,10 +42,10 @@ public class RestResult {
     /**
      * desc: 失败
      */
-    public static RestResult fail(int code, HashMap<String, Object> data) {
+    public static RestResult fail(String msg, HashMap<String, Object> data) {
         RestResult ret = new RestResult();
-        ret.code = code;
-        ret.msg = "失败";
+        ret.code = -1;
+        ret.msg = msg;
         ret.data = data;
         return ret;
     }
