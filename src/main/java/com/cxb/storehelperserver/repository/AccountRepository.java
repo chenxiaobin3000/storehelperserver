@@ -24,16 +24,7 @@ public class AccountRepository extends BaseRepository<TAccount> {
         init("account::");
     }
 
-    /**
-     * desc: 仅用于 logout 使用，不用缓存
-     */
-    public TAccount find(int id) {
-        TAccountExample example = new TAccountExample();
-        example.or().andUidEqualTo(id);
-        return accountMapper.selectOneByExample(example);
-    }
-
-    public TAccount findByAccount(String account) {
+    public TAccount find(String account) {
         TAccount tAccount = getCache(account, TAccount.class);
         if (null != tAccount) {
             return tAccount;
@@ -42,11 +33,11 @@ public class AccountRepository extends BaseRepository<TAccount> {
         // 缓存没有就查询数据库
         TAccountExample example = new TAccountExample();
         example.or().andAccountEqualTo(account);
-        val rets = accountMapper.selectByExample(example);
-        if (rets.isEmpty()) {
-            return null;
+        tAccount = accountMapper.selectOneByExample(example);
+        if (null != tAccount) {
+            setCache(tAccount.getAccount(), tAccount);
         }
-        return rets.get(0);
+        return tAccount;
     }
 
     public boolean insert(TAccount row) {

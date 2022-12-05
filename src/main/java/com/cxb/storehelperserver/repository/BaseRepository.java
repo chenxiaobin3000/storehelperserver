@@ -36,10 +36,24 @@ public class BaseRepository<Model> {
     }
 
     /**
+     * desc: 读取缓存
+     */
+    protected Model getCache(int id, Class<Model> clazz) {
+        return clazz.cast(redisTemplate.opsForValue().get(cacheName + String.valueOf(id)));
+    }
+
+    /**
      * desc: 写入缓存
      */
     protected void setCache(String key, Model value) {
         redisTemplate.opsForValue().set(cacheName + key, value);
+    }
+
+    /**
+     * desc: 写入缓存
+     */
+    protected void setCache(int id, Model value) {
+        redisTemplate.opsForValue().set(cacheName + String.valueOf(id), value);
     }
 
     /**
@@ -50,9 +64,23 @@ public class BaseRepository<Model> {
     }
 
     /**
+     * desc: 写入缓存，可设置超时，单位：分钟
+     */
+    protected void setCacheExpire(int id, Model value, long timeout) {
+        redisTemplate.opsForValue().set(cacheName + String.valueOf(id), value, timeout, TimeUnit.MINUTES);
+    }
+
+    /**
      * desc: 删除缓存
      */
     protected void delCache(String key) {
         redisTemplate.delete(cacheName + key);
+    }
+
+    /**
+     * desc: 删除缓存
+     */
+    protected void delCache(int id) {
+        redisTemplate.delete(cacheName + String.valueOf(id));
     }
 }

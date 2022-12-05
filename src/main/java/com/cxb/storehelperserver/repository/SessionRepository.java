@@ -16,7 +16,7 @@ import javax.annotation.Resource;
  */
 @Slf4j
 @Repository
-public class SessionRepository extends BaseRepository<Integer> {
+public class SessionRepository extends BaseRepository<TSession> {
     @Resource
     private TSessionMapper sessionMapper;
 
@@ -24,59 +24,57 @@ public class SessionRepository extends BaseRepository<Integer> {
         init("session::");
     }
 
-    /**
-     * desc: 仅用于 logout 不用缓存
-     */
     public TSession find(int id) {
+        TSession session = getCache(id, TSession.class);
+        if (null != session) {
+            return session;
+        }
+
+        // 缓存没有就查询数据库
         TSessionExample example = new TSessionExample();
         example.or().andUidEqualTo(id);
-        return sessionMapper.selectOneByExample(example);
-    }
-
-    /**
-     * desc: 对应 delete 操作
-     */
-    public int findByIdFromCache(int uid) {
-        Integer id = getCache(String.valueOf(uid), Integer.class);
-        if (null != id) {
-            return id;
+        session = sessionMapper.selectOneByExample(example);
+        if (null != session) {
+            setCache(session.getToken(), session);
+            setCache(session.getUid(), session);
         }
-        return 0;
+        return session;
     }
 
     public Integer findByToken(String key) {
-        Integer uid = getCache(key, Integer.class);
-        if (null != uid) {
-            return uid;
+        TSession session = getCache(key, TSession.class);
+        if (null != session) {
+            return session.getUid();
         }
 
         // 缓存没有就查询数据库
         TSessionExample example = new TSessionExample();
         example.or().andTokenEqualTo(key);
-        val ret = sessionMapper.selectByExample(example);
-        if (ret.isEmpty()) {
+        session = sessionMapper.selectOneByExample(example);
+        if (null == session) {
             return 0;
         }
-        return ret.get(0).getUid();
+        setCache(session.getToken(), session);
+        setCache(session.getUid(), session);
+        return session.getUid();
     }
 
     public boolean insert(TSession row) {
         int ret = sessionMapper.insert(row);
         if (ret > 0) {
-            setCache(row.getToken(), row.getUid());
+            setCache(row.getToken(), row);
+            setCache(row.getUid(), row);
             return true;
         }
         return false;
     }
 
-    /**
-     * desc: 修改 delete 生成的 null 数据
-     */
-    public boolean update(TSession row) {
-        delCache(String.valueOf(row.getUid()));
+    public boolean update(TSession row, String oldKey) {
+        delCache(oldKey);
         int ret = sessionMapper.updateByPrimaryKey(row);
         if (ret > 0) {
-            setCache(row.getToken(), row.getUid());
+            setCache(row.getToken(), row);
+            setCache(row.getUid(), row);
             return true;
         }
         return false;
@@ -84,11 +82,9 @@ public class SessionRepository extends BaseRepository<Integer> {
 
     public boolean delete(TSession row) {
         delCache(row.getToken());
-        row.setToken("null");
-        int ret = sessionMapper.updateByPrimaryKey(row);
+        delCache(row.getUid());
+        int ret = sessionMapper.deleteByPrimaryKey(row.getUid());
         if (ret > 0) {
-            // 改为用 uid 创建缓存，在登陆时再删除
-            setCache(String.valueOf(row.getUid()), row.getId());
             return true;
         }
         return false;

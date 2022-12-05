@@ -1,5 +1,6 @@
 package com.cxb.storehelperserver.service;
 
+import com.cxb.storehelperserver.model.TAccount;
 import com.cxb.storehelperserver.model.TSession;
 import com.cxb.storehelperserver.repository.SessionRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -24,20 +25,20 @@ public class SessionService {
     /**
      * desc: 无论之前是否存在，都强制生成新的会话
      */
-    public String create(int uid) {
+    public String create(TAccount account) {
         String key = randomUUID();
-        TSession session = new TSession();
-        session.setUid(uid);
-        session.setToken(key);
-
-        int id = sessionRepository.findByIdFromCache(uid);
-        if (0 != id) {
-            // 已存在就修改
-            if (sessionRepository.update(session)) {
+        TSession session = sessionRepository.find(account.getUid());
+        // 已存在就修改，否则添加
+        if (null != session) {
+            String oldKey = session.getToken();
+            session.setToken(key);
+            if (sessionRepository.update(session, oldKey)) {
                 return key;
             }
         } else {
-            // 不存在则生成新的
+            session = new TSession();
+            session.setUid(account.getUid());
+            session.setToken(key);
             if (sessionRepository.insert(session)) {
                 return key;
             }

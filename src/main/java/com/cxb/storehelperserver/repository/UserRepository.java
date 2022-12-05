@@ -24,17 +24,22 @@ public class UserRepository extends BaseRepository<TUser> {
     }
 
     public TUser find(int id) {
-        TUser user = getCache(String.valueOf(id), TUser.class);
+        TUser user = getCache(id, TUser.class);
         if (null != user) {
             return user;
         }
-        return userMapper.selectByPrimaryKey(id);
+        user = userMapper.selectByPrimaryKey(id);
+        if (null != user) {
+            setCache(user.getId(), user);
+            return user;
+        }
+        return user;
     }
 
     public boolean insert(TUser row) {
         int ret = userMapper.insert(row);
         if (ret > 0) {
-            setCache(String.valueOf(ret), row);
+            setCache(ret, row);
             return true;
         }
         return false;
@@ -43,7 +48,7 @@ public class UserRepository extends BaseRepository<TUser> {
     public boolean update(TUser row) {
         int ret = userMapper.updateByPrimaryKey(row);
         if (ret > 0) {
-            setCache(String.valueOf(row.getId()), row);
+            setCache(row.getId(), row);
             return true;
         }
         return false;

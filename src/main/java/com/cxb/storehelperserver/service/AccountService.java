@@ -43,7 +43,7 @@ public class AccountService {
      */
     public RestResult register(String account, String password, String phone) {
         // 验证账号是否存在
-        TAccount tAccount = accountRepository.findByAccount(account);
+        TAccount tAccount = accountRepository.find(account);
         if (null != tAccount) {
             return RestResult.fail("账号已经存在");
         }
@@ -69,7 +69,7 @@ public class AccountService {
     }
 
     public RestResult login(String account, String password) {
-        TAccount tAccount = accountRepository.findByAccount(account);
+        TAccount tAccount = accountRepository.find(account);
         if (null == tAccount) {
             RestResult.fail("账号不存在");
         }
@@ -80,7 +80,7 @@ public class AccountService {
         }
 
         // 生成 session
-        String session = sessionService.create(tAccount.getUid());
+        String session = sessionService.create(tAccount);
         if (null == session) {
             RestResult.fail("登陆失败");
         }
