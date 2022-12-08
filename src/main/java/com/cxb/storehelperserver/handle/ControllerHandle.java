@@ -84,7 +84,7 @@ public class ControllerHandle {
 
         // 会话白名单页面
         boolean check = false;
-        if (url.equals("/account/login") || url.equals("/account/register")) {
+        if (url.equals("/api/account/login") || url.equals("/api/account/register")) {
             check = true;
         } else {
             // 验证会话

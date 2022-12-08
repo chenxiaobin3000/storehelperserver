@@ -71,20 +71,21 @@ public class AccountService {
     public RestResult login(String account, String password) {
         TAccount tAccount = accountRepository.find(account);
         if (null == tAccount) {
-            RestResult.fail("账号不存在");
+            return RestResult.fail("账号不存在");
         }
 
         // 校验密码
         if (!tAccount.getPassword().equals(password)) {
-            RestResult.fail("密码不正确");
+            return RestResult.fail("密码不正确");
         }
 
         // 生成 session
         String session = sessionService.create(tAccount);
         if (null == session) {
-            RestResult.fail("登陆失败");
+            return RestResult.fail("登陆失败");
         }
         val data = new HashMap<String, Object>();
+        data.put("id", tAccount.getUid());
         data.put("token", session);
         return RestResult.ok(data);
     }
@@ -96,11 +97,11 @@ public class AccountService {
         return RestResult.ok();
     }
 
-    public RestResult getAccountInfo() {
+    public RestResult getInfo() {
         return RestResult.ok();
     }
 
-    public RestResult getAccountList() {
+    public RestResult getList() {
         return RestResult.ok();
     }
 }

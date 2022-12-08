@@ -17,7 +17,7 @@ import javax.annotation.Resource;
  */
 @Slf4j
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/api/user")
 public class UserController {
     @Resource
     private UserService userService;
@@ -25,16 +25,16 @@ public class UserController {
     /**
      * desc: 获取用户信息
      */
-    @PostMapping("/getUserInfo")
-    public RestResult getUserInfo(@Validated @RequestBody GetUserInfoValid req) {
-        return userService.getUserInfo();
+    @PostMapping("/getInfo")
+    public RestResult getInfo(@Validated @RequestBody GetUserInfoValid req) {
+        return userService.getInfo(req.getId());
     }
 
     /**
      * desc: 获取用户信息列表
      */
-    @PostMapping("/getUserList")
-    public RestResult getUserList(@Validated @RequestBody GetUserListValid req) {
-        return userService.getUserList();
+    @PostMapping("/getList")
+    public RestResult getList(@Validated @RequestBody GetUserListValid req) {
+        return userService.getList();
     }
 }

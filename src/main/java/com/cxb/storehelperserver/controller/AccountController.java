@@ -20,7 +20,7 @@ import javax.annotation.Resource;
  */
 @Slf4j
 @RestController
-@RequestMapping("/account")
+@RequestMapping("/api/account")
 public class AccountController {
     @Resource
     private AccountService accountService;
@@ -55,16 +55,16 @@ public class AccountController {
     /**
      * desc: 获取账号信息
      */
-    @PostMapping("/getAccountInfo")
-    public RestResult getAccountInfo(@Validated @RequestBody GetAccountInfoValid req) {
-        return accountService.getAccountInfo();
+    @PostMapping("/getInfo")
+    public RestResult getInfo(@Validated @RequestBody GetAccountInfoValid req) {
+        return accountService.getInfo();
     }
 
     /**
      * desc: 获取账号信息列表
      */
-    @PostMapping("/getAccountList")
-    public RestResult getAccountList(@Validated @RequestBody GetAccountListValid req) {
-        return accountService.getAccountList();
+    @PostMapping("/getList")
+    public RestResult getList(@Validated @RequestBody GetAccountListValid req) {
+        return accountService.getList();
     }
 }

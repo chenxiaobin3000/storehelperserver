@@ -1,6 +1,9 @@
 package com.cxb.storehelperserver.util;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * desc: restful 接口返回结果
@@ -29,6 +32,17 @@ public class RestResult {
     }
 
     /**
+     * desc: 成功
+     */
+    public static RestResult ok(Object data) {
+        ObjectMapper mapper = new ObjectMapper();
+        HashMap<String, Object> map = mapper.convertValue(data, HashMap.class);
+        RestResult ret = new RestResult();
+        ret.data = map;
+        return ret;
+    }
+
+    /**
      * desc: 失败
      */
     public static RestResult fail(String msg) {
@@ -53,11 +67,37 @@ public class RestResult {
     /**
      * desc: 失败
      */
+    public static RestResult fail(String msg, Object data) {
+        ObjectMapper mapper = new ObjectMapper();
+        HashMap<String, Object> map = mapper.convertValue(data, HashMap.class);
+        RestResult ret = new RestResult();
+        ret.code = -1;
+        ret.msg = msg;
+        ret.data = map;
+        return ret;
+    }
+
+    /**
+     * desc: 失败
+     */
     public static RestResult fail(int code, String msg, HashMap<String, Object> data) {
         RestResult ret = new RestResult();
         ret.code = code;
         ret.msg = msg;
         ret.data = data;
+        return ret;
+    }
+
+    /**
+     * desc: 失败
+     */
+    public static RestResult fail(int code, String msg, Object data) {
+        ObjectMapper mapper = new ObjectMapper();
+        HashMap<String, Object> map = mapper.convertValue(data, HashMap.class);
+        RestResult ret = new RestResult();
+        ret.code = code;
+        ret.msg = msg;
+        ret.data = map;
         return ret;
     }
 }
