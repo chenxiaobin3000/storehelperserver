@@ -36,8 +36,6 @@ public class AccountService {
     @Value("${store-app.config.group}")
     private int newUserGid;
 
-    // TODO mybatis 多源
-
     /**
      * desc: 注册用户，用户 id:0 用于错误返回
      */
