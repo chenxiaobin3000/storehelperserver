@@ -32,31 +32,21 @@ public class UserService {
         }
 
         val roles = new ArrayList<String>();
-        /*roles.add("dashboard");
+        roles.add("dashboard_report");
         roles.add("agreement");
         roles.add("commodity");
         roles.add("finance");
         roles.add("market");
+        roles.add("market_pdd");
+        roles.add("market_meituan");
+        roles.add("market_kuailv");
         roles.add("product");
         roles.add("report");
         roles.add("storage");
         roles.add("supplier");
-        roles.add("system");
         roles.add("user");
-        roles.add("group");*/
-
-        roles.add("my_dashboard");
-        roles.add("my_agreement");
-        roles.add("my_commodity");
-        roles.add("my_finance");
-        roles.add("my_market");
-        roles.add("my_product");
-        roles.add("my_report");
-        roles.add("my_storage");
-        roles.add("my_supplier");
-        roles.add("my_system");
-        roles.add("my_user");
-        roles.add("my_group");
+        roles.add("system");
+        roles.add("admin");
 
         val data = new HashMap<String, Object>();
         data.put("name", user.getName());
