@@ -1,0 +1,68 @@
+package com.cxb.storehelperserver.repository;
+
+import com.cxb.storehelperserver.mapper.TUserGroupMapper;
+import com.cxb.storehelperserver.model.TUserGroup;
+import com.cxb.storehelperserver.model.TUserGroupExample;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Repository;
+
+import javax.annotation.Resource;
+
+/**
+ * desc: 用户公司仓库
+ * auth: cxb
+ * date: 2022/12/21
+ */
+@Slf4j
+@Repository
+public class UserGroupRepository extends BaseRepository<TUserGroup> {
+    @Resource
+    private TUserGroupMapper userGroupMapper;
+
+    public UserGroupRepository() {
+        init("userGroup::");
+    }
+
+    public TUserGroup find(int uid) {
+        TUserGroup tUserGroup = getCache(uid, TUserGroup.class);
+        if (null != tUserGroup) {
+            return tUserGroup;
+        }
+
+        // 缓存没有就查询数据库
+        TUserGroupExample example = new TUserGroupExample();
+        example.or().andUidEqualTo(uid);
+        tUserGroup = userGroupMapper.selectOneByExample(example);
+        if (null != tUserGroup) {
+            setCache(uid, tUserGroup);
+        }
+        return tUserGroup;
+    }
+
+    public boolean insert(TUserGroup row) {
+        int ret = userGroupMapper.insert(row);
+        if (ret > 0) {
+            setCache(row.getUid(), row);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean update(TUserGroup row) {
+        int ret = userGroupMapper.updateByPrimaryKey(row);
+        if (ret > 0) {
+            setCache(row.getUid(), row);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean delete(TUserGroup row) {
+        int ret = userGroupMapper.deleteByPrimaryKey(row.getId());
+        if (ret <= 0) {
+            return false;
+        }
+        delCache(row.getUid());
+        return true;
+    }
+}

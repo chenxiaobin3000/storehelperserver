@@ -46,7 +46,9 @@ public class UserService {
         roles.add("supplier");
         roles.add("user");
         roles.add("system");
-        roles.add("admin");
+        if (user.getName().equals("admin")) {
+            roles.add("admin");
+        }
 
         val data = new HashMap<String, Object>();
         data.put("name", user.getName());

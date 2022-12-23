@@ -4,7 +4,6 @@ import com.cxb.storehelperserver.mapper.TAccountMapper;
 import com.cxb.storehelperserver.model.TAccount;
 import com.cxb.storehelperserver.model.TAccountExample;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
@@ -35,7 +34,7 @@ public class AccountRepository extends BaseRepository<TAccount> {
         example.or().andAccountEqualTo(account);
         tAccount = accountMapper.selectOneByExample(example);
         if (null != tAccount) {
-            setCache(tAccount.getAccount(), tAccount);
+            setCache(account, tAccount);
         }
         return tAccount;
     }

@@ -4,7 +4,6 @@ import com.cxb.storehelperserver.mapper.TSessionMapper;
 import com.cxb.storehelperserver.model.TSession;
 import com.cxb.storehelperserver.model.TSessionExample;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
@@ -36,7 +35,7 @@ public class SessionRepository extends BaseRepository<TSession> {
         session = sessionMapper.selectOneByExample(example);
         if (null != session) {
             setCache(session.getToken(), session);
-            setCache(session.getUid(), session);
+            setCache(id, session);
         }
         return session;
     }
@@ -54,7 +53,7 @@ public class SessionRepository extends BaseRepository<TSession> {
         if (null == session) {
             return 0;
         }
-        setCache(session.getToken(), session);
+        setCache(key, session);
         setCache(session.getUid(), session);
         return session.getUid();
     }
@@ -83,10 +82,7 @@ public class SessionRepository extends BaseRepository<TSession> {
     public boolean delete(TSession row) {
         delCache(row.getToken());
         delCache(row.getUid());
-        int ret = sessionMapper.deleteByPrimaryKey(row.getUid());
-        if (ret > 0) {
-            return true;
-        }
-        return false;
+        int ret = sessionMapper.deleteByPrimaryKey(row.getId());
+        return ret > 0;
     }
 }

@@ -1,0 +1,91 @@
+/* 权限配置表 */
+INSERT INTO `t_config_permission` (`id`,`name`) VALUES 
+(100, 'dashboard_report'),
+(101, 'dashboard_admin'),
+
+(200, 'agreement'),
+(201, 'agreement_getlist'),
+(202, 'agreement_goback'),
+(203, 'agreement_report'),
+(204, 'agreement_sendout'),
+
+(300, 'commodity'),
+(301, 'commodity_getlist'),
+(302, 'commodity_gettype'),
+(303, 'commodity_myfoucs'),
+(304, 'commodity_report'),
+
+(400, 'finance'),
+(401, 'finance_getinfo'),
+(402, 'finance_report'),
+
+(500, 'market'),
+(501, 'market_offline'),
+(502, 'market_report'),
+
+(510, 'market_pdd'),
+(511, 'market_pdd_alarm'),
+(512, 'market_pdd_comein'),
+(513, 'market_pdd_price'),
+(514, 'market_pdd_sendout'),
+(515, 'market_pdd_setting'),
+(516, 'market_pdd_surplus'),
+
+(520, 'market_meituan'),
+(521, 'market_meituan_alarm'),
+(522, 'market_meituan_comein'),
+(523, 'market_meituan_price'),
+(524, 'market_meituan_sendout'),
+(525, 'market_meituan_setting'),
+(526, 'market_meituan_surplus'),
+
+(530, 'market_kuailv'),
+(531, 'market_kuailv_alarm'),
+(532, 'market_kuailv_comein'),
+(533, 'market_kuailv_price'),
+(534, 'market_kuailv_sendout'),
+(535, 'market_kuailv_setting'),
+(536, 'market_kuailv_surplus'),
+
+(600, 'product'),
+(601, 'product_alarm'),
+(602, 'product_getlist'),
+(603, 'product_productorder'),
+(604, 'product_raworder'),
+(605, 'product_report'),
+
+(700, 'report'),
+(701, 'report_day'),
+(702, 'report_month'),
+(703, 'report_week'),
+(704, 'report_year'),
+
+(800, 'storage'),
+(801, 'storage_address'),
+(802, 'storage_alarm'),
+(803, 'storage_batchlist'),
+(804, 'storage_getlist'),
+(805, 'storage_productorder'),
+(806, 'storage_raworder'),
+(807, 'storage_report'),
+
+(900, 'supplier'),
+(901, 'supplier_getlist'),
+(902, 'supplier_keepbook'),
+
+(1000, 'user'),
+(1001, 'user_getinfo'),
+(1002, 'user_getlist'),
+(1003, 'user_resetpwd'),
+
+(1100, 'system'),
+(1101, 'system_charge'),
+(1102, 'system_getrole'),
+(1103, 'system_groupinfo'),
+(1104, 'system_notify'),
+(1105, 'system_setting'),
+
+(8888,'admin'),
+(88881,'admin_changegroup'),
+(88882,'admin_grouplist'),
+(88883,'admin_userlist');

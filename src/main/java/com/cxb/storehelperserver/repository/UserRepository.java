@@ -2,7 +2,6 @@ package com.cxb.storehelperserver.repository;
 
 import com.cxb.storehelperserver.mapper.TUserMapper;
 import com.cxb.storehelperserver.model.TUser;
-import com.cxb.storehelperserver.model.TUserExample;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
@@ -30,7 +29,7 @@ public class UserRepository extends BaseRepository<TUser> {
         }
         user = userMapper.selectByPrimaryKey(id);
         if (null != user) {
-            setCache(user.getId(), user);
+            setCache(id, user);
             return user;
         }
         return user;
