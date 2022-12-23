@@ -14,6 +14,7 @@ import javax.validation.constraints.NotEmpty;
 public class RegisterValid {
     @NotEmpty(message = "请输入账号")
     @Length(min = 4, message = "账号长度不能小于4")
+    @Length(max = 16, message = "账号长度不能大于16")
     private String account;
 
     @NotEmpty(message = "请输入密码")
