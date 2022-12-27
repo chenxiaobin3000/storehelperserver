@@ -21,7 +21,7 @@ public class RolePermissionRepository extends BaseRepository<List> {
     private TRolePermissionMapper rolePermissionMapper;
 
     public RolePermissionRepository() {
-        init("rolePermission::");
+        init("rolePerm::");
     }
 
     public List<Integer> find(int rid) {
@@ -31,6 +31,7 @@ public class RolePermissionRepository extends BaseRepository<List> {
         }
 
         // 缓存没有就查询数据库
+        rets = new ArrayList<>();
         TRolePermissionExample example = new TRolePermissionExample();
         example.or().andRidEqualTo(rid);
         List<TRolePermission> rolePermissions = rolePermissionMapper.selectByExample(example);
@@ -43,26 +44,33 @@ public class RolePermissionRepository extends BaseRepository<List> {
         return rets;
     }
 
-    public boolean insert(TRolePermission row) {
-        int ret = rolePermissionMapper.insert(row);
-        if (ret > 0) {
-            int rid = row.getRid();
-            List<Integer> rets = getCache(rid, List.class);
-            if (null == rets) {
-                rets = new ArrayList<>();
+    public boolean insert(int rid, List<Integer> permissions) {
+        List<Integer> rets = new ArrayList<>();
+        TRolePermission rolePermission = new TRolePermission();
+        rolePermission.setRid(rid);
+        for (Integer p : permissions) {
+            rolePermission.setId(null);
+            rolePermission.setPid(p);
+            if (rolePermissionMapper.insert(rolePermission) < 1) {
+                return false;
             }
-            rets.add(row.getPid());
-            setCache(rid, rets);
-            return true;
+            rets.add(p);
         }
-        return false;
+        setCache(rid, rets);
+        return true;
+    }
+
+    public boolean update(int rid, List<Integer> permissions) {
+        if (!delete(rid)) {
+            return false;
+        }
+        return insert(rid, permissions);
     }
 
     public boolean delete(int rid) {
         TRolePermissionExample example = new TRolePermissionExample();
         example.or().andRidEqualTo(rid);
-        int ret = rolePermissionMapper.deleteByExample(example);
-        if (ret <= 0) {
+        if (rolePermissionMapper.deleteByExample(example) <= 0) {
             return false;
         }
         delCache(rid);

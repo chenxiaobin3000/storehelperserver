@@ -25,16 +25,16 @@ public class UserController {
     /**
      * desc: 获取用户信息
      */
-    @PostMapping("/getInfo")
-    public RestResult getInfo(@Validated @RequestBody GetUserInfoValid req) {
-        return userService.getInfo(req.getId());
+    @PostMapping("/getUserInfo")
+    public RestResult getUserInfo(@Validated @RequestBody GetUserInfoValid req) {
+        return userService.getUserInfo(req.getId());
     }
 
     /**
      * desc: 获取用户信息列表
      */
-    @PostMapping("/getList")
-    public RestResult getList(@Validated @RequestBody GetUserListValid req) {
-        return userService.getList();
+    @PostMapping("/getUserList")
+    public RestResult getUserList(@Validated @RequestBody GetUserListValid req) {
+        return userService.getUserList();
     }
 }

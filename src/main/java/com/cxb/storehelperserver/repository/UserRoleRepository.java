@@ -40,8 +40,7 @@ public class UserRoleRepository extends BaseRepository<TUserRole> {
     }
 
     public boolean insert(TUserRole row) {
-        int ret = userRoleMapper.insert(row);
-        if (ret > 0) {
+        if (userRoleMapper.insert(row) > 0) {
             setCache(row.getUid(), row);
             return true;
         }
@@ -49,8 +48,7 @@ public class UserRoleRepository extends BaseRepository<TUserRole> {
     }
 
     public boolean update(TUserRole row) {
-        int ret = userRoleMapper.updateByPrimaryKey(row);
-        if (ret > 0) {
+        if (userRoleMapper.updateByPrimaryKey(row) > 0) {
             setCache(row.getUid(), row);
             return true;
         }
@@ -58,8 +56,7 @@ public class UserRoleRepository extends BaseRepository<TUserRole> {
     }
 
     public boolean delete(TUserRole row) {
-        int ret = userRoleMapper.deleteByPrimaryKey(row.getId());
-        if (ret <= 0) {
+        if (userRoleMapper.deleteByPrimaryKey(row.getId()) <= 0) {
             return false;
         }
         delCache(row.getUid());

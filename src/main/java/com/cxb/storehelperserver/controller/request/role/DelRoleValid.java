@@ -14,4 +14,7 @@ import javax.validation.constraints.Min;
 public class DelRoleValid implements IValid {
     @Min(value = 1, message = "账号错误")
     private int id;
+
+    @Min(value = 1, message = "角色账号错误")
+    private int rid;
 }

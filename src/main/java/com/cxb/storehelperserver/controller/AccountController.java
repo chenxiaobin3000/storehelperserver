@@ -4,7 +4,6 @@ import com.cxb.storehelperserver.controller.request.account.*;
 import com.cxb.storehelperserver.service.AccountService;
 import com.cxb.storehelperserver.util.RestResult;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,9 +23,6 @@ import javax.annotation.Resource;
 public class AccountController {
     @Resource
     private AccountService accountService;
-
-    @Value("${store-app.config.version}")
-    private String version;
 
     /**
      * desc: 注册
@@ -50,21 +46,5 @@ public class AccountController {
     @PostMapping("/logout")
     public RestResult logout(@Validated @RequestBody LogoutValid req) {
         return accountService.logout(req.getId());
-    }
-
-    /**
-     * desc: 获取账号信息
-     */
-    @PostMapping("/getInfo")
-    public RestResult getInfo(@Validated @RequestBody GetAccountInfoValid req) {
-        return accountService.getInfo();
-    }
-
-    /**
-     * desc: 获取账号信息列表
-     */
-    @PostMapping("/getList")
-    public RestResult getList(@Validated @RequestBody GetAccountListValid req) {
-        return accountService.getList();
     }
 }

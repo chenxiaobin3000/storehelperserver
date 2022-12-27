@@ -59,8 +59,7 @@ public class SessionRepository extends BaseRepository<TSession> {
     }
 
     public boolean insert(TSession row) {
-        int ret = sessionMapper.insert(row);
-        if (ret > 0) {
+        if (sessionMapper.insert(row) > 0) {
             setCache(row.getToken(), row);
             setCache(row.getUid(), row);
             return true;
@@ -70,8 +69,7 @@ public class SessionRepository extends BaseRepository<TSession> {
 
     public boolean update(TSession row, String oldKey) {
         delCache(oldKey);
-        int ret = sessionMapper.updateByPrimaryKey(row);
-        if (ret > 0) {
+        if (sessionMapper.updateByPrimaryKey(row) > 0) {
             setCache(row.getToken(), row);
             setCache(row.getUid(), row);
             return true;
@@ -82,7 +80,6 @@ public class SessionRepository extends BaseRepository<TSession> {
     public boolean delete(TSession row) {
         delCache(row.getToken());
         delCache(row.getUid());
-        int ret = sessionMapper.deleteByPrimaryKey(row.getId());
-        return ret > 0;
+        return sessionMapper.deleteByPrimaryKey(row.getId()) > 0;
     }
 }

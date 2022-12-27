@@ -7,7 +7,6 @@ import com.cxb.storehelperserver.repository.UserRepository;
 import com.cxb.storehelperserver.util.RestResult;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,10 +31,6 @@ public class AccountService {
     @Resource
     private UserRepository userRepository;
 
-    // 新用户默认公司id
-    @Value("${store-app.config.group}")
-    private int newUserGid;
-
     /**
      * desc: 注册用户，用户 id:0 用于错误返回
      */
@@ -59,7 +54,6 @@ public class AccountService {
         tAccount.setAccount(account);
         tAccount.setPassword(password);
         tAccount.setUid(user.getId());
-        tAccount.setGid(newUserGid);
         if (!accountRepository.insert(tAccount)) {
             return RestResult.fail("注册账号失败");
         }
@@ -92,14 +86,6 @@ public class AccountService {
         if (!sessionService.delete(id)) {
             return RestResult.fail("登出失败");
         }
-        return RestResult.ok();
-    }
-
-    public RestResult getInfo() {
-        return RestResult.ok();
-    }
-
-    public RestResult getList() {
         return RestResult.ok();
     }
 }

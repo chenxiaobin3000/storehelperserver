@@ -17,6 +17,9 @@ public class SetUserRoleValid implements IValid {
     @Min(value = 1, message = "账号错误")
     private int id;
 
-    @Min(value = 1, message = "公司账号错误")
-    private int gid;
+    @Min(value = 1, message = "角色账号错误")
+    private int rid;
+
+    @Min(value = 1, message = "用户账号错误")
+    private int uid;
 }

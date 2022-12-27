@@ -19,7 +19,7 @@ public class BaseRepository<Model> {
     /**
      * desc: 缓存 key 前缀
      */
-    private String cacheName;
+    protected String cacheName;
 
     /**
      * desc: 初始化缓存 key 前缀

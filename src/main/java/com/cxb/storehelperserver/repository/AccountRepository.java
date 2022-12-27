@@ -39,9 +39,24 @@ public class AccountRepository extends BaseRepository<TAccount> {
         return tAccount;
     }
 
+    public TAccount find(int id) {
+        TAccount tAccount = getCache(id, TAccount.class);
+        if (null != tAccount) {
+            return tAccount;
+        }
+
+        // 缓存没有就查询数据库
+        TAccountExample example = new TAccountExample();
+        example.or().andUidEqualTo(id);
+        tAccount = accountMapper.selectOneByExample(example);
+        if (null != tAccount) {
+            setCache(id, tAccount);
+        }
+        return tAccount;
+    }
+
     public boolean insert(TAccount row) {
-        int ret = accountMapper.insert(row);
-        if (ret > 0) {
+        if (accountMapper.insert(row) > 0) {
             setCache(row.getAccount(), row);
             return true;
         }
@@ -49,8 +64,7 @@ public class AccountRepository extends BaseRepository<TAccount> {
     }
 
     public boolean update(TAccount row) {
-        int ret = accountMapper.updateByPrimaryKey(row);
-        if (ret > 0) {
+        if (accountMapper.updateByPrimaryKey(row) > 0) {
             setCache(row.getAccount(), row);
             return true;
         }

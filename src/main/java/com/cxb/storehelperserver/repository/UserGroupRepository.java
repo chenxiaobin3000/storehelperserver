@@ -40,8 +40,7 @@ public class UserGroupRepository extends BaseRepository<TUserGroup> {
     }
 
     public boolean insert(TUserGroup row) {
-        int ret = userGroupMapper.insert(row);
-        if (ret > 0) {
+        if (userGroupMapper.insert(row) > 0) {
             setCache(row.getUid(), row);
             return true;
         }
@@ -49,8 +48,7 @@ public class UserGroupRepository extends BaseRepository<TUserGroup> {
     }
 
     public boolean update(TUserGroup row) {
-        int ret = userGroupMapper.updateByPrimaryKey(row);
-        if (ret > 0) {
+        if (userGroupMapper.updateByPrimaryKey(row) > 0) {
             setCache(row.getUid(), row);
             return true;
         }
@@ -58,8 +56,7 @@ public class UserGroupRepository extends BaseRepository<TUserGroup> {
     }
 
     public boolean delete(TUserGroup row) {
-        int ret = userGroupMapper.deleteByPrimaryKey(row.getId());
-        if (ret <= 0) {
+        if (userGroupMapper.deleteByPrimaryKey(row.getId()) <= 0) {
             return false;
         }
         delCache(row.getUid());

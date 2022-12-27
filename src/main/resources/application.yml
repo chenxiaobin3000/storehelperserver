@@ -85,5 +85,3 @@ store-app:
   config:
     # 服务端版本号
     version: 1.0.0
-    # 新用户默认公司id
-    group: 1

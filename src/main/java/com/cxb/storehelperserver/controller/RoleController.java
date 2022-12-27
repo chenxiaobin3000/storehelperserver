@@ -1,10 +1,6 @@
 package com.cxb.storehelperserver.controller;
 
-import com.cxb.storehelperserver.controller.request.role.AddRoleValid;
-import com.cxb.storehelperserver.controller.request.role.DelRoleValid;
-import com.cxb.storehelperserver.controller.request.role.SetRoleValid;
-import com.cxb.storehelperserver.controller.request.role.GetUserRoleValid;
-import com.cxb.storehelperserver.controller.request.role.SetUserRoleValid;
+import com.cxb.storehelperserver.controller.request.role.*;
 import com.cxb.storehelperserver.model.TRole;
 import com.cxb.storehelperserver.service.RoleService;
 import com.cxb.storehelperserver.util.RestResult;
@@ -31,29 +27,47 @@ public class RoleController {
         TRole role = new TRole();
         role.setGid(req.getGid());
         role.setName(req.getName());
-        return roleService.addRole(role);
+        role.setDescription(req.getDesc());
+        return roleService.addRole(req.getId(), role, req.getPermissions());
     }
 
     @PostMapping("/setRole")
     public RestResult setRole(@Validated @RequestBody SetRoleValid req) {
         TRole role = new TRole();
+        role.setId(req.getRid());
         role.setGid(req.getGid());
         role.setName(req.getName());
-        return roleService.setRole(role);
+        role.setDescription(req.getDesc());
+        return roleService.setRole(req.getId(), role, req.getPermissions());
     }
 
     @PostMapping("/delRole")
     public RestResult delRole(@Validated @RequestBody DelRoleValid req) {
-        return roleService.delRole(req.getId());
+        return roleService.delRole(req.getId(), req.getRid());
+    }
+
+    @PostMapping("/getRole")
+    public RestResult getRole(@Validated @RequestBody GetRoleValid req) {
+        return roleService.getRole(req.getId(), req.getRid());
+    }
+
+    @PostMapping("/getRoleList")
+    public RestResult getRoleList(@Validated @RequestBody GetRoleListValid req) {
+        return roleService.getRoleList(req.getId(), req.getGid());
     }
 
     @PostMapping("/getUserRole")
     public RestResult getUserRole(@Validated @RequestBody GetUserRoleValid req) {
-        return roleService.getUserRole(1);
+        return roleService.getUserRole(req.getId(), req.getUid());
     }
 
     @PostMapping("/setUserRole")
     public RestResult setUserRole(@Validated @RequestBody SetUserRoleValid req) {
-        return roleService.setUserRole(1, 1);
+        return roleService.setUserRole(req.getId(), req.getUid(), req.getRid());
+    }
+
+    @PostMapping("/setUserRoleAdmin")
+    public RestResult setUserRoleAdmin(@Validated @RequestBody SetUserRoleValid req) {
+        return roleService.setUserRoleAdmin(req.getId(), req.getUid(), req.getRid());
     }
 }

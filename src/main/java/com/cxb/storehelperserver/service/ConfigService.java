@@ -23,6 +23,9 @@ public class ConfigService {
     @Resource
     private ConfigPermissionRepository configPermissionRepository;
 
+    @Value("${store-app.config.version}")
+    private String version;
+
     public RestResult getPermission() {
         val data = new HashMap<String, Object>();
         data.put("list", configPermissionRepository.all());

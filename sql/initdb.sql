@@ -2,6 +2,7 @@
 INSERT INTO `t_config_permission` (`id`,`name`) VALUES 
 (100, 'dashboard_report'),
 (101, 'dashboard_admin'),
+(102, 'dashboard_userinfo'),
 
 (200, 'agreement'),
 (201, 'agreement_getlist'),
@@ -80,12 +81,12 @@ INSERT INTO `t_config_permission` (`id`,`name`) VALUES
 
 (1100, 'system'),
 (1101, 'system_charge'),
-(1102, 'system_getrole'),
+(1102, 'system_getrolelist'),
 (1103, 'system_groupinfo'),
 (1104, 'system_notify'),
 (1105, 'system_setting'),
 
-(8888,'admin'),
-(88881,'admin_changegroup'),
-(88882,'admin_grouplist'),
-(88883,'admin_userlist');
+(8888, 'admin'),
+(88881, 'admin_changegroup'),
+(88882, 'admin_grouplist'),
+(88883, 'admin_userlist');

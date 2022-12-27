@@ -34,6 +34,7 @@ public class GroupController {
     @PostMapping("/setGroup")
     public RestResult setGroup(@Validated @RequestBody SetGroupValid req) {
         TGroup group = new TGroup();
+        group.setId(req.getGid());
         group.setContact(req.getContact());
         group.setName(req.getName());
         group.setAddress(req.getAddress());
@@ -52,6 +53,11 @@ public class GroupController {
 
     @PostMapping("/setUserGroup")
     public RestResult setUserGroup(@Validated @RequestBody SetUserGroupValid req) {
-        return groupService.setUserGroup(1, 1);
+        return groupService.setUserGroup(req.getId(), req.getUid(), req.getGid());
+    }
+
+    @PostMapping("/setUserGroupAdmin")
+    public RestResult setUserGroupAdmin(@Validated @RequestBody SetUserGroupValid req) {
+        return groupService.setUserGroupAdmin(req.getId(), req.getUid(), req.getGid());
     }
 }

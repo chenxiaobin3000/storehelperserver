@@ -11,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 
+import static com.cxb.storehelperserver.config.Permission.*;
+
 /**
  * desc: 公司业务
  * auth: cxb
@@ -21,31 +23,31 @@ import javax.annotation.Resource;
 @Transactional(rollbackFor = Exception.class)
 public class GroupService {
     @Resource
+    private RoleService roleService;
+
+    @Resource
     private GroupRepository groupRepository;
 
     @Resource
     private UserGroupRepository userGroupRepository;
 
     public RestResult addGroup(TGroup group) {
-        boolean ret = groupRepository.insert(group);
-        if (!ret) {
-            RestResult.fail("添加公司信息失败");
+        if (!groupRepository.insert(group)) {
+            return RestResult.fail("添加公司信息失败");
         }
         return RestResult.ok();
     }
 
     public RestResult setGroup(TGroup group) {
-        boolean ret = groupRepository.update(group);
-        if (!ret) {
-            RestResult.fail("修改公司信息失败");
+        if (!groupRepository.update(group)) {
+            return RestResult.fail("修改公司信息失败");
         }
         return RestResult.ok();
     }
 
     public RestResult delGroup(int id) {
-        boolean ret = groupRepository.delete(id);
-        if (!ret) {
-            RestResult.fail("删除公司信息失败");
+        if (!groupRepository.delete(id)) {
+            return RestResult.fail("删除公司信息失败");
         }
         return RestResult.ok();
     }
@@ -62,7 +64,63 @@ public class GroupService {
         return RestResult.ok(group);
     }
 
-    public RestResult setUserGroup(int uid, int rid) {
+    public RestResult setUserGroup(int id, int uid, int gid) {
+        // 操作员必须同公司用户
+        TUserGroup group = userGroupRepository.find(id);
+        if (!group.getGid().equals(gid)) {
+            return RestResult.fail("操作仅限本公司");
+        }
+
+        // 权限校验
+        if (!roleService.checkRolePermission(id, system_getrolelist)) {
+            return RestResult.fail("本账号没有相关的权限，请联系管理员");
+        }
+
+        // 已存在就修改，不存在就新增
+        group = userGroupRepository.find(uid);
+        if (null == group) {
+            group = new TUserGroup();
+            group.setUid(uid);
+            group.setGid(gid);
+            if (!userGroupRepository.insert(group)) {
+                return RestResult.fail("关联公司失败");
+            }
+        } else {
+            group.setGid(gid);
+            if (!userGroupRepository.update(group)) {
+                return RestResult.fail("修改关联公司失败");
+            }
+        }
+
+        // 修改以用户id缓存的公司信息
+        groupRepository.updateByUid(uid, gid);
+        return RestResult.ok();
+    }
+
+    public RestResult setUserGroupAdmin(int id, int uid, int gid) {
+        // 权限校验，必须admin
+        if (!roleService.checkRolePermission(id, admin)) {
+            return RestResult.fail("本账号没有管理员权限");
+        }
+
+        // 已存在就修改，不存在就新增
+        TUserGroup group = userGroupRepository.find(uid);
+        if (null == group) {
+            group = new TUserGroup();
+            group.setUid(uid);
+            group.setGid(gid);
+            if (!userGroupRepository.insert(group)) {
+                return RestResult.fail("关联公司失败");
+            }
+        } else {
+            group.setGid(gid);
+            if (!userGroupRepository.update(group)) {
+                return RestResult.fail("修改关联公司失败");
+            }
+        }
+
+        // 修改以用户id缓存的公司信息
+        groupRepository.updateByUid(uid, gid);
         return RestResult.ok();
     }
 }

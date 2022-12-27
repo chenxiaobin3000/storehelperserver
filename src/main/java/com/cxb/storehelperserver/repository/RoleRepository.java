@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * desc: 角色仓库
@@ -37,9 +38,14 @@ public class RoleRepository extends BaseRepository<TRole> {
         return tRole;
     }
 
+    public List<TRole> all(int gid) {
+        TRoleExample example = new TRoleExample();
+        example.or().andGidEqualTo(gid);
+        return roleMapper.selectByExample(example);
+    }
+
     public boolean insert(TRole row) {
-        int ret = roleMapper.insert(row);
-        if (ret > 0) {
+        if (roleMapper.insert(row) > 0) {
             setCache(row.getId(), row);
             return true;
         }
@@ -47,8 +53,7 @@ public class RoleRepository extends BaseRepository<TRole> {
     }
 
     public boolean update(TRole row) {
-        int ret = roleMapper.updateByPrimaryKey(row);
-        if (ret > 0) {
+        if (roleMapper.updateByPrimaryKey(row) > 0) {
             setCache(row.getId(), row);
             return true;
         }
@@ -56,8 +61,7 @@ public class RoleRepository extends BaseRepository<TRole> {
     }
 
     public boolean delete(int id) {
-        int ret = roleMapper.deleteByPrimaryKey(id);
-        if (ret <= 0) {
+        if (roleMapper.deleteByPrimaryKey(id) <= 0) {
             return false;
         }
         delCache(id);

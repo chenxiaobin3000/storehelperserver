@@ -15,6 +15,7 @@ import javax.annotation.Resource;
 @Slf4j
 @Repository
 public class UserRepository extends BaseRepository<TUser> {
+
     @Resource
     private TUserMapper userMapper;
 
@@ -36,17 +37,15 @@ public class UserRepository extends BaseRepository<TUser> {
     }
 
     public boolean insert(TUser row) {
-        int ret = userMapper.insert(row);
-        if (ret > 0) {
-            setCache(ret, row);
+        if (userMapper.insert(row) > 0) {
+            setCache(row.getId(), row);
             return true;
         }
         return false;
     }
 
     public boolean update(TUser row) {
-        int ret = userMapper.updateByPrimaryKey(row);
-        if (ret > 0) {
+        if (userMapper.updateByPrimaryKey(row) > 0) {
             setCache(row.getId(), row);
             return true;
         }

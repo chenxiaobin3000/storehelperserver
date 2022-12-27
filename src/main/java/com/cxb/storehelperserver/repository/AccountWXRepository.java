@@ -40,8 +40,7 @@ public class AccountWXRepository extends BaseRepository<TAccountWx> {
     }
 
     public boolean insert(TAccountWx row) {
-        int ret = accountWxMapper.insert(row);
-        if (ret > 0) {
+        if (accountWxMapper.insert(row) > 0) {
             setCache(row.getWid(), row);
             return true;
         }
@@ -49,8 +48,7 @@ public class AccountWXRepository extends BaseRepository<TAccountWx> {
     }
 
     public boolean update(TAccountWx row) {
-        int ret = accountWxMapper.updateByPrimaryKey(row);
-        if (ret > 0) {
+        if (accountWxMapper.updateByPrimaryKey(row) > 0) {
             setCache(row.getWid(), row);
             return true;
         }
@@ -58,8 +56,7 @@ public class AccountWXRepository extends BaseRepository<TAccountWx> {
     }
 
     public boolean delete(TAccountWx row) {
-        int ret = accountWxMapper.deleteByPrimaryKey(row.getId());
-        if (ret <= 0) {
+        if (accountWxMapper.deleteByPrimaryKey(row.getId()) <= 0) {
             return false;
         }
         delCache(row.getWid());

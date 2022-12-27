@@ -2,6 +2,7 @@ package com.cxb.storehelperserver.repository;
 
 import com.cxb.storehelperserver.mapper.TGroupMapper;
 import com.cxb.storehelperserver.model.TGroup;
+import com.cxb.storehelperserver.model.TGroupExample;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
@@ -18,8 +19,11 @@ public class GroupRepository extends BaseRepository<TGroup> {
     @Resource
     private TGroupMapper groupMapper;
 
+    private String cacheUserName;
+
     public GroupRepository() {
         init("group::");
+        cacheUserName = cacheName + "user::";
     }
 
     public TGroup find(int id) {
@@ -37,8 +41,7 @@ public class GroupRepository extends BaseRepository<TGroup> {
     }
 
     public boolean insert(TGroup row) {
-        int ret = groupMapper.insert(row);
-        if (ret > 0) {
+        if (groupMapper.insert(row) > 0) {
             setCache(row.getId(), row);
             return true;
         }
@@ -46,17 +49,23 @@ public class GroupRepository extends BaseRepository<TGroup> {
     }
 
     public boolean update(TGroup row) {
-        int ret = groupMapper.updateByPrimaryKey(row);
-        if (ret > 0) {
+        if (groupMapper.updateByPrimaryKey(row) > 0) {
             setCache(row.getId(), row);
             return true;
         }
         return false;
     }
 
+    public void updateByUid(int id, int gid) {
+        TGroup tGroup = getCache(cacheUserName + id, TGroup.class);
+        if (null != tGroup) {
+            tGroup.setId(gid);
+            setCache(cacheUserName + id, tGroup);
+        }
+    }
+
     public boolean delete(int id) {
-        int ret = groupMapper.deleteByPrimaryKey(id);
-        if (ret <= 0) {
+        if (groupMapper.deleteByPrimaryKey(id) <= 0) {
             return false;
         }
         delCache(id);

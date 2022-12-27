@@ -37,8 +37,7 @@ public class WXRepository extends BaseRepository<TWx> {
     }
 
     public boolean insert(TWx row) {
-        int ret = wxMapper.insert(row);
-        if (ret > 0) {
+        if (wxMapper.insert(row) > 0) {
             setCache(row.getId(), row);
             return true;
         }
@@ -46,8 +45,7 @@ public class WXRepository extends BaseRepository<TWx> {
     }
 
     public boolean update(TWx row) {
-        int ret = wxMapper.updateByPrimaryKey(row);
-        if (ret > 0) {
+        if (wxMapper.updateByPrimaryKey(row) > 0) {
             setCache(row.getId(), row);
             return true;
         }
@@ -55,8 +53,7 @@ public class WXRepository extends BaseRepository<TWx> {
     }
 
     public boolean delete(int id) {
-        int ret = wxMapper.deleteByPrimaryKey(id);
-        if (ret <= 0) {
+        if (wxMapper.deleteByPrimaryKey(id) <= 0) {
             return false;
         }
         delCache(id);
