@@ -119,14 +119,14 @@ public class RoleService {
         return RestResult.ok(data);
     }
 
-    public RestResult getRoleList(int id, int gid) {
+    public RestResult getRoleList(int id, int gid, String search) {
         // 验证公司
         String msg = checkGroup(id, gid);
         if (null != msg) {
             return RestResult.fail(msg);
         }
 
-        List<TRole> roles = roleRepository.all(gid);
+        List<TRole> roles = roleRepository.all(gid, search);
         if (null == roles) {
             return RestResult.fail("获取角色信息失败");
         }

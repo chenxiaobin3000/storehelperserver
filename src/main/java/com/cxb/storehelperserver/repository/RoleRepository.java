@@ -38,9 +38,13 @@ public class RoleRepository extends BaseRepository<TRole> {
         return tRole;
     }
 
-    public List<TRole> all(int gid) {
+    public List<TRole> all(int gid, String search) {
         TRoleExample example = new TRoleExample();
-        example.or().andGidEqualTo(gid);
+        if (null == search) {
+            example.or().andGidEqualTo(gid);
+        } else {
+            example.or().andGidEqualTo(gid).andNameLike("%" + search + "%");
+        }
         return roleMapper.selectByExample(example);
     }
 

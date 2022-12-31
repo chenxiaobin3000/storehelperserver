@@ -53,7 +53,7 @@ public class RoleController {
 
     @PostMapping("/getRoleList")
     public RestResult getRoleList(@Validated @RequestBody GetRoleListValid req) {
-        return roleService.getRoleList(req.getId(), req.getGid());
+        return roleService.getRoleList(req.getId(), req.getGid(), req.getSearch());
     }
 
     @PostMapping("/getUserRole")

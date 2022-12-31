@@ -2,6 +2,7 @@ package com.cxb.storehelperserver.controller.request.role;
 
 import com.cxb.storehelperserver.controller.request.IValid;
 import lombok.Data;
+import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.Min;
 
@@ -17,4 +18,7 @@ public class GetRoleListValid implements IValid {
 
     @Min(value = 1, message = "公司账号错误")
     private int gid;
+
+    @Length(max = 16, message = "搜索内容不能大于16个字符")
+    private String search;
 }

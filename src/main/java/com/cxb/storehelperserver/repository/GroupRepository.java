@@ -28,7 +28,13 @@ public class GroupRepository extends BaseRepository<TGroup> {
         cacheUserName = cacheName + "user::";
     }
 
-    public int total() {
+    public int total(String search) {
+        // 包含搜索的不缓存
+        if (null != search) {
+            TGroupExample example = new TGroupExample();
+            example.or().andDtimeIsNull().andNameLike("%" + search + "%"); // 软删除
+            return (int) groupMapper.countByExample(example);
+        }
         int total = getTotalCache(0);
         if (0 != total) {
             return total;
@@ -40,9 +46,13 @@ public class GroupRepository extends BaseRepository<TGroup> {
         return total;
     }
 
-    public List<TGroup> pagination(int page, int limit) {
+    public List<TGroup> pagination(int page, int limit, String search) {
         TGroupExample example = new TGroupExample();
-        example.or().andDtimeIsNull(); // 软删除
+        if (null == search) {
+            example.or().andDtimeIsNull(); // 软删除
+        } else {
+            example.or().andDtimeIsNull().andNameLike("%" + search + "%"); // 软删除
+        }
         example.setOffset((page - 1) * limit);
         example.setLimit(limit);
         return groupMapper.selectByExample(example);

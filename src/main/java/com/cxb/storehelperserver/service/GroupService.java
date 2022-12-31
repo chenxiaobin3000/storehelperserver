@@ -70,18 +70,18 @@ public class GroupService {
         return RestResult.ok();
     }
 
-    public RestResult getGroupList(int id, int page, int limit) {
+    public RestResult getGroupList(int id, int page, int limit, String search) {
         // 权限校验，必须admin
         if (!roleService.checkRolePermission(id, admin_grouplist)) {
             return RestResult.fail("本账号没有管理员权限");
         }
 
-        int total = groupRepository.total();
+        int total = groupRepository.total(search);
         if (0 == total) {
             return RestResult.fail("没有查询到任何公司信息");
         }
 
-        val list = groupRepository.pagination(page, limit);
+        val list = groupRepository.pagination(page, limit, search);
         val data = new HashMap<String, Object>();
         data.put("total", total);
         data.put("list", list);

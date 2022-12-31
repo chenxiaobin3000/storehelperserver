@@ -48,7 +48,7 @@ public class GroupController {
 
     @PostMapping("/getGroupList")
     public RestResult getGroupList(@Validated @RequestBody GetGroupListValid req) {
-        return groupService.getGroupList(req.getId(), req.getPage(), req.getLimit());
+        return groupService.getGroupList(req.getId(), req.getPage(), req.getLimit(), req.getSearch());
     }
 
     @PostMapping("/getUserGroup")
