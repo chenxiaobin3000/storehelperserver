@@ -1,9 +1,6 @@
 package com.cxb.storehelperserver.service;
 
-import com.cxb.storehelperserver.model.TGroup;
-import com.cxb.storehelperserver.model.TUser;
-import com.cxb.storehelperserver.model.TUserGroup;
-import com.cxb.storehelperserver.model.TUserRole;
+import com.cxb.storehelperserver.model.*;
 import com.cxb.storehelperserver.repository.*;
 import com.cxb.storehelperserver.util.RestResult;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +38,9 @@ public class UserService {
 
     @Resource
     private GroupRepository groupRepository;
+
+    @Resource
+    private RoleRepository roleRepository;
 
     public RestResult getUserInfo(int id) {
         TUser user = userRepository.find(id);
@@ -99,7 +99,42 @@ public class UserService {
         return RestResult.ok(user);
     }
 
-    public RestResult getUserList() {
-        return RestResult.ok();
+    public RestResult getUserList(int id, int page, int limit, String search) {
+        // 操作员必须同公司用户
+        TUserGroup group = userGroupRepository.find(id);
+        if (null == group) {
+            return RestResult.fail("获取公司信息失败");
+        }
+
+        int total = userRepository.total(search);
+        if (0 == total) {
+            return RestResult.fail("没有查询到任何公司信息");
+        }
+
+        val data = new HashMap<String, Object>();
+        data.put("total", total);
+
+        // 查询角色信息
+        val list = userRepository.pagination(page, limit, search);
+        if (null != list && !list.isEmpty()) {
+            val list2 = new ArrayList<>();
+            for (TUser u : list) {
+                val user = new HashMap<String, Object>();
+                user.put("id", u.getId());
+                user.put("name", u.getName());
+                user.put("phone", u.getPhone());
+                TUserRole userRole = userRoleRepository.find(u.getId());
+                if (null != userRole) {
+                    user.put("role", roleRepository.find(userRole.getRid()));
+                } else {
+                    user.put("role", null);
+                }
+                list2.add(user);
+            }
+            data.put("list", list2);
+        } else {
+            data.put("list", null);
+        }
+        return RestResult.ok(data);
     }
 }

@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * desc: 用户仓库
@@ -24,6 +25,33 @@ public class UserRepository extends BaseRepository<TUser> {
     public UserRepository() {
         init("user::");
         cachePhone = cacheName + "p::";
+    }
+
+    public int total(String search) {
+        // 包含搜索的不缓存
+        if (null != search) {
+            TUserExample example = new TUserExample();
+            example.or().andNameLike("%" + search + "%");
+            return (int) userMapper.countByExample(example);
+        }
+        int total = getTotalCache(0);
+        if (0 != total) {
+            return total;
+        }
+        TUserExample example = new TUserExample();
+        total = (int) userMapper.countByExample(example);
+        setTotalCache(0, total);
+        return total;
+    }
+
+    public List<TUser> pagination(int page, int limit, String search) {
+        TUserExample example = new TUserExample();
+        if (null != search) {
+            example.or().andNameLike("%" + search + "%");
+        }
+        example.setOffset((page - 1) * limit);
+        example.setLimit(limit);
+        return userMapper.selectByExample(example);
     }
 
     public TUser find(int id) {
@@ -57,6 +85,7 @@ public class UserRepository extends BaseRepository<TUser> {
     public boolean insert(TUser row) {
         if (userMapper.insert(row) > 0) {
             setCache(row.getId(), row);
+            delTotalCache(0);
             return true;
         }
         return false;

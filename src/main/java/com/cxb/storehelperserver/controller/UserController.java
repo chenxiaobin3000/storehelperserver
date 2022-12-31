@@ -44,6 +44,6 @@ public class UserController {
      */
     @PostMapping("/getUserList")
     public RestResult getUserList(@Validated @RequestBody GetUserListValid req) {
-        return userService.getUserList();
+        return userService.getUserList(req.getId(), req.getPage(), req.getLimit(), req.getSearch());
     }
 }

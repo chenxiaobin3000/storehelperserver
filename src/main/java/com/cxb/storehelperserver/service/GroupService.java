@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import static com.cxb.storehelperserver.config.Permission.*;
@@ -81,21 +82,24 @@ public class GroupService {
             return RestResult.fail("没有查询到任何公司信息");
         }
 
-        val list = groupRepository.pagination(page, limit, search);
         val data = new HashMap<String, Object>();
         data.put("total", total);
-        data.put("list", list);
 
         // 查询联系人
+        val list = groupRepository.pagination(page, limit, search);
         if (null != list && !list.isEmpty()) {
-            val contacts = new HashMap<Integer, TUser>();
+            val list2 = new ArrayList<>();
             for (TGroup g : list) {
-                TUser user = userRepository.find(g.getContact());
-                if (null != user) {
-                    contacts.put(user.getId(), user);
-                }
+                val group = new HashMap<String, Object>();
+                group.put("id", g.getId());
+                group.put("name", g.getName());
+                group.put("address", g.getAddress());
+                group.put("contact", userRepository.find(g.getContact()));
+                list2.add(group);
             }
-            data.put("contacts", contacts);
+            data.put("list", list2);
+        } else {
+            data.put("list", null);
         }
         return RestResult.ok(data);
     }
