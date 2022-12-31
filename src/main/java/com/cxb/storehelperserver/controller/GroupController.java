@@ -43,7 +43,12 @@ public class GroupController {
 
     @PostMapping("/delGroup")
     public RestResult delGroup(@Validated @RequestBody DelGroupValid req) {
-        return groupService.delGroup(req.getId());
+        return groupService.delGroup(req.getId(), req.getGid());
+    }
+
+    @PostMapping("/getGroupList")
+    public RestResult getGroupList(@Validated @RequestBody GetGroupListValid req) {
+        return groupService.getGroupList(req.getId(), req.getPage(), req.getLimit());
     }
 
     @PostMapping("/getUserGroup")

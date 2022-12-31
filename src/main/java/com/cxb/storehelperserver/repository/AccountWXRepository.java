@@ -56,10 +56,10 @@ public class AccountWXRepository extends BaseRepository<TAccountWx> {
     }
 
     public boolean delete(TAccountWx row) {
+        delCache(row.getWid());
         if (accountWxMapper.deleteByPrimaryKey(row.getId()) <= 0) {
             return false;
         }
-        delCache(row.getWid());
         return true;
     }
 }

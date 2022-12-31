@@ -61,10 +61,10 @@ public class RoleRepository extends BaseRepository<TRole> {
     }
 
     public boolean delete(int id) {
+        delCache(id);
         if (roleMapper.deleteByPrimaryKey(id) <= 0) {
             return false;
         }
-        delCache(id);
         return true;
     }
 }

@@ -1,6 +1,7 @@
 package com.cxb.storehelperserver.repository;
 
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import javax.annotation.Resource;
@@ -22,10 +23,16 @@ public class BaseRepository<Model> {
     protected String cacheName;
 
     /**
+     * desc: 缓存总量
+     */
+    protected String cacheTotal;
+
+    /**
      * desc: 初始化缓存 key 前缀
      */
     protected void init(String cacheName) {
         this.cacheName = cacheName;
+        this.cacheTotal = this.cacheName + "total";
     }
 
     /**
@@ -82,5 +89,37 @@ public class BaseRepository<Model> {
      */
     protected void delCache(int id) {
         redisTemplate.delete(cacheName + String.valueOf(id));
+    }
+
+    /**
+     * desc: 读取总数缓存
+     */
+    protected int getTotalCache(int id) {
+        val ret = redisTemplate.opsForValue().get(cacheTotal + String.valueOf(id));
+        if (null == ret) {
+            return 0;
+        }
+        return (int) ret;
+    }
+
+    /**
+     * desc: 写入总数缓存
+     */
+    protected void setTotalCache(int id, int value) {
+        redisTemplate.opsForValue().set(cacheTotal + String.valueOf(id), value);
+    }
+
+    /**
+     * desc: 写入总数缓存，可设置超时，单位：分钟
+     */
+    protected void setTotalCacheExpire(int id, int value, long timeout) {
+        redisTemplate.opsForValue().set(cacheTotal + String.valueOf(id), value, timeout, TimeUnit.MINUTES);
+    }
+
+    /**
+     * desc: 删除总数缓存
+     */
+    protected void delTotalCache(int id) {
+        redisTemplate.delete(cacheTotal + String.valueOf(id));
     }
 }

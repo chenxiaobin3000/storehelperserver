@@ -5,6 +5,7 @@ import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotEmpty;
 
 /**
  * desc:
@@ -12,16 +13,11 @@ import javax.validation.constraints.Min;
  * date: 2022/12/3
  */
 @Data
-public class GetUserListValid implements IValid {
+public class GetUserInfoByPhoneValid implements IValid {
     @Min(value = 1, message = "账号错误")
     private int id;
 
-    @Min(value = 1, message = "页面编号错误")
-    private int page;
-
-    @Min(value = 10, message = "页面数量错误")
-    private int limit;
-
-    @Length(max = 16, message = "搜索内容不能大于16个字符")
-    private String search;
+    @NotEmpty(message = "请输入手机号")
+    @Length(min = 11, max = 11, message = "手机号格式错误")
+    private String phone;
 }

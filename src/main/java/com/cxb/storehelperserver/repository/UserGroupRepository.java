@@ -56,10 +56,10 @@ public class UserGroupRepository extends BaseRepository<TUserGroup> {
     }
 
     public boolean delete(TUserGroup row) {
+        delCache(row.getUid());
         if (userGroupMapper.deleteByPrimaryKey(row.getId()) <= 0) {
             return false;
         }
-        delCache(row.getUid());
         return true;
     }
 }

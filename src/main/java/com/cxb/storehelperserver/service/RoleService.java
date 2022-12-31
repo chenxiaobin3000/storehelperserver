@@ -88,10 +88,10 @@ public class RoleService {
             return RestResult.fail(msg);
         }
 
-        if (!rolePermissionRepository.delete(id)) {
+        if (!rolePermissionRepository.delete(rid)) {
             return RestResult.fail("修改角色权限失败");
         }
-        if (!roleRepository.delete(id)) {
+        if (!roleRepository.delete(rid)) {
             return RestResult.fail("删除角色信息失败");
         }
         return RestResult.ok();
@@ -100,7 +100,7 @@ public class RoleService {
     public RestResult getRole(int id, int rid) {
         TRole role = roleRepository.find(rid);
         if (null == role) {
-            return RestResult.fail("要删除的角色不存在");
+            return RestResult.fail("获取角色失败");
         }
 
         // 验证公司
@@ -115,7 +115,7 @@ public class RoleService {
         }
         val data = new HashMap<String, Object>();
         data.put("role", role);
-        data.put("permission", permissions);
+        data.put("permissions", permissions);
         return RestResult.ok(data);
     }
 
@@ -210,7 +210,11 @@ public class RoleService {
     }
 
     public boolean checkRolePermission(int uid, int permission) {
-        List<Integer> permissions = rolePermissionRepository.find(uid);
+        TUserRole userRole = userRoleRepository.find(uid);
+        if (null == userRole) {
+            return false;
+        }
+        List<Integer> permissions = rolePermissionRepository.find(userRole.getRid());
         if (null != permissions) {
             for (Integer p1 : permissions) {
                 if (p1.equals(permission)) {
@@ -222,7 +226,11 @@ public class RoleService {
     }
 
     public boolean checkRolePermission(int uid, List<Integer> permissions) {
-        List<Integer> userPermissions = rolePermissionRepository.find(uid);
+        TUserRole userRole = userRoleRepository.find(uid);
+        if (null == userRole) {
+            return false;
+        }
+        List<Integer> userPermissions = rolePermissionRepository.find(userRole.getRid());
         if (null != userPermissions) {
             for (Integer p1 : userPermissions) {
                 for (Integer p2 : permissions) {

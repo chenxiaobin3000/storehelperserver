@@ -1,5 +1,6 @@
 package com.cxb.storehelperserver.controller;
 
+import com.cxb.storehelperserver.controller.request.user.GetUserInfoByPhoneValid;
 import com.cxb.storehelperserver.controller.request.user.GetUserInfoValid;
 import com.cxb.storehelperserver.controller.request.user.GetUserListValid;
 import com.cxb.storehelperserver.service.UserService;
@@ -28,6 +29,14 @@ public class UserController {
     @PostMapping("/getUserInfo")
     public RestResult getUserInfo(@Validated @RequestBody GetUserInfoValid req) {
         return userService.getUserInfo(req.getId());
+    }
+
+    /**
+     * desc: 获取用户信息
+     */
+    @PostMapping("/getUserInfoByPhone")
+    public RestResult getUserInfoByPhone(@Validated @RequestBody GetUserInfoByPhoneValid req) {
+        return userService.getUserInfoByPhone(req.getId(), req.getPhone());
     }
 
     /**

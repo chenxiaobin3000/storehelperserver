@@ -53,10 +53,10 @@ public class WXRepository extends BaseRepository<TWx> {
     }
 
     public boolean delete(int id) {
+        delCache(id);
         if (wxMapper.deleteByPrimaryKey(id) <= 0) {
             return false;
         }
-        delCache(id);
         return true;
     }
 }

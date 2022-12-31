@@ -56,10 +56,10 @@ public class UserRoleRepository extends BaseRepository<TUserRole> {
     }
 
     public boolean delete(TUserRole row) {
+        delCache(row.getUid());
         if (userRoleMapper.deleteByPrimaryKey(row.getId()) <= 0) {
             return false;
         }
-        delCache(row.getUid());
         return true;
     }
 }
