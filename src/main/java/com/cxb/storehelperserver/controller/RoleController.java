@@ -70,4 +70,9 @@ public class RoleController {
     public RestResult setUserRoleAdmin(@Validated @RequestBody SetUserRoleValid req) {
         return roleService.setUserRoleAdmin(req.getId(), req.getUid(), req.getRid());
     }
+
+    @PostMapping("/getGroupRole")
+    public RestResult getGroupRole(@Validated @RequestBody GetGroupRoleValid req) {
+        return roleService.getGroupRole(req.getId());
+    }
 }

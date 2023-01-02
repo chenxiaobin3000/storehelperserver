@@ -63,9 +63,15 @@ public class AccountRepository extends BaseRepository<TAccount> {
         return false;
     }
 
-    public boolean update(TAccount row) {
-        if (accountMapper.updateByPrimaryKey(row) > 0) {
-            setCache(row.getAccount(), row);
+    public boolean updatePassword(int uid, String password) {
+        TAccount account = find(uid);
+        if (null == account) {
+            return false;
+        }
+        account.setPassword(password);
+        if (accountMapper.updateByPrimaryKey(account) > 0) {
+            setCache(account.getAccount(), account);
+            setCache(uid, account);
             return true;
         }
         return false;

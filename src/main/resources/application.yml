@@ -85,3 +85,7 @@ store-app:
   config:
     # 服务端版本号
     version: 1.0.0
+    # 是否开放注册
+    openreg: false
+    # 新增账号默认密码
+    defaultpwd: e10adc3949ba59abbe56e057f20f883e

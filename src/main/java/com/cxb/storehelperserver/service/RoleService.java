@@ -209,6 +209,22 @@ public class RoleService {
         return RestResult.ok();
     }
 
+    public RestResult getGroupRole(int id) {
+        // 操作员必须同公司用户
+        TUserGroup group = userGroupRepository.find(id);
+        if (null == group) {
+            return RestResult.fail("获取公司信息异常");
+        }
+
+        List<TRole> roles = roleRepository.findByGroup(group.getGid());
+        if (null == roles) {
+            return RestResult.fail("获取角色信息异常");
+        }
+        val data = new HashMap<String, Object>();
+        data.put("list", roles);
+        return RestResult.ok(data);
+    }
+
     public boolean checkRolePermission(int uid, int permission) {
         TUserRole userRole = userRoleRepository.find(uid);
         if (null == userRole) {

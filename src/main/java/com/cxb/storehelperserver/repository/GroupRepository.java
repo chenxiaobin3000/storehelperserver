@@ -21,11 +21,8 @@ public class GroupRepository extends BaseRepository<TGroup> {
     @Resource
     private TGroupMapper groupMapper;
 
-    private final String cacheUserName;
-
     public GroupRepository() {
         init("group::");
-        cacheUserName = cacheName + "user::";
     }
 
     public int total(String search) {
@@ -34,16 +31,17 @@ public class GroupRepository extends BaseRepository<TGroup> {
             TGroupExample example = new TGroupExample();
             example.or().andDtimeIsNull().andNameLike("%" + search + "%"); // 软删除
             return (int) groupMapper.countByExample(example);
-        }
-        int total = getTotalCache(0);
-        if (0 != total) {
+        } else {
+            int total = getTotalCache(0);
+            if (0 != total) {
+                return total;
+            }
+            TGroupExample example = new TGroupExample();
+            example.or().andDtimeIsNull(); // 软删除
+            total = (int) groupMapper.countByExample(example);
+            setTotalCache(0, total);
             return total;
         }
-        TGroupExample example = new TGroupExample();
-        example.or().andDtimeIsNull(); // 软删除
-        total = (int) groupMapper.countByExample(example);
-        setTotalCache(0, total);
-        return total;
     }
 
     public List<TGroup> pagination(int page, int limit, String search) {
@@ -88,14 +86,6 @@ public class GroupRepository extends BaseRepository<TGroup> {
             return true;
         }
         return false;
-    }
-
-    public void updateByUid(int id, int gid) {
-        TGroup tGroup = getCache(cacheUserName + id, TGroup.class);
-        if (null != tGroup) {
-            tGroup.setId(gid);
-            setCache(cacheUserName + id, tGroup);
-        }
     }
 
     public boolean delete(int id) {

@@ -1,8 +1,6 @@
 package com.cxb.storehelperserver.controller;
 
-import com.cxb.storehelperserver.controller.request.user.GetUserInfoByPhoneValid;
-import com.cxb.storehelperserver.controller.request.user.GetUserInfoValid;
-import com.cxb.storehelperserver.controller.request.user.GetUserListValid;
+import com.cxb.storehelperserver.controller.request.user.*;
 import com.cxb.storehelperserver.service.UserService;
 import com.cxb.storehelperserver.util.RestResult;
 import lombok.extern.slf4j.Slf4j;
@@ -24,19 +22,43 @@ public class UserController {
     private UserService userService;
 
     /**
-     * desc: 获取用户信息
+     * desc: 添加用户信息
      */
-    @PostMapping("/getUserInfo")
-    public RestResult getUserInfo(@Validated @RequestBody GetUserInfoValid req) {
-        return userService.getUserInfo(req.getId());
+    @PostMapping("/addUser")
+    public RestResult addUser(@Validated @RequestBody AddUserValid req) {
+        return userService.addUser(req.getId(), req.getAccount(), req.getPhone(), req.getRid());
+    }
+
+    /**
+     * desc: 设置用户信息
+     */
+    @PostMapping("/setUser")
+    public RestResult setUser(@Validated @RequestBody SetUserValid req) {
+        return userService.setUser(req.getId(), req.getUid(), req.getName(), req.getPhone());
+    }
+
+    /**
+     * desc: 删除用户信息，仅将用户移除公司
+     */
+    @PostMapping("/delUser")
+    public RestResult delUser(@Validated @RequestBody DelUserValid req) {
+        return userService.delUser(req.getId(), req.getUid());
     }
 
     /**
      * desc: 获取用户信息
      */
-    @PostMapping("/getUserInfoByPhone")
-    public RestResult getUserInfoByPhone(@Validated @RequestBody GetUserInfoByPhoneValid req) {
-        return userService.getUserInfoByPhone(req.getId(), req.getPhone());
+    @PostMapping("/getUser")
+    public RestResult getUser(@Validated @RequestBody GetUserValid req) {
+        return userService.getUser(req.getId());
+    }
+
+    /**
+     * desc: 获取用户信息
+     */
+    @PostMapping("/getUserByPhone")
+    public RestResult getUserByPhone(@Validated @RequestBody GetUserByPhoneValid req) {
+        return userService.getUserByPhone(req.getId(), req.getPhone());
     }
 
     /**

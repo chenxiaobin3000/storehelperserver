@@ -47,4 +47,20 @@ public class AccountController {
     public RestResult logout(@Validated @RequestBody LogoutValid req) {
         return accountService.logout(req.getId());
     }
+
+    /**
+     * desc: 设置密码
+     */
+    @PostMapping("/setPassword")
+    public RestResult setPassword(@Validated @RequestBody SetPasswordValid req) {
+        return accountService.setPassword(req.getId(), req.getOldpassword(), req.getNewpassword());
+    }
+
+    /**
+     * desc: 重置密码
+     */
+    @PostMapping("/resetPwd")
+    public RestResult resetPwd(@Validated @RequestBody ResetPwdValid req) {
+        return accountService.resetPwd(req.getId(), req.getUid());
+    }
 }

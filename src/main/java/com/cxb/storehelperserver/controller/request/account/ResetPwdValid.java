@@ -1,4 +1,4 @@
-package com.cxb.storehelperserver.controller.request.user;
+package com.cxb.storehelperserver.controller.request.account;
 
 import com.cxb.storehelperserver.controller.request.IValid;
 import lombok.Data;
@@ -10,14 +10,13 @@ import javax.validation.constraints.NotEmpty;
 /**
  * desc:
  * auth: cxb
- * date: 2022/12/3
+ * date: 2022/12/1
  */
 @Data
-public class GetUserInfoByPhoneValid implements IValid {
+public class ResetPwdValid implements IValid {
     @Min(value = 1, message = "账号错误")
     private int id;
 
-    @NotEmpty(message = "请输入手机号")
-    @Length(min = 11, max = 11, message = "手机号格式错误")
-    private String phone;
+    @Min(value = 1, message = "用户账号错误")
+    private int uid;
 }

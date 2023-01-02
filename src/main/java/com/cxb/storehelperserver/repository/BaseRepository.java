@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class BaseRepository<Model> {
     @Resource
-    private RedisTemplate<String, Object> redisTemplate;
+    protected RedisTemplate<String, Object> redisTemplate;
 
     /**
      * desc: 缓存 key 前缀
@@ -91,6 +91,7 @@ public class BaseRepository<Model> {
         redisTemplate.delete(cacheName + String.valueOf(id));
     }
 
+    // --------------- 总数缓存 ---------------
     /**
      * desc: 读取总数缓存
      */

@@ -143,9 +143,6 @@ public class GroupService {
                 return RestResult.fail("修改关联公司失败");
             }
         }
-
-        // 修改以用户id缓存的公司信息
-        groupRepository.updateByUid(uid, gid);
         return RestResult.ok();
     }
 
@@ -170,9 +167,6 @@ public class GroupService {
                 return RestResult.fail("修改关联公司失败");
             }
         }
-
-        // 修改以用户id缓存的公司信息
-        groupRepository.updateByUid(uid, gid);
         return RestResult.ok();
     }
 }
