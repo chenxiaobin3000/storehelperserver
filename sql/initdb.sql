@@ -75,7 +75,7 @@ INSERT INTO `t_config_permission` (`id`,`name`) VALUES
 (902, 'supplier_keepbook'),
 
 (1000, 'user'),
-(1001, 'user_getinfo'),
+(1001, 'user_setpassowrd'),
 (1002, 'user_getlist'),
 (1003, 'user_resetpwd'),
 

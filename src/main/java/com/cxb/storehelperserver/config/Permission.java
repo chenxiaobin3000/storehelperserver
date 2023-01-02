@@ -81,7 +81,7 @@ public class Permission {
     static public final int supplier_keepbook = 902;
 
     static public final int user = 1000;
-    static public final int user_getinfo = 1001;
+    static public final int user_setpassword = 1001;
     static public final int user_getlist = 1002;
     static public final int user_resetpwd = 1003;
 
