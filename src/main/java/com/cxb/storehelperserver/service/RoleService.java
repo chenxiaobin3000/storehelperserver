@@ -24,6 +24,9 @@ import static com.cxb.storehelperserver.config.Permission.*;
 @Transactional(rollbackFor = Exception.class)
 public class RoleService {
     @Resource
+    private CheckService checkService;
+
+    @Resource
     private RoleRepository roleRepository;
 
     @Resource
@@ -40,7 +43,7 @@ public class RoleService {
 
     public RestResult addRole(int id, TRole role, List<Integer> permissions) {
         // 验证公司
-        String msg = checkGroup(id, role.getGid());
+        String msg = checkService.checkGroup(id, role.getGid());
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -59,7 +62,7 @@ public class RoleService {
 
     public RestResult setRole(int id, TRole role, List<Integer> permissions) {
         // 验证公司
-        String msg = checkGroup(id, role.getGid());
+        String msg = checkService.checkGroup(id, role.getGid());
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -83,7 +86,7 @@ public class RoleService {
         }
 
         // 验证公司
-        String msg = checkGroup(id, role.getGid());
+        String msg = checkService.checkGroup(id, role.getGid());
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -104,7 +107,7 @@ public class RoleService {
         }
 
         // 验证公司
-        String msg = checkGroup(id, role.getGid());
+        String msg = checkService.checkGroup(id, role.getGid());
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -121,7 +124,7 @@ public class RoleService {
 
     public RestResult getRoleList(int id, int gid, String search) {
         // 验证公司
-        String msg = checkGroup(id, gid);
+        String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -137,10 +140,9 @@ public class RoleService {
 
     public RestResult getUserRole(int id, int uid) {
         // 操作员必须同公司用户
-        TUserGroup group = userGroupRepository.find(id);
-        TUserGroup group2 = userGroupRepository.find(uid);
-        if (null == group || null == group2 || !group2.getGid().equals(group.getGid())) {
-            return RestResult.fail("操作仅限本公司");
+        String msg = checkService.checkSampGroup(id, uid);
+        if (null != msg) {
+            return RestResult.fail(msg);
         }
 
         TUserRole userRole = userRoleRepository.find(uid);
@@ -156,14 +158,13 @@ public class RoleService {
 
     public RestResult setUserRole(int id, int uid, int rid) {
         // 操作员必须同公司用户
-        TUserGroup group = userGroupRepository.find(id);
-        TUserGroup group2 = userGroupRepository.find(uid);
-        if (null == group || null == group2 || !group2.getGid().equals(group.getGid())) {
-            return RestResult.fail("操作仅限本公司");
+        String msg = checkService.checkSampGroup(id, uid);
+        if (null != msg) {
+            return RestResult.fail(msg);
         }
 
         // 权限校验
-        if (!checkRolePermission(id, system_getrolelist)) {
+        if (!checkService.checkRolePermission(id, system_getrolelist)) {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
@@ -187,7 +188,7 @@ public class RoleService {
 
     public RestResult setUserRoleAdmin(int id, int uid, int rid) {
         // 权限校验，必须admin
-        if (checkRolePermission(id, admin)) {
+        if (checkService.checkRolePermission(id, admin)) {
             return RestResult.fail("本账号没有管理员权限");
         }
 
@@ -210,7 +211,7 @@ public class RoleService {
     }
 
     public RestResult getGroupRole(int id) {
-        // 操作员必须同公司用户
+        // 获取公司信息
         TUserGroup group = userGroupRepository.find(id);
         if (null == group) {
             return RestResult.fail("获取公司信息异常");
@@ -223,54 +224,5 @@ public class RoleService {
         val data = new HashMap<String, Object>();
         data.put("list", roles);
         return RestResult.ok(data);
-    }
-
-    public boolean checkRolePermission(int uid, int permission) {
-        TUserRole userRole = userRoleRepository.find(uid);
-        if (null == userRole) {
-            return false;
-        }
-        List<Integer> permissions = rolePermissionRepository.find(userRole.getRid());
-        if (null != permissions) {
-            for (Integer p1 : permissions) {
-                if (p1.equals(permission)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    public boolean checkRolePermission(int uid, List<Integer> permissions) {
-        TUserRole userRole = userRoleRepository.find(uid);
-        if (null == userRole) {
-            return false;
-        }
-        List<Integer> userPermissions = rolePermissionRepository.find(userRole.getRid());
-        if (null != userPermissions) {
-            for (Integer p1 : userPermissions) {
-                for (Integer p2 : permissions) {
-                    if (p1.equals(p2)) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    public String checkGroup(int uid, int gid) {
-        TUserGroup userGroup = userGroupRepository.find(uid);
-        if (null == userGroup) {
-            return "未查询到关联的公司";
-        }
-        TGroup group = groupRepository.find(userGroup.getGid());
-        if (null == group) {
-            return "未查询到关联公司的信息";
-        }
-        if (!group.getId().equals(gid)) {
-            return "操作仅限本公司员工";
-        }
-        return null;
     }
 }

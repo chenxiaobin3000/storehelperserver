@@ -1,7 +1,6 @@
 package com.cxb.storehelperserver.service;
 
 import com.cxb.storehelperserver.model.TGroup;
-import com.cxb.storehelperserver.model.TUser;
 import com.cxb.storehelperserver.model.TUserGroup;
 import com.cxb.storehelperserver.repository.GroupRepository;
 import com.cxb.storehelperserver.repository.UserGroupRepository;
@@ -29,7 +28,7 @@ import static com.cxb.storehelperserver.config.Permission.*;
 @Transactional(rollbackFor = Exception.class)
 public class GroupService {
     @Resource
-    private RoleService roleService;
+    private CheckService checkService;
 
     @Resource
     private GroupRepository groupRepository;
@@ -56,7 +55,7 @@ public class GroupService {
 
     public RestResult delGroup(int id, int gid) {
         // 权限校验，必须admin
-        if (!roleService.checkRolePermission(id, admin_grouplist)) {
+        if (!checkService.checkRolePermission(id, admin_grouplist)) {
             return RestResult.fail("本账号没有管理员权限");
         }
 
@@ -73,7 +72,7 @@ public class GroupService {
 
     public RestResult getGroupList(int id, int page, int limit, String search) {
         // 权限校验，必须admin
-        if (!roleService.checkRolePermission(id, admin_grouplist)) {
+        if (!checkService.checkRolePermission(id, admin_grouplist)) {
             return RestResult.fail("本账号没有管理员权限");
         }
 
@@ -124,7 +123,7 @@ public class GroupService {
         }
 
         // 权限校验
-        if (!roleService.checkRolePermission(id, system_getrolelist)) {
+        if (!checkService.checkRolePermission(id, system_getrolelist)) {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
@@ -148,7 +147,7 @@ public class GroupService {
 
     public RestResult setUserGroupAdmin(int id, int uid, int gid) {
         // 权限校验，必须admin
-        if (!roleService.checkRolePermission(id, admin)) {
+        if (!checkService.checkRolePermission(id, admin)) {
             return RestResult.fail("本账号没有管理员权限");
         }
 

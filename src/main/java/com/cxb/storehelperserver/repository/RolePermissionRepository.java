@@ -71,9 +71,6 @@ public class RolePermissionRepository extends BaseRepository<List> {
         delCache(rid);
         TRolePermissionExample example = new TRolePermissionExample();
         example.or().andRidEqualTo(rid);
-        if (rolePermissionMapper.deleteByExample(example) <= 0) {
-            return false;
-        }
-        return true;
+        return rolePermissionMapper.deleteByExample(example) > 0;
     }
 }

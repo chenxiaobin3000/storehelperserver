@@ -28,17 +28,17 @@ public class RoleRepository extends BaseRepository<TRole> {
     }
 
     public TRole find(int id) {
-        TRole tRole = getCache(id, TRole.class);
-        if (null != tRole) {
-            return tRole;
+        TRole role = getCache(id, TRole.class);
+        if (null != role) {
+            return role;
         }
 
         // 缓存没有就查询数据库
-        tRole = roleMapper.selectByPrimaryKey(id);
-        if (null != tRole) {
-            setCache(id, tRole);
+        role = roleMapper.selectByPrimaryKey(id);
+        if (null != role) {
+            setCache(id, role);
         }
-        return tRole;
+        return role;
     }
 
     public List<TRole> findByGroup(int gid) {
@@ -89,11 +89,7 @@ public class RoleRepository extends BaseRepository<TRole> {
             return false;
         }
         delCache(cacheName + cacheGroupName + role.getGid());
-
         delCache(id);
-        if (roleMapper.deleteByPrimaryKey(id) <= 0) {
-            return false;
-        }
-        return true;
+        return roleMapper.deleteByPrimaryKey(id) > 0;
     }
 }

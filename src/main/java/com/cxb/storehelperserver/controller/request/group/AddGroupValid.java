@@ -17,6 +17,9 @@ public class AddGroupValid implements IValid {
     @Min(value = 1, message = "账号错误")
     private int id;
 
+    @Min(value = 1, message = "地区码错误")
+    private int area;
+
     @Min(value = 1, message = "联系人错误")
     private int contact;
 

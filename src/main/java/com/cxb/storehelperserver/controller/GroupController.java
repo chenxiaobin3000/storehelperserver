@@ -25,6 +25,7 @@ public class GroupController {
     @PostMapping("/addGroup")
     public RestResult addGroup(@Validated @RequestBody AddGroupValid req) {
         TGroup group = new TGroup();
+        group.setArea(req.getArea());
         group.setContact(req.getContact());
         group.setName(req.getName());
         group.setAddress(req.getAddress());
@@ -35,6 +36,7 @@ public class GroupController {
     public RestResult setGroup(@Validated @RequestBody SetGroupValid req) {
         TGroup group = new TGroup();
         group.setId(req.getGid());
+        group.setArea(req.getArea());
         group.setContact(req.getContact());
         group.setName(req.getName());
         group.setAddress(req.getAddress());

@@ -31,7 +31,7 @@ public class AccountService {
     private SessionService sessionService;
 
     @Resource
-    private RoleService roleService;
+    private CheckService checkService;
 
     @Resource
     private AccountRepository accountRepository;
@@ -133,7 +133,7 @@ public class AccountService {
         }
 
         // 权限校验
-        if (!roleService.checkRolePermission(id, user_resetpwd)) {
+        if (!checkService.checkRolePermission(id, user_resetpwd)) {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 

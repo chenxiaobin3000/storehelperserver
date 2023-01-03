@@ -59,9 +59,6 @@ public class UserGroupRepository extends BaseRepository<TUserGroup> {
         delCache(uid);
         TUserGroupExample example = new TUserGroupExample();
         example.or().andUidEqualTo(uid);
-        if (userGroupMapper.deleteByExample(example) <= 0) {
-            return false;
-        }
-        return true;
+        return userGroupMapper.deleteByExample(example) > 0;
     }
 }
