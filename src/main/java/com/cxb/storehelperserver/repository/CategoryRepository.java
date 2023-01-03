@@ -69,7 +69,7 @@ public class CategoryRepository extends BaseRepository<TCategory> {
     public boolean insert(TCategory row) {
         if (categoryMapper.insert(row) > 0) {
             setCache(row.getId(), row);
-            delCache(cacheName + cacheGroupName + row.getGid());
+            delCache(cacheGroupName + row.getGid());
             return true;
         }
         return false;
@@ -78,7 +78,7 @@ public class CategoryRepository extends BaseRepository<TCategory> {
     public boolean update(TCategory row) {
         if (categoryMapper.updateByPrimaryKey(row) > 0) {
             setCache(row.getId(), row);
-            delCache(cacheName + cacheGroupName + row.getGid());
+            delCache(cacheGroupName + row.getGid());
             return true;
         }
         return false;
@@ -89,7 +89,7 @@ public class CategoryRepository extends BaseRepository<TCategory> {
         if (null == role) {
             return false;
         }
-        delCache(cacheName + cacheGroupName + role.getGid());
+        delCache(cacheGroupName + role.getGid());
         delCache(id);
         return categoryMapper.deleteByPrimaryKey(id) > 0;
     }

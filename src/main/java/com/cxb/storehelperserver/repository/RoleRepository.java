@@ -68,7 +68,7 @@ public class RoleRepository extends BaseRepository<TRole> {
     public boolean insert(TRole row) {
         if (roleMapper.insert(row) > 0) {
             setCache(row.getId(), row);
-            delCache(cacheName + cacheGroupName + row.getGid());
+            delCache(cacheGroupName + row.getGid());
             return true;
         }
         return false;
@@ -77,7 +77,7 @@ public class RoleRepository extends BaseRepository<TRole> {
     public boolean update(TRole row) {
         if (roleMapper.updateByPrimaryKey(row) > 0) {
             setCache(row.getId(), row);
-            delCache(cacheName + cacheGroupName + row.getGid());
+            delCache(cacheGroupName + row.getGid());
             return true;
         }
         return false;
@@ -88,7 +88,7 @@ public class RoleRepository extends BaseRepository<TRole> {
         if (null == role) {
             return false;
         }
-        delCache(cacheName + cacheGroupName + role.getGid());
+        delCache(cacheGroupName + role.getGid());
         delCache(id);
         return roleMapper.deleteByPrimaryKey(id) > 0;
     }
