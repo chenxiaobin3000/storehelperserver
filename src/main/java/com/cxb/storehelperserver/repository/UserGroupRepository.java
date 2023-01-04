@@ -39,6 +39,15 @@ public class UserGroupRepository extends BaseRepository<TUserGroup> {
         return tUserGroup;
     }
 
+    /*
+     * desc: 判断公司是否存在员工
+     */
+    public boolean checkUser(int gid) {
+        TUserGroupExample example = new TUserGroupExample();
+        example.or().andGidEqualTo(gid);
+        return null != userGroupMapper.selectOneByExample(example);
+    }
+
     public boolean insert(TUserGroup row) {
         if (userGroupMapper.insert(row) > 0) {
             setCache(row.getUid(), row);

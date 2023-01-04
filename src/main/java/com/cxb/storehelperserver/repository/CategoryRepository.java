@@ -56,14 +56,13 @@ public class CategoryRepository extends BaseRepository<TCategory> {
         return categories;
     }
 
-    public List<TCategory> all(int gid, String search) {
+    /*
+     * desc: 判断公司是否存在品类
+     */
+    public boolean check(int gid, String name) {
         TCategoryExample example = new TCategoryExample();
-        if (null == search) {
-            example.or().andGidEqualTo(gid);
-        } else {
-            example.or().andGidEqualTo(gid).andNameLike("%" + search + "%");
-        }
-        return categoryMapper.selectByExample(example);
+        example.or().andGidEqualTo(gid).andNameEqualTo(name);
+        return null != categoryMapper.selectOneByExample(example);
     }
 
     public boolean insert(TCategory row) {

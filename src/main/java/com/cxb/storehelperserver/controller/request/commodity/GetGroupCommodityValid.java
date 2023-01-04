@@ -1,4 +1,4 @@
-package com.cxb.storehelperserver.controller.request.config;
+package com.cxb.storehelperserver.controller.request.commodity;
 
 import com.cxb.storehelperserver.controller.request.IValid;
 import lombok.Data;
@@ -11,7 +11,7 @@ import javax.validation.constraints.Min;
  * date: 2022/12/21
  */
 @Data
-public class GetPermissionValid implements IValid {
+public class GetGroupCommodityValid implements IValid {
     @Min(value = 1, message = "账号错误")
     private int id;
 }

@@ -48,7 +48,10 @@ public class RoleService {
             return RestResult.fail(msg);
         }
 
-        // TODO 角色名重名检测
+        // 角色名重名检测
+        if (roleRepository.check(role.getGid(), role.getName())) {
+            return RestResult.fail("角色名称已存在");
+        }
 
         if (!roleRepository.insert(role)) {
             return RestResult.fail("添加角色信息失败");
@@ -67,7 +70,10 @@ public class RoleService {
             return RestResult.fail(msg);
         }
 
-        // TODO 角色名重名检测
+        // 角色名重名检测
+        if (roleRepository.check(role.getGid(), role.getName())) {
+            return RestResult.fail("角色名称已存在");
+        }
 
         if (!roleRepository.update(role)) {
             return RestResult.fail("修改角色信息失败");

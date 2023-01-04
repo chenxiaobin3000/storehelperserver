@@ -3,6 +3,7 @@ package com.cxb.storehelperserver.service;
 import com.cxb.storehelperserver.model.TGroup;
 import com.cxb.storehelperserver.model.TUserGroup;
 import com.cxb.storehelperserver.repository.GroupRepository;
+import com.cxb.storehelperserver.repository.RoleRepository;
 import com.cxb.storehelperserver.repository.UserGroupRepository;
 import com.cxb.storehelperserver.repository.UserRepository;
 import com.cxb.storehelperserver.util.RestResult;
@@ -39,6 +40,9 @@ public class GroupService {
     @Resource
     private UserRepository userRepository;
 
+    @Resource
+    private RoleRepository roleRepository;
+
     public RestResult addGroup(TGroup group) {
         if (!groupRepository.insert(group)) {
             return RestResult.fail("添加公司信息失败");
@@ -59,9 +63,15 @@ public class GroupService {
             return RestResult.fail("本账号没有管理员权限");
         }
 
-        // TODO 检查是否存在关联员工
+        // 检查是否存在关联员工
+        if (userGroupRepository.checkUser(gid)) {
+            return RestResult.fail("删除公司失败，还存在关联的员工");
+        }
 
-        // TODO 检查是否存在关联角色
+        // 检查是否存在关联角色
+        if (roleRepository.check(gid, null)) {
+            return RestResult.fail("删除公司失败，还存在关联的角色");
+        }
 
         // 公司是用软删除
         if (!groupRepository.delete(gid)) {

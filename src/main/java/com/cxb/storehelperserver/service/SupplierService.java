@@ -1,6 +1,6 @@
 package com.cxb.storehelperserver.service;
 
-import com.cxb.storehelperserver.repository.ConfigPermissionRepository;
+import com.cxb.storehelperserver.repository.SupplierRepository;
 import com.cxb.storehelperserver.util.RestResult;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -20,11 +20,11 @@ import java.util.HashMap;
 @Transactional(rollbackFor = Exception.class)
 public class SupplierService {
     @Resource
-    private ConfigPermissionRepository configPermissionRepository;
+    private SupplierRepository supplierRepository;
 
     public RestResult getPermission() {
         val data = new HashMap<String, Object>();
-        data.put("list", configPermissionRepository.all());
+        data.put("list", supplierRepository.find());
         return RestResult.ok(data);
     }
 }

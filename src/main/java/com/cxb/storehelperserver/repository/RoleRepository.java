@@ -55,6 +55,20 @@ public class RoleRepository extends BaseRepository<TRole> {
         return roles;
     }
 
+    /*
+     * desc: 判断公司是否存在角色
+     */
+    public boolean check(int gid, String name) {
+        TRoleExample example = new TRoleExample();
+        example.or().andGidEqualTo(gid);
+        if (null == name) {
+            example.or().andGidEqualTo(gid);
+        } else {
+            example.or().andGidEqualTo(gid).andNameEqualTo(name);
+        }
+        return null != roleMapper.selectOneByExample(example);
+    }
+
     public List<TRole> all(int gid, String search) {
         TRoleExample example = new TRoleExample();
         if (null == search) {

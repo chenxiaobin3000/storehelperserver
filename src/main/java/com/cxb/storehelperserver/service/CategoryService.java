@@ -40,7 +40,10 @@ public class CategoryService {
             return RestResult.fail(msg);
         }
 
-        // TODO 品类名重名检测
+        // 品类名重名检测
+        if (categoryRepository.check(category.getGid(), category.getName())) {
+            return RestResult.fail("品类名称已存在");
+        }
 
         if (!categoryRepository.insert(category)) {
             return RestResult.fail("添加品类信息失败");
@@ -55,7 +58,10 @@ public class CategoryService {
             return RestResult.fail(msg);
         }
 
-        // TODO 角色名重名检测
+        // 品类名重名检测
+        if (categoryRepository.check(category.getGid(), category.getName())) {
+            return RestResult.fail("品类名称已存在");
+        }
 
         if (!categoryRepository.update(category)) {
             return RestResult.fail("修改品类信息失败");

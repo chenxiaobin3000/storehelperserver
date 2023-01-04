@@ -83,8 +83,6 @@ logging:
 ################ 业务配置 ##############
 store-app:
   config:
-    # 服务端版本号
-    version: 1.0.0
     # 是否开放注册
     openreg: false
     # 新增账号默认密码
