@@ -2,8 +2,10 @@ package com.cxb.storehelperserver.service;
 
 import com.cxb.storehelperserver.model.TCommodity;
 import com.cxb.storehelperserver.model.TUserGroup;
+import com.cxb.storehelperserver.repository.CommodityAttrRepository;
 import com.cxb.storehelperserver.repository.CommodityRepository;
 import com.cxb.storehelperserver.repository.UserGroupRepository;
+import com.cxb.storehelperserver.service.CheckService;
 import com.cxb.storehelperserver.util.RestResult;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -28,6 +30,9 @@ public class CommodityService {
 
     @Resource
     private CommodityRepository commodityRepository;
+
+    @Resource
+    private CommodityAttrRepository commodityAttrRepository;
 
     @Resource
     private UserGroupRepository userGroupRepository;

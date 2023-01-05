@@ -17,10 +17,10 @@ public class Permission {
     static public final int agreement_sendout = 204;
 
     static public final int commodity = 300;
-    static public final int commodity_getlist = 301;
-    static public final int commodity_gettype = 302;
-    static public final int commodity_myfoucs = 303;
-    static public final int commodity_report = 304;
+    static public final int commodity_commoditylist = 301;
+    static public final int commodity_setcategory = 302;
+    static public final int commodity_attributelist = 303;
+    static public final int commodity_salereport = 304;
 
     static public final int finance = 400;
     static public final int finance_getinfo = 401;
@@ -82,15 +82,14 @@ public class Permission {
 
     static public final int user = 1000;
     static public final int user_setpassword = 1001;
-    static public final int user_getlist = 1002;
+    static public final int user_userlist = 1002;
     static public final int user_resetpwd = 1003;
 
     static public final int system = 1100;
     static public final int system_charge = 1101;
-    static public final int system_getrolelist = 1102;
+    static public final int system_rolelist = 1102;
     static public final int system_groupinfo = 1103;
     static public final int system_notify = 1104;
-    static public final int system_setting = 1105;
 
     static public final int admin = 8888;
     static public final int admin_changegroup = 88881;

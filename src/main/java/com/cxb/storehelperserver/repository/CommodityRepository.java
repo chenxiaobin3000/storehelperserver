@@ -3,6 +3,7 @@ package com.cxb.storehelperserver.repository;
 import com.cxb.storehelperserver.mapper.TCommodityMapper;
 import com.cxb.storehelperserver.model.TCommodity;
 import com.cxb.storehelperserver.model.TCommodityExample;
+import com.cxb.storehelperserver.repository.BaseRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
@@ -83,11 +84,11 @@ public class CommodityRepository extends BaseRepository<TCommodity> {
     }
 
     public boolean delete(int id) {
-        TCommodity role = find(id);
-        if (null == role) {
+        TCommodity commodity = find(id);
+        if (null == commodity) {
             return false;
         }
-        delCache(cacheGroupName + role.getGid());
+        delCache(cacheGroupName + commodity.getGid());
         delCache(id);
         return commodityMapper.deleteByPrimaryKey(id) > 0;
     }

@@ -84,11 +84,11 @@ public class CategoryRepository extends BaseRepository<TCategory> {
     }
 
     public boolean delete(int id) {
-        TCategory role = find(id);
-        if (null == role) {
+        TCategory category = find(id);
+        if (null == category) {
             return false;
         }
-        delCache(cacheGroupName + role.getGid());
+        delCache(cacheGroupName + category.getGid());
         delCache(id);
         return categoryMapper.deleteByPrimaryKey(id) > 0;
     }

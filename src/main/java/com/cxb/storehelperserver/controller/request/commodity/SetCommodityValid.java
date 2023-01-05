@@ -34,7 +34,7 @@ public class SetCommodityValid implements IValid {
     private String name;
 
     @Min(value = 1, message = "商品属性模板错误")
-    private int aid;
+    private int atid;
 
     @Min(value = 1, message = "商品品类错误")
     private int cid;

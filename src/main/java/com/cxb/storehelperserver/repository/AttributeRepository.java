@@ -3,6 +3,7 @@ package com.cxb.storehelperserver.repository;
 import com.cxb.storehelperserver.mapper.TAttributeMapper;
 import com.cxb.storehelperserver.model.TAttribute;
 import com.cxb.storehelperserver.model.TAttributeExample;
+import com.cxb.storehelperserver.repository.BaseRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
@@ -23,7 +24,7 @@ public class AttributeRepository extends BaseRepository<TAttribute> {
     private final String cacheGroupName;
 
     public AttributeRepository() {
-        init("comm::");
+        init("attr::");
         cacheGroupName = cacheName + "group::";
     }
 
@@ -83,11 +84,11 @@ public class AttributeRepository extends BaseRepository<TAttribute> {
     }
 
     public boolean delete(int id) {
-        TAttribute role = find(id);
-        if (null == role) {
+        TAttribute attribute = find(id);
+        if (null == attribute) {
             return false;
         }
-        delCache(cacheGroupName + role.getGid());
+        delCache(cacheGroupName + attribute.getGid());
         delCache(id);
         return attributeMapper.deleteByPrimaryKey(id) > 0;
     }

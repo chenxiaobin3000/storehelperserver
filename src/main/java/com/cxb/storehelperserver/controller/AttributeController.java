@@ -4,6 +4,8 @@ import com.cxb.storehelperserver.controller.request.attribute.AddAttributeValid;
 import com.cxb.storehelperserver.controller.request.attribute.DelAttributeValid;
 import com.cxb.storehelperserver.controller.request.attribute.GetGroupAttributeValid;
 import com.cxb.storehelperserver.controller.request.attribute.SetAttributeValid;
+import com.cxb.storehelperserver.controller.request.attributeTemplate.GetGroupAttrTemplateValid;
+import com.cxb.storehelperserver.controller.request.attributeTemplate.UpdateAttrTempValid;
 import com.cxb.storehelperserver.model.TAttribute;
 import com.cxb.storehelperserver.service.AttributeService;
 import com.cxb.storehelperserver.util.RestResult;
@@ -23,37 +25,52 @@ import javax.annotation.Resource;
  */
 @Slf4j
 @RestController
-@RequestMapping("/api/attribute")
+@RequestMapping("/api/attr")
 public class AttributeController {
     @Resource
     private AttributeService attributeService;
 
-    @PostMapping("/addAttribute")
+    @PostMapping("/addAttr")
     public RestResult addAttribute(@Validated @RequestBody AddAttributeValid req) {
         TAttribute attribute = new TAttribute();
         attribute.setGid(req.getGid());
         attribute.setName(req.getName());
-        attribute.setIndex(req.getIndex());
         return attributeService.addAttribute(req.getId(), attribute);
     }
 
-    @PostMapping("/setAttribute")
+    @PostMapping("/setAttr")
     public RestResult setAttribute(@Validated @RequestBody SetAttributeValid req) {
         TAttribute attribute = new TAttribute();
         attribute.setId(req.getAid());
         attribute.setGid(req.getGid());
         attribute.setName(req.getName());
-        attribute.setIndex(req.getIndex());
         return attributeService.setAttribute(req.getId(), attribute);
     }
 
-    @PostMapping("/delAttribute")
+    @PostMapping("/delAttr")
     public RestResult delAttribute(@Validated @RequestBody DelAttributeValid req) {
         return attributeService.delAttribute(req.getId(), req.getAid());
     }
 
-    @PostMapping("/getGroupAttribute")
+    @PostMapping("/getGroupAttr")
     public RestResult getGroupAttribute(@Validated @RequestBody GetGroupAttributeValid req) {
         return attributeService.getGroupAttribute(req.getId());
+    }
+
+    @PostMapping("/updateAttrTemp")
+    public RestResult updateAttrTemplate(@Validated @RequestBody UpdateAttrTempValid req) {
+        return attributeService.updateAttributeTemplate(
+                req.getId(),
+                req.getGid(),
+                req.getTemplate1(),
+                req.getTemplate2(),
+                req.getTemplate3(),
+                req.getTemplate4(),
+                req.getTemplate5());
+    }
+
+    @PostMapping("/getGroupAttrTemp")
+    public RestResult getGroupAttribute(@Validated @RequestBody GetGroupAttrTemplateValid req) {
+        return attributeService.getGroupAttributeTemplate(req.getId());
     }
 }

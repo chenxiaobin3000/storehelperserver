@@ -34,7 +34,7 @@ public class CommodityController {
         commodity.setGid(req.getGid());
         commodity.setCode(req.getCode());
         commodity.setName(req.getName());
-        commodity.setAid(req.getAid());
+        commodity.setAtid(req.getAtid());
         commodity.setCid(req.getCid());
         commodity.setPrice(req.getPrice());
         commodity.setRemark(req.getRemark());
@@ -48,7 +48,7 @@ public class CommodityController {
         commodity.setGid(req.getGid());
         commodity.setCode(req.getCode());
         commodity.setName(req.getName());
-        commodity.setAid(req.getAid());
+        commodity.setAtid(req.getAtid());
         commodity.setCid(req.getCid());
         commodity.setPrice(req.getPrice());
         commodity.setRemark(req.getRemark());

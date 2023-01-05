@@ -27,7 +27,4 @@ public class SetAttributeValid implements IValid {
     @Length(min = 1, message = "属性名称长度不能小于1个字符")
     @Length(max = 8, message = "属性名称长度不能大于8个字符")
     private String name;
-
-    @Min(value = 1, message = "属性索引信息错误")
-    private int index;
 }

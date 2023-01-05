@@ -3,6 +3,7 @@ package com.cxb.storehelperserver.repository;
 import com.cxb.storehelperserver.mapper.TCommodityAttrMapper;
 import com.cxb.storehelperserver.model.TCommodityAttr;
 import com.cxb.storehelperserver.model.TCommodityAttrExample;
+import com.cxb.storehelperserver.repository.BaseRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
