@@ -38,7 +38,7 @@ public class CommodityController {
         commodity.setCid(req.getCid());
         commodity.setPrice(req.getPrice());
         commodity.setRemark(req.getRemark());
-        return commodityService.addCommodity(req.getId(), commodity);
+        return commodityService.addCommodity(req.getId(), commodity, req.getAttributes());
     }
 
     @PostMapping("/setCommodity")
@@ -52,7 +52,7 @@ public class CommodityController {
         commodity.setCid(req.getCid());
         commodity.setPrice(req.getPrice());
         commodity.setRemark(req.getRemark());
-        return commodityService.setCommodity(req.getId(), commodity);
+        return commodityService.setCommodity(req.getId(), commodity, req.getAttributes());
     }
 
     @PostMapping("/delCommodity")

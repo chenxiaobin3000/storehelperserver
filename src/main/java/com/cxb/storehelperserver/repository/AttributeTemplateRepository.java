@@ -1,7 +1,6 @@
 package com.cxb.storehelperserver.repository;
 
 import com.cxb.storehelperserver.mapper.TAttributeTemplateMapper;
-import com.cxb.storehelperserver.model.TAttributeExample;
 import com.cxb.storehelperserver.model.TAttributeTemplate;
 import com.cxb.storehelperserver.model.TAttributeTemplateExample;
 import lombok.extern.slf4j.Slf4j;
@@ -23,12 +22,32 @@ public class AttributeTemplateRepository extends BaseRepository<List> {
     @Resource
     private TAttributeTemplateMapper attributeTemplateMapper;
 
+    private final String cacheGroupName;
+
     public AttributeTemplateRepository() {
         init("attrTemp::");
+        cacheGroupName = cacheName + "group::";
+    }
+
+    public List<TAttributeTemplate> find(int gid, int code) {
+        List<TAttributeTemplate> templates = getCache(gid + "::" + code, List.class);
+        if (null != templates) {
+            return templates;
+        }
+
+        // 缓存没有就查询数据库
+        TAttributeTemplateExample example = new TAttributeTemplateExample();
+        example.or().andGidEqualTo(gid).andCodeEqualTo(code);
+        example.setOrderByClause("idx asc");
+        templates = attributeTemplateMapper.selectByExample(example);
+        if (null != templates) {
+            setCache(gid + "::" + code, templates);
+        }
+        return templates;
     }
 
     public List<List<TAttributeTemplate>> findByGroup(int gid) {
-        List<List<TAttributeTemplate>> templates = getCache(gid, List.class);
+        List<List<TAttributeTemplate>> templates = List.class.cast(redisTemplate.opsForValue().get(cacheName + cacheGroupName + gid));
         if (null != templates) {
             return templates;
         }
@@ -67,16 +86,25 @@ public class AttributeTemplateRepository extends BaseRepository<List> {
             templates.add(template3);
             templates.add(template4);
             templates.add(template5);
-            setCache(gid, templates);
+            redisTemplate.opsForValue().set(cacheName + cacheGroupName + gid, templates);
         }
         return templates;
     }
 
     public boolean update(int gid, List<List<TAttributeTemplate>> templates) {
+        // 清除属性 id 缓存
+        delCache(gid + "::1");
+        delCache(gid + "::2");
+        delCache(gid + "::3");
+        delCache(gid + "::4");
+        delCache(gid + "::5");
+
+        // 删除旧数据
         TAttributeTemplateExample example = new TAttributeTemplateExample();
         example.or().andGidEqualTo(gid);
         attributeTemplateMapper.deleteByExample(example);
 
+        // 插入新数据
         int code = 0;
         TAttributeTemplate attributeTemplate = new TAttributeTemplate();
         for (List<TAttributeTemplate> template : templates) {
@@ -92,7 +120,7 @@ public class AttributeTemplateRepository extends BaseRepository<List> {
                 }
             }
         }
-        setCache(gid, templates);
+        redisTemplate.opsForValue().set(cacheName + cacheGroupName + gid, templates);
         return true;
     }
 }

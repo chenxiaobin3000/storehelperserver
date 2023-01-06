@@ -1,11 +1,7 @@
 package com.cxb.storehelperserver.service;
 
-import com.cxb.storehelperserver.model.TCommodity;
-import com.cxb.storehelperserver.model.TUserGroup;
-import com.cxb.storehelperserver.repository.CommodityAttrRepository;
-import com.cxb.storehelperserver.repository.CommodityRepository;
-import com.cxb.storehelperserver.repository.UserGroupRepository;
-import com.cxb.storehelperserver.service.CheckService;
+import com.cxb.storehelperserver.model.*;
+import com.cxb.storehelperserver.repository.*;
 import com.cxb.storehelperserver.util.RestResult;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -13,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -35,9 +32,15 @@ public class CommodityService {
     private CommodityAttrRepository commodityAttrRepository;
 
     @Resource
+    private AttributeTemplateRepository attributeTemplateRepository;
+
+    @Resource
+    private CategoryRepository categoryRepository;
+
+    @Resource
     private UserGroupRepository userGroupRepository;
 
-    public RestResult addCommodity(int id, TCommodity commodity) {
+    public RestResult addCommodity(int id, TCommodity commodity, List<Integer> attributes) {
         // 验证公司
         String msg = checkService.checkGroup(id, commodity.getGid());
         if (null != msg) {
@@ -52,10 +55,26 @@ public class CommodityService {
         if (!commodityRepository.insert(commodity)) {
             return RestResult.fail("添加商品信息失败");
         }
+
+        // 设置商品属性
+        if (null != attributes && !attributes.isEmpty()) {
+            // 检测属性数量是否匹配
+            List<TAttributeTemplate> attributeTemplates = attributeTemplateRepository.find(commodity.getGid(), commodity.getAtid());
+            if (null == attributeTemplates) {
+                return RestResult.fail("商品属性模板信息异常");
+            }
+            if (attributeTemplates.size() != attributes.size()) {
+                return RestResult.fail("商品属性数量不匹配");
+            }
+
+            if (!commodityAttrRepository.update(commodity.getId(), attributes)) {
+                return RestResult.fail("添加商品属性失败");
+            }
+        }
         return RestResult.ok();
     }
 
-    public RestResult setCommodity(int id, TCommodity commodity) {
+    public RestResult setCommodity(int id, TCommodity commodity, List<Integer> attributes) {
         // 验证公司
         String msg = checkService.checkGroup(id, commodity.getGid());
         if (null != msg) {
@@ -65,6 +84,22 @@ public class CommodityService {
         // 商品名重名检测
         if (commodityRepository.check(commodity.getGid(), commodity.getName())) {
             return RestResult.fail("商品名称已存在");
+        }
+
+        // 设置商品属性
+        if (null != attributes && !attributes.isEmpty()) {
+            // 检测属性数量是否匹配
+            List<TAttributeTemplate> attributeTemplates = attributeTemplateRepository.find(commodity.getGid(), commodity.getAtid());
+            if (null == attributeTemplates) {
+                return RestResult.fail("商品属性模板信息异常");
+            }
+            if (attributeTemplates.size() != attributes.size()) {
+                return RestResult.fail("商品属性数量不匹配");
+            }
+
+            if (!commodityAttrRepository.update(commodity.getId(), attributes)) {
+                return RestResult.fail("添加商品属性失败");
+            }
         }
 
         if (!commodityRepository.update(commodity)) {
@@ -98,13 +133,40 @@ public class CommodityService {
             return RestResult.fail("获取公司信息异常");
         }
 
-        List<TCommodity> categories = commodityRepository.findByGroup(group.getGid());
-        if (null == categories) {
+        List<TCommodity> commodities = commodityRepository.findByGroup(group.getGid());
+        if (null == commodities) {
             return RestResult.fail("获取商品信息异常");
         }
 
+        val datas = new ArrayList<HashMap<String, Object>>();
+        for (TCommodity c : commodities) {
+            val tmp = new HashMap<String, Object>();
+            tmp.put("id", c.getId());
+            tmp.put("code", c.getCode());
+            tmp.put("name", c.getName());
+            tmp.put("price", c.getPrice());
+            tmp.put("remark", c.getRemark());
+            datas.add(tmp);
+
+            // 品类
+            TCategory category = categoryRepository.find(c.getCid());
+            if (null != category) {
+                tmp.put("c", category.getName());
+            }
+
+            // 属性
+            List<TCommodityAttr> attrs = commodityAttrRepository.find(c.getId());
+            if (null != attrs && !attrs.isEmpty()) {
+                val list = new ArrayList<Integer>();
+                tmp.put("attrs", list);
+                for (TCommodityAttr attr : attrs) {
+                    list.add(attr.getValue());
+                }
+            }
+        }
+
         val data = new HashMap<String, Object>();
-        data.put("list", categories);
+        data.put("list", datas);
         return RestResult.ok(data);
     }
 }

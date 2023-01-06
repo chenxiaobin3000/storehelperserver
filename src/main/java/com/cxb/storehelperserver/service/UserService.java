@@ -114,7 +114,7 @@ public class UserService {
         }
 
         // 权限校验
-        if (!checkService.checkRolePermission(id, user_getlist)) {
+        if (!checkService.checkRolePermission(id, user_userlist)) {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
@@ -137,7 +137,7 @@ public class UserService {
         }
 
         // 权限校验
-        if (!checkService.checkRolePermission(id, user_getlist)) {
+        if (!checkService.checkRolePermission(id, user_userlist)) {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 

@@ -6,6 +6,8 @@ import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Size;
+import java.util.List;
 
 /**
  * desc:
@@ -44,4 +46,7 @@ public class SetCommodityValid implements IValid {
 
     @Length(max = 16, message = "商品备注长度不能大于16个字符")
     private String remark;
+
+    @Size(max = 8, message = "商品属性不能超过8个")
+    private List<Integer> attributes;
 }
