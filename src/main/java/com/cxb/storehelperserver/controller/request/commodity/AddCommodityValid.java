@@ -45,5 +45,5 @@ public class AddCommodityValid implements IValid {
     private String remark;
 
     @Size(max = 8, message = "商品属性不能超过8个")
-    private List<Integer> attributes;
+    private List<String> attrs;
 }

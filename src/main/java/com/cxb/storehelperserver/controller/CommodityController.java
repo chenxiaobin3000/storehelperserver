@@ -38,7 +38,7 @@ public class CommodityController {
         commodity.setCid(req.getCid());
         commodity.setPrice(req.getPrice());
         commodity.setRemark(req.getRemark());
-        return commodityService.addCommodity(req.getId(), commodity, req.getAttributes());
+        return commodityService.addCommodity(req.getId(), commodity, req.getAttrs());
     }
 
     @PostMapping("/setCommodity")
@@ -52,7 +52,7 @@ public class CommodityController {
         commodity.setCid(req.getCid());
         commodity.setPrice(req.getPrice());
         commodity.setRemark(req.getRemark());
-        return commodityService.setCommodity(req.getId(), commodity, req.getAttributes());
+        return commodityService.setCommodity(req.getId(), commodity, req.getAttrs());
     }
 
     @PostMapping("/delCommodity")
@@ -62,6 +62,6 @@ public class CommodityController {
 
     @PostMapping("/getGroupCommodity")
     public RestResult getGroupCommodity(@Validated @RequestBody GetGroupCommodityValid req) {
-        return commodityService.getGroupCommodity(req.getId());
+        return commodityService.getGroupCommodity(req.getId(), req.getPage(), req.getLimit(), req.getSearch());
     }
 }

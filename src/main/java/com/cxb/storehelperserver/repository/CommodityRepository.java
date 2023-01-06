@@ -3,6 +3,7 @@ package com.cxb.storehelperserver.repository;
 import com.cxb.storehelperserver.mapper.TCommodityMapper;
 import com.cxb.storehelperserver.model.TCommodity;
 import com.cxb.storehelperserver.model.TCommodityExample;
+import com.cxb.storehelperserver.model.TGroupExample;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
@@ -41,13 +42,38 @@ public class CommodityRepository extends BaseRepository<TCommodity> {
         return commodity;
     }
 
-    public List<TCommodity> findByGroup(int gid) {
+    public int total(int gid, String search) {
+        // 包含搜索的不缓存
+        if (null != search) {
+            TCommodityExample example = new TCommodityExample();
+            example.or().andGidEqualTo(gid).andNameLike("%" + search + "%");
+            return (int) commodityMapper.countByExample(example);
+        } else {
+            int total = getTotalCache(gid);
+            if (0 != total) {
+                return total;
+            }
+            TCommodityExample example = new TCommodityExample();
+            example.or().andGidEqualTo(gid);
+            total = (int) commodityMapper.countByExample(example);
+            setTotalCache(gid, total);
+            return total;
+        }
+    }
+
+    public List<TCommodity> pagination(int gid, int page, int limit, String search) {
         List<TCommodity> commodities = List.class.cast(redisTemplate.opsForValue().get(cacheName + cacheGroupName + gid));
         if (null != commodities) {
             return commodities;
         }
         TCommodityExample example = new TCommodityExample();
-        example.or().andGidEqualTo(gid);
+        if (null == search) {
+            example.or().andGidEqualTo(gid);
+        } else {
+            example.or().andGidEqualTo(gid).andNameLike("%" + search + "%");
+        }
+        example.setOffset((page - 1) * limit);
+        example.setLimit(limit);
         commodities = commodityMapper.selectByExample(example);
         if (null != commodities) {
             redisTemplate.opsForValue().set(cacheName + cacheGroupName + gid, commodities);

@@ -40,14 +40,14 @@ public class CommodityAttrRepository extends BaseRepository<List> {
         return commoditieAtrrs;
     }
 
-    public boolean update(int cid, List<Integer> commoditieAtrrs) {
+    public boolean update(int cid, List<String> commoditieAtrrs) {
         TCommodityAttrExample example = new TCommodityAttrExample();
         example.or().andCidEqualTo(cid);
         commodityAttrMapper.deleteByExample(example);
 
         int index = 0;
         TCommodityAttr commodityAttr = new TCommodityAttr();
-        for (Integer attr : commoditieAtrrs) {
+        for (String attr : commoditieAtrrs) {
             index = index + 1;
             commodityAttr.setId(0);
             commodityAttr.setCid(cid);
@@ -58,6 +58,6 @@ public class CommodityAttrRepository extends BaseRepository<List> {
             }
         }
         setCache(cid, commoditieAtrrs);
-        return false;
+        return true;
     }
 }
