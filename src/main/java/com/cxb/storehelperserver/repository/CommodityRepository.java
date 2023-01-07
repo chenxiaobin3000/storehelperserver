@@ -82,12 +82,31 @@ public class CommodityRepository extends BaseRepository<TCommodity> {
     }
 
     /*
-     * desc: 判断公司是否存在品类
+     * desc: 判断公司是否存在商品编号
      */
-    public boolean check(int gid, String name) {
+    public boolean checkCode(int gid, String code, int id) {
+        TCommodityExample example = new TCommodityExample();
+        example.or().andGidEqualTo(gid).andCodeEqualTo(code);
+        if (0 == id) {
+            return null != commodityMapper.selectOneByExample(example);
+        } else {
+            TCommodity commodity = commodityMapper.selectOneByExample(example);
+            return null != commodity && !commodity.getId().equals(id);
+        }
+    }
+
+    /*
+     * desc: 判断公司是否存在商品名
+     */
+    public boolean checkName(int gid, String name, int id) {
         TCommodityExample example = new TCommodityExample();
         example.or().andGidEqualTo(gid).andNameEqualTo(name);
-        return null != commodityMapper.selectOneByExample(example);
+        if (0 == id) {
+            return null != commodityMapper.selectOneByExample(example);
+        } else {
+            TCommodity commodity = commodityMapper.selectOneByExample(example);
+            return null != commodity && !commodity.getId().equals(id);
+        }
     }
 
     public boolean insert(TCommodity row) {

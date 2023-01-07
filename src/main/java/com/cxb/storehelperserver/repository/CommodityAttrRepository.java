@@ -5,9 +5,11 @@ import com.cxb.storehelperserver.model.TAttributeTemplate;
 import com.cxb.storehelperserver.model.TCommodityAttr;
 import com.cxb.storehelperserver.model.TCommodityAttrExample;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -46,18 +48,25 @@ public class CommodityAttrRepository extends BaseRepository<List> {
         commodityAttrMapper.deleteByExample(example);
 
         int index = 0;
-        TCommodityAttr commodityAttr = new TCommodityAttr();
+        val list = new ArrayList<TCommodityAttr>();
         for (String attr : commoditieAtrrs) {
-            index = index + 1;
-            commodityAttr.setId(0);
+            TCommodityAttr commodityAttr = new TCommodityAttr();
             commodityAttr.setCid(cid);
-            commodityAttr.setIdx(index);
+            commodityAttr.setIdx(++index);
             commodityAttr.setValue(attr);
             if (commodityAttrMapper.insert(commodityAttr) < 0) {
                 return false;
             }
+            list.add(commodityAttr);
         }
-        setCache(cid, commoditieAtrrs);
+        setCache(cid, list);
         return true;
+    }
+
+    public boolean delete(int cid) {
+        delCache(cid);
+        TCommodityAttrExample example = new TCommodityAttrExample();
+        example.or().andCidEqualTo(cid);
+        return commodityAttrMapper.deleteByExample(example) > 0;
     }
 }

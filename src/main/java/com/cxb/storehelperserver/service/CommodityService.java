@@ -48,7 +48,10 @@ public class CommodityService {
         }
 
         // 商品名重名检测
-        if (commodityRepository.check(commodity.getGid(), commodity.getName())) {
+        if (commodityRepository.checkCode(commodity.getGid(), commodity.getCode(), 0)) {
+            return RestResult.fail("商品编号已存在");
+        }
+        if (commodityRepository.checkName(commodity.getGid(), commodity.getName(), 0)) {
             return RestResult.fail("商品名称已存在");
         }
 
@@ -57,8 +60,6 @@ public class CommodityService {
         if (null == attributeTemplates) {
             return RestResult.fail("商品属性模板信息异常");
         }
-        log.info("t:" + attributeTemplates.size());
-        log.info("a:" + attributes.size());
         if (null == attributes || attributes.isEmpty() || attributeTemplates.size() != attributes.size()) {
             return RestResult.fail("商品属性数量不匹配");
         }
@@ -81,7 +82,10 @@ public class CommodityService {
         }
 
         // 商品名重名检测
-        if (commodityRepository.check(commodity.getGid(), commodity.getName())) {
+        if (commodityRepository.checkCode(commodity.getGid(), commodity.getCode(), commodity.getId())) {
+            return RestResult.fail("商品编号已存在");
+        }
+        if (commodityRepository.checkName(commodity.getGid(), commodity.getName(), commodity.getId())) {
             return RestResult.fail("商品名称已存在");
         }
 
@@ -90,8 +94,6 @@ public class CommodityService {
         if (null == attributeTemplates) {
             return RestResult.fail("商品属性模板信息异常");
         }
-        log.info("t:" + attributeTemplates.size());
-        log.info("a:" + attributes.size());
         if (null == attributes || attributes.isEmpty() || attributeTemplates.size() != attributes.size()) {
             return RestResult.fail("商品属性数量不匹配");
         }
@@ -120,6 +122,10 @@ public class CommodityService {
 
         if (!commodityRepository.delete(cid)) {
             return RestResult.fail("删除商品信息失败");
+        }
+
+        if (!commodityAttrRepository.delete(commodity.getId())) {
+            return RestResult.fail("删除商品属性失败");
         }
         return RestResult.ok();
     }
@@ -150,15 +156,11 @@ public class CommodityService {
             tmp.put("id", c.getId());
             tmp.put("code", c.getCode());
             tmp.put("name", c.getName());
-            tmp.put("price", c.getPrice());
+            tmp.put("cid", c.getCid());
+            tmp.put("atid", c.getAtid());
+            tmp.put("price", c.getPrice().floatValue());
             tmp.put("remark", c.getRemark());
             datas.add(tmp);
-
-            // 品类
-            TCategory category = categoryRepository.find(c.getCid());
-            if (null != category) {
-                tmp.put("c", category.getName());
-            }
 
             // 属性
             List<TCommodityAttr> attrs = commodityAttrRepository.find(c.getId());

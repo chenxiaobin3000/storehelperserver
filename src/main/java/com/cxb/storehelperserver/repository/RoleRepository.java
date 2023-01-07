@@ -58,7 +58,7 @@ public class RoleRepository extends BaseRepository<TRole> {
     /*
      * desc: 判断公司是否存在角色
      */
-    public boolean check(int gid, String name) {
+    public boolean check(int gid, String name, int id) {
         TRoleExample example = new TRoleExample();
         example.or().andGidEqualTo(gid);
         if (null == name) {
@@ -66,7 +66,12 @@ public class RoleRepository extends BaseRepository<TRole> {
         } else {
             example.or().andGidEqualTo(gid).andNameEqualTo(name);
         }
-        return null != roleMapper.selectOneByExample(example);
+        if (0 == id) {
+            return null != roleMapper.selectOneByExample(example);
+        } else {
+            TRole role = roleMapper.selectOneByExample(example);
+            return null != role && !role.getId().equals(id);
+        }
     }
 
     public List<TRole> all(int gid, String search) {

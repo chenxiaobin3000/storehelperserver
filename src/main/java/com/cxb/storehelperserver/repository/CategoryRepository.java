@@ -59,10 +59,15 @@ public class CategoryRepository extends BaseRepository<TCategory> {
     /*
      * desc: 判断公司是否存在品类
      */
-    public boolean check(int gid, String name) {
+    public boolean check(int gid, String name, int id) {
         TCategoryExample example = new TCategoryExample();
         example.or().andGidEqualTo(gid).andNameEqualTo(name);
-        return null != categoryMapper.selectOneByExample(example);
+        if (0 == id) {
+            return null != categoryMapper.selectOneByExample(example);
+        } else {
+            TCategory category = categoryMapper.selectOneByExample(example);
+            return null != category && !category.getId().equals(id);
+        }
     }
 
     public boolean insert(TCategory row) {

@@ -41,7 +41,7 @@ public class CategoryService {
         }
 
         // 品类名重名检测
-        if (categoryRepository.check(category.getGid(), category.getName())) {
+        if (categoryRepository.check(category.getGid(), category.getName(), 0)) {
             return RestResult.fail("品类名称已存在");
         }
 
@@ -59,7 +59,7 @@ public class CategoryService {
         }
 
         // 品类名重名检测
-        if (categoryRepository.check(category.getGid(), category.getName())) {
+        if (categoryRepository.check(category.getGid(), category.getName(), category.getId())) {
             return RestResult.fail("品类名称已存在");
         }
 

@@ -108,11 +108,10 @@ public class AttributeTemplateRepository extends BaseRepository<List> {
         int code = 0;
         TAttributeTemplate attributeTemplate = new TAttributeTemplate();
         for (List<TAttributeTemplate> template : templates) {
-            code = code + 1;
             for (TAttributeTemplate t : template) {
                 attributeTemplate.setId(0);
                 attributeTemplate.setGid(gid);
-                attributeTemplate.setCode(code);
+                attributeTemplate.setCode(++code);
                 attributeTemplate.setAid(t.getAid());
                 attributeTemplate.setIdx(t.getIdx());
                 if (attributeTemplateMapper.insert(attributeTemplate) < 0) {

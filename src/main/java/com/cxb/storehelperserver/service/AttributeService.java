@@ -46,7 +46,7 @@ public class AttributeService {
         }
 
         // 属性名重名检测
-        if (attributeRepository.check(attribute.getGid(), attribute.getName())) {
+        if (attributeRepository.check(attribute.getGid(), attribute.getName(), 0)) {
             return RestResult.fail("属性名称已存在");
         }
 
@@ -64,7 +64,7 @@ public class AttributeService {
         }
 
         // 属性名重名检测
-        if (attributeRepository.check(attribute.getGid(), attribute.getName())) {
+        if (attributeRepository.check(attribute.getGid(), attribute.getName(), attribute.getId())) {
             return RestResult.fail("属性名称已存在");
         }
 
@@ -176,14 +176,13 @@ public class AttributeService {
 
         int index = 0;
         for (String name : template) {
-            index = index + 1;
             for (TAttribute attribute : attributes) {
                 if (name.equals(attribute.getName())) {
                     TAttributeTemplate tmp = new TAttributeTemplate();
                     tmp.setGid(gid);
                     tmp.setCode(code);
                     tmp.setAid(attribute.getId());
-                    tmp.setIdx(index);
+                    tmp.setIdx(++index);
                     list.add(tmp);
                     break;
                 }

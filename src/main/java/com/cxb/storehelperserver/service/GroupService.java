@@ -69,7 +69,7 @@ public class GroupService {
         }
 
         // 检查是否存在关联角色
-        if (roleRepository.check(gid, null)) {
+        if (roleRepository.check(gid, null, 0)) {
             return RestResult.fail("删除公司失败，还存在关联的角色");
         }
 

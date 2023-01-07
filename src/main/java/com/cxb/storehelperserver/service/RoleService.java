@@ -49,7 +49,7 @@ public class RoleService {
         }
 
         // 角色名重名检测
-        if (roleRepository.check(role.getGid(), role.getName())) {
+        if (roleRepository.check(role.getGid(), role.getName(), 0)) {
             return RestResult.fail("角色名称已存在");
         }
 
@@ -71,7 +71,7 @@ public class RoleService {
         }
 
         // 角色名重名检测
-        if (roleRepository.check(role.getGid(), role.getName())) {
+        if (roleRepository.check(role.getGid(), role.getName(), id)) {
             return RestResult.fail("角色名称已存在");
         }
 

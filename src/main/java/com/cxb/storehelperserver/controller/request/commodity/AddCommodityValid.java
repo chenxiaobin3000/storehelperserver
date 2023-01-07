@@ -7,6 +7,7 @@ import org.hibernate.validator.constraints.Length;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -39,7 +40,7 @@ public class AddCommodityValid implements IValid {
     private int cid;
 
     @Min(value = 1, message = "商品价格错误")
-    private int price;
+    private BigDecimal price;
 
     @Length(max = 16, message = "商品备注长度不能大于16个字符")
     private String remark;

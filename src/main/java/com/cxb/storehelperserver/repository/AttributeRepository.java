@@ -58,10 +58,15 @@ public class AttributeRepository extends BaseRepository<TAttribute> {
     /*
      * desc: 判断公司是否存在属性
      */
-    public boolean check(int gid, String name) {
+    public boolean check(int gid, String name, int id) {
         TAttributeExample example = new TAttributeExample();
         example.or().andGidEqualTo(gid).andNameEqualTo(name);
-        return null != attributeMapper.selectOneByExample(example);
+        if (0 == id) {
+            return null != attributeMapper.selectOneByExample(example);
+        } else {
+            TAttribute attribute = attributeMapper.selectOneByExample(example);
+            return null != attribute && !attribute.getId().equals(id);
+        }
     }
 
     public boolean insert(TAttribute row) {
