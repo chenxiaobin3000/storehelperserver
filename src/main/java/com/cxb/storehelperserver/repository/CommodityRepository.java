@@ -3,7 +3,6 @@ package com.cxb.storehelperserver.repository;
 import com.cxb.storehelperserver.mapper.TCommodityMapper;
 import com.cxb.storehelperserver.model.TCommodity;
 import com.cxb.storehelperserver.model.TCommodityExample;
-import com.cxb.storehelperserver.model.TGroupExample;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
@@ -21,11 +20,8 @@ public class CommodityRepository extends BaseRepository<TCommodity> {
     @Resource
     private TCommodityMapper commodityMapper;
 
-    private final String cacheGroupName;
-
     public CommodityRepository() {
         init("comm::");
-        cacheGroupName = cacheName + "group::";
     }
 
     public TCommodity find(int id) {
@@ -62,10 +58,6 @@ public class CommodityRepository extends BaseRepository<TCommodity> {
     }
 
     public List<TCommodity> pagination(int gid, int page, int limit, String search) {
-        List<TCommodity> commodities = List.class.cast(redisTemplate.opsForValue().get(cacheName + cacheGroupName + gid));
-        if (null != commodities) {
-            return commodities;
-        }
         TCommodityExample example = new TCommodityExample();
         if (null == search) {
             example.or().andGidEqualTo(gid);
@@ -74,11 +66,7 @@ public class CommodityRepository extends BaseRepository<TCommodity> {
         }
         example.setOffset((page - 1) * limit);
         example.setLimit(limit);
-        commodities = commodityMapper.selectByExample(example);
-        if (null != commodities) {
-            redisTemplate.opsForValue().set(cacheName + cacheGroupName + gid, commodities);
-        }
-        return commodities;
+        return commodityMapper.selectByExample(example);
     }
 
     /*
@@ -112,7 +100,6 @@ public class CommodityRepository extends BaseRepository<TCommodity> {
     public boolean insert(TCommodity row) {
         if (commodityMapper.insert(row) > 0) {
             setCache(row.getId(), row);
-            delCache(cacheGroupName + row.getGid());
             return true;
         }
         return false;
@@ -121,18 +108,12 @@ public class CommodityRepository extends BaseRepository<TCommodity> {
     public boolean update(TCommodity row) {
         if (commodityMapper.updateByPrimaryKey(row) > 0) {
             setCache(row.getId(), row);
-            delCache(cacheGroupName + row.getGid());
             return true;
         }
         return false;
     }
 
     public boolean delete(int id) {
-        TCommodity commodity = find(id);
-        if (null == commodity) {
-            return false;
-        }
-        delCache(cacheGroupName + commodity.getGid());
         delCache(id);
         return commodityMapper.deleteByPrimaryKey(id) > 0;
     }

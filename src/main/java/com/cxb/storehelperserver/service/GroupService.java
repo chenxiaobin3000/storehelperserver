@@ -111,18 +111,6 @@ public class GroupService {
         return RestResult.ok(data);
     }
 
-    public RestResult getUserGroup(int uid) {
-        TUserGroup userGroup = userGroupRepository.find(uid);
-        if (null == userGroup) {
-            return RestResult.fail("用户信息异常");
-        }
-        TGroup group = groupRepository.find(userGroup.getGid());
-        if (null == group) {
-            return RestResult.fail("公司信息异常");
-        }
-        return RestResult.ok(group);
-    }
-
     public RestResult setUserGroup(int id, int uid, int gid) {
         // 操作员必须同公司用户
         TUserGroup group = userGroupRepository.find(id);

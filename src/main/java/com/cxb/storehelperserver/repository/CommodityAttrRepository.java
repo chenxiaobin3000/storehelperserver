@@ -1,7 +1,6 @@
 package com.cxb.storehelperserver.repository;
 
 import com.cxb.storehelperserver.mapper.TCommodityAttrMapper;
-import com.cxb.storehelperserver.model.TAttributeTemplate;
 import com.cxb.storehelperserver.model.TCommodityAttr;
 import com.cxb.storehelperserver.model.TCommodityAttrExample;
 import lombok.extern.slf4j.Slf4j;
@@ -42,14 +41,14 @@ public class CommodityAttrRepository extends BaseRepository<List> {
         return commoditieAtrrs;
     }
 
-    public boolean update(int cid, List<String> commoditieAtrrs) {
+    public boolean update(int cid, List<String> commodityAtrrs) {
         TCommodityAttrExample example = new TCommodityAttrExample();
         example.or().andCidEqualTo(cid);
         commodityAttrMapper.deleteByExample(example);
 
         int index = 0;
         val list = new ArrayList<TCommodityAttr>();
-        for (String attr : commoditieAtrrs) {
+        for (String attr : commodityAtrrs) {
             TCommodityAttr commodityAttr = new TCommodityAttr();
             commodityAttr.setCid(cid);
             commodityAttr.setIdx(++index);

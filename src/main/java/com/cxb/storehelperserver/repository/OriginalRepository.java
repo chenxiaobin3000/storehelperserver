@@ -20,11 +20,8 @@ public class OriginalRepository extends BaseRepository<TOriginal> {
     @Resource
     private TOriginalMapper originalMapper;
 
-    private final String cacheGroupName;
-
     public OriginalRepository() {
         init("ori::");
-        cacheGroupName = cacheName + "group::";
     }
 
     public TOriginal find(int id) {
@@ -41,24 +38,68 @@ public class OriginalRepository extends BaseRepository<TOriginal> {
         return original;
     }
 
-    public List<TOriginal> findByGroup(int gid) {
-        List<TOriginal> originals = List.class.cast(redisTemplate.opsForValue().get(cacheName + cacheGroupName + gid));
-        if (null != originals) {
-            return originals;
+    public int total(int gid, String search) {
+        // 包含搜索的不缓存
+        if (null != search) {
+            TOriginalExample example = new TOriginalExample();
+            example.or().andGidEqualTo(gid).andNameLike("%" + search + "%");
+            return (int) originalMapper.countByExample(example);
+        } else {
+            int total = getTotalCache(gid);
+            if (0 != total) {
+                return total;
+            }
+            TOriginalExample example = new TOriginalExample();
+            example.or().andGidEqualTo(gid);
+            total = (int) originalMapper.countByExample(example);
+            setTotalCache(gid, total);
+            return total;
         }
+    }
+
+    public List<TOriginal> pagination(int gid, int page, int limit, String search) {
         TOriginalExample example = new TOriginalExample();
-        example.or().andGidEqualTo(gid);
-        originals = originalMapper.selectByExample(example);
-        if (null != originals) {
-            redisTemplate.opsForValue().set(cacheName + cacheGroupName + gid, originals);
+        if (null == search) {
+            example.or().andGidEqualTo(gid);
+        } else {
+            example.or().andGidEqualTo(gid).andNameLike("%" + search + "%");
         }
-        return originals;
+        example.setOffset((page - 1) * limit);
+        example.setLimit(limit);
+        return originalMapper.selectByExample(example);
+    }
+
+    /*
+     * desc: 判断公司是否存在商品编号
+     */
+    public boolean checkCode(int gid, String code, int id) {
+        TOriginalExample example = new TOriginalExample();
+        example.or().andGidEqualTo(gid).andCodeEqualTo(code);
+        if (0 == id) {
+            return null != originalMapper.selectOneByExample(example);
+        } else {
+            TOriginal original = originalMapper.selectOneByExample(example);
+            return null != original && !original.getId().equals(id);
+        }
+    }
+
+    /*
+     * desc: 判断公司是否存在商品名
+     */
+    public boolean checkName(int gid, String name, int id) {
+        TOriginalExample example = new TOriginalExample();
+        example.or().andGidEqualTo(gid).andNameEqualTo(name);
+        if (0 == id) {
+            return null != originalMapper.selectOneByExample(example);
+        } else {
+            TOriginal original = originalMapper.selectOneByExample(example);
+            return null != original && !original.getId().equals(id);
+        }
     }
 
     public boolean insert(TOriginal row) {
         if (originalMapper.insert(row) > 0) {
             setCache(row.getId(), row);
-            delCache(cacheGroupName + row.getGid());
             return true;
         }
         return false;
@@ -67,18 +108,12 @@ public class OriginalRepository extends BaseRepository<TOriginal> {
     public boolean update(TOriginal row) {
         if (originalMapper.updateByPrimaryKey(row) > 0) {
             setCache(row.getId(), row);
-            delCache(cacheGroupName + row.getGid());
             return true;
         }
         return false;
     }
 
     public boolean delete(int id) {
-        TOriginal original = find(id);
-        if (null == original) {
-            return false;
-        }
-        delCache(cacheGroupName + original.getGid());
         delCache(id);
         return originalMapper.deleteByPrimaryKey(id) > 0;
     }

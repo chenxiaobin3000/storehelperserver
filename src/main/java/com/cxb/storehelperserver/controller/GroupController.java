@@ -53,11 +53,6 @@ public class GroupController {
         return groupService.getGroupList(req.getId(), req.getPage(), req.getLimit(), req.getSearch());
     }
 
-    @PostMapping("/getUserGroup")
-    public RestResult getUserGroup(@Validated @RequestBody GetUserGroupValid req) {
-        return groupService.getUserGroup(1);
-    }
-
     @PostMapping("/setUserGroup")
     public RestResult setUserGroup(@Validated @RequestBody SetUserGroupValid req) {
         return groupService.setUserGroup(req.getId(), req.getUid(), req.getGid());
