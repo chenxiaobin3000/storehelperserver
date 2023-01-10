@@ -1,7 +1,8 @@
 package com.cxb.storehelperserver.service;
 
 import com.cxb.storehelperserver.model.TStorage;
-import com.cxb.storehelperserver.repository.StorageRepository;
+import com.cxb.storehelperserver.model.TUserGroup;
+import com.cxb.storehelperserver.repository.*;
 import com.cxb.storehelperserver.util.RestResult;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -29,6 +30,24 @@ public class StorageService {
     @Resource
     private StorageRepository storageRepository;
 
+    @Resource
+    private UserRepository userRepository;
+
+    @Resource
+    private UserGroupRepository userGroupRepository;
+
+    @Resource
+    private ScInOrderRepository scInOrderRepository;
+
+    @Resource
+    private ScOutOrderRepository scOutOrderRepository;
+
+    @Resource
+    private SoInOrderRepository soInOrderRepository;
+
+    @Resource
+    private SoOutOrderRepository soOutOrderRepository;
+
     public RestResult addStorage(TStorage storage) {
         if (!storageRepository.insert(storage)) {
             return RestResult.fail("添加仓库信息失败");
@@ -46,44 +65,52 @@ public class StorageService {
     public RestResult delStorage(int id, int gid) {
         // 权限校验，必须admin
         if (!checkService.checkRolePermission(id, storage_address)) {
-            return RestResult.fail("本账号没有管理员权限");
+            return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
-        // 检查是否存在关联员工
-        if (userStorageRepository.checkUser(gid)) {
-            return RestResult.fail("删除仓库失败，还存在关联的员工");
+        // 是否存在出入库信息
+        if (scInOrderRepository.check(gid)) {
+            return RestResult.fail("删除失败，仓库还存在商品入库订单！");
+        }
+        if (scOutOrderRepository.check(gid)) {
+            return RestResult.fail("删除失败，仓库还存在商品出库订单！");
+        }
+        if (soInOrderRepository.check(gid)) {
+            return RestResult.fail("删除失败，仓库还存在原料入库订单！");
+        }
+        if (soOutOrderRepository.check(gid)) {
+            return RestResult.fail("删除失败，仓库还存在原料出库订单！");
         }
 
-        // 检查是否存在关联角色
-        if (roleRepository.check(gid, null, 0)) {
-            return RestResult.fail("删除仓库失败，还存在关联的角色");
-        }
-
-        // 仓库是用软删除
         if (!storageRepository.delete(gid)) {
             return RestResult.fail("删除仓库信息失败");
         }
         return RestResult.ok();
     }
 
-    public RestResult getStorageList(int id, int page, int limit, String search) {
-        // 权限校验，必须admin
-        if (!checkService.checkRolePermission(id, admin_storagelist)) {
-            return RestResult.fail("本账号没有管理员权限");
+    public RestResult getGroupStorage(int id, int page, int limit, String search) {
+        // 获取公司信息
+        TUserGroup group = userGroupRepository.find(id);
+        if (null == group) {
+            return RestResult.fail("获取公司信息异常");
         }
 
-        int total = storageRepository.total(search);
+        int total = storageRepository.total(group.getGid(), search);
         if (0 == total) {
-            return RestResult.fail("未查询到任何仓库信息");
+            val data = new HashMap<String, Object>();
+            data.put("total", 0);
+            data.put("list", null);
+            return RestResult.ok(data);
         }
 
         // 查询联系人
         val list2 = new ArrayList<>();
-        val list = storageRepository.pagination(page, limit, search);
+        val list = storageRepository.pagination(group.getGid(), page, limit, search);
         if (null != list && !list.isEmpty()) {
             for (TStorage g : list) {
                 val storage = new HashMap<String, Object>();
                 storage.put("id", g.getId());
+                storage.put("area", g.getArea());
                 storage.put("name", g.getName());
                 storage.put("address", g.getAddress());
                 storage.put("contact", userRepository.find(g.getContact()));
@@ -95,59 +122,5 @@ public class StorageService {
         data.put("total", total);
         data.put("list", list2);
         return RestResult.ok(data);
-    }
-
-    public RestResult setUserStorage(int id, int uid, int gid) {
-        // 操作员必须同仓库用户
-        TUserStorage storage = userStorageRepository.find(id);
-        if (!storage.getGid().equals(gid)) {
-            return RestResult.fail("操作仅限本仓库");
-        }
-
-        // 权限校验
-        if (!checkService.checkRolePermission(id, system_rolelist)) {
-            return RestResult.fail("本账号没有相关的权限，请联系管理员");
-        }
-
-        // 已存在就修改，不存在就新增
-        storage = userStorageRepository.find(uid);
-        if (null == storage) {
-            storage = new TUserStorage();
-            storage.setUid(uid);
-            storage.setGid(gid);
-            if (!userStorageRepository.insert(storage)) {
-                return RestResult.fail("关联仓库失败");
-            }
-        } else {
-            storage.setGid(gid);
-            if (!userStorageRepository.update(storage)) {
-                return RestResult.fail("修改关联仓库失败");
-            }
-        }
-        return RestResult.ok();
-    }
-
-    public RestResult setUserStorageAdmin(int id, int uid, int gid) {
-        // 权限校验，必须admin
-        if (!checkService.checkRolePermission(id, admin)) {
-            return RestResult.fail("本账号没有管理员权限");
-        }
-
-        // 已存在就修改，不存在就新增
-        TUserStorage storage = userStorageRepository.find(uid);
-        if (null == storage) {
-            storage = new TUserStorage();
-            storage.setUid(uid);
-            storage.setGid(gid);
-            if (!userStorageRepository.insert(storage)) {
-                return RestResult.fail("关联仓库失败");
-            }
-        } else {
-            storage.setGid(gid);
-            if (!userStorageRepository.update(storage)) {
-                return RestResult.fail("修改关联仓库失败");
-            }
-        }
-        return RestResult.ok();
     }
 }

@@ -145,7 +145,7 @@ public class CommodityService {
             return RestResult.ok(data);
         }
 
-        List<TCommodity> commodities = commodityRepository.pagination(group.getGid(), page, limit, search);
+        val commodities = commodityRepository.pagination(group.getGid(), page, limit, search);
         if (null == commodities) {
             return RestResult.fail("获取商品信息异常");
         }

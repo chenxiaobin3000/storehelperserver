@@ -148,7 +148,7 @@ public class OriginalService {
             return RestResult.ok(data);
         }
 
-        List<TOriginal> commodities = originalRepository.pagination(group.getGid(), page, limit, search);
+        val commodities = originalRepository.pagination(group.getGid(), page, limit, search);
         if (null == commodities) {
             return RestResult.fail("获取原料信息异常");
         }

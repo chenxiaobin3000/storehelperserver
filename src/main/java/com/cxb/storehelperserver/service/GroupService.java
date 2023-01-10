@@ -88,21 +88,27 @@ public class GroupService {
 
         int total = groupRepository.total(search);
         if (0 == total) {
+            val data = new HashMap<String, Object>();
+            data.put("total", 0);
+            data.put("list", null);
+            return RestResult.ok(data);
+        }
+
+        val list = groupRepository.pagination(page, limit, search);
+        if (null == list) {
             return RestResult.fail("未查询到任何公司信息");
         }
 
         // 查询联系人
         val list2 = new ArrayList<>();
-        val list = groupRepository.pagination(page, limit, search);
-        if (null != list && !list.isEmpty()) {
-            for (TGroup g : list) {
-                val group = new HashMap<String, Object>();
-                group.put("id", g.getId());
-                group.put("name", g.getName());
-                group.put("address", g.getAddress());
-                group.put("contact", userRepository.find(g.getContact()));
-                list2.add(group);
-            }
+        for (TGroup g : list) {
+            val group = new HashMap<String, Object>();
+            group.put("id", g.getId());
+            group.put("area", g.getArea());
+            group.put("name", g.getName());
+            group.put("address", g.getAddress());
+            group.put("contact", userRepository.find(g.getContact()));
+            list2.add(group);
         }
 
         val data = new HashMap<String, Object>();

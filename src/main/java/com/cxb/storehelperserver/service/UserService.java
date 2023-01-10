@@ -213,27 +213,32 @@ public class UserService {
 
         int total = userRepository.total(group.getGid(), search);
         if (0 == total) {
+            val data = new HashMap<String, Object>();
+            data.put("total", 0);
+            data.put("list", null);
+            return RestResult.ok(data);
+        }
+
+        val list = userRepository.pagination(page, limit, group.getGid(), search);
+        if (null == list) {
             return RestResult.fail("未查询到任何公司信息");
         }
 
         // 查询角色信息
         val list2 = new ArrayList<>();
-        val list = userRepository.pagination(page, limit, group.getGid(), search);
-        if (null != list && !list.isEmpty()) {
-            for (TUser u : list) {
-                val user = new HashMap<String, Object>();
-                user.put("id", u.getId());
-                user.put("name", u.getName());
-                user.put("phone", u.getPhone());
-                TUserRole userRole = userRoleRepository.find(u.getId());
-                if (null != userRole) {
-                    user.put("role", roleRepository.find(userRole.getRid()));
-                } else {
-                    user.put("role", null);
-                }
-                user.put("part", null);
-                list2.add(user);
+        for (TUser u : list) {
+            val user = new HashMap<String, Object>();
+            user.put("id", u.getId());
+            user.put("name", u.getName());
+            user.put("phone", u.getPhone());
+            TUserRole userRole = userRoleRepository.find(u.getId());
+            if (null != userRole) {
+                user.put("role", roleRepository.find(userRole.getRid()));
+            } else {
+                user.put("role", null);
             }
+            user.put("part", null);
+            list2.add(user);
         }
 
         val data = new HashMap<String, Object>();

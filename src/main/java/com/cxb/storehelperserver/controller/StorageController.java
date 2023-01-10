@@ -51,18 +51,8 @@ public class StorageController {
         return storageService.delStorage(req.getId(), req.getGid());
     }
 
-    @PostMapping("/getStorageList")
+    @PostMapping("/getGroupStorage")
     public RestResult getStorageList(@Validated @RequestBody GetStorageListValid req) {
-        return storageService.getStorageList(req.getId(), req.getPage(), req.getLimit(), req.getSearch());
-    }
-
-    @PostMapping("/setUserStorage")
-    public RestResult setUserStorage(@Validated @RequestBody SetUserStorageValid req) {
-        return storageService.setUserStorage(req.getId(), req.getUid(), req.getGid());
-    }
-
-    @PostMapping("/setUserStorageAdmin")
-    public RestResult setUserStorageAdmin(@Validated @RequestBody SetUserStorageValid req) {
-        return storageService.setUserStorageAdmin(req.getId(), req.getUid(), req.getGid());
+        return storageService.getGroupStorage(req.getId(), req.getPage(), req.getLimit(), req.getSearch());
     }
 }
