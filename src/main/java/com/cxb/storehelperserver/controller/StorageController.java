@@ -28,31 +28,33 @@ public class StorageController {
     @PostMapping("/addStorage")
     public RestResult addStorage(@Validated @RequestBody AddStorageValid req) {
         TStorage storage = new TStorage();
-        storage.setArea(req.getArea());
+        storage.setGid(req.getGid());
+        storage.setArea(Long.valueOf(req.getArea()));
         storage.setContact(req.getContact());
         storage.setName(req.getName());
         storage.setAddress(req.getAddress());
-        return storageService.addStorage(storage);
+        return storageService.addStorage(req.getId(), storage);
     }
 
     @PostMapping("/setStorage")
     public RestResult setStorage(@Validated @RequestBody SetStorageValid req) {
         TStorage storage = new TStorage();
-        storage.setId(req.getGid());
-        storage.setArea(req.getArea());
+        storage.setId(req.getSid());
+        storage.setGid(req.getGid());
+        storage.setArea(Long.valueOf(req.getArea()));
         storage.setContact(req.getContact());
         storage.setName(req.getName());
         storage.setAddress(req.getAddress());
-        return storageService.setStorage(storage);
+        return storageService.setStorage(req.getId(), storage);
     }
 
     @PostMapping("/delStorage")
     public RestResult delStorage(@Validated @RequestBody DelStorageValid req) {
-        return storageService.delStorage(req.getId(), req.getGid());
+        return storageService.delStorage(req.getId(), req.getGid(), req.getSid());
     }
 
     @PostMapping("/getGroupStorage")
-    public RestResult getStorageList(@Validated @RequestBody GetStorageListValid req) {
+    public RestResult getGroupStorage(@Validated @RequestBody GetGroupStorageValid req) {
         return storageService.getGroupStorage(req.getId(), req.getPage(), req.getLimit(), req.getSearch());
     }
 }

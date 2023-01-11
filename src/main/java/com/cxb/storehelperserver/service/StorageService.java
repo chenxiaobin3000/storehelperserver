@@ -48,24 +48,52 @@ public class StorageService {
     @Resource
     private SoOutOrderRepository soOutOrderRepository;
 
-    public RestResult addStorage(TStorage storage) {
+    public RestResult addStorage(int id, TStorage storage) {
+        // 验证公司
+        String msg = checkService.checkGroup(id, storage.getGid());
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+
+        // 仓库名重名检测
+        if (storageRepository.check(storage.getGid(), storage.getName(), 0)) {
+            return RestResult.fail("仓库名称已存在");
+        }
+
         if (!storageRepository.insert(storage)) {
             return RestResult.fail("添加仓库信息失败");
         }
         return RestResult.ok();
     }
 
-    public RestResult setStorage(TStorage storage) {
+    public RestResult setStorage(int id, TStorage storage) {
+        // 验证公司
+        String msg = checkService.checkGroup(id, storage.getGid());
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+
+        // 仓库名重名检测
+        if (storageRepository.check(storage.getGid(), storage.getName(), storage.getId())) {
+            return RestResult.fail("仓库名称已存在");
+        }
+
         if (!storageRepository.update(storage)) {
             return RestResult.fail("修改仓库信息失败");
         }
         return RestResult.ok();
     }
 
-    public RestResult delStorage(int id, int gid) {
+    public RestResult delStorage(int id, int gid, int sid) {
         // 权限校验，必须admin
         if (!checkService.checkRolePermission(id, storage_address)) {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
+        }
+
+        // 验证公司
+        String msg = checkService.checkGroup(id, gid);
+        if (null != msg) {
+            return RestResult.fail(msg);
         }
 
         // 是否存在出入库信息
@@ -82,7 +110,7 @@ public class StorageService {
             return RestResult.fail("删除失败，仓库还存在原料出库订单！");
         }
 
-        if (!storageRepository.delete(gid)) {
+        if (!storageRepository.delete(sid)) {
             return RestResult.fail("删除仓库信息失败");
         }
         return RestResult.ok();
@@ -110,7 +138,7 @@ public class StorageService {
             for (TStorage g : list) {
                 val storage = new HashMap<String, Object>();
                 storage.put("id", g.getId());
-                storage.put("area", g.getArea());
+                storage.put("area", String.valueOf(g.getArea()));
                 storage.put("name", g.getName());
                 storage.put("address", g.getAddress());
                 storage.put("contact", userRepository.find(g.getContact()));

@@ -2,6 +2,7 @@ package com.cxb.storehelperserver.controller;
 
 import com.cxb.storehelperserver.controller.request.upload.AddAttachValid;
 import com.cxb.storehelperserver.service.UploadService;
+import com.cxb.storehelperserver.util.TypeDefine;
 import com.cxb.storehelperserver.util.RestResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
@@ -16,13 +17,13 @@ import javax.annotation.Resource;
  */
 @Slf4j
 @RestController
-@RequestMapping("/up")
+@RequestMapping("/upload")
 public class UploadController {
     @Resource
     UploadService uploadService;
 
     @PostMapping("/addAttach")
     public RestResult addAttach(@Validated @RequestBody AddAttachValid req) {
-        return uploadService.addAttach(req.getId(), UploadService.AttachType.valueOf(req.getType()), req.getFiles());
+        return uploadService.addAttach(req.getId(), TypeDefine.AttachType.valueOf(req.getType()), req.getFiles());
     }
 }

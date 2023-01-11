@@ -17,11 +17,14 @@ public class SetStorageValid implements IValid {
     @Min(value = 1, message = "账号错误")
     private int id;
 
-    @Min(value = 1, message = "仓库账号错误")
+    @Min(value = 1, message = "公司账号错误")
     private int gid;
 
-    @Min(value = 1, message = "地区码错误")
-    private int area;
+    @Min(value = 1, message = "仓库账号错误")
+    private int sid;
+
+    @Length(min = 18, max = 18, message = "地区码错误")
+    private String area;
 
     @Min(value = 1, message = "联系人错误")
     private int contact;

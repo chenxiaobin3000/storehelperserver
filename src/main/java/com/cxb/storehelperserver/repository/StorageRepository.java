@@ -1,6 +1,8 @@
 package com.cxb.storehelperserver.repository;
 
 import com.cxb.storehelperserver.mapper.TStorageMapper;
+import com.cxb.storehelperserver.model.TCategory;
+import com.cxb.storehelperserver.model.TCategoryExample;
 import com.cxb.storehelperserver.model.TStorage;
 import com.cxb.storehelperserver.model.TStorageExample;
 import lombok.extern.slf4j.Slf4j;
@@ -68,6 +70,20 @@ public class StorageRepository extends BaseRepository<TStorage> {
         example.setOffset((page - 1) * limit);
         example.setLimit(limit);
         return storageMapper.selectByExample(example);
+    }
+
+    /*
+     * desc: 判断公司是否存在仓库
+     */
+    public boolean check(int gid, String name, int id) {
+        TStorageExample example = new TStorageExample();
+        example.or().andGidEqualTo(gid).andNameEqualTo(name);
+        if (0 == id) {
+            return null != storageMapper.selectOneByExample(example);
+        } else {
+            TStorage storage = storageMapper.selectOneByExample(example);
+            return null != storage && !storage.getId().equals(id);
+        }
     }
 
     public boolean insert(TStorage row) {

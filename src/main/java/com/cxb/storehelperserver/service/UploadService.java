@@ -9,6 +9,7 @@ import com.cxb.storehelperserver.repository.ScOutAttachmentRepository;
 import com.cxb.storehelperserver.repository.SoInAttachmentRepository;
 import com.cxb.storehelperserver.repository.SoOutAttachmentRepository;
 import com.cxb.storehelperserver.util.DateUtil;
+import com.cxb.storehelperserver.util.TypeDefine;
 import com.cxb.storehelperserver.util.RestResult;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -53,33 +54,7 @@ public class UploadService {
     @Value("${store-app.config.imagepath}")
     private String imagepath;
 
-    // 上传附件类型
-    public enum AttachType {
-        S_COMM_IN_ORDER(1), // 商品入库订单
-        S_COMM_OUT_ORDER(2), // 商品出库订单
-        S_ORI_IN_ORDER(3), // 原料入库订单
-        S_ORI_OUT_ORDER(4); // 原料出库订单
-
-        private int value = 0;
-
-        private AttachType(int v) {
-            this.value = v;
-        }
-
-        public static AttachType valueOf(int v) {
-            switch (v) {
-                case 1:
-                    return S_COMM_IN_ORDER;
-                case 2:
-                    return S_COMM_OUT_ORDER;
-                case 3:
-                    return S_ORI_IN_ORDER;
-            }
-            return S_ORI_OUT_ORDER;
-        }
-    }
-
-    public RestResult addAttach(int id, AttachType type, MultipartFile files[]) {
+    public RestResult addAttach(int id, TypeDefine.AttachType type, MultipartFile files[]) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
         val data = new HashMap<String, Integer>();
         for (int i = 0; i < files.length; i++) {
@@ -96,7 +71,7 @@ public class UploadService {
             }
 
             switch (type) {
-                case S_COMM_IN_ORDER:
+                case ATTACH_COMM_IN_ORDER:
                     TScInAttachment scInAttachment = new TScInAttachment();
                     scInAttachment.setOrder(0);
                     scInAttachment.setSrc(imagesrc);
@@ -106,7 +81,7 @@ public class UploadService {
                         return RestResult.fail("写入数据失败，请联系管理员");
                     }
                     break;
-                case S_COMM_OUT_ORDER:
+                case ATTACHMENT_COMM_OUT_ORDER:
                     TScOutAttachment scOutAttachment = new TScOutAttachment();
                     scOutAttachment.setOrder(0);
                     scOutAttachment.setSrc(imagesrc);
@@ -116,7 +91,7 @@ public class UploadService {
                         return RestResult.fail("写入数据失败，请联系管理员");
                     }
                     break;
-                case S_ORI_IN_ORDER:
+                case ATTACHMENT_ORI_IN_ORDER:
                     TSoInAttachment soInAttachment = new TSoInAttachment();
                     soInAttachment.setOrder(0);
                     soInAttachment.setSrc(imagesrc);
