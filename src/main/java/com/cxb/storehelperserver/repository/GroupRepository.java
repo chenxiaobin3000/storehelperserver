@@ -90,6 +90,7 @@ public class GroupRepository extends BaseRepository<TGroup> {
 
     public boolean delete(int id) {
         delCache(id);
+        delTotalCache(0);
         TGroup group = find(id);
         if (null != group && null == group.getDtime()) {
             group.setDtime(new Date()); // 软删除

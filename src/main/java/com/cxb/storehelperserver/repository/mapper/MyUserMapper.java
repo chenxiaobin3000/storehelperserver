@@ -7,7 +7,7 @@ import org.apache.ibatis.annotations.Select;
 import java.util.List;
 
 /**
- * desc:
+ * desc: 用户查询
  * auth: cxb
  * date: 2023/1/2
  */

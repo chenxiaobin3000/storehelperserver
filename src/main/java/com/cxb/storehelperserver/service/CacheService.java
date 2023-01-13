@@ -1,20 +1,20 @@
-package com.cxb.storehelperserver.repository;
+package com.cxb.storehelperserver.service;
 
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import javax.annotation.Resource;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
- * desc: 基础仓库，提供缓存支持
+ * desc: 缓存业务
  * auth: cxb
- * date: 2022/11/30
+ * date: 2023/1/13
  */
 @Slf4j
-public class BaseRepository<Model> {
+public class CacheService<Model> {
     @Resource
     protected RedisTemplate<String, Object> redisTemplate;
 
@@ -27,16 +27,10 @@ public class BaseRepository<Model> {
     protected String cacheName;
 
     /**
-     * desc: 缓存总量
-     */
-    protected String cacheTotal;
-
-    /**
      * desc: 初始化缓存 key 前缀
      */
     protected void init(String cacheName) {
         this.cacheName = cacheName;
-        this.cacheTotal = this.cacheName + "total";
     }
 
     /**
@@ -81,30 +75,31 @@ public class BaseRepository<Model> {
         redisTemplate.delete(cacheName + String.valueOf(id));
     }
 
-    // --------------- 总数缓存 ---------------
-
     /**
-     * desc: 读取总数缓存
+     * desc: 监控缓存
      */
-    protected int getTotalCache(int id) {
-        val ret = redisTemplate.opsForValue().get(cacheTotal + String.valueOf(id));
-        if (null == ret) {
-            return 0;
-        }
-        return (int) ret;
+    protected void watchCache(String key) {
+        redisTemplate.watch(cacheName + key);
     }
 
     /**
-     * desc: 写入总数缓存
+     * desc: 监控缓存
      */
-    protected void setTotalCache(int id, int value) {
-        redisTemplate.opsForValue().set(cacheTotal + String.valueOf(id), value, cachetime, TimeUnit.MINUTES);
+    protected void watchCache(int id) {
+        redisTemplate.watch(cacheName + String.valueOf(id));
     }
 
     /**
-     * desc: 删除总数缓存
+     * desc: 启动事务
      */
-    protected void delTotalCache(int id) {
-        redisTemplate.delete(cacheTotal + String.valueOf(id));
+    protected void multiCache() {
+        redisTemplate.multi();
+    }
+
+    /**
+     * desc: 执行事务
+     */
+    protected List<Object> execCache() {
+        return redisTemplate.exec();
     }
 }

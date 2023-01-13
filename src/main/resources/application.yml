@@ -83,6 +83,8 @@ logging:
 ################ 业务配置 ##############
 store-app:
   config:
+    # 缓存时效(分钟)
+    cachetime: 1440
     # 是否开放注册
     openreg: false
     # 新增账号默认密码

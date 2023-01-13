@@ -71,7 +71,7 @@ public class UploadService {
             }
 
             switch (type) {
-                case ATTACH_COMM_IN_ORDER:
+                case ATTACHMENT_COMM_IN_ORDER:
                     TScInAttachment scInAttachment = new TScInAttachment();
                     scInAttachment.setOrder(0);
                     scInAttachment.setSrc(imagesrc);

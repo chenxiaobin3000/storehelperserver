@@ -89,6 +89,7 @@ public class StorageRepository extends BaseRepository<TStorage> {
     public boolean insert(TStorage row) {
         if (storageMapper.insert(row) > 0) {
             setCache(row.getId(), row);
+            delTotalCache(row.getGid());
             return true;
         }
         return false;
@@ -103,7 +104,12 @@ public class StorageRepository extends BaseRepository<TStorage> {
     }
 
     public boolean delete(int id) {
+        TStorage storage = find(id);
+        if (null == storage) {
+            return false;
+        }
         delCache(id);
+        delTotalCache(storage.getGid());
         return storageMapper.deleteByPrimaryKey(id) > 0;
     }
 }

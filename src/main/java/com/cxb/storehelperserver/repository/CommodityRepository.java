@@ -100,6 +100,7 @@ public class CommodityRepository extends BaseRepository<TCommodity> {
     public boolean insert(TCommodity row) {
         if (commodityMapper.insert(row) > 0) {
             setCache(row.getId(), row);
+            delTotalCache(row.getGid());
             return true;
         }
         return false;
@@ -114,7 +115,12 @@ public class CommodityRepository extends BaseRepository<TCommodity> {
     }
 
     public boolean delete(int id) {
+        TCommodity commodity = find(id);
+        if (null == commodity) {
+            return false;
+        }
         delCache(id);
+        delTotalCache(commodity.getGid());
         return commodityMapper.deleteByPrimaryKey(id) > 0;
     }
 }

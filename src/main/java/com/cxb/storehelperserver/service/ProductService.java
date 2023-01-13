@@ -1,7 +1,5 @@
 package com.cxb.storehelperserver.service;
 
-import com.cxb.storehelperserver.model.TStorage;
-import com.cxb.storehelperserver.model.TUserGroup;
 import com.cxb.storehelperserver.repository.*;
 import com.cxb.storehelperserver.util.RestResult;
 import lombok.extern.slf4j.Slf4j;
@@ -12,19 +10,16 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-
-import static com.cxb.storehelperserver.config.Permission.*;
 
 /**
- * desc: 仓库业务
+ * desc: 生产业务
  * auth: cxb
  * date: 2023/1/3
  */
 @Slf4j
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class StorageService {
+public class ProductService {
     @Resource
     private CheckService checkService;
 
@@ -49,17 +44,17 @@ public class StorageService {
     @Resource
     private SoOutOrderRepository soOutOrderRepository;
 
-    public RestResult addStorage(int id, TStorage storage) {
+    public RestResult addProduct(int id, TStorage storage) {
         // 验证公司
         String msg = checkService.checkGroup(id, storage.getGid());
         if (null != msg) {
             return RestResult.fail(msg);
         }
 
-        // 仓库名重名检测
-        if (storageRepository.check(storage.getGid(), storage.getName(), 0)) {
-            return RestResult.fail("仓库名称已存在");
-        }
+        // 检测库存是否足够
+
+
+        // 库存减少，插入生产入库订单
 
         if (!storageRepository.insert(storage)) {
             return RestResult.fail("添加仓库信息失败");
@@ -67,7 +62,7 @@ public class StorageService {
         return RestResult.ok();
     }
 
-    public RestResult setStorage(int id, TStorage storage) {
+    public RestResult setProduct(int id, TStorage storage) {
         // 验证公司
         String msg = checkService.checkGroup(id, storage.getGid());
         if (null != msg) {
@@ -85,7 +80,7 @@ public class StorageService {
         return RestResult.ok();
     }
 
-    public RestResult delStorage(int id, int gid, int sid) {
+    public RestResult delProduct(int id, int gid, int sid) {
         // 权限校验，必须admin
         if (!checkService.checkRolePermission(id, storage_address)) {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
@@ -117,7 +112,7 @@ public class StorageService {
         return RestResult.ok();
     }
 
-    public RestResult getGroupStorage(int id, int page, int limit, String search) {
+    public RestResult getGroupProduct(int id, int page, int limit, String search) {
         // 获取公司信息
         TUserGroup group = userGroupRepository.find(id);
         if (null == group) {
@@ -151,9 +146,5 @@ public class StorageService {
         data.put("total", total);
         data.put("list", list2);
         return RestResult.ok(data);
-    }
-
-    public RestResult purchase(int id, int gid, int sid, List<Integer> commoditys, List<Integer> values, List<String> prices) {
-        return RestResult.ok();
     }
 }

@@ -100,6 +100,7 @@ public class OriginalRepository extends BaseRepository<TOriginal> {
     public boolean insert(TOriginal row) {
         if (originalMapper.insert(row) > 0) {
             setCache(row.getId(), row);
+            delTotalCache(row.getGid());
             return true;
         }
         return false;
@@ -114,7 +115,12 @@ public class OriginalRepository extends BaseRepository<TOriginal> {
     }
 
     public boolean delete(int id) {
+        TOriginal original = find(id);
+        if (null == original) {
+            return false;
+        }
         delCache(id);
+        delTotalCache(original.getGid());
         return originalMapper.deleteByPrimaryKey(id) > 0;
     }
 }
