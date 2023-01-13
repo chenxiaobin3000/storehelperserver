@@ -1,6 +1,9 @@
 package com.cxb.storehelperserver.controller;
 
+import com.cxb.storehelperserver.controller.request.product.CompleteValid;
+import com.cxb.storehelperserver.controller.request.product.ProcessValid;
 import com.cxb.storehelperserver.service.ProductService;
+import com.cxb.storehelperserver.service.StorageStockService;
 import com.cxb.storehelperserver.util.RestResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
@@ -23,36 +26,16 @@ public class ProductController {
     @Resource
     private ProductService productService;
 
-    @PostMapping("/addProduct")
-    public RestResult addProduct(@Validated @RequestBody AddProductValid req) {
-        TStorage storage = new TStorage();
-        storage.setGid(req.getGid());
-        storage.setArea(Long.valueOf(req.getArea()));
-        storage.setContact(req.getContact());
-        storage.setName(req.getName());
-        storage.setAddress(req.getAddress());
-        return storageService.addStorage(req.getId(), storage);
+    @Resource
+    private StorageStockService storageStockService;
+
+    @PostMapping("/process")
+    public RestResult process(@Validated @RequestBody ProcessValid req) {
+        return storageStockService.process(req.getId(), req.getGid(), req.getSid(), req.getCommoditys(), req.getValues(), req.getPrices());
     }
 
-    @PostMapping("/setProduct")
-    public RestResult setProduct(@Validated @RequestBody SetProductValid req) {
-        TStorage storage = new TStorage();
-        storage.setId(req.getSid());
-        storage.setGid(req.getGid());
-        storage.setArea(Long.valueOf(req.getArea()));
-        storage.setContact(req.getContact());
-        storage.setName(req.getName());
-        storage.setAddress(req.getAddress());
-        return storageService.setStorage(req.getId(), storage);
-    }
-
-    @PostMapping("/delProduct")
-    public RestResult delProduct(@Validated @RequestBody DelProductValid req) {
-        return storageService.delStorage(req.getId(), req.getGid(), req.getSid());
-    }
-
-    @PostMapping("/getGroupProduct")
-    public RestResult getGroupProduct(@Validated @RequestBody GetGroupProductValid req) {
-        return storageService.getGroupStorage(req.getId(), req.getPage(), req.getLimit(), req.getSearch());
+    @PostMapping("/complete")
+    public RestResult complete(@Validated @RequestBody CompleteValid req) {
+        return storageStockService.complete(req.getId(), req.getGid(), req.getSid(), req.getCommoditys(), req.getValues(), req.getPrices());
     }
 }

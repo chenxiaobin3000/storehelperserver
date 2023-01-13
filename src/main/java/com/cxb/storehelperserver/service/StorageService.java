@@ -37,18 +37,6 @@ public class StorageService {
     @Resource
     private UserGroupRepository userGroupRepository;
 
-    @Resource
-    private ScInOrderRepository scInOrderRepository;
-
-    @Resource
-    private ScOutOrderRepository scOutOrderRepository;
-
-    @Resource
-    private SoInOrderRepository soInOrderRepository;
-
-    @Resource
-    private SoOutOrderRepository soOutOrderRepository;
-
     public RestResult addStorage(int id, TStorage storage) {
         // 验证公司
         String msg = checkService.checkGroup(id, storage.getGid());
@@ -97,19 +85,7 @@ public class StorageService {
             return RestResult.fail(msg);
         }
 
-        // 是否存在出入库信息
-        if (scInOrderRepository.check(gid)) {
-            return RestResult.fail("删除失败，仓库还存在商品入库订单！");
-        }
-        if (scOutOrderRepository.check(gid)) {
-            return RestResult.fail("删除失败，仓库还存在商品出库订单！");
-        }
-        if (soInOrderRepository.check(gid)) {
-            return RestResult.fail("删除失败，仓库还存在原料入库订单！");
-        }
-        if (soOutOrderRepository.check(gid)) {
-            return RestResult.fail("删除失败，仓库还存在原料出库订单！");
-        }
+        // TODO 检验是否存在库存商品、原料、废料、标品
 
         if (!storageRepository.delete(sid)) {
             return RestResult.fail("删除仓库信息失败");
@@ -151,9 +127,5 @@ public class StorageService {
         data.put("total", total);
         data.put("list", list2);
         return RestResult.ok(data);
-    }
-
-    public RestResult purchase(int id, int gid, int sid, List<Integer> commoditys, List<Integer> values, List<String> prices) {
-        return RestResult.ok();
     }
 }

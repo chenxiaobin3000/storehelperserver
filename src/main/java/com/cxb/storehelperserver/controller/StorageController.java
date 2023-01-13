@@ -3,6 +3,7 @@ package com.cxb.storehelperserver.controller;
 import com.cxb.storehelperserver.controller.request.storage.*;
 import com.cxb.storehelperserver.model.TStorage;
 import com.cxb.storehelperserver.service.StorageService;
+import com.cxb.storehelperserver.service.StorageStockService;
 import com.cxb.storehelperserver.util.RestResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
@@ -24,6 +25,9 @@ import javax.annotation.Resource;
 public class StorageController {
     @Resource
     private StorageService storageService;
+
+    @Resource
+    private StorageStockService storageStockService;
 
     @PostMapping("/addStorage")
     public RestResult addStorage(@Validated @RequestBody AddStorageValid req) {
@@ -60,6 +64,6 @@ public class StorageController {
 
     @PostMapping("/purchase")
     public RestResult purchase(@Validated @RequestBody PurchaseValid req) {
-        return storageService.purchase(req.getId(), req.getGid(), req.getSid(), req.getCommoditys(), req.getValues(), req.getPrices());
+        return storageStockService.purchase(req.getId(), req.getGid(), req.getSid(), req.getCommoditys(), req.getValues(), req.getPrices());
     }
 }

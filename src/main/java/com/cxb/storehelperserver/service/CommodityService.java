@@ -120,12 +120,11 @@ public class CommodityService {
             return RestResult.fail(msg);
         }
 
-        if (!commodityRepository.delete(cid)) {
-            return RestResult.fail("删除商品信息失败");
-        }
-
         if (!commodityAttrRepository.delete(commodity.getId())) {
             return RestResult.fail("删除商品属性失败");
+        }
+        if (!commodityRepository.delete(cid)) {
+            return RestResult.fail("删除商品信息失败");
         }
         return RestResult.ok();
     }
