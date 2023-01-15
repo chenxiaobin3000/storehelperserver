@@ -1,10 +1,12 @@
 package com.cxb.storehelperserver.controller;
 
 import com.cxb.storehelperserver.controller.request.storage.*;
+import com.cxb.storehelperserver.model.TSoInOrder;
 import com.cxb.storehelperserver.model.TStorage;
 import com.cxb.storehelperserver.service.StorageService;
 import com.cxb.storehelperserver.service.StorageStockService;
 import com.cxb.storehelperserver.util.RestResult;
+import com.cxb.storehelperserver.util.TypeDefine;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -62,8 +64,18 @@ public class StorageController {
         return storageService.getGroupStorage(req.getId(), req.getPage(), req.getLimit(), req.getSearch());
     }
 
-    @PostMapping("/purchase")
-    public RestResult purchase(@Validated @RequestBody PurchaseValid req) {
-        return storageStockService.purchase(req.getId(), req.getGid(), req.getSid(), req.getCommoditys(), req.getValues(), req.getPrices());
+    @PostMapping("/purchaseOriginal")
+    public RestResult purchaseOriginal(@Validated @RequestBody PurchaseOriginalValid req) {
+        TSoInOrder order = new TSoInOrder();
+        order.setGid(req.getGid());
+        order.setBatch(req.getBatch());
+        order.setSid(req.getSid());
+        order.setOtype(TypeDefine.OrderType.STORAGE_ORDER.getValue());
+        return storageStockService.purchaseOriginal(req.getId(), order, req.getCommoditys(), req.getValues(), req.getPrices());
+    }
+
+    @PostMapping("/purchaseStandard")
+    public RestResult purchaseStandard(@Validated @RequestBody PurchaseStandardValid req) {
+        return storageStockService.purchaseStandard(req.getId(), req.getGid(), req.getSid(), req.getCommoditys(), req.getValues(), req.getPrices());
     }
 }

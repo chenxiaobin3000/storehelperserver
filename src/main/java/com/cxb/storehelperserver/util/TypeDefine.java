@@ -27,6 +27,10 @@ public class TypeDefine {
             }
             return STORAGE_ORDER;
         }
+
+        public int getValue() {
+            return value;
+        }
     }
 
     // 上传附件类型
@@ -34,7 +38,11 @@ public class TypeDefine {
         ATTACHMENT_COMM_IN_ORDER(1), // 商品入库订单
         ATTACHMENT_COMM_OUT_ORDER(2), // 商品出库订单
         ATTACHMENT_ORI_IN_ORDER(3), // 原料入库订单
-        ATTACHMENT_ORI_OUT_ORDER(4); // 原料出库订单
+        ATTACHMENT_ORI_OUT_ORDER(4), // 原料出库订单
+        ATTACHMENT_STAN_IN_ORDER(5), // 标品入库订单
+        ATTACHMENT_STAN_OUT_ORDER(6), // 标品出库订单
+        ATTACHMENT_DEST_IN_ORDER(7), // 废料入库订单
+        ATTACHMENT_DEST_OUT_ORDER(8); // 废料出库订单
 
         private int value = 0;
 
@@ -50,8 +58,20 @@ public class TypeDefine {
                     return ATTACHMENT_COMM_OUT_ORDER;
                 case 3:
                     return ATTACHMENT_ORI_IN_ORDER;
+                case 4:
+                    return ATTACHMENT_ORI_OUT_ORDER;
+                case 5:
+                    return ATTACHMENT_STAN_IN_ORDER;
+                case 6:
+                    return ATTACHMENT_STAN_OUT_ORDER;
+                case 7:
+                    return ATTACHMENT_DEST_IN_ORDER;
             }
-            return ATTACHMENT_ORI_OUT_ORDER;
+            return ATTACHMENT_DEST_OUT_ORDER;
+        }
+
+        public int getValue() {
+            return value;
         }
     }
 
@@ -84,6 +104,10 @@ public class TypeDefine {
                     return REPORT_HALF;
             }
             return REPORT_YEARLY;
+        }
+
+        public int getValue() {
+            return value;
         }
     }
 }

@@ -1,13 +1,9 @@
 package com.cxb.storehelperserver.util;
 
-import com.cxb.storehelperserver.model.TCommodity;
-import com.cxb.storehelperserver.model.TDestroy;
-import com.cxb.storehelperserver.model.TOriginal;
-import com.cxb.storehelperserver.model.TStandard;
+import com.cxb.storehelperserver.model.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 
-import javax.annotation.Resource;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -22,6 +18,7 @@ public class StorageCache {
 
     protected final String cacheCommodity = "sc::";
     protected final String cacheOriginal = "so::";
+    protected final String cacheHalfgood = "sh::";
     protected final String cacheStandard = "ss::";
     protected final String cacheDestroy = "sd::";
 
@@ -37,38 +34,46 @@ public class StorageCache {
     /**
      * desc: 读取缓存
      */
-    protected TCommodity getCommodityCache(int sid, int id) {
-        return (TCommodity) redis.opsForValue().get(cacheCommodity + String.valueOf(sid) + "::" + String.valueOf(id));
+    protected TStorageCommodity getCommodityCache(int sid, int id) {
+        return (TStorageCommodity) redis.opsForValue().get(cacheCommodity + String.valueOf(sid) + "::" + String.valueOf(id));
     }
 
-    protected TOriginal getOriginalCache(int sid, int id) {
-        return (TOriginal) redis.opsForValue().get(cacheOriginal + String.valueOf(sid) + "::" + String.valueOf(id));
+    protected TStorageOriginal getOriginalCache(int sid, int id) {
+        return (TStorageOriginal) redis.opsForValue().get(cacheOriginal + String.valueOf(sid) + "::" + String.valueOf(id));
     }
 
-    protected TStandard getStandardCache(int sid, int id) {
-        return (TStandard) redis.opsForValue().get(cacheStandard + String.valueOf(sid) + "::" + String.valueOf(id));
+    protected TStorageHalfgood getHalfgoodCache(int sid, int id) {
+        return (TStorageHalfgood) redis.opsForValue().get(cacheHalfgood + String.valueOf(sid) + "::" + String.valueOf(id));
     }
 
-    protected TDestroy getDestroyCache(int sid, int id) {
-        return (TDestroy) redis.opsForValue().get(cacheDestroy + String.valueOf(sid) + "::" + String.valueOf(id));
+    protected TStorageStandard getStandardCache(int sid, int id) {
+        return (TStorageStandard) redis.opsForValue().get(cacheStandard + String.valueOf(sid) + "::" + String.valueOf(id));
+    }
+
+    protected TStorageDestroy getDestroyCache(int sid, int id) {
+        return (TStorageDestroy) redis.opsForValue().get(cacheDestroy + String.valueOf(sid) + "::" + String.valueOf(id));
     }
 
     /**
      * desc: 写入缓存
      */
-    protected void setCommodityCache(int sid, int id, TCommodity value) {
+    protected void setCommodityCache(int sid, int id, TStorageCommodity value) {
         redis.opsForValue().set(cacheCommodity + String.valueOf(sid) + "::" + String.valueOf(id), value, cachetime, TimeUnit.MINUTES);
     }
 
-    protected void setOriginalCache(int sid, int id, TOriginal value) {
+    protected void setOriginalCache(int sid, int id, TStorageOriginal value) {
         redis.opsForValue().set(cacheOriginal + String.valueOf(sid) + "::" + String.valueOf(id), value, cachetime, TimeUnit.MINUTES);
     }
 
-    protected void setStandardCache(int sid, int id, TStandard value) {
+    protected void setHalfgoodCache(int sid, int id, TStorageHalfgood value) {
+        redis.opsForValue().set(cacheHalfgood + String.valueOf(sid) + "::" + String.valueOf(id), value, cachetime, TimeUnit.MINUTES);
+    }
+
+    protected void setStandardCache(int sid, int id, TStorageStandard value) {
         redis.opsForValue().set(cacheStandard + String.valueOf(sid) + "::" + String.valueOf(id), value, cachetime, TimeUnit.MINUTES);
     }
 
-    protected void setDestroyCache(int sid, int id, TDestroy value) {
+    protected void setDestroyCache(int sid, int id, TStorageDestroy value) {
         redis.opsForValue().set(cacheDestroy + String.valueOf(sid) + "::" + String.valueOf(id), value, cachetime, TimeUnit.MINUTES);
     }
 
@@ -81,6 +86,10 @@ public class StorageCache {
 
     protected void delOriginalCache(int sid, int id) {
         redis.delete(cacheOriginal + String.valueOf(sid) + "::" + String.valueOf(id));
+    }
+
+    protected void delHalfgoodCache(int sid, int id) {
+        redis.delete(cacheHalfgood + String.valueOf(sid) + "::" + String.valueOf(id));
     }
 
     protected void delStandardCache(int sid, int id) {
@@ -100,6 +109,10 @@ public class StorageCache {
 
     protected void watchOriginalCache(int sid, int id) {
         redis.watch(cacheOriginal + String.valueOf(sid) + "::" + String.valueOf(id));
+    }
+
+    protected void watchHalfgoodCache(int sid, int id) {
+        redis.watch(cacheHalfgood + String.valueOf(sid) + "::" + String.valueOf(id));
     }
 
     protected void watchStandardCache(int sid, int id) {

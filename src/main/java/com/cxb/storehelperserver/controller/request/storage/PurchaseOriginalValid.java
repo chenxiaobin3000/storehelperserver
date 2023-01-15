@@ -7,6 +7,7 @@ import org.hibernate.validator.constraints.Length;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -15,12 +16,16 @@ import java.util.List;
  * date: 2022/12/21
  */
 @Data
-public class PurchaseValid implements IValid {
+public class PurchaseOriginalValid implements IValid {
     @Min(value = 1, message = "账号错误")
     private int id;
 
     @Min(value = 1, message = "公司账号错误")
     private int gid;
+
+    @NotEmpty(message = "请输入订单批次")
+    @Length(min = 2, max = 16, message = "订单批次格式错误")
+    private String batch;
 
     @Min(value = 1, message = "仓库账号错误")
     private int sid;
@@ -32,5 +37,5 @@ public class PurchaseValid implements IValid {
     private List<Integer> values;
 
     @Size(min = 1, message = "商品价格不能为空")
-    private List<String> prices;
+    private List<BigDecimal> prices;
 }
