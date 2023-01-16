@@ -17,46 +17,26 @@ import java.util.List;
  */
 @Slf4j
 @Repository
-public class StorageCommodityRepository extends BaseRepository<TStorageCommodity> {
+public class StorageCommodityRepository {
     @Resource
     private TStorageCommodityMapper storageCommodityMapper;
 
     @Resource
     private MyStorageCommodityMapper myStorageCommodityMapper;
 
-    public StorageCommodityRepository() {
-        init("storageComm::");
-    }
-
-    public TStorageCommodity find(int id) {
-        TStorageCommodity storageCommodity = getCache(id, TStorageCommodity.class);
-        if (null != storageCommodity) {
-            return storageCommodity;
-        }
-
-        // 缓存没有就查询数据库
-        storageCommodity = storageCommodityMapper.selectByPrimaryKey(id);
-        if (null != storageCommodity) {
-            setCache(id, storageCommodity);
-        }
-        return storageCommodity;
+    public TStorageCommodity find(int sid, int id) {
+        TStorageCommodityExample example = new TStorageCommodityExample();
+        example.or().andSidEqualTo(sid).andCidEqualTo(id);
+        return storageCommodityMapper.selectOneByExample(example);
     }
 
     public int total(int sid, String search) {
-        // 包含搜索的不缓存
         if (null != search) {
             return myStorageCommodityMapper.countByExample(sid, "%" + search + "%");
         } else {
-            int total = getTotalCache(sid);
-            if (0 != total) {
-                return total;
-            }
-
             TStorageCommodityExample example = new TStorageCommodityExample();
             example.or().andSidEqualTo(sid);
-            total = (int) storageCommodityMapper.countByExample(example);
-            setTotalCache(sid, total);
-            return total;
+            return (int) storageCommodityMapper.countByExample(example);
         }
     }
 
@@ -69,29 +49,14 @@ public class StorageCommodityRepository extends BaseRepository<TStorageCommodity
     }
 
     public boolean insert(TStorageCommodity row) {
-        if (storageCommodityMapper.insert(row) > 0) {
-            setCache(row.getId(), row);
-            delTotalCache(row.getSid());
-            return true;
-        }
-        return false;
+        return storageCommodityMapper.insert(row) > 0;
     }
 
     public boolean update(TStorageCommodity row) {
-        if (storageCommodityMapper.updateByPrimaryKey(row) > 0) {
-            setCache(row.getId(), row);
-            return true;
-        }
-        return false;
+        return storageCommodityMapper.updateByPrimaryKey(row) > 0;
     }
 
     public boolean delete(int id) {
-        TStorageCommodity storageCommodity = find(id);
-        if (null == storageCommodity) {
-            return false;
-        }
-        delCache(id);
-        delTotalCache(storageCommodity.getSid());
         return storageCommodityMapper.deleteByPrimaryKey(id) > 0;
     }
 }

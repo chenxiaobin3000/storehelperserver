@@ -27,7 +27,7 @@ import java.util.List;
 @Transactional(rollbackFor = Exception.class)
 public class StorageStockService extends StorageOrder {
     @Resource
-    protected RedisTemplate<String, Object> redisTemplate;
+    private CheckService checkService;
 
     @Resource
     private StorageCommodityRepository storageCommodityRepository;
@@ -38,65 +38,15 @@ public class StorageStockService extends StorageOrder {
     @Resource
     private StorageDestroyRepository storageDestroyRepository;
 
-    @Resource
-    private ScInCommodityRepository scInCommodityRepository;
-    @Resource
-    private ScInOrderRepository scInOrderRepository;
-    @Resource
-    private ScOutCommodityRepository scOutCommodityRepository;
-    @Resource
-    private ScOutOrderRepository scOutOrderRepository;
-
-    @Resource
-    private SdInCommodityRepository sdInCommodityRepository;
-    @Resource
-    private SdInOrderRepository sdInOrderRepository;
-    @Resource
-    private SdOutCommodityRepository sdOutCommodityRepository;
-    @Resource
-    private SdOutOrderRepository sdOutOrderRepository;
-
-    @Resource
-    private ShInCommodityRepository shInCommodityRepository;
-    @Resource
-    private ShInOrderRepository shInOrderRepository;
-    @Resource
-    private ShOutCommodityRepository shOutCommodityRepository;
-    @Resource
-    private ShOutOrderRepository shOutOrderRepository;
-
-    @Resource
-    private SoInCommodityRepository soInCommodityRepository;
-    @Resource
-    private SoInOrderRepository soInOrderRepository;
-    @Resource
-    private SoOutCommodityRepository soOutCommodityRepository;
-    @Resource
-    private SoOutOrderRepository soOutOrderRepository;
-
-    @Resource
-    private SsInCommodityRepository ssInCommodityRepository;
-    @Resource
-    private SsInOrderRepository ssInOrderRepository;
-    @Resource
-    private SsOutCommodityRepository ssOutCommodityRepository;
-    @Resource
-    private SsOutOrderRepository ssOutOrderRepository;
-
-    public StorageStockService() {
-        init(redisTemplate,
-                scInCommodityRepository, scInOrderRepository, scOutCommodityRepository, scOutOrderRepository,
-                sdInCommodityRepository, sdInOrderRepository, sdOutCommodityRepository, sdOutOrderRepository,
-                shInCommodityRepository, shInOrderRepository, shOutCommodityRepository, shOutOrderRepository,
-                soInCommodityRepository, soInOrderRepository, soOutCommodityRepository, soOutOrderRepository,
-                ssInCommodityRepository, ssInOrderRepository, ssOutCommodityRepository, ssOutOrderRepository);
-    }
-
     /*
      * desc: 原料进货
      */
     public RestResult purchaseOriginal(int id, TSoInOrder order, List<Integer> commoditys, List<Integer> values, List<BigDecimal> prices) {
-        // TODO 校验权限
+        // 验证公司
+        String msg = checkService.checkGroup(id, order.getGid());
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
 
         // 生成进货单
         int size = commoditys.size();
@@ -113,6 +63,8 @@ public class StorageStockService extends StorageOrder {
             list.add(c);
             total += values.get(i);
         }
+        order.setValue(total);
+        order.setApply(id);
         int orderid = addOriginalIn(order, list);
         if (0 == orderid) {
             return RestResult.fail("生成进货订单失败");
@@ -125,17 +77,13 @@ public class StorageStockService extends StorageOrder {
         storageOriginal.setValue(total);
         if (!storageOriginalRepository.insert(storageOriginal)) {
             // TODO 测试写入失败回滚
+            // 异常就回滚
+            // TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             return RestResult.fail("生成进货订单失败");
         }
 
-        // watchCommodityCache();
         // 写入缓存
-        multiCache();
-
-        val exec = execCache();
-
-        // 异常就回滚
-        // TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+        setOriginalCache(order.getSid(), orderid, total);
         return RestResult.ok();
     }
 

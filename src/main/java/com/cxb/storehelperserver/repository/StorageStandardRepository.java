@@ -17,46 +17,26 @@ import java.util.List;
  */
 @Slf4j
 @Repository
-public class StorageStandardRepository extends BaseRepository<TStorageStandard> {
+public class StorageStandardRepository {
     @Resource
     private TStorageStandardMapper storageStandardMapper;
 
     @Resource
     private MyStorageStandardMapper myStorageStandardMapper;
 
-    public StorageStandardRepository() {
-        init("storageStan::");
-    }
-
-    public TStorageStandard find(int id) {
-        TStorageStandard storageStandard = getCache(id, TStorageStandard.class);
-        if (null != storageStandard) {
-            return storageStandard;
-        }
-
-        // 缓存没有就查询数据库
-        storageStandard = storageStandardMapper.selectByPrimaryKey(id);
-        if (null != storageStandard) {
-            setCache(id, storageStandard);
-        }
-        return storageStandard;
+    public TStorageStandard find(int sid, int id) {
+        TStorageStandardExample example = new TStorageStandardExample();
+        example.or().andSidEqualTo(sid).andStidEqualTo(id);
+        return storageStandardMapper.selectOneByExample(example);
     }
 
     public int total(int sid, String search) {
-        // 包含搜索的不缓存
         if (null != search) {
             return myStorageStandardMapper.countByExample(sid, "%" + search + "%");
         } else {
-            int total = getTotalCache(sid);
-            if (0 != total) {
-                return total;
-            }
-
             TStorageStandardExample example = new TStorageStandardExample();
             example.or().andSidEqualTo(sid);
-            total = (int) storageStandardMapper.countByExample(example);
-            setTotalCache(sid, total);
-            return total;
+            return (int) storageStandardMapper.countByExample(example);
         }
     }
 
@@ -69,29 +49,14 @@ public class StorageStandardRepository extends BaseRepository<TStorageStandard> 
     }
 
     public boolean insert(TStorageStandard row) {
-        if (storageStandardMapper.insert(row) > 0) {
-            setCache(row.getId(), row);
-            delTotalCache(row.getSid());
-            return true;
-        }
-        return false;
+        return storageStandardMapper.insert(row) > 0;
     }
 
     public boolean update(TStorageStandard row) {
-        if (storageStandardMapper.updateByPrimaryKey(row) > 0) {
-            setCache(row.getId(), row);
-            return true;
-        }
-        return false;
+        return storageStandardMapper.updateByPrimaryKey(row) > 0;
     }
 
     public boolean delete(int id) {
-        TStorageStandard storageStandard = find(id);
-        if (null == storageStandard) {
-            return false;
-        }
-        delCache(id);
-        delTotalCache(storageStandard.getSid());
         return storageStandardMapper.deleteByPrimaryKey(id) > 0;
     }
 }

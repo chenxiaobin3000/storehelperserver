@@ -17,46 +17,26 @@ import java.util.List;
  */
 @Slf4j
 @Repository
-public class StorageDestroyRepository extends BaseRepository<TStorageDestroy> {
+public class StorageDestroyRepository {
     @Resource
     private TStorageDestroyMapper storageDestroyMapper;
 
     @Resource
     private MyStorageDestroyMapper myStorageDestroyMapper;
 
-    public StorageDestroyRepository() {
-        init("storageDest::");
-    }
-
-    public TStorageDestroy find(int id) {
-        TStorageDestroy storageDestroy = getCache(id, TStorageDestroy.class);
-        if (null != storageDestroy) {
-            return storageDestroy;
-        }
-
-        // 缓存没有就查询数据库
-        storageDestroy = storageDestroyMapper.selectByPrimaryKey(id);
-        if (null != storageDestroy) {
-            setCache(id, storageDestroy);
-        }
-        return storageDestroy;
+    public TStorageDestroy find(int sid, int id) {
+        TStorageDestroyExample example = new TStorageDestroyExample();
+        example.or().andSidEqualTo(sid).andDidEqualTo(id);
+        return storageDestroyMapper.selectOneByExample(example);
     }
 
     public int total(int sid, String search) {
-        // 包含搜索的不缓存
         if (null != search) {
             return myStorageDestroyMapper.countByExample(sid, "%" + search + "%");
         } else {
-            int total = getTotalCache(sid);
-            if (0 != total) {
-                return total;
-            }
-
             TStorageDestroyExample example = new TStorageDestroyExample();
             example.or().andSidEqualTo(sid);
-            total = (int) storageDestroyMapper.countByExample(example);
-            setTotalCache(sid, total);
-            return total;
+            return (int) storageDestroyMapper.countByExample(example);
         }
     }
 
@@ -69,29 +49,14 @@ public class StorageDestroyRepository extends BaseRepository<TStorageDestroy> {
     }
 
     public boolean insert(TStorageDestroy row) {
-        if (storageDestroyMapper.insert(row) > 0) {
-            setCache(row.getId(), row);
-            delTotalCache(row.getSid());
-            return true;
-        }
-        return false;
+        return storageDestroyMapper.insert(row) > 0;
     }
 
     public boolean update(TStorageDestroy row) {
-        if (storageDestroyMapper.updateByPrimaryKey(row) > 0) {
-            setCache(row.getId(), row);
-            return true;
-        }
-        return false;
+        return storageDestroyMapper.updateByPrimaryKey(row) > 0;
     }
 
     public boolean delete(int id) {
-        TStorageDestroy storageDestroy = find(id);
-        if (null == storageDestroy) {
-            return false;
-        }
-        delCache(id);
-        delTotalCache(storageDestroy.getSid());
         return storageDestroyMapper.deleteByPrimaryKey(id) > 0;
     }
 }

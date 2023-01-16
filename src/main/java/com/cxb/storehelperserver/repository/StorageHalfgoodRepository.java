@@ -17,46 +17,26 @@ import java.util.List;
  */
 @Slf4j
 @Repository
-public class StorageHalfgoodRepository extends BaseRepository<TStorageHalfgood> {
+public class StorageHalfgoodRepository {
     @Resource
     private TStorageHalfgoodMapper storageHalfgoodMapper;
 
     @Resource
     private MyStorageHalfgoodMapper myStorageHalfgoodMapper;
 
-    public StorageHalfgoodRepository() {
-        init("storageHalf::");
-    }
-
-    public TStorageHalfgood find(int id) {
-        TStorageHalfgood storageHalfgood = getCache(id, TStorageHalfgood.class);
-        if (null != storageHalfgood) {
-            return storageHalfgood;
-        }
-
-        // 缓存没有就查询数据库
-        storageHalfgood = storageHalfgoodMapper.selectByPrimaryKey(id);
-        if (null != storageHalfgood) {
-            setCache(id, storageHalfgood);
-        }
-        return storageHalfgood;
+    public TStorageHalfgood find(int sid, int id) {
+        TStorageHalfgoodExample example = new TStorageHalfgoodExample();
+        example.or().andSidEqualTo(sid).andHidEqualTo(id);
+        return storageHalfgoodMapper.selectOneByExample(example);
     }
 
     public int total(int sid, String search) {
-        // 包含搜索的不缓存
         if (null != search) {
             return myStorageHalfgoodMapper.countByExample(sid, "%" + search + "%");
         } else {
-            int total = getTotalCache(sid);
-            if (0 != total) {
-                return total;
-            }
-
             TStorageHalfgoodExample example = new TStorageHalfgoodExample();
             example.or().andSidEqualTo(sid);
-            total = (int) storageHalfgoodMapper.countByExample(example);
-            setTotalCache(sid, total);
-            return total;
+            return (int) storageHalfgoodMapper.countByExample(example);
         }
     }
 
@@ -69,29 +49,14 @@ public class StorageHalfgoodRepository extends BaseRepository<TStorageHalfgood> 
     }
 
     public boolean insert(TStorageHalfgood row) {
-        if (storageHalfgoodMapper.insert(row) > 0) {
-            setCache(row.getId(), row);
-            delTotalCache(row.getSid());
-            return true;
-        }
-        return false;
+        return storageHalfgoodMapper.insert(row) > 0;
     }
 
     public boolean update(TStorageHalfgood row) {
-        if (storageHalfgoodMapper.updateByPrimaryKey(row) > 0) {
-            setCache(row.getId(), row);
-            return true;
-        }
-        return false;
+        return storageHalfgoodMapper.updateByPrimaryKey(row) > 0;
     }
 
     public boolean delete(int id) {
-        TStorageHalfgood storageHalfgood = find(id);
-        if (null == storageHalfgood) {
-            return false;
-        }
-        delCache(id);
-        delTotalCache(storageHalfgood.getSid());
         return storageHalfgoodMapper.deleteByPrimaryKey(id) > 0;
     }
 }

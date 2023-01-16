@@ -73,7 +73,6 @@ public class UploadService {
             switch (type) {
                 case ATTACHMENT_COMM_IN_ORDER:
                     TScInAttachment scInAttachment = new TScInAttachment();
-                    scInAttachment.setOrder(0);
                     scInAttachment.setSrc(imagesrc);
                     scInAttachment.setPath(path);
                     scInAttachment.setName(name);
@@ -83,7 +82,6 @@ public class UploadService {
                     break;
                 case ATTACHMENT_COMM_OUT_ORDER:
                     TScOutAttachment scOutAttachment = new TScOutAttachment();
-                    scOutAttachment.setOrder(0);
                     scOutAttachment.setSrc(imagesrc);
                     scOutAttachment.setPath(path);
                     scOutAttachment.setName(name);
@@ -93,7 +91,6 @@ public class UploadService {
                     break;
                 case ATTACHMENT_ORI_IN_ORDER:
                     TSoInAttachment soInAttachment = new TSoInAttachment();
-                    soInAttachment.setOrder(0);
                     soInAttachment.setSrc(imagesrc);
                     soInAttachment.setPath(path);
                     soInAttachment.setName(name);
@@ -103,7 +100,6 @@ public class UploadService {
                     break;
                 default:
                     TSoOutAttachment soOutAttachment = new TSoOutAttachment();
-                    soOutAttachment.setOrder(0);
                     soOutAttachment.setSrc(imagesrc);
                     soOutAttachment.setPath(path);
                     soOutAttachment.setName(name);

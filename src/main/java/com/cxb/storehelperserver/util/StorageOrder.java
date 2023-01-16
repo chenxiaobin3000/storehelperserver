@@ -5,6 +5,7 @@ import com.cxb.storehelperserver.model.TSoInOrder;
 import com.cxb.storehelperserver.repository.*;
 import org.springframework.data.redis.core.RedisTemplate;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -13,80 +14,59 @@ import java.util.List;
  * date: 2023/1/14
  */
 public class StorageOrder extends StorageCache {
+    @Resource
     private ScInCommodityRepository scInCommodityRepository;
+    @Resource
     private ScInOrderRepository scInOrderRepository;
+    @Resource
     private ScOutCommodityRepository scOutCommodityRepository;
+    @Resource
     private ScOutOrderRepository scOutOrderRepository;
 
+    @Resource
     private SdInCommodityRepository sdInCommodityRepository;
+    @Resource
     private SdInOrderRepository sdInOrderRepository;
+    @Resource
     private SdOutCommodityRepository sdOutCommodityRepository;
+    @Resource
     private SdOutOrderRepository sdOutOrderRepository;
 
+    @Resource
     private ShInCommodityRepository shInCommodityRepository;
+    @Resource
     private ShInOrderRepository shInOrderRepository;
+    @Resource
     private ShOutCommodityRepository shOutCommodityRepository;
+    @Resource
     private ShOutOrderRepository shOutOrderRepository;
 
+    @Resource
     private SoInCommodityRepository soInCommodityRepository;
+    @Resource
     private SoInOrderRepository soInOrderRepository;
+    @Resource
     private SoOutCommodityRepository soOutCommodityRepository;
+    @Resource
     private SoOutOrderRepository soOutOrderRepository;
 
+    @Resource
     private SsInCommodityRepository ssInCommodityRepository;
+    @Resource
     private SsInOrderRepository ssInOrderRepository;
+    @Resource
     private SsOutCommodityRepository ssOutCommodityRepository;
+    @Resource
     private SsOutOrderRepository ssOutOrderRepository;
 
-    /**
-     * desc: 初始化数据库
-     */
-    protected void init(RedisTemplate<String, Object> redisTemplate,
-                        ScInCommodityRepository scInCommodityRepository, ScInOrderRepository scInOrderRepository,
-                        ScOutCommodityRepository scOutCommodityRepository, ScOutOrderRepository scOutOrderRepository,
-                        SdInCommodityRepository sdInCommodityRepository, SdInOrderRepository sdInOrderRepository,
-                        SdOutCommodityRepository sdOutCommodityRepository, SdOutOrderRepository sdOutOrderRepository,
-                        ShInCommodityRepository shInCommodityRepository, ShInOrderRepository shInOrderRepository,
-                        ShOutCommodityRepository shOutCommodityRepository, ShOutOrderRepository shOutOrderRepository,
-                        SoInCommodityRepository soInCommodityRepository, SoInOrderRepository soInOrderRepository,
-                        SoOutCommodityRepository soOutCommodityRepository, SoOutOrderRepository soOutOrderRepository,
-                        SsInCommodityRepository ssInCommodityRepository, SsInOrderRepository ssInOrderRepository,
-                        SsOutCommodityRepository ssOutCommodityRepository, SsOutOrderRepository ssOutOrderRepository) {
-        super.init(redisTemplate);
-        this.scInCommodityRepository = scInCommodityRepository;
-        this.scInOrderRepository = scInOrderRepository;
-        this.scOutCommodityRepository = scOutCommodityRepository;
-        this.scOutOrderRepository = scOutOrderRepository;
-
-        this.sdInCommodityRepository = sdInCommodityRepository;
-        this.sdInOrderRepository = sdInOrderRepository;
-        this.sdOutCommodityRepository = sdOutCommodityRepository;
-        this.sdOutOrderRepository = sdOutOrderRepository;
-
-        this.shInCommodityRepository = shInCommodityRepository;
-        this.shInOrderRepository = shInOrderRepository;
-        this.shOutCommodityRepository = shOutCommodityRepository;
-        this.shOutOrderRepository = shOutOrderRepository;
-
-        this.soInCommodityRepository = soInCommodityRepository;
-        this.soInOrderRepository = soInOrderRepository;
-        this.soOutCommodityRepository = soOutCommodityRepository;
-        this.soOutOrderRepository = soOutOrderRepository;
-
-        this.ssInCommodityRepository = ssInCommodityRepository;
-        this.ssInOrderRepository = ssInOrderRepository;
-        this.ssOutCommodityRepository = ssOutCommodityRepository;
-        this.ssOutOrderRepository = ssOutOrderRepository;
-    }
-
     protected int addOriginalIn(TSoInOrder order, List<TSoInCommodity> commodities) {
-        if (!this.soInOrderRepository.insert(order)) {
+        if (!soInOrderRepository.insert(order)) {
             return 0;
         }
         int id = order.getId();
         for (TSoInCommodity c : commodities) {
-            c.setOrder(id);
-            if (!this.soInCommodityRepository.insert(c)) {
+            c.setOrid(id);
+            if (!soInCommodityRepository.insert(c)) {
                 return 0;
             }
         }
