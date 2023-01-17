@@ -57,9 +57,4 @@ public class GroupController {
     public RestResult setUserGroup(@Validated @RequestBody SetUserGroupValid req) {
         return groupService.setUserGroup(req.getId(), req.getUid(), req.getGid());
     }
-
-    @PostMapping("/setUserGroupAdmin")
-    public RestResult setUserGroupAdmin(@Validated @RequestBody SetUserGroupValid req) {
-        return groupService.setUserGroupAdmin(req.getId(), req.getUid(), req.getGid());
-    }
 }

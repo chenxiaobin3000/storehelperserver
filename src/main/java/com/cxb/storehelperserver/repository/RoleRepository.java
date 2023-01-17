@@ -60,7 +60,6 @@ public class RoleRepository extends BaseRepository<TRole> {
      */
     public boolean check(int gid, String name, int id) {
         TRoleExample example = new TRoleExample();
-        example.or().andGidEqualTo(gid);
         if (null == name) {
             example.or().andGidEqualTo(gid);
         } else {

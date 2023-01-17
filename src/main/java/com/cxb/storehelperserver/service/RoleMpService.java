@@ -1,6 +1,8 @@
 package com.cxb.storehelperserver.service;
 
-import com.cxb.storehelperserver.model.*;
+import com.cxb.storehelperserver.model.TRoleMp;
+import com.cxb.storehelperserver.model.TUserGroup;
+import com.cxb.storehelperserver.model.TUserRoleMp;
 import com.cxb.storehelperserver.repository.*;
 import com.cxb.storehelperserver.util.RestResult;
 import lombok.extern.slf4j.Slf4j;
@@ -12,28 +14,29 @@ import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.List;
 
-import static com.cxb.storehelperserver.config.Permission.*;
+import static com.cxb.storehelperserver.config.Permission.admin;
+import static com.cxb.storehelperserver.config.Permission.system_mprolelist;
 
 /**
- * desc: 角色业务
+ * desc: 小程序角色业务
  * auth: cxb
- * date: 2022/12/21
+ * date: 2023/1/17
  */
 @Slf4j
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class RoleService {
+public class RoleMpService {
     @Resource
     private CheckService checkService;
 
     @Resource
-    private RoleRepository roleRepository;
+    private RoleMpRepository roleMpRepository;
 
     @Resource
-    private RolePermissionRepository rolePermissionRepository;
+    private RolePermissionMpRepository rolePermissionMpRepository;
 
     @Resource
-    private UserRoleRepository userRoleRepository;
+    private UserRoleMpRepository userRoleMpRepository;
 
     @Resource
     private UserGroupRepository userGroupRepository;
@@ -41,29 +44,29 @@ public class RoleService {
     @Resource
     private GroupRepository groupRepository;
 
-    public RestResult addRole(int id, TRole role, List<Integer> permissions) {
+    public RestResult addRoleMp(int id, TRoleMp roleMp, List<Integer> permissions) {
         // 验证公司
-        String msg = checkService.checkGroup(id, role.getGid());
+        String msg = checkService.checkGroup(id, roleMp.getGid());
         if (null != msg) {
             return RestResult.fail(msg);
         }
 
         // 角色名重名检测
-        if (roleRepository.check(role.getGid(), role.getName(), 0)) {
+        if (roleMpRepository.check(roleMp.getGid(), roleMp.getName(), 0)) {
             return RestResult.fail("角色名称已存在");
         }
 
-        if (!roleRepository.insert(role)) {
+        if (!roleMpRepository.insert(roleMp)) {
             return RestResult.fail("添加角色信息失败");
         }
 
-        if (!rolePermissionRepository.insert(role.getId(), permissions)) {
+        if (!rolePermissionMpRepository.insert(roleMp.getId(), permissions)) {
             return RestResult.fail("添加角色权限失败");
         }
         return RestResult.ok();
     }
 
-    public RestResult setRole(int id, TRole role, List<Integer> permissions) {
+    public RestResult setRoleMp(int id, TRoleMp role, List<Integer> permissions) {
         // 验证公司
         String msg = checkService.checkGroup(id, role.getGid());
         if (null != msg) {
@@ -71,22 +74,22 @@ public class RoleService {
         }
 
         // 角色名重名检测
-        if (roleRepository.check(role.getGid(), role.getName(), role.getId())) {
+        if (roleMpRepository.check(role.getGid(), role.getName(), role.getId())) {
             return RestResult.fail("角色名称已存在");
         }
 
-        if (!roleRepository.update(role)) {
+        if (!roleMpRepository.update(role)) {
             return RestResult.fail("修改角色信息失败");
         }
 
-        if (!rolePermissionRepository.update(role.getId(), permissions)) {
+        if (!rolePermissionMpRepository.update(role.getId(), permissions)) {
             return RestResult.fail("修改角色权限失败");
         }
         return RestResult.ok();
     }
 
-    public RestResult delRole(int id, int rid) {
-        TRole role = roleRepository.find(rid);
+    public RestResult delRoleMp(int id, int rid) {
+        TRoleMp role = roleMpRepository.find(rid);
         if (null == role) {
             return RestResult.fail("要删除的角色不存在");
         }
@@ -97,17 +100,17 @@ public class RoleService {
             return RestResult.fail(msg);
         }
 
-        if (!rolePermissionRepository.delete(rid)) {
+        if (!rolePermissionMpRepository.delete(rid)) {
             return RestResult.fail("修改角色权限失败");
         }
-        if (!roleRepository.delete(rid)) {
+        if (!roleMpRepository.delete(rid)) {
             return RestResult.fail("删除角色信息失败");
         }
         return RestResult.ok();
     }
 
-    public RestResult getRole(int id, int rid) {
-        TRole role = roleRepository.find(rid);
+    public RestResult getRoleMp(int id, int rid) {
+        TRoleMp role = roleMpRepository.find(rid);
         if (null == role) {
             return RestResult.fail("获取角色失败");
         }
@@ -118,7 +121,7 @@ public class RoleService {
             return RestResult.fail(msg);
         }
 
-        List<Integer> permissions = rolePermissionRepository.find(rid);
+        List<Integer> permissions = rolePermissionMpRepository.find(rid);
         if (null == permissions) {
             return RestResult.fail("获取角色权限失败");
         }
@@ -128,14 +131,14 @@ public class RoleService {
         return RestResult.ok(data);
     }
 
-    public RestResult getRoleList(int id, int gid, String search) {
+    public RestResult getRoleMpList(int id, int gid, String search) {
         // 验证公司
         String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
             return RestResult.fail(msg);
         }
 
-        List<TRole> roles = roleRepository.all(gid, search);
+        List<TRoleMp> roles = roleMpRepository.all(gid, search);
         if (null == roles) {
             return RestResult.fail("获取角色信息失败");
         }
@@ -144,25 +147,25 @@ public class RoleService {
         return RestResult.ok(ret);
     }
 
-    public RestResult getUserRole(int id, int uid) {
+    public RestResult getUserRoleMp(int id, int uid) {
         // 操作员必须同公司用户
         String msg = checkService.checkSampGroup(id, uid);
         if (null != msg) {
             return RestResult.fail(msg);
         }
 
-        TUserRole userRole = userRoleRepository.find(uid);
-        if (null == userRole) {
+        TUserRoleMp userRoleMp = userRoleMpRepository.find(uid);
+        if (null == userRoleMp) {
             return RestResult.fail("用户信息异常");
         }
-        TRole role = roleRepository.find(userRole.getRid());
+        TRoleMp role = roleMpRepository.find(userRoleMp.getRid());
         if (null == role) {
             return RestResult.fail("获取角色信息异常");
         }
         return RestResult.ok(role);
     }
 
-    public RestResult setUserRole(int id, int uid, int rid) {
+    public RestResult setUserRoleMp(int id, int uid, int rid) {
         // 操作员必须同公司用户
         String msg = checkService.checkSampGroup(id, uid);
         if (null != msg) {
@@ -170,36 +173,44 @@ public class RoleService {
         }
 
         // 权限校验
-        if (!checkService.checkRolePermission(id, system_rolelist)) {
+        if (!checkService.checkRolePermission(id, system_mprolelist)) {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
-        // 已存在就修改，不存在就新增
-        TUserRole role = userRoleRepository.find(uid);
-        if (null == role) {
-            role = new TUserRole();
-            role.setUid(uid);
-            role.setRid(rid);
-            if (!userRoleRepository.insert(role)) {
-                return RestResult.fail("关联角色失败");
+        // rid为0就删除
+        if (0 == rid) {
+            TUserRoleMp role = userRoleMpRepository.find(uid);
+            if (null != role) {
+                userRoleMpRepository.delete(role);
             }
         } else {
-            role.setRid(rid);
-            if (!userRoleRepository.update(role)) {
-                return RestResult.fail("修改关联角色失败");
+            // 已存在就修改，不存在就新增
+            TUserRoleMp role = userRoleMpRepository.find(uid);
+            if (null == role) {
+                role = new TUserRoleMp();
+                role.setUid(uid);
+                role.setRid(rid);
+                if (!userRoleMpRepository.insert(role)) {
+                    return RestResult.fail("关联角色失败");
+                }
+            } else {
+                role.setRid(rid);
+                if (!userRoleMpRepository.update(role)) {
+                    return RestResult.fail("修改关联角色失败");
+                }
             }
         }
         return RestResult.ok();
     }
 
-    public RestResult getGroupRole(int id) {
+    public RestResult getGroupRoleMp(int id) {
         // 获取公司信息
         TUserGroup group = userGroupRepository.find(id);
         if (null == group) {
             return RestResult.fail("获取公司信息异常");
         }
 
-        List<TRole> roles = roleRepository.findByGroup(group.getGid());
+        List<TRoleMp> roles = roleMpRepository.findByGroup(group.getGid());
         if (null == roles) {
             return RestResult.fail("获取角色信息异常");
         }

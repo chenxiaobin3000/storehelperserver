@@ -6,6 +6,13 @@ package com.cxb.storehelperserver.config;
  * date: 2022/12/27
  */
 public class Permission {
+    // 小程序
+    static public final int mp_report = 10;
+    static public final int mp_product = 11;
+    static public final int mp_storage = 12;
+    static public final int mp_agreement = 13;
+
+    // 管理后台
     static public final int dashboard_report = 100;
     static public final int dashboard_admin = 101;
     static public final int dashboard_userinfo = 102;
@@ -90,7 +97,7 @@ public class Permission {
     static public final int system_charge = 1101;
     static public final int system_rolelist = 1102;
     static public final int system_groupinfo = 1103;
-    static public final int system_notify = 1104;
+    static public final int system_mprolelist = 1104;
 
     static public final int admin = 8888;
     static public final int admin_changegroup = 88881;

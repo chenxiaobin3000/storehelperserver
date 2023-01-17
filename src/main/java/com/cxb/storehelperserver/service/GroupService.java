@@ -146,28 +146,4 @@ public class GroupService {
         }
         return RestResult.ok();
     }
-
-    public RestResult setUserGroupAdmin(int id, int uid, int gid) {
-        // 权限校验，必须admin
-        if (!checkService.checkRolePermission(id, admin)) {
-            return RestResult.fail("本账号没有管理员权限");
-        }
-
-        // 已存在就修改，不存在就新增
-        TUserGroup group = userGroupRepository.find(uid);
-        if (null == group) {
-            group = new TUserGroup();
-            group.setUid(uid);
-            group.setGid(gid);
-            if (!userGroupRepository.insert(group)) {
-                return RestResult.fail("关联公司失败");
-            }
-        } else {
-            group.setGid(gid);
-            if (!userGroupRepository.update(group)) {
-                return RestResult.fail("修改关联公司失败");
-            }
-        }
-        return RestResult.ok();
-    }
 }

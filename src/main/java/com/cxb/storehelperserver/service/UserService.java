@@ -38,13 +38,22 @@ public class UserService {
     private UserRoleRepository userRoleRepository;
 
     @Resource
+    private UserRoleMpRepository userRoleMpRepository;
+
+    @Resource
     private RolePermissionRepository rolePermissionRepository;
+
+    @Resource
+    private RolePermissionMpRepository rolePermissionMpRepository;
 
     @Resource
     private GroupRepository groupRepository;
 
     @Resource
     private RoleRepository roleRepository;
+
+    @Resource
+    private RoleMpRepository roleMpRepository;
 
     @Resource
     private AccountRepository accountRepository;
@@ -167,6 +176,14 @@ public class UserService {
             permissions = rolePermissionRepository.find(userRole.getRid());
         }
 
+        // 获取小程序角色权限
+        List<Integer> permissionMps = null;
+        TUserRoleMp userRoleMp = userRoleMpRepository.find(id);
+        if (null != userRoleMp) {
+            permissionMps = rolePermissionMpRepository.find(userRoleMp.getRid());
+        }
+
+        // 获取公司信息
         val data = new HashMap<String, Object>();
         if (null == userGroup) {
             data.put("group", null);
@@ -179,7 +196,8 @@ public class UserService {
         }
 
         data.put("user", user);
-        data.put("permissions", permissions);
+        data.put("perms", permissions);
+        data.put("permMps", permissionMps);
         return RestResult.ok(data);
     }
 
@@ -231,12 +249,24 @@ public class UserService {
             user.put("id", u.getId());
             user.put("name", u.getName());
             user.put("phone", u.getPhone());
+
+            // 角色信息
             TUserRole userRole = userRoleRepository.find(u.getId());
             if (null != userRole) {
                 user.put("role", roleRepository.find(userRole.getRid()));
             } else {
                 user.put("role", null);
             }
+
+            // 小程序角色信息
+            TUserRoleMp userRoleMp = userRoleMpRepository.find(u.getId());
+            if (null != userRoleMp) {
+                user.put("rolemp", roleMpRepository.find(userRoleMp.getRid()));
+            } else {
+                user.put("rolemp", null);
+            }
+
+            // 公司信息
             user.put("part", null);
             list2.add(user);
         }

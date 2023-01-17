@@ -45,6 +45,9 @@ public class SetCommodityValid implements IValid {
     @Min(value = 1, message = "商品价格错误")
     private BigDecimal price;
 
+    @Min(value = 1, message = "商品单位错误")
+    private int unit;
+
     @Length(max = 16, message = "商品备注长度不能大于16个字符")
     private String remark;
 
