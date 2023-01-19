@@ -17,13 +17,13 @@ import javax.annotation.Resource;
  */
 @Slf4j
 @RestController
-@RequestMapping("/upload")
+@RequestMapping("/api/upload")
 public class UploadController {
     @Resource
     UploadService uploadService;
 
     @PostMapping("/addAttach")
-    public RestResult addAttach(@Validated @RequestBody AddAttachValid req) {
-        return uploadService.addAttach(req.getId(), TypeDefine.AttachType.valueOf(req.getType()), req.getFiles());
+    public RestResult addAttach(@Validated AddAttachValid req) {
+        return uploadService.addAttach(req.getId(), TypeDefine.OrderType.valueOf(req.getType()), req.getName(), req.getFile());
     }
 }

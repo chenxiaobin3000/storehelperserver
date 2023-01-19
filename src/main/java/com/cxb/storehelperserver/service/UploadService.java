@@ -61,13 +61,13 @@ public class UploadService {
     @Value("${store-app.config.imagepath}")
     private String imagepath;
 
-    public RestResult addAttach(int id, TypeDefine.OrderType type, MultipartFile file) {
+    public RestResult addAttach(int id, TypeDefine.OrderType type, String name, MultipartFile file) {
+        log.info("id:" + String.valueOf(id));
         if (file.isEmpty()) {
             return RestResult.fail("上传文件失败，请再试一次");
         }
         SimpleDateFormat simpleDateFormat = dateUtil.getSimpleDateFormat();
         val data = new HashMap<String, Integer>();
-        String name = file.getOriginalFilename();
         String path = imagepath + simpleDateFormat.format(new Date());
         File dest = new File(path + '/' + name);
         if (!dest.getParentFile().exists()) {
