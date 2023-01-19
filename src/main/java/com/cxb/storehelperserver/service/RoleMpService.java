@@ -14,8 +14,7 @@ import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.List;
 
-import static com.cxb.storehelperserver.config.Permission.admin;
-import static com.cxb.storehelperserver.config.Permission.system_mprolelist;
+import static com.cxb.storehelperserver.util.Permission.system_mprolelist;
 
 /**
  * desc: 小程序角色业务

@@ -17,7 +17,7 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static com.cxb.storehelperserver.config.Permission.*;
+import static com.cxb.storehelperserver.util.Permission.*;
 
 /**
  * desc: 公司业务

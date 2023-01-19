@@ -8,9 +8,16 @@ package com.cxb.storehelperserver.util;
 public class TypeDefine {
     // 订单类型
     public enum OrderType {
-        AGREEMENT_ORDER(1), // 履约订单
-        PRODUCT_ORDER(2), // 生产订单
-        STORAGE_ORDER(3); // 进货订单
+        STORAGE_ORIGINAL_IN_ORDER(1), // 进货原料入库订单
+        STORAGE_STANDARD_IN_ORDER(2), // 进货标品入库订单
+        PRODUCT_ORIGINAL_OUT_ORDER(3), // 生产原料出库订单
+        PRODUCT_ORIGINAL_IN_ORDER(4), // 生产原料入库订单
+        PRODUCT_HALFGOOD_IN_ORDER(5), // 生产半成品入库订单
+        PRODUCT_COMMODITY_IN_ORDER(6), // 生产商品入库订单
+        AGREEMENT_COMMODITY_OUT_ORDER(7), // 履约商品出库订单
+        AGREEMENT_STANDARD_OUT_ORDER(8), // 履约标品出库订单
+        AGREEMENT_COMMODITY_IN_ORDER(9), // 履约商品入库订单
+        AGREEMENT_STANDARD_IN_ORDER(10); // 履约标品入库订单
 
         private int value = 0;
 
@@ -21,53 +28,25 @@ public class TypeDefine {
         public static OrderType valueOf(int v) {
             switch (v) {
                 case 1:
-                    return AGREEMENT_ORDER;
+                    return STORAGE_ORIGINAL_IN_ORDER;
                 case 2:
-                    return PRODUCT_ORDER;
-            }
-            return STORAGE_ORDER;
-        }
-
-        public int getValue() {
-            return value;
-        }
-    }
-
-    // 上传附件类型
-    public enum AttachType {
-        ATTACHMENT_COMM_IN_ORDER(1), // 商品入库订单
-        ATTACHMENT_COMM_OUT_ORDER(2), // 商品出库订单
-        ATTACHMENT_ORI_IN_ORDER(3), // 原料入库订单
-        ATTACHMENT_ORI_OUT_ORDER(4), // 原料出库订单
-        ATTACHMENT_STAN_IN_ORDER(5), // 标品入库订单
-        ATTACHMENT_STAN_OUT_ORDER(6), // 标品出库订单
-        ATTACHMENT_DEST_IN_ORDER(7), // 废料入库订单
-        ATTACHMENT_DEST_OUT_ORDER(8); // 废料出库订单
-
-        private int value = 0;
-
-        private AttachType(int v) {
-            this.value = v;
-        }
-
-        public static AttachType valueOf(int v) {
-            switch (v) {
-                case 1:
-                    return ATTACHMENT_COMM_IN_ORDER;
-                case 2:
-                    return ATTACHMENT_COMM_OUT_ORDER;
+                    return STORAGE_STANDARD_IN_ORDER;
                 case 3:
-                    return ATTACHMENT_ORI_IN_ORDER;
+                    return PRODUCT_ORIGINAL_OUT_ORDER;
                 case 4:
-                    return ATTACHMENT_ORI_OUT_ORDER;
+                    return PRODUCT_ORIGINAL_IN_ORDER;
                 case 5:
-                    return ATTACHMENT_STAN_IN_ORDER;
+                    return PRODUCT_HALFGOOD_IN_ORDER;
                 case 6:
-                    return ATTACHMENT_STAN_OUT_ORDER;
+                    return PRODUCT_COMMODITY_IN_ORDER;
                 case 7:
-                    return ATTACHMENT_DEST_IN_ORDER;
+                    return AGREEMENT_COMMODITY_OUT_ORDER;
+                case 8:
+                    return AGREEMENT_STANDARD_OUT_ORDER;
+                case 9:
+                    return AGREEMENT_COMMODITY_IN_ORDER;
             }
-            return ATTACHMENT_DEST_OUT_ORDER;
+            return AGREEMENT_STANDARD_IN_ORDER;
         }
 
         public int getValue() {

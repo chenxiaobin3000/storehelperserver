@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.util.HashMap;
 
-import static com.cxb.storehelperserver.config.Permission.*;
+import static com.cxb.storehelperserver.util.Permission.*;
 
 /**
  * desc: 账号业务

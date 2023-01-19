@@ -12,7 +12,7 @@ import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.List;
 
-import static com.cxb.storehelperserver.config.Permission.*;
+import static com.cxb.storehelperserver.util.Permission.*;
 
 /**
  * desc: 角色业务

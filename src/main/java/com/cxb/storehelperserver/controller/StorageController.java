@@ -70,7 +70,7 @@ public class StorageController {
         order.setGid(req.getGid());
         order.setBatch(req.getBatch());
         order.setSid(req.getSid());
-        order.setOtype(TypeDefine.OrderType.STORAGE_ORDER.getValue());
+        order.setOtype(TypeDefine.OrderType.STORAGE_ORIGINAL_IN_ORDER.getValue());
         return storageStockService.purchaseOriginal(req.getId(), order, req.getCommoditys(), req.getValues(), req.getPrices());
     }
 

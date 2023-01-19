@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static com.cxb.storehelperserver.config.Permission.*;
+import static com.cxb.storehelperserver.util.Permission.*;
 
 /**
  * desc: 用户业务

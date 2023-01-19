@@ -1,4 +1,4 @@
-package com.cxb.storehelperserver.config;
+package com.cxb.storehelperserver.util;
 
 /**
  * desc:
