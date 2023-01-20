@@ -2,7 +2,6 @@ package com.cxb.storehelperserver.service;
 
 import com.cxb.storehelperserver.repository.ReportRepository;
 import com.cxb.storehelperserver.util.RestResult;
-import com.cxb.storehelperserver.util.TypeDefine;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.stereotype.Service;
@@ -10,6 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.HashMap;
+
+import static com.cxb.storehelperserver.util.TypeDefine.ReportCycleType;
 
 /**
  * desc: 报表业务
@@ -23,31 +24,31 @@ public class ReportService {
     @Resource
     private ReportRepository reportRepository;
 
-    public RestResult getAgreement(int id, int gid, TypeDefine.ReportCycleType type) {
+    public RestResult getAgreement(int id, int gid, ReportCycleType type) {
         val data = new HashMap<String, Object>();
         data.put("list", reportRepository.find());
         return RestResult.ok(data);
     }
 
-    public RestResult getFinance(int id, int gid, TypeDefine.ReportCycleType type) {
+    public RestResult getFinance(int id, int gid, ReportCycleType type) {
         val data = new HashMap<String, Object>();
         data.put("list", reportRepository.find());
         return RestResult.ok(data);
     }
 
-    public RestResult getMarket(int id, int gid, TypeDefine.ReportCycleType type) {
+    public RestResult getMarket(int id, int gid, ReportCycleType type) {
         val data = new HashMap<String, Object>();
         data.put("list", reportRepository.find());
         return RestResult.ok(data);
     }
 
-    public RestResult getProduct(int id, int gid, TypeDefine.ReportCycleType type) {
+    public RestResult getProduct(int id, int gid, ReportCycleType type) {
         val data = new HashMap<String, Object>();
         data.put("list", reportRepository.find());
         return RestResult.ok(data);
     }
 
-    public RestResult getStorage(int id, int gid, TypeDefine.ReportCycleType type) {
+    public RestResult getStorage(int id, int gid, ReportCycleType type) {
         val data = new HashMap<String, Object>();
         data.put("list", reportRepository.find());
         return RestResult.ok(data);

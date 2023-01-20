@@ -6,18 +6,47 @@ package com.cxb.storehelperserver.util;
  * date: 2023/1/11
  */
 public class TypeDefine {
+    // 商品类型: 1商品，2原料，3半成品，4标品，5废料
+    public enum CommodityType {
+        COMMODITY(1), // 商品
+        HALFGOOD(2), // 半成品
+        ORIGINAL(3), // 原料
+        STANDARD(4), // 标品
+        DESTROY(5); // 废料
+
+        private int value = 0;
+
+        private CommodityType(int v) {
+            this.value = v;
+        }
+
+        public static CommodityType valueOf(int v) {
+            switch (v) {
+                case 1:
+                    return COMMODITY;
+                case 2:
+                    return ORIGINAL;
+                case 3:
+                    return HALFGOOD;
+                case 4:
+                    return STANDARD;
+            }
+            return DESTROY;
+        }
+
+        public int getValue() {
+            return value;
+        }
+    }
+
     // 订单类型
     public enum OrderType {
-        STORAGE_ORIGINAL_IN_ORDER(1), // 进货原料入库订单
-        STORAGE_STANDARD_IN_ORDER(2), // 进货标品入库订单
-        PRODUCT_ORIGINAL_OUT_ORDER(3), // 生产原料出库订单
-        PRODUCT_ORIGINAL_IN_ORDER(4), // 生产原料入库订单
-        PRODUCT_HALFGOOD_IN_ORDER(5), // 生产半成品入库订单
-        PRODUCT_COMMODITY_IN_ORDER(6), // 生产商品入库订单
-        AGREEMENT_COMMODITY_OUT_ORDER(7), // 履约商品出库订单
-        AGREEMENT_STANDARD_OUT_ORDER(8), // 履约标品出库订单
-        AGREEMENT_COMMODITY_IN_ORDER(9), // 履约商品入库订单
-        AGREEMENT_STANDARD_IN_ORDER(10); // 履约标品入库订单
+        STORAGE_IN_ORDER(1), // 进货入库订单
+        STORAGE_OUT_ORDER(2), // 进货出库订单
+        PRODUCT_IN_ORDER(3), // 生产入库订单
+        PRODUCT_OUT_ORDER(4), // 生产出库订单
+        AGREEMENT_IN_ORDER(5), // 履约入库订单
+        AGREEMENT_OUT_ORDER(6); // 履约出库订单
 
         private int value = 0;
 
@@ -28,28 +57,40 @@ public class TypeDefine {
         public static OrderType valueOf(int v) {
             switch (v) {
                 case 1:
-                    return STORAGE_ORIGINAL_IN_ORDER;
+                    return STORAGE_IN_ORDER;
                 case 2:
-                    return STORAGE_STANDARD_IN_ORDER;
+                    return STORAGE_OUT_ORDER;
                 case 3:
-                    return PRODUCT_ORIGINAL_OUT_ORDER;
+                    return PRODUCT_IN_ORDER;
                 case 4:
-                    return PRODUCT_ORIGINAL_IN_ORDER;
+                    return PRODUCT_OUT_ORDER;
                 case 5:
-                    return PRODUCT_HALFGOOD_IN_ORDER;
-                case 6:
-                    return PRODUCT_COMMODITY_IN_ORDER;
-                case 7:
-                    return AGREEMENT_COMMODITY_OUT_ORDER;
-                case 8:
-                    return AGREEMENT_STANDARD_OUT_ORDER;
-                case 9:
-                    return AGREEMENT_COMMODITY_IN_ORDER;
+                    return AGREEMENT_IN_ORDER;
             }
-            return AGREEMENT_STANDARD_IN_ORDER;
+            return AGREEMENT_OUT_ORDER;
         }
 
         public int getValue() {
+            return value;
+        }
+    }
+
+    // 订单类型
+    public enum OrderInOutType {
+        IN_ORDER(false), // 进货入库订单
+        OUT_ORDER(true); // 进货出库订单
+
+        private boolean value = false;
+
+        private OrderInOutType(boolean v) {
+            this.value = v;
+        }
+
+        public static OrderInOutType valueOf(boolean v) {
+            return v ? OUT_ORDER : IN_ORDER;
+        }
+
+        public boolean getValue() {
             return value;
         }
     }

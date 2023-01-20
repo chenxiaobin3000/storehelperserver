@@ -3,7 +3,6 @@ package com.cxb.storehelperserver.service;
 import com.cxb.storehelperserver.model.*;
 import com.cxb.storehelperserver.repository.*;
 import com.cxb.storehelperserver.util.DateUtil;
-import com.cxb.storehelperserver.util.TypeDefine;
 import com.cxb.storehelperserver.util.RestResult;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -18,6 +17,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 
+import static com.cxb.storehelperserver.util.TypeDefine.OrderType;
+
 /**
  * desc: 上传业务
  * auth: cxb
@@ -28,32 +29,19 @@ import java.util.HashMap;
 @Transactional(rollbackFor = Exception.class)
 public class UploadService {
     @Resource
-    private ScInAttachmentRepository scInAttachmentRepository;
-    @Resource
-    private ScOutAttachmentRepository scOutAttachmentRepository;
+    private StorageOrderAttachmentRepository storageOrderAttachmentRepository;
 
     @Resource
-    private SdInAttachmentRepository sdInAttachmentRepository;
-    @Resource
-    private SdOutAttachmentRepository sdOutAttachmentRepository;
+    private ProductOrderAttachmentRepository productOrderAttachmentRepository;
 
     @Resource
-    private ShInAttachmentRepository shInAttachmentRepository;
-    @Resource
-    private ShOutAttachmentRepository shOutAttachmentRepository;
-
-    @Resource
-    private SoInAttachmentRepository soInAttachmentRepository;
-    @Resource
-    private SoOutAttachmentRepository soOutAttachmentRepository;
-
-    @Resource
-    private SsInAttachmentRepository ssInAttachmentRepository;
-    @Resource
-    private SsOutAttachmentRepository ssOutAttachmentRepository;
+    private AgreementOrderAttachmentRepository agreementOrderAttachmentRepository;
 
     @Resource
     private DateUtil dateUtil;
+
+    @Value("${store-app.config.uploadpath}")
+    private String uploadpath;
 
     @Value("${store-app.config.imagesrc}")
     private int imagesrc;
@@ -61,112 +49,66 @@ public class UploadService {
     @Value("${store-app.config.imagepath}")
     private String imagepath;
 
-    public RestResult addAttach(int id, TypeDefine.OrderType type, String name, MultipartFile file) {
-        log.info("id:" + String.valueOf(id));
+    public RestResult addAttach(int id, OrderType type, String name, MultipartFile file) {
         if (file.isEmpty()) {
             return RestResult.fail("上传文件失败，请再试一次");
         }
         SimpleDateFormat simpleDateFormat = dateUtil.getSimpleDateFormat();
         val data = new HashMap<String, Integer>();
         String path = imagepath + simpleDateFormat.format(new Date());
-        File dest = new File(path + '/' + name);
+        log.info(uploadpath + path + '/' + name);
+        File dest = new File(uploadpath + path + '/' + name);
         if (!dest.getParentFile().exists()) {
             if (!dest.getParentFile().mkdirs()) {
                 return RestResult.fail("服务器文件系统异常，请再试一次");
             }
         }
         try {
-            log.info(dest.getAbsolutePath());
             file.transferTo(dest);
         } catch (Exception e) {
-            log.info(e.toString());
             return RestResult.fail("上传文件异常，请再试一次");
         }
 
         // 写入数据库
         switch (type) {
-            case PRODUCT_COMMODITY_IN_ORDER:
-            case AGREEMENT_COMMODITY_IN_ORDER:
-                TScInAttachment scInAttachment = new TScInAttachment();
-                scInAttachment.setOrid(0);
-                scInAttachment.setSrc(imagesrc);
-                scInAttachment.setPath(path);
-                scInAttachment.setName(name);
-                if (!scInAttachmentRepository.insert(scInAttachment)) {
+            case STORAGE_IN_ORDER:
+            case STORAGE_OUT_ORDER:
+                TStorageOrderAttachment storageOrderAttachment = new TStorageOrderAttachment();
+                storageOrderAttachment.setOrid(0);
+                storageOrderAttachment.setSrc(imagesrc);
+                storageOrderAttachment.setPath(path);
+                storageOrderAttachment.setName(name);
+                if (!storageOrderAttachmentRepository.insert(storageOrderAttachment)) {
                     return RestResult.fail("写入数据失败，请联系管理员");
                 }
-                data.put("id", scInAttachment.getId());
+                data.put("id", storageOrderAttachment.getId());
                 break;
-            case PRODUCT_HALFGOOD_IN_ORDER:
-                TShInAttachment shInAttachment = new TShInAttachment();
-                shInAttachment.setOrid(0);
-                shInAttachment.setSrc(imagesrc);
-                shInAttachment.setPath(path);
-                shInAttachment.setName(name);
-                if (!shInAttachmentRepository.insert(shInAttachment)) {
+            case PRODUCT_IN_ORDER:
+            case PRODUCT_OUT_ORDER:
+                TProductOrderAttachment productOrderAttachment = new TProductOrderAttachment();
+                productOrderAttachment.setOrid(0);
+                productOrderAttachment.setSrc(imagesrc);
+                productOrderAttachment.setPath(path);
+                productOrderAttachment.setName(name);
+                if (!productOrderAttachmentRepository.insert(productOrderAttachment)) {
                     return RestResult.fail("写入数据失败，请联系管理员");
                 }
-                data.put("id", shInAttachment.getId());
+                data.put("id", productOrderAttachment.getId());
                 break;
-            case STORAGE_ORIGINAL_IN_ORDER:
-            case PRODUCT_ORIGINAL_IN_ORDER:
-                TSoInAttachment soInAttachment = new TSoInAttachment();
-                soInAttachment.setOrid(0);
-                soInAttachment.setSrc(imagesrc);
-                soInAttachment.setPath(path);
-                soInAttachment.setName(name);
-                if (!soInAttachmentRepository.insert(soInAttachment)) {
+            case AGREEMENT_IN_ORDER:
+            case AGREEMENT_OUT_ORDER:
+                TAgreementOrderAttachment agreementOrderAttachment = new TAgreementOrderAttachment();
+                agreementOrderAttachment.setOrid(0);
+                agreementOrderAttachment.setSrc(imagesrc);
+                agreementOrderAttachment.setPath(path);
+                agreementOrderAttachment.setName(name);
+                if (!agreementOrderAttachmentRepository.insert(agreementOrderAttachment)) {
                     return RestResult.fail("写入数据失败，请联系管理员");
                 }
-                data.put("id", soInAttachment.getId());
-                break;
-            case STORAGE_STANDARD_IN_ORDER:
-            case AGREEMENT_STANDARD_IN_ORDER:
-                TSsInAttachment ssInAttachment = new TSsInAttachment();
-                ssInAttachment.setOrid(0);
-                ssInAttachment.setSrc(imagesrc);
-                ssInAttachment.setPath(path);
-                ssInAttachment.setName(name);
-                if (!ssInAttachmentRepository.insert(ssInAttachment)) {
-                    return RestResult.fail("写入数据失败，请联系管理员");
-                }
-                data.put("id", ssInAttachment.getId());
-                break;
-            case AGREEMENT_COMMODITY_OUT_ORDER:
-                TScOutAttachment scOutAttachment = new TScOutAttachment();
-                scOutAttachment.setOrid(0);
-                scOutAttachment.setSrc(imagesrc);
-                scOutAttachment.setPath(path);
-                scOutAttachment.setName(name);
-                if (!scOutAttachmentRepository.insert(scOutAttachment)) {
-                    return RestResult.fail("写入数据失败，请联系管理员");
-                }
-                data.put("id", scOutAttachment.getId());
-                break;
-            case PRODUCT_ORIGINAL_OUT_ORDER:
-                TSoOutAttachment soOutAttachment = new TSoOutAttachment();
-                soOutAttachment.setOrid(0);
-                soOutAttachment.setSrc(imagesrc);
-                soOutAttachment.setPath(path);
-                soOutAttachment.setName(name);
-                if (!soOutAttachmentRepository.insert(soOutAttachment)) {
-                    return RestResult.fail("写入数据失败，请联系管理员");
-                }
-                data.put("id", soOutAttachment.getId());
-                break;
-            case AGREEMENT_STANDARD_OUT_ORDER:
-                TSsOutAttachment ssOutAttachment = new TSsOutAttachment();
-                ssOutAttachment.setOrid(0);
-                ssOutAttachment.setSrc(imagesrc);
-                ssOutAttachment.setPath(path);
-                ssOutAttachment.setName(name);
-                if (!ssOutAttachmentRepository.insert(ssOutAttachment)) {
-                    return RestResult.fail("写入数据失败，请联系管理员");
-                }
-                data.put("id", ssOutAttachment.getId());
+                data.put("id", agreementOrderAttachment.getId());
                 break;
             default:
-                break;
+                return RestResult.fail("数据类型错误");
         }
         return RestResult.ok(data);
     }

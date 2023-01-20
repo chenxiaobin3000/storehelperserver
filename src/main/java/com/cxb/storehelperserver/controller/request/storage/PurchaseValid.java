@@ -16,7 +16,7 @@ import java.util.List;
  * date: 2022/12/21
  */
 @Data
-public class PurchaseOriginalValid implements IValid {
+public class PurchaseValid implements IValid {
     @Min(value = 1, message = "账号错误")
     private int id;
 
@@ -30,8 +30,14 @@ public class PurchaseOriginalValid implements IValid {
     @Min(value = 1, message = "仓库账号错误")
     private int sid;
 
+    @Size(min = 1, message = "商品类型不能为空")
+    private List<Integer> types;
+
     @Size(min = 1, message = "商品id不能为空")
     private List<Integer> commoditys;
+
+    @Size(min = 1, message = "商品单位不能为空")
+    private List<Integer> units;
 
     @Size(min = 1, message = "商品数量不能为空")
     private List<Integer> values;
