@@ -1,9 +1,6 @@
 package com.cxb.storehelperserver.service;
 
-import com.cxb.storehelperserver.model.TAttributeTemplate;
-import com.cxb.storehelperserver.model.TDestroy;
-import com.cxb.storehelperserver.model.TDestroyAttr;
-import com.cxb.storehelperserver.model.TUserGroup;
+import com.cxb.storehelperserver.model.*;
 import com.cxb.storehelperserver.repository.*;
 import com.cxb.storehelperserver.util.RestResult;
 import lombok.extern.slf4j.Slf4j;
@@ -111,8 +108,8 @@ public class DestroyService {
         return RestResult.ok();
     }
 
-    public RestResult delDestroy(int id, int cid) {
-        TDestroy destroy = destroyRepository.find(cid);
+    public RestResult delDestroy(int id, int did) {
+        TDestroy destroy = destroyRepository.find(did);
         if (null == destroy) {
             return RestResult.fail("要删除的废料不存在");
         }
@@ -126,10 +123,42 @@ public class DestroyService {
         if (!destroyAttrRepository.delete(destroy.getId())) {
             return RestResult.fail("删除废料属性失败");
         }
-        if (!destroyRepository.delete(cid)) {
+        if (!destroyRepository.delete(did)) {
             return RestResult.fail("删除废料信息失败");
         }
         return RestResult.ok();
+    }
+
+    public RestResult getDestroy(int id, int did) {
+        TDestroy destroy = destroyRepository.find(did);
+        if (null == destroy) {
+            return RestResult.fail("获取废料信息失败");
+        }
+
+        // 验证公司
+        String msg = checkService.checkGroup(id, destroy.getGid());
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+
+        // 属性
+        val data = new HashMap<String, Object>();
+        data.put("id", destroy.getId());
+        data.put("code", destroy.getCode());
+        data.put("name", destroy.getName());
+        data.put("cid", destroy.getCid());
+        data.put("atid", destroy.getAtid());
+        data.put("price", destroy.getPrice().floatValue());
+        data.put("remark", destroy.getRemark());
+        List<TDestroyAttr> attrs = destroyAttrRepository.find(destroy.getId());
+        if (null != attrs && !attrs.isEmpty()) {
+            val list = new ArrayList<String>();
+            data.put("attrs", list);
+            for (TDestroyAttr attr : attrs) {
+                list.add(attr.getValue());
+            }
+        }
+        return RestResult.ok(data);
     }
 
     public RestResult getGroupDestroy(int id, int page, int limit, String search) {

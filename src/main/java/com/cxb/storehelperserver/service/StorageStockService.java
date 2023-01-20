@@ -133,7 +133,6 @@ public class StorageStockService extends StorageCache {
                     }
                     break;
             }
-
         }
         return RestResult.ok();
     }

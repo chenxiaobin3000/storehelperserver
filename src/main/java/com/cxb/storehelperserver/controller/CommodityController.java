@@ -1,9 +1,6 @@
 package com.cxb.storehelperserver.controller;
 
-import com.cxb.storehelperserver.controller.request.commodity.AddCommodityValid;
-import com.cxb.storehelperserver.controller.request.commodity.DelCommodityValid;
-import com.cxb.storehelperserver.controller.request.commodity.GetGroupCommodityValid;
-import com.cxb.storehelperserver.controller.request.commodity.SetCommodityValid;
+import com.cxb.storehelperserver.controller.request.commodity.*;
 import com.cxb.storehelperserver.model.TCommodity;
 import com.cxb.storehelperserver.service.CommodityService;
 import com.cxb.storehelperserver.util.RestResult;
@@ -58,6 +55,11 @@ public class CommodityController {
     @PostMapping("/delCommodity")
     public RestResult delCommodity(@Validated @RequestBody DelCommodityValid req) {
         return commodityService.delCommodity(req.getId(), req.getCid());
+    }
+
+    @PostMapping("/getCommodity")
+    public RestResult getCommodity(@Validated @RequestBody GetCommodityValid req) {
+        return commodityService.getCommodity(req.getId(), req.getCid());
     }
 
     @PostMapping("/getGroupCommodity")

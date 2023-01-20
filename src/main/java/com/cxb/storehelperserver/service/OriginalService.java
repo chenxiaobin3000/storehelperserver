@@ -1,9 +1,6 @@
 package com.cxb.storehelperserver.service;
 
-import com.cxb.storehelperserver.model.TAttributeTemplate;
-import com.cxb.storehelperserver.model.TOriginal;
-import com.cxb.storehelperserver.model.TOriginalAttr;
-import com.cxb.storehelperserver.model.TUserGroup;
+import com.cxb.storehelperserver.model.*;
 import com.cxb.storehelperserver.repository.*;
 import com.cxb.storehelperserver.util.RestResult;
 import lombok.extern.slf4j.Slf4j;
@@ -111,8 +108,8 @@ public class OriginalService {
         return RestResult.ok();
     }
 
-    public RestResult delOriginal(int id, int cid) {
-        TOriginal original = originalRepository.find(cid);
+    public RestResult delOriginal(int id, int oid) {
+        TOriginal original = originalRepository.find(oid);
         if (null == original) {
             return RestResult.fail("要删除的原料不存在");
         }
@@ -126,10 +123,42 @@ public class OriginalService {
         if (!originalAttrRepository.delete(original.getId())) {
             return RestResult.fail("删除原料属性失败");
         }
-        if (!originalRepository.delete(cid)) {
+        if (!originalRepository.delete(oid)) {
             return RestResult.fail("删除原料信息失败");
         }
         return RestResult.ok();
+    }
+
+    public RestResult getOriginal(int id, int oid) {
+        TOriginal original = originalRepository.find(oid);
+        if (null == original) {
+            return RestResult.fail("获取原料信息失败");
+        }
+
+        // 验证公司
+        String msg = checkService.checkGroup(id, original.getGid());
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+
+        // 属性
+        val data = new HashMap<String, Object>();
+        data.put("id", original.getId());
+        data.put("code", original.getCode());
+        data.put("name", original.getName());
+        data.put("cid", original.getCid());
+        data.put("atid", original.getAtid());
+        data.put("price", original.getPrice().floatValue());
+        data.put("remark", original.getRemark());
+        List<TOriginalAttr> attrs = originalAttrRepository.find(original.getId());
+        if (null != attrs && !attrs.isEmpty()) {
+            val list = new ArrayList<String>();
+            data.put("attrs", list);
+            for (TOriginalAttr attr : attrs) {
+                list.add(attr.getValue());
+            }
+        }
+        return RestResult.ok(data);
     }
 
     public RestResult getGroupOriginal(int id, int page, int limit, String search) {

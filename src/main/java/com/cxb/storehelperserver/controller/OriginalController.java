@@ -1,9 +1,6 @@
 package com.cxb.storehelperserver.controller;
 
-import com.cxb.storehelperserver.controller.request.original.AddOriginalValid;
-import com.cxb.storehelperserver.controller.request.original.DelOriginalValid;
-import com.cxb.storehelperserver.controller.request.original.GetGroupOriginalValid;
-import com.cxb.storehelperserver.controller.request.original.SetOriginalValid;
+import com.cxb.storehelperserver.controller.request.original.*;
 import com.cxb.storehelperserver.model.TOriginal;
 import com.cxb.storehelperserver.service.OriginalService;
 import com.cxb.storehelperserver.util.RestResult;
@@ -57,7 +54,12 @@ public class OriginalController {
 
     @PostMapping("/delOriginal")
     public RestResult delOriginal(@Validated @RequestBody DelOriginalValid req) {
-        return originalService.delOriginal(req.getId(), req.getCid());
+        return originalService.delOriginal(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/getOriginal")
+    public RestResult getOriginal(@Validated @RequestBody GetOriginalValid req) {
+        return originalService.getOriginal(req.getId(), req.getOid());
     }
 
     @PostMapping("/getGroupOriginal")

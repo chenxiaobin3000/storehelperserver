@@ -1,9 +1,6 @@
 package com.cxb.storehelperserver.service;
 
-import com.cxb.storehelperserver.model.TAttributeTemplate;
-import com.cxb.storehelperserver.model.TStandard;
-import com.cxb.storehelperserver.model.TStandardAttr;
-import com.cxb.storehelperserver.model.TUserGroup;
+import com.cxb.storehelperserver.model.*;
 import com.cxb.storehelperserver.repository.*;
 import com.cxb.storehelperserver.util.RestResult;
 import lombok.extern.slf4j.Slf4j;
@@ -111,8 +108,8 @@ public class StandardService {
         return RestResult.ok();
     }
 
-    public RestResult delStandard(int id, int cid) {
-        TStandard standard = standardRepository.find(cid);
+    public RestResult delStandard(int id, int sid) {
+        TStandard standard = standardRepository.find(sid);
         if (null == standard) {
             return RestResult.fail("要删除的标品不存在");
         }
@@ -126,10 +123,42 @@ public class StandardService {
         if (!standardAttrRepository.delete(standard.getId())) {
             return RestResult.fail("删除标品属性失败");
         }
-        if (!standardRepository.delete(cid)) {
+        if (!standardRepository.delete(sid)) {
             return RestResult.fail("删除标品信息失败");
         }
         return RestResult.ok();
+    }
+
+    public RestResult getStandard(int id, int sid) {
+        TStandard standard = standardRepository.find(sid);
+        if (null == standard) {
+            return RestResult.fail("获取标品信息失败");
+        }
+
+        // 验证公司
+        String msg = checkService.checkGroup(id, standard.getGid());
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+
+        // 属性
+        val data = new HashMap<String, Object>();
+        data.put("id", standard.getId());
+        data.put("code", standard.getCode());
+        data.put("name", standard.getName());
+        data.put("cid", standard.getCid());
+        data.put("atid", standard.getAtid());
+        data.put("price", standard.getPrice().floatValue());
+        data.put("remark", standard.getRemark());
+        List<TStandardAttr> attrs = standardAttrRepository.find(standard.getId());
+        if (null != attrs && !attrs.isEmpty()) {
+            val list = new ArrayList<String>();
+            data.put("attrs", list);
+            for (TStandardAttr attr : attrs) {
+                list.add(attr.getValue());
+            }
+        }
+        return RestResult.ok(data);
     }
 
     public RestResult getGroupStandard(int id, int page, int limit, String search) {

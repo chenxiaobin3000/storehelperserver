@@ -129,6 +129,38 @@ public class CommodityService {
         return RestResult.ok();
     }
 
+    public RestResult getCommodity(int id, int cid) {
+        TCommodity commodity = commodityRepository.find(cid);
+        if (null == commodity) {
+            return RestResult.fail("获取商品信息失败");
+        }
+
+        // 验证公司
+        String msg = checkService.checkGroup(id, commodity.getGid());
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+
+        // 属性
+        val data = new HashMap<String, Object>();
+        data.put("id", commodity.getId());
+        data.put("code", commodity.getCode());
+        data.put("name", commodity.getName());
+        data.put("cid", commodity.getCid());
+        data.put("atid", commodity.getAtid());
+        data.put("price", commodity.getPrice().floatValue());
+        data.put("remark", commodity.getRemark());
+        List<TCommodityAttr> attrs = commodityAttrRepository.find(commodity.getId());
+        if (null != attrs && !attrs.isEmpty()) {
+            val list = new ArrayList<String>();
+            data.put("attrs", list);
+            for (TCommodityAttr attr : attrs) {
+                list.add(attr.getValue());
+            }
+        }
+        return RestResult.ok(data);
+    }
+
     public RestResult getGroupCommodity(int id, int page, int limit, String search) {
         // 获取公司信息
         TUserGroup group = userGroupRepository.find(id);
