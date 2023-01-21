@@ -37,6 +37,9 @@ public class CommodityService {
     private OriginalCommodityRepository originalCommodityRepository;
 
     @Resource
+    private OriginalRepository originalRepository;
+
+    @Resource
     private AttributeTemplateRepository attributeTemplateRepository;
 
     @Resource
@@ -125,6 +128,9 @@ public class CommodityService {
             return RestResult.fail(msg);
         }
 
+        if (!originalCommodityRepository.delete(commodity.getGid(), commodity.getId())) {
+            return RestResult.fail("删除商品关联原料失败");
+        }
         if (!commodityAttrRepository.delete(commodity.getId())) {
             return RestResult.fail("删除商品属性失败");
         }
@@ -173,7 +179,8 @@ public class CommodityService {
             return RestResult.fail("获取公司信息异常");
         }
 
-        int total = commodityRepository.total(group.getGid(), search);
+        int gid = group.getGid();
+        int total = commodityRepository.total(gid, search);
         if (0 == total) {
             val data = new HashMap<String, Object>();
             data.put("total", 0);
@@ -181,7 +188,7 @@ public class CommodityService {
             return RestResult.ok(data);
         }
 
-        val commodities = commodityRepository.pagination(group.getGid(), page, limit, search);
+        val commodities = commodityRepository.pagination(gid, page, limit, search);
         if (null == commodities) {
             return RestResult.fail("获取商品信息异常");
         }
@@ -205,6 +212,16 @@ public class CommodityService {
                 tmp.put("attrs", list);
                 for (TCommodityAttr attr : attrs) {
                     list.add(attr.getValue());
+                }
+            }
+
+            // 关联来源
+            TOriginalCommodity originalCommodity = originalCommodityRepository.find(gid, c.getId());
+            if (null != originalCommodity) {
+                TOriginal original = originalRepository.find(originalCommodity.getOid());
+                if (null != original) {
+                    tmp.put("oid", original.getId());
+                    tmp.put("oname", original.getName());
                 }
             }
         }

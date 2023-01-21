@@ -37,6 +37,9 @@ public class DestroyService {
     private OriginalDestroyRepository originalDestroyRepository;
 
     @Resource
+    private OriginalRepository originalRepository;
+
+    @Resource
     private AttributeTemplateRepository attributeTemplateRepository;
 
     @Resource
@@ -125,6 +128,9 @@ public class DestroyService {
             return RestResult.fail(msg);
         }
 
+        if (!originalDestroyRepository.delete(destroy.getGid(), destroy.getId())) {
+            return RestResult.fail("删除废料关联原料失败");
+        }
         if (!destroyAttrRepository.delete(destroy.getId())) {
             return RestResult.fail("删除废料属性失败");
         }
@@ -173,7 +179,8 @@ public class DestroyService {
             return RestResult.fail("获取公司信息异常");
         }
 
-        int total = destroyRepository.total(group.getGid(), search);
+        int gid = group.getGid();
+        int total = destroyRepository.total(gid, search);
         if (0 == total) {
             val data = new HashMap<String, Object>();
             data.put("total", 0);
@@ -181,7 +188,7 @@ public class DestroyService {
             return RestResult.ok(data);
         }
 
-        val commodities = destroyRepository.pagination(group.getGid(), page, limit, search);
+        val commodities = destroyRepository.pagination(gid, page, limit, search);
         if (null == commodities) {
             return RestResult.fail("获取废料信息异常");
         }
@@ -205,6 +212,16 @@ public class DestroyService {
                 tmp.put("attrs", list);
                 for (TDestroyAttr attr : attrs) {
                     list.add(attr.getValue());
+                }
+            }
+
+            // 关联来源
+            TOriginalDestroy originalDestroy = originalDestroyRepository.find(gid, c.getId());
+            if (null != originalDestroy) {
+                TOriginal original = originalRepository.find(originalDestroy.getOid());
+                if (null != original) {
+                    tmp.put("oid", original.getId());
+                    tmp.put("oname", original.getName());
                 }
             }
         }
