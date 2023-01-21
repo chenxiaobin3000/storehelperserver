@@ -31,9 +31,9 @@ public class StandardController {
         standard.setGid(req.getGid());
         standard.setCode(req.getCode());
         standard.setName(req.getName());
-        standard.setAtid(req.getAtid());
         standard.setCid(req.getCid());
         standard.setPrice(req.getPrice());
+        standard.setUnit(req.getUnit());
         standard.setRemark(req.getRemark());
         return standardService.addStandard(req.getId(), standard, req.getAttrs());
     }
@@ -45,9 +45,9 @@ public class StandardController {
         standard.setGid(req.getGid());
         standard.setCode(req.getCode());
         standard.setName(req.getName());
-        standard.setAtid(req.getAtid());
         standard.setCid(req.getCid());
         standard.setPrice(req.getPrice());
+        standard.setUnit(req.getUnit());
         standard.setRemark(req.getRemark());
         return standardService.setStandard(req.getId(), standard, req.getAttrs());
     }

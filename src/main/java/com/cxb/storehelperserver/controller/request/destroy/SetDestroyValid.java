@@ -36,9 +36,6 @@ public class SetDestroyValid implements IValid {
     @Length(max = 16, message = "废品名称长度不能大于16个字符")
     private String name;
 
-    @Min(value = 1, message = "废品属性模板错误")
-    private int atid;
-
     @Min(value = 1, message = "废品品类错误")
     private int cid;
 

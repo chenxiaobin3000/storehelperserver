@@ -71,6 +71,6 @@ public class AttributeController {
 
     @PostMapping("/getGroupAttrTemp")
     public RestResult getGroupAttribute(@Validated @RequestBody GetGroupAttrTemplateValid req) {
-        return attributeService.getGroupAttributeTemplate(req.getId());
+        return attributeService.getGroupAttributeTemplate(req.getId(), req.getAtid());
     }
 }

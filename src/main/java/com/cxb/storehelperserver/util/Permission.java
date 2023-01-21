@@ -26,9 +26,12 @@ public class Permission {
     static public final int commodity = 300;
     static public final int commodity_salereport = 301;
     static public final int commodity_commoditylist = 302;
-    static public final int commodity_originallist = 303;
-    static public final int commodity_setcategory = 304;
-    static public final int commodity_attributelist = 305;
+    static public final int commodity_halfgoodlist = 303;
+    static public final int commodity_originallist = 304;
+    static public final int commodity_standardlist = 305;
+    static public final int commodity_destroylist = 306;
+    static public final int commodity_setcategory = 307;
+    static public final int commodity_attributelist = 308;
 
     static public final int finance = 400;
     static public final int finance_getinfo = 401;

@@ -24,19 +24,19 @@ public class UserGroupRepository extends BaseRepository<TUserGroup> {
     }
 
     public TUserGroup find(int uid) {
-        TUserGroup tUserGroup = getCache(uid, TUserGroup.class);
-        if (null != tUserGroup) {
-            return tUserGroup;
+        TUserGroup userGroup = getCache(uid, TUserGroup.class);
+        if (null != userGroup) {
+            return userGroup;
         }
 
         // 缓存没有就查询数据库
         TUserGroupExample example = new TUserGroupExample();
         example.or().andUidEqualTo(uid);
-        tUserGroup = userGroupMapper.selectOneByExample(example);
-        if (null != tUserGroup) {
-            setCache(uid, tUserGroup);
+        userGroup = userGroupMapper.selectOneByExample(example);
+        if (null != userGroup) {
+            setCache(uid, userGroup);
         }
-        return tUserGroup;
+        return userGroup;
     }
 
     /*

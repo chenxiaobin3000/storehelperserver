@@ -31,9 +31,9 @@ public class OriginalController {
         original.setGid(req.getGid());
         original.setCode(req.getCode());
         original.setName(req.getName());
-        original.setAtid(req.getAtid());
         original.setCid(req.getCid());
         original.setPrice(req.getPrice());
+        original.setUnit(req.getUnit());
         original.setRemark(req.getRemark());
         return originalService.addOriginal(req.getId(), original, req.getAttrs());
     }
@@ -41,13 +41,13 @@ public class OriginalController {
     @PostMapping("/setOriginal")
     public RestResult setOriginal(@Validated @RequestBody SetOriginalValid req) {
         TOriginal original = new TOriginal();
-        original.setId(req.getCommid());
+        original.setId(req.getOid());
         original.setGid(req.getGid());
         original.setCode(req.getCode());
         original.setName(req.getName());
-        original.setAtid(req.getAtid());
         original.setCid(req.getCid());
         original.setPrice(req.getPrice());
+        original.setUnit(req.getUnit());
         original.setRemark(req.getRemark());
         return originalService.setOriginal(req.getId(), original, req.getAttrs());
     }

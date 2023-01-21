@@ -31,9 +31,9 @@ public class DestroyController {
         destroy.setGid(req.getGid());
         destroy.setCode(req.getCode());
         destroy.setName(req.getName());
-        destroy.setAtid(req.getAtid());
         destroy.setCid(req.getCid());
         destroy.setPrice(req.getPrice());
+        destroy.setUnit(req.getUnit());
         destroy.setRemark(req.getRemark());
         return destroyService.addDestroy(req.getId(), destroy, req.getAttrs());
     }
@@ -45,9 +45,9 @@ public class DestroyController {
         destroy.setGid(req.getGid());
         destroy.setCode(req.getCode());
         destroy.setName(req.getName());
-        destroy.setAtid(req.getAtid());
         destroy.setCid(req.getCid());
         destroy.setPrice(req.getPrice());
+        destroy.setUnit(req.getUnit());
         destroy.setRemark(req.getRemark());
         return destroyService.setDestroy(req.getId(), destroy, req.getAttrs());
     }
@@ -65,5 +65,10 @@ public class DestroyController {
     @PostMapping("/getGroupDestroy")
     public RestResult getGroupDestroy(@Validated @RequestBody GetGroupDestroyValid req) {
         return destroyService.getGroupDestroy(req.getId(), req.getPage(), req.getLimit(), req.getSearch());
+    }
+
+    @PostMapping("/setDestroyOriginal")
+    public RestResult setDestroyOriginal(@Validated @RequestBody SetDestroyOriginalValid req) {
+        return destroyService.setDestroyOriginal(req.getId(), req.getGid(), req.getDid(), req.getOid());
     }
 }

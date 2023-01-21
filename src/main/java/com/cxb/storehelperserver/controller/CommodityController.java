@@ -31,9 +31,9 @@ public class CommodityController {
         commodity.setGid(req.getGid());
         commodity.setCode(req.getCode());
         commodity.setName(req.getName());
-        commodity.setAtid(req.getAtid());
         commodity.setCid(req.getCid());
         commodity.setPrice(req.getPrice());
+        commodity.setUnit(req.getUnit());
         commodity.setRemark(req.getRemark());
         return commodityService.addCommodity(req.getId(), commodity, req.getAttrs());
     }
@@ -45,9 +45,9 @@ public class CommodityController {
         commodity.setGid(req.getGid());
         commodity.setCode(req.getCode());
         commodity.setName(req.getName());
-        commodity.setAtid(req.getAtid());
         commodity.setCid(req.getCid());
         commodity.setPrice(req.getPrice());
+        commodity.setUnit(req.getUnit());
         commodity.setRemark(req.getRemark());
         return commodityService.setCommodity(req.getId(), commodity, req.getAttrs());
     }
@@ -65,5 +65,10 @@ public class CommodityController {
     @PostMapping("/getGroupCommodity")
     public RestResult getGroupCommodity(@Validated @RequestBody GetGroupCommodityValid req) {
         return commodityService.getGroupCommodity(req.getId(), req.getPage(), req.getLimit(), req.getSearch());
+    }
+
+    @PostMapping("/setCommodityOriginal")
+    public RestResult setCommodityOriginal(@Validated @RequestBody SetCommodityOriginalValid req) {
+        return commodityService.setCommodityOriginal(req.getId(), req.getGid(), req.getCid(), req.getOid());
     }
 }

@@ -21,7 +21,7 @@ public class SetOriginalValid implements IValid {
     private int id;
 
     @Min(value = 1, message = "原料错误")
-    private int commid;
+    private int oid;
 
     @Min(value = 1, message = "公司账号错误")
     private int gid;
@@ -35,9 +35,6 @@ public class SetOriginalValid implements IValid {
     @Length(min = 2, message = "原料名称长度不能小于2个字符")
     @Length(max = 16, message = "原料名称长度不能大于16个字符")
     private String name;
-
-    @Min(value = 1, message = "原料属性模板错误")
-    private int atid;
 
     @Min(value = 1, message = "原料品类错误")
     private int cid;

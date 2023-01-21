@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import static com.cxb.storehelperserver.util.TypeDefine.CommodityType;
+
 /**
  * desc: 废料业务
  * auth: cxb
@@ -30,6 +32,9 @@ public class DestroyService {
 
     @Resource
     private DestroyAttrRepository destroyAttrRepository;
+
+    @Resource
+    private OriginalDestroyRepository originalDestroyRepository;
 
     @Resource
     private AttributeTemplateRepository attributeTemplateRepository;
@@ -56,7 +61,7 @@ public class DestroyService {
         }
 
         // 检测属性数量是否匹配
-        List<TAttributeTemplate> attributeTemplates = attributeTemplateRepository.find(destroy.getGid(), destroy.getAtid());
+        List<TAttributeTemplate> attributeTemplates = attributeTemplateRepository.find(destroy.getGid(), CommodityType.DESTROY.getValue());
         if (null == attributeTemplates) {
             return RestResult.fail("废料属性模板信息异常");
         }
@@ -90,7 +95,7 @@ public class DestroyService {
         }
 
         // 检测属性数量是否匹配
-        List<TAttributeTemplate> attributeTemplates = attributeTemplateRepository.find(destroy.getGid(), destroy.getAtid());
+        List<TAttributeTemplate> attributeTemplates = attributeTemplateRepository.find(destroy.getGid(), CommodityType.DESTROY.getValue());
         if (null == attributeTemplates) {
             return RestResult.fail("废料属性模板信息异常");
         }
@@ -147,8 +152,8 @@ public class DestroyService {
         data.put("code", destroy.getCode());
         data.put("name", destroy.getName());
         data.put("cid", destroy.getCid());
-        data.put("atid", destroy.getAtid());
         data.put("price", destroy.getPrice().floatValue());
+        data.put("unit", destroy.getUnit());
         data.put("remark", destroy.getRemark());
         List<TDestroyAttr> attrs = destroyAttrRepository.find(destroy.getId());
         if (null != attrs && !attrs.isEmpty()) {
@@ -188,8 +193,8 @@ public class DestroyService {
             tmp.put("code", c.getCode());
             tmp.put("name", c.getName());
             tmp.put("cid", c.getCid());
-            tmp.put("atid", c.getAtid());
             tmp.put("price", c.getPrice().floatValue());
+            tmp.put("unit", c.getUnit());
             tmp.put("remark", c.getRemark());
             datas.add(tmp);
 
@@ -208,5 +213,30 @@ public class DestroyService {
         data.put("total", total);
         data.put("list", datas);
         return RestResult.ok(data);
+    }
+
+    public RestResult setDestroyOriginal(int id, int gid, int did, int oid) {
+        // 验证公司
+        String msg = checkService.checkGroup(id, gid);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+
+        TOriginalDestroy originalDestroy = originalDestroyRepository.find(gid, did);
+        if (null == originalDestroy) {
+            originalDestroy = new TOriginalDestroy();
+            originalDestroy.setGid(gid);
+            originalDestroy.setOid(oid);
+            originalDestroy.setDid(did);
+            if (!originalDestroyRepository.insert(originalDestroy)) {
+                return RestResult.fail("添加商品关联废料失败");
+            }
+        } else {
+            originalDestroy.setOid(oid);
+            if (!originalDestroyRepository.update(originalDestroy)) {
+                return RestResult.fail("修改商品关联废料失败");
+            }
+        }
+        return RestResult.ok();
     }
 }

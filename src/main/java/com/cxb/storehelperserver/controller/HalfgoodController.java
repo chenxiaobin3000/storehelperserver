@@ -31,9 +31,9 @@ public class HalfgoodController {
         halfgood.setGid(req.getGid());
         halfgood.setCode(req.getCode());
         halfgood.setName(req.getName());
-        halfgood.setAtid(req.getAtid());
         halfgood.setCid(req.getCid());
         halfgood.setPrice(req.getPrice());
+        halfgood.setUnit(req.getUnit());
         halfgood.setRemark(req.getRemark());
         return halfgoodService.addHalfgood(req.getId(), halfgood, req.getAttrs());
     }
@@ -45,9 +45,9 @@ public class HalfgoodController {
         halfgood.setGid(req.getGid());
         halfgood.setCode(req.getCode());
         halfgood.setName(req.getName());
-        halfgood.setAtid(req.getAtid());
         halfgood.setCid(req.getCid());
         halfgood.setPrice(req.getPrice());
+        halfgood.setUnit(req.getUnit());
         halfgood.setRemark(req.getRemark());
         return halfgoodService.setHalfgood(req.getId(), halfgood, req.getAttrs());
     }
@@ -65,5 +65,10 @@ public class HalfgoodController {
     @PostMapping("/getGroupHalfgood")
     public RestResult getGroupHalfgood(@Validated @RequestBody GetGroupHalfgoodValid req) {
         return halfgoodService.getGroupHalfgood(req.getId(), req.getPage(), req.getLimit(), req.getSearch());
+    }
+
+    @PostMapping("/setHalfgoodOriginal")
+    public RestResult setHalfgoodOriginal(@Validated @RequestBody SetHalfgoodOriginalValid req) {
+        return halfgoodService.setHalfgoodOriginal(req.getId(), req.getGid(), req.getHid(), req.getOid());
     }
 }

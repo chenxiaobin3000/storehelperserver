@@ -105,16 +105,9 @@ public class AttributeTemplateRepository extends BaseRepository<List> {
         attributeTemplateMapper.deleteByExample(example);
 
         // 插入新数据
-        int code = 0;
-        TAttributeTemplate attributeTemplate = new TAttributeTemplate();
         for (List<TAttributeTemplate> template : templates) {
             for (TAttributeTemplate t : template) {
-                attributeTemplate.setId(0);
-                attributeTemplate.setGid(gid);
-                attributeTemplate.setCode(++code);
-                attributeTemplate.setAid(t.getAid());
-                attributeTemplate.setIdx(t.getIdx());
-                if (attributeTemplateMapper.insert(attributeTemplate) < 0) {
+                if (attributeTemplateMapper.insert(t) < 0) {
                     return false;
                 }
             }

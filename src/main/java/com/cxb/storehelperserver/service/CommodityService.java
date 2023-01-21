@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import static com.cxb.storehelperserver.util.TypeDefine.CommodityType;
+
 /**
  * desc: 商品业务
  * auth: cxb
@@ -30,6 +32,9 @@ public class CommodityService {
 
     @Resource
     private CommodityAttrRepository commodityAttrRepository;
+
+    @Resource
+    private OriginalCommodityRepository originalCommodityRepository;
 
     @Resource
     private AttributeTemplateRepository attributeTemplateRepository;
@@ -56,7 +61,7 @@ public class CommodityService {
         }
 
         // 检测属性数量是否匹配
-        List<TAttributeTemplate> attributeTemplates = attributeTemplateRepository.find(commodity.getGid(), commodity.getAtid());
+        List<TAttributeTemplate> attributeTemplates = attributeTemplateRepository.find(commodity.getGid(), CommodityType.COMMODITY.getValue());
         if (null == attributeTemplates) {
             return RestResult.fail("商品属性模板信息异常");
         }
@@ -90,7 +95,7 @@ public class CommodityService {
         }
 
         // 检测属性数量是否匹配
-        List<TAttributeTemplate> attributeTemplates = attributeTemplateRepository.find(commodity.getGid(), commodity.getAtid());
+        List<TAttributeTemplate> attributeTemplates = attributeTemplateRepository.find(commodity.getGid(), CommodityType.COMMODITY.getValue());
         if (null == attributeTemplates) {
             return RestResult.fail("商品属性模板信息异常");
         }
@@ -147,8 +152,8 @@ public class CommodityService {
         data.put("code", commodity.getCode());
         data.put("name", commodity.getName());
         data.put("cid", commodity.getCid());
-        data.put("atid", commodity.getAtid());
         data.put("price", commodity.getPrice().floatValue());
+        data.put("unit", commodity.getUnit());
         data.put("remark", commodity.getRemark());
         List<TCommodityAttr> attrs = commodityAttrRepository.find(commodity.getId());
         if (null != attrs && !attrs.isEmpty()) {
@@ -188,8 +193,8 @@ public class CommodityService {
             tmp.put("code", c.getCode());
             tmp.put("name", c.getName());
             tmp.put("cid", c.getCid());
-            tmp.put("atid", c.getAtid());
             tmp.put("price", c.getPrice().floatValue());
+            tmp.put("unit", c.getUnit());
             tmp.put("remark", c.getRemark());
             datas.add(tmp);
 
@@ -208,5 +213,30 @@ public class CommodityService {
         data.put("total", total);
         data.put("list", datas);
         return RestResult.ok(data);
+    }
+
+    public RestResult setCommodityOriginal(int id, int gid, int cid, int oid) {
+        // 验证公司
+        String msg = checkService.checkGroup(id, gid);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+
+        TOriginalCommodity originalCommodity = originalCommodityRepository.find(gid, cid);
+        if (null == originalCommodity) {
+            originalCommodity = new TOriginalCommodity();
+            originalCommodity.setGid(gid);
+            originalCommodity.setOid(oid);
+            originalCommodity.setCid(cid);
+            if (!originalCommodityRepository.insert(originalCommodity)) {
+                return RestResult.fail("添加商品关联原料失败");
+            }
+        } else {
+            originalCommodity.setOid(oid);
+            if (!originalCommodityRepository.update(originalCommodity)) {
+                return RestResult.fail("修改商品关联原料失败");
+            }
+        }
+        return RestResult.ok();
     }
 }

@@ -24,19 +24,19 @@ public class UserRoleRepository extends BaseRepository<TUserRole> {
     }
 
     public TUserRole find(int uid) {
-        TUserRole tUserRole = getCache(uid, TUserRole.class);
-        if (null != tUserRole) {
-            return tUserRole;
+        TUserRole userRole = getCache(uid, TUserRole.class);
+        if (null != userRole) {
+            return userRole;
         }
 
         // 缓存没有就查询数据库
         TUserRoleExample example = new TUserRoleExample();
         example.or().andUidEqualTo(uid);
-        tUserRole = userRoleMapper.selectOneByExample(example);
-        if (null != tUserRole) {
-            setCache(uid, tUserRole);
+        userRole = userRoleMapper.selectOneByExample(example);
+        if (null != userRole) {
+            setCache(uid, userRole);
         }
-        return tUserRole;
+        return userRole;
     }
 
     public boolean insert(TUserRole row) {

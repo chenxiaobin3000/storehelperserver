@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import static com.cxb.storehelperserver.util.TypeDefine.CommodityType;
+
 /**
  * desc: 半成品业务
  * auth: cxb
@@ -30,6 +32,9 @@ public class HalfgoodService {
 
     @Resource
     private HalfgoodAttrRepository halfgoodAttrRepository;
+
+    @Resource
+    private OriginalHalfgoodRepository originalHalfgoodRepository;
 
     @Resource
     private AttributeTemplateRepository attributeTemplateRepository;
@@ -56,7 +61,7 @@ public class HalfgoodService {
         }
 
         // 检测属性数量是否匹配
-        List<TAttributeTemplate> attributeTemplates = attributeTemplateRepository.find(halfgood.getGid(), halfgood.getAtid());
+        List<TAttributeTemplate> attributeTemplates = attributeTemplateRepository.find(halfgood.getGid(), CommodityType.HALFGOOD.getValue());
         if (null == attributeTemplates) {
             return RestResult.fail("半成品属性模板信息异常");
         }
@@ -90,7 +95,7 @@ public class HalfgoodService {
         }
 
         // 检测属性数量是否匹配
-        List<TAttributeTemplate> attributeTemplates = attributeTemplateRepository.find(halfgood.getGid(), halfgood.getAtid());
+        List<TAttributeTemplate> attributeTemplates = attributeTemplateRepository.find(halfgood.getGid(), CommodityType.HALFGOOD.getValue());
         if (null == attributeTemplates) {
             return RestResult.fail("半成品属性模板信息异常");
         }
@@ -147,8 +152,8 @@ public class HalfgoodService {
         data.put("code", halfgood.getCode());
         data.put("name", halfgood.getName());
         data.put("cid", halfgood.getCid());
-        data.put("atid", halfgood.getAtid());
         data.put("price", halfgood.getPrice().floatValue());
+        data.put("unit", halfgood.getUnit());
         data.put("remark", halfgood.getRemark());
         List<THalfgoodAttr> attrs = halfgoodAttrRepository.find(halfgood.getId());
         if (null != attrs && !attrs.isEmpty()) {
@@ -188,8 +193,8 @@ public class HalfgoodService {
             tmp.put("code", c.getCode());
             tmp.put("name", c.getName());
             tmp.put("cid", c.getCid());
-            tmp.put("atid", c.getAtid());
             tmp.put("price", c.getPrice().floatValue());
+            tmp.put("unit", c.getUnit());
             tmp.put("remark", c.getRemark());
             datas.add(tmp);
 
@@ -208,5 +213,30 @@ public class HalfgoodService {
         data.put("total", total);
         data.put("list", datas);
         return RestResult.ok(data);
+    }
+
+    public RestResult setHalfgoodOriginal(int id, int gid, int hid, int oid) {
+        // 验证公司
+        String msg = checkService.checkGroup(id, gid);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+
+        TOriginalHalfgood originalHalfgood = originalHalfgoodRepository.find(gid, hid);
+        if (null == originalHalfgood) {
+            originalHalfgood = new TOriginalHalfgood();
+            originalHalfgood.setGid(gid);
+            originalHalfgood.setOid(oid);
+            originalHalfgood.setHid(hid);
+            if (!originalHalfgoodRepository.insert(originalHalfgood)) {
+                return RestResult.fail("添加商品关联半成品失败");
+            }
+        } else {
+            originalHalfgood.setOid(oid);
+            if (!originalHalfgoodRepository.update(originalHalfgood)) {
+                return RestResult.fail("修改商品关联半成品失败");
+            }
+        }
+        return RestResult.ok();
     }
 }

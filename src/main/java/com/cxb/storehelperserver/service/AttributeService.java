@@ -143,7 +143,7 @@ public class AttributeService {
         return RestResult.ok();
     }
 
-    public RestResult getGroupAttributeTemplate(int id) {
+    public RestResult getGroupAttributeTemplate(int id, int atid) {
         // 获取公司信息
         TUserGroup group = userGroupRepository.find(id);
         if (null == group) {
@@ -156,17 +156,25 @@ public class AttributeService {
             return RestResult.fail("获取属性信息异常");
         }
 
-        List<List<TAttributeTemplate>> attrTemps = attributeTemplateRepository.findByGroup(group.getGid());
-        if (null == attrTemps) {
-            return RestResult.fail("获取属性模板信息异常");
-        }
-
         val data = new HashMap<String, Object>();
-        data.put("list1", temp2Name(attrTemps.get(0), attributes));
-        data.put("list2", temp2Name(attrTemps.get(1), attributes));
-        data.put("list3", temp2Name(attrTemps.get(2), attributes));
-        data.put("list4", temp2Name(attrTemps.get(3), attributes));
-        data.put("list5", temp2Name(attrTemps.get(4), attributes));
+        if (0 == atid) {
+            List<List<TAttributeTemplate>> attrTemps = attributeTemplateRepository.findByGroup(group.getGid());
+            if (null == attrTemps) {
+                return RestResult.fail("获取属性模板信息异常");
+            }
+
+            data.put("list1", temp2Name(attrTemps.get(0), attributes));
+            data.put("list2", temp2Name(attrTemps.get(1), attributes));
+            data.put("list3", temp2Name(attrTemps.get(2), attributes));
+            data.put("list4", temp2Name(attrTemps.get(3), attributes));
+            data.put("list5", temp2Name(attrTemps.get(4), attributes));
+        } else {
+            List<TAttributeTemplate> attrTemp = attributeTemplateRepository.find(group.getGid(), atid);
+            if (null == attrTemp) {
+                return RestResult.fail("获取属性模板信息异常");
+            }
+            data.put("list", temp2Name(attrTemp, attributes));
+        }
         return RestResult.ok(data);
     }
 

@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import static com.cxb.storehelperserver.util.TypeDefine.CommodityType;
+
 /**
  * desc: 原料业务
  * auth: cxb
@@ -56,7 +58,7 @@ public class OriginalService {
         }
 
         // 检测属性数量是否匹配
-        List<TAttributeTemplate> attributeTemplates = attributeTemplateRepository.find(original.getGid(), original.getAtid());
+        List<TAttributeTemplate> attributeTemplates = attributeTemplateRepository.find(original.getGid(), CommodityType.ORIGINAL.getValue());
         if (null == attributeTemplates) {
             return RestResult.fail("原料属性模板信息异常");
         }
@@ -90,7 +92,7 @@ public class OriginalService {
         }
 
         // 检测属性数量是否匹配
-        List<TAttributeTemplate> attributeTemplates = attributeTemplateRepository.find(original.getGid(), original.getAtid());
+        List<TAttributeTemplate> attributeTemplates = attributeTemplateRepository.find(original.getGid(), CommodityType.ORIGINAL.getValue());
         if (null == attributeTemplates) {
             return RestResult.fail("原料属性模板信息异常");
         }
@@ -147,8 +149,8 @@ public class OriginalService {
         data.put("code", original.getCode());
         data.put("name", original.getName());
         data.put("cid", original.getCid());
-        data.put("atid", original.getAtid());
         data.put("price", original.getPrice().floatValue());
+        data.put("unit", original.getUnit());
         data.put("remark", original.getRemark());
         List<TOriginalAttr> attrs = originalAttrRepository.find(original.getId());
         if (null != attrs && !attrs.isEmpty()) {
@@ -188,8 +190,8 @@ public class OriginalService {
             tmp.put("code", c.getCode());
             tmp.put("name", c.getName());
             tmp.put("cid", c.getCid());
-            tmp.put("atid", c.getAtid());
             tmp.put("price", c.getPrice().floatValue());
+            tmp.put("unit", c.getUnit());
             tmp.put("remark", c.getRemark());
             datas.add(tmp);
 
