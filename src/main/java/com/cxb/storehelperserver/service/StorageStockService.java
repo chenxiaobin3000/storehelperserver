@@ -1,9 +1,6 @@
 package com.cxb.storehelperserver.service;
 
-import com.cxb.storehelperserver.model.TStorageCommodity;
-import com.cxb.storehelperserver.model.TStorageOrder;
-import com.cxb.storehelperserver.model.TStorageOrderCommodity;
-import com.cxb.storehelperserver.model.TStorageOriginal;
+import com.cxb.storehelperserver.model.*;
 import com.cxb.storehelperserver.repository.*;
 import com.cxb.storehelperserver.util.RestResult;
 import com.cxb.storehelperserver.util.StorageCache;
@@ -44,6 +41,9 @@ public class StorageStockService extends StorageCache {
     private ProductOrderCommodityRepository productOrderCommodityRepository;
 
     @Resource
+    private ProductOrderAttachmentRepository productOrderAttachmentRepository;
+
+    @Resource
     private AgreementOrderRepository agreementOrderRepository;
 
     @Resource
@@ -64,11 +64,23 @@ public class StorageStockService extends StorageCache {
     @Resource
     private StorageDestroyRepository storageDestroyRepository;
 
+    @Resource
+    private CommodityRepository commodityRepository;
+
+    @Resource
+    private HalfgoodRepository halfgoodRepository;
+
+    @Resource
+    private OriginalRepository originalRepository;
+
+    @Resource
+    private StandardRepository standardRepository;
+
     /*
      * desc: 原料进货
      */
     public RestResult purchase(int id, TStorageOrder order, List<Integer> types, List<Integer> commoditys,
-                               List<Integer> units, List<Integer> values, List<BigDecimal> prices) {
+                               List<Integer> values, List<BigDecimal> prices, List<Integer> attrs) {
         // 验证公司
         String msg = checkService.checkGroup(id, order.getGid());
         if (null != msg) {
@@ -77,23 +89,58 @@ public class StorageStockService extends StorageCache {
 
         // 生成进货单
         int size = commoditys.size();
-        if (size != types.size() || size != units.size() || size != values.size() || size != prices.size()) {
+        if (size != types.size() || size != values.size() || size != prices.size()) {
             return RestResult.fail("商品信息出错");
         }
         int total = 0;
         val list = new ArrayList<TStorageOrderCommodity>();
         for (int i = 0; i < size; i++) {
+            // 获取商品单位信息
+            CommodityType type = CommodityType.valueOf(types.get(i));
+            int cid = commoditys.get(i);
+            int unit = 0;
+            switch (type) {
+                case COMMODITY:
+                    TCommodity find1 = commodityRepository.find(cid);
+                    if (null == find1) {
+                        return RestResult.fail("未查询到商品：" + cid);
+                    }
+                    unit = find1.getUnit();
+                    break;
+                case HALFGOOD:
+                    THalfgood find2 = halfgoodRepository.find(cid);
+                    if (null == find2) {
+                        return RestResult.fail("未查询到半成品：" + cid);
+                    }
+                    unit = find2.getUnit();
+                    break;
+                case ORIGINAL:
+                    TOriginal find3 = originalRepository.find(cid);
+                    if (null == find3) {
+                        return RestResult.fail("未查询到原料：" + cid);
+                    }
+                    unit = find3.getUnit();
+                    break;
+                case STANDARD:
+                    TStandard find4 = standardRepository.find(cid);
+                    if (null == find4) {
+                        return RestResult.fail("未查询到标品：" + cid);
+                    }
+                    unit = find4.getUnit();
+                    break;
+            }
+
+            // 生成数据
             TStorageOrderCommodity c = new TStorageOrderCommodity();
-            c.setCtype(types.get(i));
-            c.setCid(commoditys.get(i));
-            c.setUnit(units.get(i));
+            c.setCtype(type.getValue());
+            c.setCid(cid);
+            c.setUnit(unit);
             c.setValue(values.get(i));
             c.setPrice(prices.get(i));
             list.add(c);
             total += values.get(i);
         }
         order.setValue(total);
-        order.setApply(id);
         if (!storageOrderRepository.insert(order)) {
             return RestResult.fail("生成进货订单失败");
         }
@@ -132,6 +179,17 @@ public class StorageStockService extends StorageCache {
                         return RestResult.fail("修改商品库存数据失败");
                     }
                     break;
+            }
+        }
+
+        // 修改附件orderid
+        for (Integer attr : attrs) {
+            TProductOrderAttachment productOrderAttachment = productOrderAttachmentRepository.find(attr);
+            if (null != productOrderAttachment) {
+                productOrderAttachment.setOrid(oid);
+                if (!productOrderAttachmentRepository.update(productOrderAttachment)) {
+                    return RestResult.fail("添加订单附件失败");
+                }
             }
         }
         return RestResult.ok();

@@ -54,7 +54,6 @@ public class UploadService {
             return RestResult.fail("上传文件失败，请再试一次");
         }
         SimpleDateFormat simpleDateFormat = dateUtil.getSimpleDateFormat();
-        val data = new HashMap<String, Integer>();
         String path = imagepath + simpleDateFormat.format(new Date());
         log.info(uploadpath + path + '/' + name);
         File dest = new File(uploadpath + path + '/' + name);
@@ -70,6 +69,8 @@ public class UploadService {
         }
 
         // 写入数据库
+        val data = new HashMap<String, Object>();
+        data.put("name", name);
         switch (type) {
             case STORAGE_IN_ORDER:
             case STORAGE_OUT_ORDER:

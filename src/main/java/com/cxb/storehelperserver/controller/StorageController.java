@@ -5,6 +5,7 @@ import com.cxb.storehelperserver.model.TStorage;
 import com.cxb.storehelperserver.model.TStorageOrder;
 import com.cxb.storehelperserver.service.StorageService;
 import com.cxb.storehelperserver.service.StorageStockService;
+import com.cxb.storehelperserver.util.DateUtil;
 import com.cxb.storehelperserver.util.RestResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
@@ -14,6 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 import static com.cxb.storehelperserver.util.TypeDefine.OrderInOutType;
 
@@ -31,6 +35,9 @@ public class StorageController {
 
     @Resource
     private StorageStockService storageStockService;
+
+    @Resource
+    private DateUtil dateUtil;
 
     @PostMapping("/addStorage")
     public RestResult addStorage(@Validated @RequestBody AddStorageValid req) {
@@ -67,12 +74,19 @@ public class StorageController {
 
     @PostMapping("/purchase")
     public RestResult purchase(@Validated @RequestBody PurchaseValid req) {
+        SimpleDateFormat simpleDateFormat = dateUtil.getSimpleDateFormat();
         TStorageOrder order = new TStorageOrder();
         order.setGid(req.getGid());
         order.setBatch(req.getBatch());
         order.setSid(req.getSid());
         order.setOtype(OrderInOutType.IN_ORDER.getValue());
+        order.setApply(req.getId());
+        try {
+            order.setApplyTime(simpleDateFormat.parse(req.getDate()));
+        } catch (ParseException e) {
+            return RestResult.fail("订单制单日期转换错误");
+        }
         return storageStockService.purchase(req.getId(), order, req.getTypes(),
-                req.getCommoditys(), req.getUnits(), req.getValues(), req.getPrices());
+                req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
     }
 }
