@@ -24,7 +24,7 @@ public class OriginalCommodityRepository extends BaseRepository<TOriginalCommodi
     }
 
     public TOriginalCommodity find(int gid, int cid) {
-        TOriginalCommodity originalCommodity = getCache(getKey(gid, cid), TOriginalCommodity.class);
+        TOriginalCommodity originalCommodity = getCache(joinKey(gid, cid), TOriginalCommodity.class);
         if (null != originalCommodity) {
             return originalCommodity;
         }
@@ -34,14 +34,14 @@ public class OriginalCommodityRepository extends BaseRepository<TOriginalCommodi
         example.or().andGidEqualTo(gid).andCidEqualTo(cid);
         originalCommodity = originalCommodityMapper.selectOneByExample(example);
         if (null != originalCommodity) {
-            setCache(getKey(gid, cid), originalCommodity);
+            setCache(joinKey(gid, cid), originalCommodity);
         }
         return originalCommodity;
     }
 
     public boolean insert(TOriginalCommodity row) {
         if (originalCommodityMapper.insert(row) > 0) {
-            setCache(getKey(row.getGid(), row.getCid()), row);
+            setCache(joinKey(row.getGid(), row.getCid()), row);
             return true;
         }
         return false;
@@ -49,20 +49,16 @@ public class OriginalCommodityRepository extends BaseRepository<TOriginalCommodi
 
     public boolean update(TOriginalCommodity row) {
         if (originalCommodityMapper.updateByPrimaryKey(row) > 0) {
-            setCache(getKey(row.getGid(), row.getCid()), row);
+            setCache(joinKey(row.getGid(), row.getCid()), row);
             return true;
         }
         return false;
     }
 
     public boolean delete(int gid, int cid) {
-        delCache(getKey(gid, cid));
+        delCache(joinKey(gid, cid));
         TOriginalCommodityExample example = new TOriginalCommodityExample();
         example.or().andGidEqualTo(gid).andCidEqualTo(cid);
         return originalCommodityMapper.deleteByExample(example) > 0;
-    }
-
-    private String getKey(int gid, int cid) {
-        return String.valueOf(gid) + "::" + String.valueOf(cid);
     }
 }

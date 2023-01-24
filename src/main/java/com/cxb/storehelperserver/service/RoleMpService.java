@@ -1,5 +1,6 @@
 package com.cxb.storehelperserver.service;
 
+import com.cxb.storehelperserver.model.TOrderReviewer;
 import com.cxb.storehelperserver.model.TRoleMp;
 import com.cxb.storehelperserver.model.TUserGroup;
 import com.cxb.storehelperserver.model.TUserRoleMp;
@@ -14,7 +15,7 @@ import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.List;
 
-import static com.cxb.storehelperserver.util.Permission.system_mprolelist;
+import static com.cxb.storehelperserver.util.Permission.*;
 
 /**
  * desc: 小程序角色业务
@@ -38,6 +39,9 @@ public class RoleMpService {
     private UserRoleMpRepository userRoleMpRepository;
 
     @Resource
+    private OrderReviewerRepository orderReviewerRepository;
+
+    @Resource
     private UserGroupRepository userGroupRepository;
 
     @Resource
@@ -58,9 +62,11 @@ public class RoleMpService {
         if (!roleMpRepository.insert(roleMp)) {
             return RestResult.fail("添加角色信息失败");
         }
-
         if (!rolePermissionMpRepository.insert(roleMp.getId(), permissions)) {
             return RestResult.fail("添加角色权限失败");
+        }
+        if (!syncReviewPerm(roleMp.getGid())) {
+            return RestResult.fail("同步角色权限信息失败");
         }
         return RestResult.ok();
     }
@@ -80,9 +86,11 @@ public class RoleMpService {
         if (!roleMpRepository.update(role)) {
             return RestResult.fail("修改角色信息失败");
         }
-
         if (!rolePermissionMpRepository.update(role.getId(), permissions)) {
             return RestResult.fail("修改角色权限失败");
+        }
+        if (!syncReviewPerm(role.getGid())) {
+            return RestResult.fail("同步角色权限信息失败");
         }
         return RestResult.ok();
     }
@@ -100,10 +108,13 @@ public class RoleMpService {
         }
 
         if (!rolePermissionMpRepository.delete(rid)) {
-            return RestResult.fail("修改角色权限失败");
+            return RestResult.fail("删除角色权限失败");
         }
         if (!roleMpRepository.delete(rid)) {
             return RestResult.fail("删除角色信息失败");
+        }
+        if (!syncReviewPerm(role.getGid())) {
+            return RestResult.fail("同步角色权限信息失败");
         }
         return RestResult.ok();
     }
@@ -166,7 +177,11 @@ public class RoleMpService {
 
     public RestResult setUserRoleMp(int id, int uid, int rid) {
         // 操作员必须同公司用户
-        String msg = checkService.checkSampGroup(id, uid);
+        TUserGroup group = userGroupRepository.find(uid);
+        if (null == group) {
+            return RestResult.fail("未查询到用户关联的公司");
+        }
+        String msg = checkService.checkGroup(id, group.getGid());
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -199,6 +214,10 @@ public class RoleMpService {
                 }
             }
         }
+
+        if (!syncReviewPerm(group.getGid())) {
+            return RestResult.fail("同步角色权限信息失败");
+        }
         return RestResult.ok();
     }
 
@@ -216,5 +235,13 @@ public class RoleMpService {
         val data = new HashMap<String, Object>();
         data.put("list", roles);
         return RestResult.ok(data);
+    }
+
+    private boolean syncReviewPerm(int gid) {
+        val perms = userRoleMpRepository.getUserRoleMpPerms(gid, mp_storage_review, mp_product_review, mp_agreement_review);
+        for (TOrderReviewer orderReviewer : perms) {
+            orderReviewer.setId(0);
+        }
+        return orderReviewerRepository.update(perms, gid);
     }
 }

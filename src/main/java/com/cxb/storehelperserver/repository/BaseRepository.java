@@ -21,6 +21,10 @@ public class BaseRepository<Model> {
     @Value("${store-app.config.cachetime}")
     private int cachetime;
 
+    protected String joinKey(int id, int id2) {
+        return String.valueOf(id) + "::" + String.valueOf(id2);
+    }
+
     /**
      * desc: 缓存 key 前缀
      */

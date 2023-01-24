@@ -24,7 +24,7 @@ public class OriginalHalfgoodRepository extends BaseRepository<TOriginalHalfgood
     }
 
     public TOriginalHalfgood find(int gid, int hid) {
-        TOriginalHalfgood originalHalfgood = getCache(getKey(gid, hid), TOriginalHalfgood.class);
+        TOriginalHalfgood originalHalfgood = getCache(joinKey(gid, hid), TOriginalHalfgood.class);
         if (null != originalHalfgood) {
             return originalHalfgood;
         }
@@ -34,14 +34,14 @@ public class OriginalHalfgoodRepository extends BaseRepository<TOriginalHalfgood
         example.or().andGidEqualTo(gid).andHidEqualTo(hid);
         originalHalfgood = originalHalfgoodMapper.selectOneByExample(example);
         if (null != originalHalfgood) {
-            setCache(getKey(gid, hid), originalHalfgood);
+            setCache(joinKey(gid, hid), originalHalfgood);
         }
         return originalHalfgood;
     }
 
     public boolean insert(TOriginalHalfgood row) {
         if (originalHalfgoodMapper.insert(row) > 0) {
-            setCache(getKey(row.getGid(), row.getHid()), row);
+            setCache(joinKey(row.getGid(), row.getHid()), row);
             return true;
         }
         return false;
@@ -49,20 +49,16 @@ public class OriginalHalfgoodRepository extends BaseRepository<TOriginalHalfgood
 
     public boolean update(TOriginalHalfgood row) {
         if (originalHalfgoodMapper.updateByPrimaryKey(row) > 0) {
-            setCache(getKey(row.getGid(), row.getHid()), row);
+            setCache(joinKey(row.getGid(), row.getHid()), row);
             return true;
         }
         return false;
     }
 
     public boolean delete(int gid, int hid) {
-        delCache(getKey(gid, hid));
+        delCache(joinKey(gid, hid));
         TOriginalHalfgoodExample example = new TOriginalHalfgoodExample();
         example.or().andGidEqualTo(gid).andHidEqualTo(hid);
         return originalHalfgoodMapper.deleteByExample(example) > 0;
-    }
-
-    private String getKey(int gid, int hid) {
-        return String.valueOf(gid) + "::" + String.valueOf(hid);
     }
 }

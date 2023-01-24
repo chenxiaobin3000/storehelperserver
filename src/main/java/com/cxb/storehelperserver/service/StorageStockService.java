@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.cxb.storehelperserver.util.TypeDefine.CommodityType;
+import static com.cxb.storehelperserver.util.TypeDefine.OrderType;
 
 /**
  * desc: 仓库库存业务
@@ -65,6 +66,15 @@ public class StorageStockService extends StorageCache {
     private StorageDestroyRepository storageDestroyRepository;
 
     @Resource
+    private UserOrderApplyRepository userOrderApplyRepository;
+
+    @Resource
+    private UserOrderReviewRepository userOrderReviewRepository;
+
+    @Resource
+    private OrderReviewerRepository orderReviewerRepository;
+
+    @Resource
     private CommodityRepository commodityRepository;
 
     @Resource
@@ -82,9 +92,25 @@ public class StorageStockService extends StorageCache {
     public RestResult purchase(int id, TStorageOrder order, List<Integer> types, List<Integer> commoditys,
                                List<Integer> values, List<BigDecimal> prices, List<Integer> attrs) {
         // 验证公司
-        String msg = checkService.checkGroup(id, order.getGid());
+        int gid = order.getGid();
+        String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
             return RestResult.fail(msg);
+        }
+
+        // 验证审核人员信息
+        val orderReviewers = orderReviewerRepository.find(gid);
+        if (null == orderReviewers || orderReviewers.isEmpty()) {
+            return RestResult.fail("未设置订单审核人，请联系系统管理员");
+        }
+        val reviews = new ArrayList<Integer>();
+        for (TOrderReviewer orderReviewer : orderReviewers) {
+            if (orderReviewer.getPid().equals(OrderType.STORAGE_IN_ORDER.getValue())) {
+                reviews.add(orderReviewer.getUid());
+            }
+        }
+        if (reviews.isEmpty()) {
+            return RestResult.fail("未设置进货订单审核人，请联系系统管理员");
         }
 
         // 生成进货单
@@ -191,6 +217,27 @@ public class StorageStockService extends StorageCache {
                     return RestResult.fail("添加订单附件失败");
                 }
             }
+        }
+
+        // 添加用户订单冗余信息
+        String batch = order.getBatch();
+        TUserOrderApply userOrderApply = new TUserOrderApply();
+        userOrderApply.setUid(id);
+        userOrderApply.setOtype(OrderType.STORAGE_IN_ORDER.getValue());
+        userOrderApply.setOid(oid);
+        userOrderApply.setBatch(batch);
+        if (!userOrderApplyRepository.insert(userOrderApply)) {
+            return RestResult.fail("添加用户订单信息失败");
+        }
+
+        // 添加用户订单审核信息
+        TUserOrderReview userOrderReview = new TUserOrderReview();
+        userOrderReview.setOtype(OrderType.STORAGE_IN_ORDER.getValue());
+        userOrderReview.setOid(oid);
+        userOrderReview.setBatch(batch);
+        for (Integer reviewer : reviews) {
+            userOrderReview.setId(0);
+            userOrderReview.setUid(reviewer);
         }
         return RestResult.ok();
     }

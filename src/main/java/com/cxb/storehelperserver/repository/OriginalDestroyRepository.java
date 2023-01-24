@@ -24,7 +24,7 @@ public class OriginalDestroyRepository extends BaseRepository<TOriginalDestroy> 
     }
 
     public TOriginalDestroy find(int gid, int did) {
-        TOriginalDestroy originalDestroy = getCache(getKey(gid, did), TOriginalDestroy.class);
+        TOriginalDestroy originalDestroy = getCache(joinKey(gid, did), TOriginalDestroy.class);
         if (null != originalDestroy) {
             return originalDestroy;
         }
@@ -34,14 +34,14 @@ public class OriginalDestroyRepository extends BaseRepository<TOriginalDestroy> 
         example.or().andGidEqualTo(gid).andDidEqualTo(did);
         originalDestroy = originalDestroyMapper.selectOneByExample(example);
         if (null != originalDestroy) {
-            setCache(getKey(gid, did), originalDestroy);
+            setCache(joinKey(gid, did), originalDestroy);
         }
         return originalDestroy;
     }
 
     public boolean insert(TOriginalDestroy row) {
         if (originalDestroyMapper.insert(row) > 0) {
-            setCache(getKey(row.getGid(), row.getDid()), row);
+            setCache(joinKey(row.getGid(), row.getDid()), row);
             return true;
         }
         return false;
@@ -49,20 +49,16 @@ public class OriginalDestroyRepository extends BaseRepository<TOriginalDestroy> 
 
     public boolean update(TOriginalDestroy row) {
         if (originalDestroyMapper.updateByPrimaryKey(row) > 0) {
-            setCache(getKey(row.getGid(), row.getDid()), row);
+            setCache(joinKey(row.getGid(), row.getDid()), row);
             return true;
         }
         return false;
     }
 
     public boolean delete(int gid, int did) {
-        delCache(getKey(gid, did));
+        delCache(joinKey(gid, did));
         TOriginalDestroyExample example = new TOriginalDestroyExample();
         example.or().andGidEqualTo(gid).andDidEqualTo(did);
         return originalDestroyMapper.deleteByExample(example) > 0;
-    }
-
-    private String getKey(int gid, int did) {
-        return String.valueOf(gid) + "::" + String.valueOf(did);
     }
 }

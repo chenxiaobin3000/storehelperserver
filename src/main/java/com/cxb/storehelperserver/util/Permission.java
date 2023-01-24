@@ -8,9 +8,12 @@ package com.cxb.storehelperserver.util;
 public class Permission {
     // 小程序
     static public final int mp_report = 10;
-    static public final int mp_product = 11;
-    static public final int mp_storage = 12;
-    static public final int mp_agreement = 13;
+    static public final int mp_product_apply = 11;
+    static public final int mp_storage_apply = 12;
+    static public final int mp_agreement_apply = 13;
+    static public final int mp_product_review = 14;
+    static public final int mp_storage_review = 15;
+    static public final int mp_agreement_review = 16;
 
     // 管理后台
     static public final int dashboard_report = 100;
@@ -18,10 +21,9 @@ public class Permission {
     static public final int dashboard_userinfo = 102;
 
     static public final int agreement = 200;
-    static public final int agreement_getlist = 201;
-    static public final int agreement_goback = 202;
-    static public final int agreement_report = 203;
-    static public final int agreement_sendout = 204;
+    static public final int agreement_alarm = 201;
+    static public final int agreement_report = 202;
+    static public final int agreement_getlist = 203;
 
     static public final int commodity = 300;
     static public final int commodity_salereport = 301;
@@ -34,8 +36,8 @@ public class Permission {
     static public final int commodity_attributelist = 308;
 
     static public final int finance = 400;
-    static public final int finance_getinfo = 401;
-    static public final int finance_report = 402;
+    static public final int finance_report = 401;
+    static public final int finance_getlist = 402;
 
     static public final int market = 500;
     static public final int market_offline = 501;
@@ -67,10 +69,8 @@ public class Permission {
 
     static public final int product = 600;
     static public final int product_alarm = 601;
-    static public final int product_getlist = 602;
-    static public final int product_productorder = 603;
-    static public final int product_raworder = 604;
-    static public final int product_report = 605;
+    static public final int product_report = 602;
+    static public final int product_getlist = 603;
 
     static public final int report = 700;
     static public final int report_day = 701;
@@ -79,13 +79,13 @@ public class Permission {
     static public final int report_year = 704;
 
     static public final int storage = 800;
-    static public final int storage_address = 801;
-    static public final int storage_alarm = 802;
-    static public final int storage_batchlist = 803;
-    static public final int storage_getlist = 804;
-    static public final int storage_productorder = 805;
-    static public final int storage_raworder = 806;
-    static public final int storage_report = 807;
+    static public final int storage_alarm = 801;
+    static public final int storage_report = 802;
+    static public final int storage_getlist = 803;
+    static public final int storage_purchase = 804;
+    static public final int storage_product = 805;
+    static public final int storage_agreement = 806;
+    static public final int storage_address = 807;
 
     static public final int supplier = 900;
     static public final int supplier_getlist = 901;
