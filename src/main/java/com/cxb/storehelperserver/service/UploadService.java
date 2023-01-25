@@ -75,7 +75,7 @@ public class UploadService {
             case STORAGE_IN_ORDER:
             case STORAGE_OUT_ORDER:
                 TStorageOrderAttachment storageOrderAttachment = new TStorageOrderAttachment();
-                storageOrderAttachment.setOrid(0);
+                storageOrderAttachment.setOid(0);
                 storageOrderAttachment.setSrc(imagesrc);
                 storageOrderAttachment.setPath(path);
                 storageOrderAttachment.setName(name);
@@ -87,7 +87,7 @@ public class UploadService {
             case PRODUCT_IN_ORDER:
             case PRODUCT_OUT_ORDER:
                 TProductOrderAttachment productOrderAttachment = new TProductOrderAttachment();
-                productOrderAttachment.setOrid(0);
+                productOrderAttachment.setOid(0);
                 productOrderAttachment.setSrc(imagesrc);
                 productOrderAttachment.setPath(path);
                 productOrderAttachment.setName(name);
@@ -99,7 +99,7 @@ public class UploadService {
             case AGREEMENT_IN_ORDER:
             case AGREEMENT_OUT_ORDER:
                 TAgreementOrderAttachment agreementOrderAttachment = new TAgreementOrderAttachment();
-                agreementOrderAttachment.setOrid(0);
+                agreementOrderAttachment.setOid(0);
                 agreementOrderAttachment.setSrc(imagesrc);
                 agreementOrderAttachment.setPath(path);
                 agreementOrderAttachment.setName(name);

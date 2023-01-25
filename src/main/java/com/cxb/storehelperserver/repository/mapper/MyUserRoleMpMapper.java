@@ -18,7 +18,7 @@ public interface MyUserRoleMpMapper {
             "from t_role_permission_mp t1",
             "left join t_user_role_mp t2 on t1.rid = t2.rid",
             "left join t_user_group t3 on t2.uid = t3.uid",
-            "where t3.gid = #{gid} and (t1.pid = #{p1} or t1.pid = #{p2} or t1.pid = #{p3})",
+            "where t3.gid = #{gid} and t1.pid <![CDATA[ >= ]]> #{p1} and t1.pid <![CDATA[ <= ]]> #{p2}",
             "</script>"})
-    List<TOrderReviewer> select(int gid, int p1, int p2, int p3);
+    List<TOrderReviewer> select(int gid, int p1, int p2);
 }

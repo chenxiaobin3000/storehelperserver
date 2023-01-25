@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * desc: 进货出入库订单仓库
@@ -37,13 +38,35 @@ public class StorageOrderRepository extends BaseRepository<TStorageOrder> {
         return storageOrder;
     }
 
-    /*
-     * desc: 判断仓库是否存在属性
-     */
-    public boolean check(int gid) {
+    public int total(int gid, String search) {
+        // 包含搜索的不缓存
+        if (null != search) {
+            TStorageOrderExample example = new TStorageOrderExample();
+            example.or().andGidEqualTo(gid).andBatchLike("%" + search + "%");
+            return (int) storageOrderMapper.countByExample(example);
+        } else {
+            int total = getTotalCache(gid);
+            if (0 != total) {
+                return total;
+            }
+            TStorageOrderExample example = new TStorageOrderExample();
+            example.or().andGidEqualTo(gid);
+            total = (int) storageOrderMapper.countByExample(example);
+            setTotalCache(gid, total);
+            return total;
+        }
+    }
+
+    public List<TStorageOrder> pagination(int gid, int page, int limit, String search) {
         TStorageOrderExample example = new TStorageOrderExample();
-        example.or().andGidEqualTo(gid);
-        return null != storageOrderMapper.selectOneByExample(example);
+        if (null == search) {
+            example.or().andGidEqualTo(gid);
+        } else {
+            example.or().andGidEqualTo(gid).andBatchLike("%" + search + "%");
+        }
+        example.setOffset((page - 1) * limit);
+        example.setLimit(limit);
+        return storageOrderMapper.selectByExample(example);
     }
 
     public boolean insert(TStorageOrder row) {

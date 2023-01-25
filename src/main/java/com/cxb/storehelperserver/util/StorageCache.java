@@ -114,24 +114,59 @@ public class StorageCache {
     /**
      * desc: 写入缓存
      */
-    protected void setCommodityCache(int sid, int id, int value) {
-        redisTemplate.opsForValue().set(cacheCommodity + String.valueOf(sid) + "::" + String.valueOf(id), value, cachetime, TimeUnit.MINUTES);
+    protected boolean setCommodityCache(int sid, int cid, int value) {
+        TStorageCommodity storageCommodity = storageCommodityRepository.find(sid, cid);
+        if (null == storageCommodity) {
+            storageCommodity = new TStorageCommodity();
+            storageCommodity.setSid(sid);
+            storageCommodity.setCid(cid);
+            storageCommodity.setValue(value);
+            if (!storageCommodityRepository.insert(storageCommodity)) {
+                return false;
+            }
+        } else {
+            storageCommodity.setValue(storageCommodity.getValue() + (value));
+            if (!storageCommodityRepository.update(storageCommodity)) {
+                return false;
+            }
+        }
+        redisTemplate.opsForValue().set(cacheCommodity + String.valueOf(sid) + "::" + String.valueOf(cid), value, cachetime, TimeUnit.MINUTES);
+        return true;
     }
 
-    protected void setOriginalCache(int sid, int id, int value) {
-        redisTemplate.opsForValue().set(cacheOriginal + String.valueOf(sid) + "::" + String.valueOf(id), value, cachetime, TimeUnit.MINUTES);
+    protected boolean setOriginalCache(int sid, int cid, int value) {
+        TStorageOriginal storageOriginal = storageOriginalRepository.find(sid, cid);
+        if (null == storageOriginal) {
+            storageOriginal = new TStorageOriginal();
+            storageOriginal.setSid(sid);
+            storageOriginal.setOid(cid);
+            storageOriginal.setValue(value);
+            if (!storageOriginalRepository.insert(storageOriginal)) {
+                return false;
+            }
+        } else {
+            storageOriginal.setValue(storageOriginal.getValue() + (value));
+            if (!storageOriginalRepository.update(storageOriginal)) {
+                return false;
+            }
+        }
+        redisTemplate.opsForValue().set(cacheOriginal + String.valueOf(sid) + "::" + String.valueOf(cid), value, cachetime, TimeUnit.MINUTES);
+        return true;
     }
 
-    protected void setHalfgoodCache(int sid, int id, int value) {
-        redisTemplate.opsForValue().set(cacheHalfgood + String.valueOf(sid) + "::" + String.valueOf(id), value, cachetime, TimeUnit.MINUTES);
+    protected boolean setHalfgoodCache(int sid, int cid, int value) {
+        redisTemplate.opsForValue().set(cacheHalfgood + String.valueOf(sid) + "::" + String.valueOf(cid), value, cachetime, TimeUnit.MINUTES);
+        return true;
     }
 
-    protected void setStandardCache(int sid, int id, int value) {
-        redisTemplate.opsForValue().set(cacheStandard + String.valueOf(sid) + "::" + String.valueOf(id), value, cachetime, TimeUnit.MINUTES);
+    protected boolean setStandardCache(int sid, int cid, int value) {
+        redisTemplate.opsForValue().set(cacheStandard + String.valueOf(sid) + "::" + String.valueOf(cid), value, cachetime, TimeUnit.MINUTES);
+        return true;
     }
 
-    protected void setDestroyCache(int sid, int id, int value) {
-        redisTemplate.opsForValue().set(cacheDestroy + String.valueOf(sid) + "::" + String.valueOf(id), value, cachetime, TimeUnit.MINUTES);
+    protected boolean setDestroyCache(int sid, int cid, int value) {
+        redisTemplate.opsForValue().set(cacheDestroy + String.valueOf(sid) + "::" + String.valueOf(cid), value, cachetime, TimeUnit.MINUTES);
+        return true;
     }
 
     /**

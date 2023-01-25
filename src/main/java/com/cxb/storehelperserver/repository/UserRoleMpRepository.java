@@ -66,7 +66,7 @@ public class UserRoleMpRepository extends BaseRepository<TUserRoleMp> {
         return userRoleMpMapper.deleteByPrimaryKey(row.getId()) > 0;
     }
 
-    public List<TOrderReviewer> getUserRoleMpPerms(int gid, int p1, int p2, int p3) {
-        return myUserRoleMpMapper.select(gid, p1, p2, p3);
+    public List<TOrderReviewer> getUserRoleMpPerms(int gid, int p1, int p2) {
+        return myUserRoleMpMapper.select(gid, p1, p2);
     }
 }

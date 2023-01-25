@@ -2,6 +2,7 @@ package com.cxb.storehelperserver.service;
 
 import com.cxb.storehelperserver.model.*;
 import com.cxb.storehelperserver.repository.*;
+import com.cxb.storehelperserver.util.DateUtil;
 import com.cxb.storehelperserver.util.RestResult;
 import com.cxb.storehelperserver.util.StorageCache;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import static com.cxb.storehelperserver.util.TypeDefine.CommodityType;
@@ -30,25 +33,16 @@ public class StorageStockService extends StorageCache {
     private CheckService checkService;
 
     @Resource
-    private StorageOrderRepository storageOrderRepository;
+    private StorageCacheService storageCacheService;
 
     @Resource
-    private StorageOrderCommodityRepository storageOrderCommodityRepository;
+    private StorageOrderRepository storageOrderRepository;
 
     @Resource
     private ProductOrderRepository productOrderRepository;
 
     @Resource
-    private ProductOrderCommodityRepository productOrderCommodityRepository;
-
-    @Resource
-    private ProductOrderAttachmentRepository productOrderAttachmentRepository;
-
-    @Resource
     private AgreementOrderRepository agreementOrderRepository;
-
-    @Resource
-    private AgreementOrderCommodityRepository agreementOrderCommodityRepository;
 
     @Resource
     private StorageCommodityRepository storageCommodityRepository;
@@ -85,6 +79,18 @@ public class StorageStockService extends StorageCache {
 
     @Resource
     private StandardRepository standardRepository;
+
+    @Resource
+    private UserGroupRepository userGroupRepository;
+
+    @Resource
+    private StorageRepository storageRepository;
+
+    @Resource
+    private UserRepository userRepository;
+
+    @Resource
+    private DateUtil dateUtil;
 
     /*
      * desc: 原料进货
@@ -172,51 +178,40 @@ public class StorageStockService extends StorageCache {
         }
         int oid = order.getId();
         int sid = order.getSid();
+        // 修改库存数量
         for (TStorageOrderCommodity c : list) {
-            c.setOrid(oid);
-            if (!storageOrderCommodityRepository.insert(c)) {
-                return RestResult.fail("生成订单商品数据失败");
-            }
-
-            // 修改库存数量
+            c.setOid(oid);
             switch (CommodityType.valueOf(c.getCtype())) {
                 case COMMODITY:
-                    if (!updateCommodity(sid, c.getId(), c.getUnit(), c.getValue())) {
+                    if (!setCommodityCache(sid, c.getId(), c.getUnit() * c.getValue())) {
                         return RestResult.fail("修改商品库存数据失败");
                     }
                     break;
                 case HALFGOOD:
-                    if (!updateHalfgood(sid, c.getId(), c.getUnit(), c.getValue())) {
-                        return RestResult.fail("修改商品库存数据失败");
+                    if (!setHalfgoodCache(sid, c.getId(), c.getUnit() * c.getValue())) {
+                        return RestResult.fail("修改半成品库存数据失败");
                     }
                     break;
                 case ORIGINAL:
-                    if (!updateOriginal(sid, c.getId(), c.getUnit(), c.getValue())) {
-                        return RestResult.fail("修改商品库存数据失败");
+                    if (!setOriginalCache(sid, c.getId(), c.getUnit() * c.getValue())) {
+                        return RestResult.fail("修改原料库存数据失败");
                     }
                     break;
                 case STANDARD:
-                    if (!updateStandard(sid, c.getId(), c.getUnit(), c.getValue())) {
-                        return RestResult.fail("修改商品库存数据失败");
+                    if (!setStandardCache(sid, c.getId(), c.getUnit() * c.getValue())) {
+                        return RestResult.fail("修改标品库存数据失败");
                     }
                     break;
                 default:
-                    if (!updateDestroy(sid, c.getId(), c.getUnit(), c.getValue())) {
-                        return RestResult.fail("修改商品库存数据失败");
+                    if (!setDestroyCache(sid, c.getId(), c.getUnit() * c.getValue())) {
+                        return RestResult.fail("修改废料库存数据失败");
                     }
                     break;
             }
         }
-
-        // 修改附件orderid
-        for (Integer attr : attrs) {
-            TProductOrderAttachment productOrderAttachment = productOrderAttachmentRepository.find(attr);
-            if (null != productOrderAttachment) {
-                productOrderAttachment.setOrid(oid);
-                if (!productOrderAttachmentRepository.update(productOrderAttachment)) {
-                    return RestResult.fail("添加订单附件失败");
-                }
-            }
+        msg = storageCacheService.update(oid, list, attrs);
+        if (null != msg) {
+            return RestResult.fail(msg);
         }
 
         // 添加用户订单冗余信息
@@ -256,65 +251,67 @@ public class StorageStockService extends StorageCache {
         return RestResult.ok();
     }
 
-    private boolean updateCommodity(int sid, int cid, int unit, int value) {
-        TStorageCommodity storageCommodity = storageCommodityRepository.find(sid, cid);
-        if (null == storageCommodity) {
-            storageCommodity = new TStorageCommodity();
-            storageCommodity.setSid(sid);
-            storageCommodity.setCid(cid);
-            storageCommodity.setValue(unit * value);
-            if (!storageCommodityRepository.insert(storageCommodity)) {
-                // TODO 测试写入失败回滚
-                // TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-                return false;
-            }
-            setOriginalCache(sid, cid, unit * value);
-        } else {
-            storageCommodity.setValue(storageCommodity.getValue() + (unit * value));
-            if (!storageCommodityRepository.update(storageCommodity)) {
-                // TODO 测试写入失败回滚
-                // TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-                return false;
-            }
-            setCommodityCache(sid, cid, unit * value);
+    public RestResult getStorageOrder(int id, int page, int limit, String search) {
+        // 获取公司信息
+        TUserGroup group = userGroupRepository.find(id);
+        if (null == group) {
+            return RestResult.fail("获取公司信息异常");
         }
-        return true;
-    }
 
-    private boolean updateHalfgood(int sid, int cid, int unit, int value) {
-        return false;
-    }
-
-    private boolean updateOriginal(int sid, int cid, int unit, int value) {
-        TStorageOriginal storageOriginal = storageOriginalRepository.find(sid, cid);
-        if (null == storageOriginal) {
-            storageOriginal = new TStorageOriginal();
-            storageOriginal.setSid(sid);
-            storageOriginal.setOid(cid);
-            storageOriginal.setValue(unit * value);
-            if (!storageOriginalRepository.insert(storageOriginal)) {
-                // TODO 测试写入失败回滚
-                // TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-                return false;
-            }
-            setOriginalCache(sid, cid, unit * value);
-        } else {
-            storageOriginal.setValue(storageOriginal.getValue() + (unit * value));
-            if (!storageOriginalRepository.update(storageOriginal)) {
-                // TODO 测试写入失败回滚
-                // TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-                return false;
-            }
-            setOriginalCache(sid, cid, unit * value);
+        int total = storageOrderRepository.total(group.getGid(), search);
+        if (0 == total) {
+            val data = new HashMap<String, Object>();
+            data.put("total", 0);
+            data.put("list", null);
+            return RestResult.ok(data);
         }
-        return true;
-    }
 
-    private boolean updateStandard(int sid, int cid, int unit, int value) {
-        return false;
-    }
+        // 查询联系人
+        SimpleDateFormat dateFormat = dateUtil.getDateFormat();
+        val list2 = new ArrayList<>();
+        val list = storageOrderRepository.pagination(group.getGid(), page, limit, search);
+        if (null != list && !list.isEmpty()) {
+            for (TStorageOrder o : list) {
+                val storage = new HashMap<String, Object>();
+                storage.put("id", o.getId());
+                storage.put("batch", o.getBatch());
+                storage.put("value", o.getValue());
 
-    private boolean updateDestroy(int sid, int cid, int unit, int value) {
-        return false;
+                TStorage s = storageRepository.find(o.getSid());
+                if (null != s) {
+                    storage.put("sid", s.getId());
+                    storage.put("sname", s.getName());
+                }
+
+                TUser ua = userRepository.find(o.getApply());
+                if (null != ua) {
+                    storage.put("apply", ua.getId());
+                    storage.put("applyName", ua.getName());
+                }
+                storage.put("applyTime", dateFormat.format(o.getApplyTime()));
+
+                Integer review = o.getReview();
+                if (null != review) {
+                    TUser uv = userRepository.find(review);
+                    if (null != uv) {
+                        storage.put("review", uv.getId());
+                        storage.put("reviewName", uv.getName());
+                    }
+                    storage.put("reviewTime", dateFormat.format(o.getReviewTime()));
+                }
+
+                HashMap<String, Object> datas = storageCacheService.find(o.getId());
+                if (null != datas) {
+                    storage.put("comms", datas.get("comms"));
+                    storage.put("attrs", datas.get("attrs"));
+                }
+                list2.add(storage);
+            }
+        }
+
+        val data = new HashMap<String, Object>();
+        data.put("total", total);
+        data.put("list", list2);
+        return RestResult.ok(data);
     }
 }

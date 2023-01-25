@@ -2,7 +2,6 @@ package com.cxb.storehelperserver.repository;
 
 import com.cxb.storehelperserver.mapper.TProductOrderMapper;
 import com.cxb.storehelperserver.model.TProductOrder;
-import com.cxb.storehelperserver.model.TProductOrderExample;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
@@ -35,15 +34,6 @@ public class ProductOrderRepository extends BaseRepository<TProductOrder> {
             setCache(id, productOrder);
         }
         return productOrder;
-    }
-
-    /*
-     * desc: 判断仓库是否存在属性
-     */
-    public boolean check(int gid) {
-        TProductOrderExample example = new TProductOrderExample();
-        example.or().andGidEqualTo(gid);
-        return null != productOrderMapper.selectOneByExample(example);
     }
 
     public boolean insert(TProductOrder row) {

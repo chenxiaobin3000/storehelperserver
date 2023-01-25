@@ -2,10 +2,12 @@ package com.cxb.storehelperserver.repository;
 
 import com.cxb.storehelperserver.mapper.TStorageOrderCommodityMapper;
 import com.cxb.storehelperserver.model.TStorageOrderCommodity;
+import com.cxb.storehelperserver.model.TStorageOrderCommodityExample;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * desc: 进货出入库商品仓库
@@ -14,7 +16,7 @@ import javax.annotation.Resource;
  */
 @Slf4j
 @Repository
-public class StorageOrderCommodityRepository extends BaseRepository<TStorageOrderCommodity> {
+public class StorageOrderCommodityRepository extends BaseRepository<List> {
     @Resource
     private TStorageOrderCommodityMapper storageOrderCommodityMapper;
 
@@ -22,38 +24,38 @@ public class StorageOrderCommodityRepository extends BaseRepository<TStorageOrde
         init("soComm::");
     }
 
-    public TStorageOrderCommodity find(int id) {
-        TStorageOrderCommodity storageOrderCommodity = getCache(id, TStorageOrderCommodity.class);
-        if (null != storageOrderCommodity) {
-            return storageOrderCommodity;
+    public List<TStorageOrderCommodity> find(int oid) {
+        List<TStorageOrderCommodity> storageOrderCommoditys = getCache(oid, List.class);
+        if (null != storageOrderCommoditys) {
+            return storageOrderCommoditys;
         }
 
         // 缓存没有就查询数据库
-        storageOrderCommodity = storageOrderCommodityMapper.selectByPrimaryKey(id);
-        if (null != storageOrderCommodity) {
-            setCache(id, storageOrderCommodity);
+        TStorageOrderCommodityExample example = new TStorageOrderCommodityExample();
+        example.or().andOidEqualTo(oid);
+        storageOrderCommoditys = storageOrderCommodityMapper.selectByExample(example);
+        if (null != storageOrderCommoditys) {
+            setCache(oid, storageOrderCommoditys);
         }
-        return storageOrderCommodity;
+        return storageOrderCommoditys;
     }
 
-    public boolean insert(TStorageOrderCommodity row) {
-        if (storageOrderCommodityMapper.insert(row) > 0) {
-            setCache(row.getId(), row);
-            return true;
+    // 注意：数据被缓存在StorageCommodityService，所以不能直接调用该函数
+    public boolean update(List<TStorageOrderCommodity> rows, int oid) {
+        delete(oid);
+        for (TStorageOrderCommodity storageOrderCommodity : rows) {
+            if (storageOrderCommodityMapper.insert(storageOrderCommodity) < 0) {
+                return false;
+            }
         }
-        return false;
+        setCache(oid, rows);
+        return true;
     }
 
-    public boolean update(TStorageOrderCommodity row) {
-        if (storageOrderCommodityMapper.updateByPrimaryKey(row) > 0) {
-            setCache(row.getId(), row);
-            return true;
-        }
-        return false;
-    }
-
-    public boolean delete(int id) {
-        delCache(id);
-        return storageOrderCommodityMapper.deleteByPrimaryKey(id) > 0;
+    public boolean delete(int oid) {
+        delCache(oid);
+        TStorageOrderCommodityExample example = new TStorageOrderCommodityExample();
+        example.or().andOidEqualTo(oid);
+        return storageOrderCommodityMapper.deleteByExample(example) > 0;
     }
 }

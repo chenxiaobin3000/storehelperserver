@@ -2,7 +2,6 @@ package com.cxb.storehelperserver.repository;
 
 import com.cxb.storehelperserver.mapper.TAgreementOrderMapper;
 import com.cxb.storehelperserver.model.TAgreementOrder;
-import com.cxb.storehelperserver.model.TAgreementOrderExample;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
@@ -35,15 +34,6 @@ public class AgreementOrderRepository extends BaseRepository<TAgreementOrder> {
             setCache(id, agreementOrder);
         }
         return agreementOrder;
-    }
-
-    /*
-     * desc: 判断仓库是否存在属性
-     */
-    public boolean check(int gid) {
-        TAgreementOrderExample example = new TAgreementOrderExample();
-        example.or().andGidEqualTo(gid);
-        return null != agreementOrderMapper.selectOneByExample(example);
     }
 
     public boolean insert(TAgreementOrder row) {

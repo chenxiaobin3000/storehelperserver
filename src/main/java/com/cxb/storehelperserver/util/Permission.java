@@ -8,12 +8,18 @@ package com.cxb.storehelperserver.util;
 public class Permission {
     // 小程序
     static public final int mp_report = 10;
-    static public final int mp_product_apply = 11;
-    static public final int mp_storage_apply = 12;
-    static public final int mp_agreement_apply = 13;
-    static public final int mp_product_review = 14;
-    static public final int mp_storage_review = 15;
-    static public final int mp_agreement_review = 16;
+    static public final int mp_storage_in_apply = 11;
+    static public final int mp_storage_out_apply = 12;
+    static public final int mp_product_out_apply = 13;
+    static public final int mp_product_in_apply = 14;
+    static public final int mp_agreement_out_apply = 15;
+    static public final int mp_agreement_in_apply = 16;
+    static public final int mp_storage_in_review = 17;
+    static public final int mp_storage_out_review = 18;
+    static public final int mp_product_out_review = 19;
+    static public final int mp_product_in_review = 20;
+    static public final int mp_agreement_out_review = 21;
+    static public final int mp_agreement_in_review = 22;
 
     // 管理后台
     static public final int dashboard_report = 100;
@@ -103,7 +109,6 @@ public class Permission {
     static public final int system_mprolelist = 1104;
 
     static public final int admin = 8888;
-    static public final int admin_changegroup = 88881;
-    static public final int admin_grouplist = 88882;
-    static public final int admin_userlist = 88883;
+    static public final int admin_changegroup = 8889;
+    static public final int admin_grouplist = 8890;
 }

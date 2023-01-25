@@ -1,4 +1,4 @@
-package com.cxb.storehelperserver.repository;
+package com.cxb.storehelperserver.service;
 
 import lombok.val;
 import org.springframework.beans.factory.annotation.Value;
@@ -8,11 +8,11 @@ import javax.annotation.Resource;
 import java.util.concurrent.TimeUnit;
 
 /**
- * desc: 基础仓库，提供缓存支持
+ * desc: 基础业务，提供缓存支持
  * auth: cxb
- * date: 2022/11/30
+ * date: 2023/1/24
  */
-public class BaseRepository<Model> {
+public class BaseService<Model> {
     @Resource
     protected RedisTemplate<String, Object> redisTemplate;
 

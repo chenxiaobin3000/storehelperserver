@@ -2,10 +2,12 @@ package com.cxb.storehelperserver.repository;
 
 import com.cxb.storehelperserver.mapper.TStorageOrderAttachmentMapper;
 import com.cxb.storehelperserver.model.TStorageOrderAttachment;
+import com.cxb.storehelperserver.model.TStorageOrderAttachmentExample;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * desc: 进货出入库附件仓库
@@ -34,6 +36,12 @@ public class StorageOrderAttachmentRepository extends BaseRepository<TStorageOrd
             setCache(id, storageOrderAttachment);
         }
         return storageOrderAttachment;
+    }
+
+    public List<TStorageOrderAttachment> findByOid(int oid) {
+        TStorageOrderAttachmentExample example = new TStorageOrderAttachmentExample();
+        example.or().andOidEqualTo(oid);
+        return storageOrderAttachmentMapper.selectByExample(example);
     }
 
     public boolean insert(TStorageOrderAttachment row) {
