@@ -74,7 +74,7 @@ public class StorageController {
 
     @PostMapping("/purchase")
     public RestResult purchase(@Validated @RequestBody PurchaseValid req) {
-        SimpleDateFormat simpleDateFormat = dateUtil.getSimpleDateFormat();
+        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
         TStorageOrder order = new TStorageOrder();
         order.setGid(req.getGid());
         order.setBatch(req.getBatch());
@@ -88,5 +88,29 @@ public class StorageController {
         }
         return storageStockService.purchase(req.getId(), order, req.getTypes(),
                 req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
+    }
+
+    @PostMapping("/setPurchase")
+    public RestResult setPurchase(@Validated @RequestBody SetPurchaseValid req) {
+        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
+        TStorageOrder order = new TStorageOrder();
+        order.setId(req.getOid());
+        order.setGid(req.getGid());
+        order.setBatch(req.getBatch());
+        order.setSid(req.getSid());
+        order.setOtype(OrderInOutType.IN_ORDER.getValue());
+        order.setApply(req.getId());
+        try {
+            order.setApplyTime(simpleDateFormat.parse(req.getDate()));
+        } catch (ParseException e) {
+            return RestResult.fail("订单制单日期转换错误");
+        }
+        return storageStockService.setPurchase(req.getId(), order, req.getTypes(),
+                req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
+    }
+
+    @PostMapping("/delPurchase")
+    public RestResult delPurchase(@Validated @RequestBody DelPurchaseValid req) {
+        return storageStockService.delPurchase(req.getId(), req.getOid());
     }
 }

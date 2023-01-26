@@ -4,7 +4,6 @@ import com.cxb.storehelperserver.controller.request.IValid;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
-import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
@@ -17,12 +16,15 @@ import java.util.List;
  * date: 2022/12/21
  */
 @Data
-public class PurchaseValid implements IValid {
+public class SetPurchaseValid implements IValid {
     @Min(value = 1, message = "账号错误")
     private int id;
 
     @Min(value = 1, message = "公司账号错误")
     private int gid;
+
+    @Min(value = 1, message = "订单编号错误")
+    private int oid;
 
     @NotEmpty(message = "请输入订单批次")
     @Length(min = 2, max = 16, message = "订单批次格式错误")

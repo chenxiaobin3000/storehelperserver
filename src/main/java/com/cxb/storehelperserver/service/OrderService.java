@@ -79,7 +79,7 @@ public class OrderService {
         val list = storageOrderRepository.pagination(group.getGid(), page, limit, search);
         if (null != list && !list.isEmpty()) {
             for (TStorageOrder o : list) {
-                list2.add(createOrder(o.getId(), o.getBatch(), o.getSid(), o.getValue(),
+                list2.add(createOrder(OrderType.STORAGE_IN_ORDER, o.getId(), o.getBatch(), o.getSid(), o.getValue(),
                         o.getApply(), dateFormat.format(o.getApplyTime()),
                         o.getReview(), null == o.getReview() ? null : dateFormat.format(o.getReviewTime())));
             }
@@ -109,7 +109,7 @@ public class OrderService {
                 switch (OrderType.valueOf(oa.getOtype())) {
                     case STORAGE_IN_ORDER:
                         TStorageOrder o = storageOrderRepository.find(oa.getOid());
-                        list2.add(createOrder(o.getId(), o.getBatch(), o.getSid(), o.getValue(),
+                        list2.add(createOrder(OrderType.STORAGE_IN_ORDER, o.getId(), o.getBatch(), o.getSid(), o.getValue(),
                                 o.getApply(), dateFormat.format(o.getApplyTime()),
                                 o.getReview(), null == o.getReview() ? null : dateFormat.format(o.getReviewTime())));
                         break;
@@ -133,9 +133,10 @@ public class OrderService {
         return RestResult.ok();
     }
 
-    private HashMap<String, Object> createOrder(int id, String batch, int sid, int value,
+    private HashMap<String, Object> createOrder(OrderType type, int id, String batch, int sid, int value,
                                                 int apply, String applyTime, Integer review, String reviewTime) {
         val ret = new HashMap<String, Object>();
+        ret.put("type", type.getValue());
         ret.put("id", id);
         ret.put("batch", batch);
         ret.put("value", value);

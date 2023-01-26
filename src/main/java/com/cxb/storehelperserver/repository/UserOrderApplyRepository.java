@@ -59,6 +59,7 @@ public class UserOrderApplyRepository extends BaseRepository<TUserOrderApply> {
         }
         example.setOffset((page - 1) * limit);
         example.setLimit(limit);
+        example.setOrderByClause("ctime desc");
         return userOrderApplyMapper.selectByExample(example);
     }
 

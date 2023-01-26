@@ -83,6 +83,121 @@ public class StorageStockService extends StorageCache {
      */
     public RestResult purchase(int id, TStorageOrder order, List<Integer> types, List<Integer> commoditys,
                                List<Integer> values, List<BigDecimal> prices, List<Integer> attrs) {
+        val reviews = new ArrayList<Integer>();
+        RestResult ret = check(id, order, mp_storage_in_apply, mp_storage_in_review, reviews);
+        if (null != ret) {
+            return ret;
+        }
+
+        // 生成进货单
+        val list = new ArrayList<TStorageOrderCommodity>();
+        ret = createStorageComms(order, types, commoditys, values, prices, list);
+        if (null != ret) {
+            return ret;
+        }
+
+        if (!storageOrderRepository.insert(order)) {
+            return RestResult.fail("生成进货订单失败");
+        }
+
+        // 插入订单商品和附件数据
+        int oid = order.getId();
+        for (TStorageOrderCommodity c : list) {
+            c.setOid(oid);
+        }
+        String msg = storageCacheService.update(oid, list, attrs);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+
+        // 修改库存数量
+        ret = updateStorageCache(order.getSid(), list);
+        if (null != ret) {
+            return ret;
+        }
+
+        // 添加用户订单冗余信息
+        String batch = order.getBatch();
+        TUserOrderApply userOrderApply = new TUserOrderApply();
+        userOrderApply.setUid(id);
+        userOrderApply.setOtype(OrderType.STORAGE_IN_ORDER.getValue());
+        userOrderApply.setOid(oid);
+        userOrderApply.setBatch(batch);
+        if (!userOrderApplyRepository.insert(userOrderApply)) {
+            return RestResult.fail("添加用户订单信息失败");
+        }
+
+        // 添加用户订单审核信息
+        TUserOrderReview userOrderReview = new TUserOrderReview();
+        userOrderReview.setOtype(OrderType.STORAGE_IN_ORDER.getValue());
+        userOrderReview.setOid(oid);
+        userOrderReview.setBatch(batch);
+        for (Integer reviewer : reviews) {
+            userOrderReview.setId(0);
+            userOrderReview.setUid(reviewer);
+        }
+        return RestResult.ok();
+    }
+
+    /**
+     * desc: 原料进货修改
+     */
+    public RestResult setPurchase(int id, TStorageOrder order, List<Integer> types, List<Integer> commoditys,
+                                  List<Integer> values, List<BigDecimal> prices, List<Integer> attrs) {
+        val reviews = new ArrayList<Integer>();
+        RestResult ret = check(id, order, mp_storage_in_apply, mp_storage_in_review, reviews);
+        if (null != ret) {
+            return ret;
+        }
+
+        // 生成进货单
+        val list = new ArrayList<TStorageOrderCommodity>();
+        ret = createStorageComms(order, types, commoditys, values, prices, list);
+        if (null != ret) {
+            return ret;
+        }
+
+        if (!storageOrderRepository.update(order)) {
+            return RestResult.fail("生成进货订单失败");
+        }
+
+        // 插入订单商品和附件数据
+        int oid = order.getId();
+        for (TStorageOrderCommodity c : list) {
+            c.setOid(oid);
+        }
+        String msg = storageCacheService.update(oid, list, attrs);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+
+        // 修改库存数量
+        ret = updateStorageCache(order.getSid(), list);
+        if (null != ret) {
+            return ret;
+        }
+        return RestResult.ok();
+    }
+
+    public RestResult delPurchase(int id, int oid) {
+        return RestResult.ok();
+    }
+
+    /*
+     * desc: 生产开始
+     */
+    public RestResult process(int id, int gid, int sid, List<Integer> commoditys, List<Integer> values, List<String> prices) {
+        return RestResult.ok();
+    }
+
+    /*
+     * desc: 生产完成
+     */
+    public RestResult complete(int id, int gid, int sid, List<Integer> commoditys, List<Integer> values, List<String> prices) {
+        return RestResult.ok();
+    }
+
+    private RestResult check(int id, TStorageOrder order, int applyPerm, int reviewPerm, List<Integer> reviews) {
         // 验证公司
         int gid = order.getGid();
         String msg = checkService.checkGroup(id, gid);
@@ -91,7 +206,7 @@ public class StorageStockService extends StorageCache {
         }
 
         // 校验申请订单权限
-        if (!checkService.checkRolePermissionMp(id, mp_storage_in_apply)) {
+        if (!checkService.checkRolePermissionMp(id, applyPerm)) {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
@@ -100,23 +215,25 @@ public class StorageStockService extends StorageCache {
         if (null == orderReviewers || orderReviewers.isEmpty()) {
             return RestResult.fail("未设置订单审核人，请联系系统管理员");
         }
-        val reviews = new ArrayList<Integer>();
         for (TOrderReviewer orderReviewer : orderReviewers) {
-            if (orderReviewer.getPid().equals(mp_storage_in_review)) {
+            if (orderReviewer.getPid().equals(reviewPerm)) {
                 reviews.add(orderReviewer.getUid());
             }
         }
         if (reviews.isEmpty()) {
             return RestResult.fail("未设置进货订单审核人，请联系系统管理员");
         }
+        return null;
+    }
 
+    private RestResult createStorageComms(TStorageOrder order, List<Integer> types, List<Integer> commoditys,
+                                          List<Integer> values, List<BigDecimal> prices, List<TStorageOrderCommodity> list) {
         // 生成进货单
         int size = commoditys.size();
         if (size != types.size() || size != values.size() || size != prices.size()) {
             return RestResult.fail("商品信息出错");
         }
         int total = 0;
-        val list = new ArrayList<TStorageOrderCommodity>();
         for (int i = 0; i < size; i++) {
             // 获取商品单位信息
             CommodityType type = CommodityType.valueOf(types.get(i));
@@ -164,22 +281,10 @@ public class StorageStockService extends StorageCache {
             total += values.get(i);
         }
         order.setValue(total);
-        if (!storageOrderRepository.insert(order)) {
-            return RestResult.fail("生成进货订单失败");
-        }
+        return null;
+    }
 
-        // 插入订单商品和附件数据
-        int oid = order.getId();
-        for (TStorageOrderCommodity c : list) {
-            c.setOid(oid);
-        }
-        msg = storageCacheService.update(oid, list, attrs);
-        if (null != msg) {
-            return RestResult.fail(msg);
-        }
-
-        // 修改库存数量
-        int sid = order.getSid();
+    private RestResult updateStorageCache(int sid, List<TStorageOrderCommodity> list) {
         for (TStorageOrderCommodity c : list) {
             switch (CommodityType.valueOf(c.getCtype())) {
                 case COMMODITY:
@@ -209,41 +314,6 @@ public class StorageStockService extends StorageCache {
                     break;
             }
         }
-
-        // 添加用户订单冗余信息
-        String batch = order.getBatch();
-        TUserOrderApply userOrderApply = new TUserOrderApply();
-        userOrderApply.setUid(id);
-        userOrderApply.setOtype(OrderType.STORAGE_IN_ORDER.getValue());
-        userOrderApply.setOid(oid);
-        userOrderApply.setBatch(batch);
-        if (!userOrderApplyRepository.insert(userOrderApply)) {
-            return RestResult.fail("添加用户订单信息失败");
-        }
-
-        // 添加用户订单审核信息
-        TUserOrderReview userOrderReview = new TUserOrderReview();
-        userOrderReview.setOtype(OrderType.STORAGE_IN_ORDER.getValue());
-        userOrderReview.setOid(oid);
-        userOrderReview.setBatch(batch);
-        for (Integer reviewer : reviews) {
-            userOrderReview.setId(0);
-            userOrderReview.setUid(reviewer);
-        }
-        return RestResult.ok();
-    }
-
-    /*
-     * desc: 生产开始
-     */
-    public RestResult process(int id, int gid, int sid, List<Integer> commoditys, List<Integer> values, List<String> prices) {
-        return RestResult.ok();
-    }
-
-    /*
-     * desc: 生产完成
-     */
-    public RestResult complete(int id, int gid, int sid, List<Integer> commoditys, List<Integer> values, List<String> prices) {
-        return RestResult.ok();
+        return null;
     }
 }
