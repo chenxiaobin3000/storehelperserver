@@ -89,9 +89,4 @@ public class StorageController {
         return storageStockService.purchase(req.getId(), order, req.getTypes(),
                 req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
     }
-
-    @PostMapping("/getStorageOrder")
-    public RestResult getStorageOrder(@Validated @RequestBody GetStorageOrderValid req) {
-        return storageStockService.getStorageOrder(req.getId(), req.getPage(), req.getLimit(), req.getSearch());
-    }
 }

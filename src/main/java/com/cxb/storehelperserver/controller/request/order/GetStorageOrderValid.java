@@ -1,4 +1,4 @@
-package com.cxb.storehelperserver.controller.request.storage;
+package com.cxb.storehelperserver.controller.request.order;
 
 import com.cxb.storehelperserver.controller.request.IValid;
 import lombok.Data;

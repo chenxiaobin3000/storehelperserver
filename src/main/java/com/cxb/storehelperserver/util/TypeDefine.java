@@ -25,9 +25,9 @@ public class TypeDefine {
                 case 1:
                     return COMMODITY;
                 case 2:
-                    return ORIGINAL;
-                case 3:
                     return HALFGOOD;
+                case 3:
+                    return ORIGINAL;
                 case 4:
                     return STANDARD;
             }

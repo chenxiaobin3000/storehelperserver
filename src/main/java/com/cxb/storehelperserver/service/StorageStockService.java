@@ -2,7 +2,6 @@ package com.cxb.storehelperserver.service;
 
 import com.cxb.storehelperserver.model.*;
 import com.cxb.storehelperserver.repository.*;
-import com.cxb.storehelperserver.util.DateUtil;
 import com.cxb.storehelperserver.util.RestResult;
 import com.cxb.storehelperserver.util.StorageCache;
 import lombok.extern.slf4j.Slf4j;
@@ -12,11 +11,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
+import static com.cxb.storehelperserver.util.Permission.*;
 import static com.cxb.storehelperserver.util.TypeDefine.CommodityType;
 import static com.cxb.storehelperserver.util.TypeDefine.OrderType;
 
@@ -80,18 +78,6 @@ public class StorageStockService extends StorageCache {
     @Resource
     private StandardRepository standardRepository;
 
-    @Resource
-    private UserGroupRepository userGroupRepository;
-
-    @Resource
-    private StorageRepository storageRepository;
-
-    @Resource
-    private UserRepository userRepository;
-
-    @Resource
-    private DateUtil dateUtil;
-
     /*
      * desc: 原料进货
      */
@@ -104,6 +90,11 @@ public class StorageStockService extends StorageCache {
             return RestResult.fail(msg);
         }
 
+        // 校验申请订单权限
+        if (!checkService.checkRolePermissionMp(id, mp_storage_in_apply)) {
+            return RestResult.fail("本账号没有相关的权限，请联系管理员");
+        }
+
         // 验证审核人员信息
         val orderReviewers = orderReviewerRepository.find(gid);
         if (null == orderReviewers || orderReviewers.isEmpty()) {
@@ -111,7 +102,7 @@ public class StorageStockService extends StorageCache {
         }
         val reviews = new ArrayList<Integer>();
         for (TOrderReviewer orderReviewer : orderReviewers) {
-            if (orderReviewer.getPid().equals(OrderType.STORAGE_IN_ORDER.getValue())) {
+            if (orderReviewer.getPid().equals(mp_storage_in_review)) {
                 reviews.add(orderReviewer.getUid());
             }
         }
@@ -176,11 +167,20 @@ public class StorageStockService extends StorageCache {
         if (!storageOrderRepository.insert(order)) {
             return RestResult.fail("生成进货订单失败");
         }
+
+        // 插入订单商品和附件数据
         int oid = order.getId();
-        int sid = order.getSid();
-        // 修改库存数量
         for (TStorageOrderCommodity c : list) {
             c.setOid(oid);
+        }
+        msg = storageCacheService.update(oid, list, attrs);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+
+        // 修改库存数量
+        int sid = order.getSid();
+        for (TStorageOrderCommodity c : list) {
             switch (CommodityType.valueOf(c.getCtype())) {
                 case COMMODITY:
                     if (!setCommodityCache(sid, c.getId(), c.getUnit() * c.getValue())) {
@@ -208,10 +208,6 @@ public class StorageStockService extends StorageCache {
                     }
                     break;
             }
-        }
-        msg = storageCacheService.update(oid, list, attrs);
-        if (null != msg) {
-            return RestResult.fail(msg);
         }
 
         // 添加用户订单冗余信息
@@ -249,69 +245,5 @@ public class StorageStockService extends StorageCache {
      */
     public RestResult complete(int id, int gid, int sid, List<Integer> commoditys, List<Integer> values, List<String> prices) {
         return RestResult.ok();
-    }
-
-    public RestResult getStorageOrder(int id, int page, int limit, String search) {
-        // 获取公司信息
-        TUserGroup group = userGroupRepository.find(id);
-        if (null == group) {
-            return RestResult.fail("获取公司信息异常");
-        }
-
-        int total = storageOrderRepository.total(group.getGid(), search);
-        if (0 == total) {
-            val data = new HashMap<String, Object>();
-            data.put("total", 0);
-            data.put("list", null);
-            return RestResult.ok(data);
-        }
-
-        // 查询联系人
-        SimpleDateFormat dateFormat = dateUtil.getDateFormat();
-        val list2 = new ArrayList<>();
-        val list = storageOrderRepository.pagination(group.getGid(), page, limit, search);
-        if (null != list && !list.isEmpty()) {
-            for (TStorageOrder o : list) {
-                val storage = new HashMap<String, Object>();
-                storage.put("id", o.getId());
-                storage.put("batch", o.getBatch());
-                storage.put("value", o.getValue());
-
-                TStorage s = storageRepository.find(o.getSid());
-                if (null != s) {
-                    storage.put("sid", s.getId());
-                    storage.put("sname", s.getName());
-                }
-
-                TUser ua = userRepository.find(o.getApply());
-                if (null != ua) {
-                    storage.put("apply", ua.getId());
-                    storage.put("applyName", ua.getName());
-                }
-                storage.put("applyTime", dateFormat.format(o.getApplyTime()));
-
-                Integer review = o.getReview();
-                if (null != review) {
-                    TUser uv = userRepository.find(review);
-                    if (null != uv) {
-                        storage.put("review", uv.getId());
-                        storage.put("reviewName", uv.getName());
-                    }
-                    storage.put("reviewTime", dateFormat.format(o.getReviewTime()));
-                }
-
-                HashMap<String, Object> datas = storageCacheService.find(o.getId());
-                if (null != datas) {
-                    storage.put("comms", datas.get("comms"));
-                    storage.put("attrs", datas.get("attrs"));
-                }
-                list2.add(storage);
-            }
-        }
-
-        val data = new HashMap<String, Object>();
-        data.put("total", total);
-        data.put("list", list2);
-        return RestResult.ok(data);
     }
 }
