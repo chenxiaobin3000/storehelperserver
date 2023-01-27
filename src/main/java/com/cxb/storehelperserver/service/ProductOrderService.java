@@ -14,22 +14,22 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * desc: 仓库订单缓存业务
+ * desc: 生产订单缓存业务
  * auth: cxb
- * date: 2023/1/3
+ * date: 2023/1/27
  */
 @Slf4j
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class StorageOrderService extends BaseService<HashMap> {
+public class ProductOrderService extends BaseService<HashMap> {
     @Resource
-    private StorageOrderRepository storageOrderRepository;
+    private ProductOrderRepository productOrderRepository;
 
     @Resource
-    private StorageOrderCommodityRepository storageOrderCommodityRepository;
+    private ProductOrderCommodityRepository productOrderCommodityRepository;
 
     @Resource
-    private StorageOrderAttachmentRepository storageOrderAttachmentRepository;
+    private ProductOrderAttachmentRepository productOrderAttachmentRepository;
 
     @Resource
     private CommodityRepository commodityRepository;
@@ -43,8 +43,8 @@ public class StorageOrderService extends BaseService<HashMap> {
     @Resource
     private StandardRepository standardRepository;
 
-    public StorageOrderService() {
-        init("scserv::");
+    public ProductOrderService() {
+        init("pcserv::");
     }
 
     public HashMap<String, Object> find(int oid) {
@@ -55,9 +55,9 @@ public class StorageOrderService extends BaseService<HashMap> {
 
         // 商品
         val commoditys = new ArrayList<HashMap<String, Object>>();
-        List<TStorageOrderCommodity> storageOrderCommodities = storageOrderCommodityRepository.find(oid);
-        if (null != storageOrderCommodities && !storageOrderCommodities.isEmpty()) {
-            for (TStorageOrderCommodity sc : storageOrderCommodities) {
+        List<TProductOrderCommodity> productOrderCommodities = productOrderCommodityRepository.find(oid);
+        if (null != productOrderCommodities && !productOrderCommodities.isEmpty()) {
+            for (TProductOrderCommodity sc : productOrderCommodities) {
                 val data = new HashMap<String, Object>();
                 data.put("id", sc.getId());
                 data.put("cid", sc.getCid());
@@ -106,26 +106,26 @@ public class StorageOrderService extends BaseService<HashMap> {
         // 附件
         datas = new HashMap<>();
         datas.put("comms", commoditys);
-        datas.put("attrs", storageOrderAttachmentRepository.findByOid(oid));
+        datas.put("attrs", productOrderAttachmentRepository.findByOid(oid));
         setCache(oid, datas);
         return datas;
     }
 
-    public String update(int oid, List<TStorageOrderCommodity> comms, List<Integer> attrs) {
+    public String update(int oid, List<TProductOrderCommodity> comms, List<Integer> attrs) {
         delCache(oid);
-        for (TStorageOrderCommodity c : comms) {
+        for (TProductOrderCommodity c : comms) {
             c.setOid(oid);
         }
-        if (!storageOrderCommodityRepository.update(comms, oid)) {
+        if (!productOrderCommodityRepository.update(comms, oid)) {
             return "生成订单商品数据失败";
         }
 
         // 修改附件oid
         for (Integer attr : attrs) {
-            TStorageOrderAttachment storageOrderAttachment = storageOrderAttachmentRepository.find(attr);
-            if (null != storageOrderAttachment) {
-                storageOrderAttachment.setOid(oid);
-                if (!storageOrderAttachmentRepository.update(storageOrderAttachment)) {
+            TProductOrderAttachment productOrderAttachment = productOrderAttachmentRepository.find(attr);
+            if (null != productOrderAttachment) {
+                productOrderAttachment.setOid(oid);
+                if (!productOrderAttachmentRepository.update(productOrderAttachment)) {
                     return "添加订单附件失败";
                 }
             }

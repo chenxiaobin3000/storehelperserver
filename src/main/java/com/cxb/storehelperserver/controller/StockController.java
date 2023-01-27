@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * desc: 库存接口
@@ -31,31 +34,73 @@ public class StockController {
 
     @PostMapping("/getStockCommodity")
     public RestResult getStockCommodity(@Validated @RequestBody GetStockCommodityValid req) {
-        return stockService.getStockCommodity(req.getId(), req.getSid(), req.getPage(), req.getLimit(), req.getSearch());
+        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
+        Date date = null;
+        try {
+            date = simpleDateFormat.parse(req.getDate() + " 00:00:00");
+        } catch (ParseException e) {
+            return RestResult.fail("查询日期转换失败");
+        }
+        return stockService.getStockCommodity(req.getId(), req.getSid(), req.getPage(), req.getLimit(), date, req.getSearch());
     }
 
     @PostMapping("/getStockHalfgood")
     public RestResult getStockHalfgood(@Validated @RequestBody GetStockCommodityValid req) {
-        return stockService.getStockHalfgood(req.getId(), req.getSid(), req.getPage(), req.getLimit(), req.getSearch());
+        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
+        Date date = null;
+        try {
+            date = simpleDateFormat.parse(req.getDate() + " 00:00:00");
+        } catch (ParseException e) {
+            return RestResult.fail("查询日期转换失败");
+        }
+        return stockService.getStockHalfgood(req.getId(), req.getSid(), req.getPage(), req.getLimit(), date, req.getSearch());
     }
 
     @PostMapping("/getStockOriginal")
     public RestResult getStockOriginal(@Validated @RequestBody GetStockCommodityValid req) {
-        return stockService.getStockOriginal(req.getId(), req.getSid(), req.getPage(), req.getLimit(), req.getSearch());
+        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
+        Date date = null;
+        try {
+            date = simpleDateFormat.parse(req.getDate() + " 00:00:00");
+        } catch (ParseException e) {
+            return RestResult.fail("查询日期转换失败");
+        }
+        return stockService.getStockOriginal(req.getId(), req.getSid(), req.getPage(), req.getLimit(), date, req.getSearch());
     }
 
     @PostMapping("/getStockStandard")
     public RestResult getStockStandard(@Validated @RequestBody GetStockCommodityValid req) {
-        return stockService.getStockStandard(req.getId(), req.getSid(), req.getPage(), req.getLimit(), req.getSearch());
+        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
+        Date date = null;
+        try {
+            date = simpleDateFormat.parse(req.getDate() + " 00:00:00");
+        } catch (ParseException e) {
+            return RestResult.fail("查询日期转换失败");
+        }
+        return stockService.getStockStandard(req.getId(), req.getSid(), req.getPage(), req.getLimit(), date, req.getSearch());
     }
 
     @PostMapping("/getStockDestroy")
     public RestResult getStockDestroy(@Validated @RequestBody GetStockCommodityValid req) {
-        return stockService.getStockDestroy(req.getId(), req.getSid(), req.getPage(), req.getLimit(), req.getSearch());
+        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
+        Date date = null;
+        try {
+            date = simpleDateFormat.parse(req.getDate() + " 00:00:00");
+        } catch (ParseException e) {
+            return RestResult.fail("查询日期转换失败");
+        }
+        return stockService.getStockDestroy(req.getId(), req.getSid(), req.getPage(), req.getLimit(), date, req.getSearch());
     }
 
     @PostMapping("/countStock")
     public RestResult countStock(@Validated @RequestBody CountStockValid req) {
-        return stockService.countStock(req.getId(), req.getSid(), req.getDate());
+        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
+        Date date = null;
+        try {
+            date = simpleDateFormat.parse(req.getDate() + " 00:00:00");
+        } catch (ParseException e) {
+            return RestResult.fail("查询日期转换失败");
+        }
+        return stockService.countStock(req.getId(), req.getSid(), date);
     }
 }

@@ -4,6 +4,7 @@ import com.cxb.storehelperserver.mapper.TStockOriginalMapper;
 import com.cxb.storehelperserver.model.TStockOriginal;
 import com.cxb.storehelperserver.model.TStockOriginalExample;
 import com.cxb.storehelperserver.repository.mapper.MyStockOriginalMapper;
+import com.cxb.storehelperserver.repository.model.MyStockOriginal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
@@ -29,14 +30,9 @@ public class StockOriginalRepository extends BaseRepository<TStockOriginal> {
         init("stockO::");
     }
 
-    public TStockOriginal find(int sid, int id) {
-        TStockOriginal original = getCache(joinKey(sid, id), TStockOriginal.class);
-        if (null != original) {
-            return original;
-        }
-
+    public TStockOriginal find(int sid, int id, Date date) {
         TStockOriginalExample example = new TStockOriginalExample();
-        example.or().andSidEqualTo(sid).andOidEqualTo(id);
+        example.or().andSidEqualTo(sid).andOidEqualTo(id).andCdateEqualTo(date);
         return stockOriginalMapper.selectOneByExample(example);
     }
 
@@ -50,7 +46,7 @@ public class StockOriginalRepository extends BaseRepository<TStockOriginal> {
         }
     }
 
-    public List<TStockOriginal> pagination(int sid, Date date, int page, int limit, String search) {
+    public List<MyStockOriginal> pagination(int sid, int page, int limit, Date date, String search) {
         if (null != search) {
             return myStockOriginalMapper.selectByExample((page - 1) * limit, limit, sid, date, "%" + search + "%");
         } else {
@@ -66,7 +62,9 @@ public class StockOriginalRepository extends BaseRepository<TStockOriginal> {
         return stockOriginalMapper.updateByPrimaryKey(row) > 0;
     }
 
-    public boolean delete(int id) {
-        return stockOriginalMapper.deleteByPrimaryKey(id) > 0;
+    public boolean delete(int sid, int oid, Date date) {
+        TStockOriginalExample example = new TStockOriginalExample();
+        example.or().andSidEqualTo(sid).andOidEqualTo(oid).andCdateGreaterThanOrEqualTo(date);
+        return stockOriginalMapper.deleteByExample(example) > 0;
     }
 }

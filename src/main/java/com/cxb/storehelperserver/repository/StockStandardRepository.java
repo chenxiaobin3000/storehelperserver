@@ -4,6 +4,7 @@ import com.cxb.storehelperserver.mapper.TStockStandardMapper;
 import com.cxb.storehelperserver.model.TStockStandard;
 import com.cxb.storehelperserver.model.TStockStandardExample;
 import com.cxb.storehelperserver.repository.mapper.MyStockStandardMapper;
+import com.cxb.storehelperserver.repository.model.MyStockStandard;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
@@ -29,14 +30,9 @@ public class StockStandardRepository extends BaseRepository<TStockStandard> {
         init("stockS::");
     }
 
-    public TStockStandard find(int sid, int id) {
-        TStockStandard standard = getCache(joinKey(sid, id), TStockStandard.class);
-        if (null != standard) {
-            return standard;
-        }
-
+    public TStockStandard find(int sid, int id, Date date) {
         TStockStandardExample example = new TStockStandardExample();
-        example.or().andSidEqualTo(sid).andStidEqualTo(id);
+        example.or().andSidEqualTo(sid).andStidEqualTo(id).andCdateEqualTo(date);
         return stockStandardMapper.selectOneByExample(example);
     }
 
@@ -50,7 +46,7 @@ public class StockStandardRepository extends BaseRepository<TStockStandard> {
         }
     }
 
-    public List<TStockStandard> pagination(int sid, int page, int limit, Date date, String search) {
+    public List<MyStockStandard> pagination(int sid, int page, int limit, Date date, String search) {
         if (null != search) {
             return myStockStandardMapper.selectByExample((page - 1) * limit, limit, sid, date, "%" + search + "%");
         } else {
@@ -66,7 +62,9 @@ public class StockStandardRepository extends BaseRepository<TStockStandard> {
         return stockStandardMapper.updateByPrimaryKey(row) > 0;
     }
 
-    public boolean delete(int id) {
-        return stockStandardMapper.deleteByPrimaryKey(id) > 0;
+    public boolean delete(int sid, int stid, Date date) {
+        TStockStandardExample example = new TStockStandardExample();
+        example.or().andSidEqualTo(sid).andStidEqualTo(stid).andCdateGreaterThanOrEqualTo(date);
+        return stockStandardMapper.deleteByExample(example) > 0;
     }
 }

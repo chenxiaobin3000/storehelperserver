@@ -1,6 +1,6 @@
 package com.cxb.storehelperserver.repository.mapper;
 
-import com.cxb.storehelperserver.model.TStockOriginal;
+import com.cxb.storehelperserver.repository.model.MyStockOriginal;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
@@ -25,8 +25,8 @@ public interface MyStockOriginalMapper {
     int countByExample(int sid, Date date, String search);
 
     @Select({"<script>",
-            "select t2.id as id, t2.code as code, t2.name as name, t2.gid as gid,",
-            "t2.atid as atid, t2.cid as cid, t2.price as price, t2.remark as remark",
+            "select t1.id as id, t1.unit as unit, t1.value as value, t1.total as total, t1.price as price,",
+            "t2.id as cid, t2.code as code, t2.name as name, t2.cid as ctid, t2.remark as remark",
             "from t_storage_original t1",
             "left join t_original t2 on t1.oid = t2.id",
             "where t1.sid = #{sid} and t1.cdate = #{date}",
@@ -35,5 +35,5 @@ public interface MyStockOriginalMapper {
             "</if>",
             "limit #{offset}, #{limit}",
             "</script>"})
-    List<TStockOriginal> selectByExample(int offset, int limit, int sid, Date date, String search);
+    List<MyStockOriginal> selectByExample(int offset, int limit, int sid, Date date, String search);
 }

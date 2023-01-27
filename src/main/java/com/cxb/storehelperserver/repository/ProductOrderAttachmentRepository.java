@@ -2,10 +2,13 @@ package com.cxb.storehelperserver.repository;
 
 import com.cxb.storehelperserver.mapper.TProductOrderAttachmentMapper;
 import com.cxb.storehelperserver.model.TProductOrderAttachment;
+import com.cxb.storehelperserver.model.TProductOrderAttachmentExample;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * desc: 进货出入库附件仓库
@@ -36,6 +39,12 @@ public class ProductOrderAttachmentRepository extends BaseRepository<TProductOrd
         return productOrderAttachment;
     }
 
+    public List<TProductOrderAttachment> findByOid(int oid) {
+        TProductOrderAttachmentExample example = new TProductOrderAttachmentExample();
+        example.or().andOidEqualTo(oid);
+        return productOrderAttachmentMapper.selectByExample(example);
+    }
+
     public boolean insert(TProductOrderAttachment row) {
         if (productOrderAttachmentMapper.insert(row) > 0) {
             setCache(row.getId(), row);
@@ -52,8 +61,14 @@ public class ProductOrderAttachmentRepository extends BaseRepository<TProductOrd
         return false;
     }
 
-    public boolean delete(int id) {
-        delCache(id);
-        return productOrderAttachmentMapper.deleteByPrimaryKey(id) > 0;
+    public boolean delete(int oid) {
+        val attrs = findByOid(oid);
+        for (TProductOrderAttachment a : attrs) {
+            delCache(a.getId());
+            if (productOrderAttachmentMapper.deleteByPrimaryKey(a.getId()) <= 0) {
+                return false;
+            }
+        }
+        return true;
     }
 }

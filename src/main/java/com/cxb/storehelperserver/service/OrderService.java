@@ -29,22 +29,31 @@ public class OrderService {
     private CheckService checkService;
 
     @Resource
+    private AgreementOrderService agreementOrderService;
+
+    @Resource
+    private ProductOrderService productOrderService;
+
+    @Resource
     private StorageOrderService storageOrderService;
 
     @Resource
-    private StorageOrderRepository storageOrderRepository;
+    private AgreementOrderRepository agreementOrderRepository;
 
     @Resource
     private ProductOrderRepository productOrderRepository;
 
     @Resource
-    private AgreementOrderRepository agreementOrderRepository;
+    private StorageOrderRepository storageOrderRepository;
 
     @Resource
     private UserOrderApplyRepository userOrderApplyRepository;
 
     @Resource
     private UserOrderReviewRepository userOrderReviewRepository;
+
+    @Resource
+    private UserOrderCompleteRepository userOrderCompleteRepository;
 
     @Resource
     private StorageRepository storageRepository;
@@ -57,6 +66,84 @@ public class OrderService {
 
     @Resource
     private DateUtil dateUtil;
+
+    public RestResult getAgreementOrder(int id, int page, int limit, String search) {
+        // 获取公司信息
+        TUserGroup group = userGroupRepository.find(id);
+        if (null == group) {
+            return RestResult.fail("获取公司信息失败");
+        }
+
+        int total = agreementOrderRepository.total(group.getGid(), search);
+        if (0 == total) {
+            val data = new HashMap<String, Object>();
+            data.put("total", 0);
+            data.put("list", null);
+            return RestResult.ok(data);
+        }
+
+        // 查询联系人
+        SimpleDateFormat dateFormat = dateUtil.getDateFormat();
+        val list2 = new ArrayList<>();
+        val list = agreementOrderRepository.pagination(group.getGid(), page, limit, search);
+        if (null != list && !list.isEmpty()) {
+            for (TAgreementOrder o : list) {
+                val ret = createOrder(o.getOtype() ? OrderType.AGREEMENT_OUT_ORDER : OrderType.AGREEMENT_IN_ORDER,
+                        o.getId(), o.getBatch(), o.getSid(), o.getValue(), o.getApply(), dateFormat.format(o.getApplyTime()),
+                        o.getReview(), null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));
+                HashMap<String, Object> datas = storageOrderService.find(id);
+                if (null != datas) {
+                    ret.put("comms", datas.get("comms"));
+                    ret.put("attrs", datas.get("attrs"));
+                }
+                list2.add(ret);
+            }
+        }
+
+        val data = new HashMap<String, Object>();
+        data.put("total", total);
+        data.put("list", list2);
+        return RestResult.ok(data);
+    }
+
+    public RestResult getProductOrder(int id, int page, int limit, String search) {
+        // 获取公司信息
+        TUserGroup group = userGroupRepository.find(id);
+        if (null == group) {
+            return RestResult.fail("获取公司信息失败");
+        }
+
+        int total = productOrderRepository.total(group.getGid(), search);
+        if (0 == total) {
+            val data = new HashMap<String, Object>();
+            data.put("total", 0);
+            data.put("list", null);
+            return RestResult.ok(data);
+        }
+
+        // 查询联系人
+        SimpleDateFormat dateFormat = dateUtil.getDateFormat();
+        val list2 = new ArrayList<>();
+        val list = productOrderRepository.pagination(group.getGid(), page, limit, search);
+        if (null != list && !list.isEmpty()) {
+            for (TProductOrder o : list) {
+                val ret = createOrder(o.getOtype() ? OrderType.PRODUCT_OUT_ORDER : OrderType.PRODUCT_IN_ORDER,
+                        o.getId(), o.getBatch(), o.getSid(), o.getValue(), o.getApply(), dateFormat.format(o.getApplyTime()),
+                        o.getReview(), null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));
+                HashMap<String, Object> datas = storageOrderService.find(id);
+                if (null != datas) {
+                    ret.put("comms", datas.get("comms"));
+                    ret.put("attrs", datas.get("attrs"));
+                }
+                list2.add(ret);
+            }
+        }
+
+        val data = new HashMap<String, Object>();
+        data.put("total", total);
+        data.put("list", list2);
+        return RestResult.ok(data);
+    }
 
     public RestResult getStorageOrder(int id, int page, int limit, String search) {
         // 获取公司信息
@@ -79,9 +166,15 @@ public class OrderService {
         val list = storageOrderRepository.pagination(group.getGid(), page, limit, search);
         if (null != list && !list.isEmpty()) {
             for (TStorageOrder o : list) {
-                list2.add(createOrder(OrderType.STORAGE_IN_ORDER, o.getId(), o.getBatch(), o.getSid(), o.getValue(),
-                        o.getApply(), dateFormat.format(o.getApplyTime()),
-                        o.getReview(), null == o.getReview() ? null : dateFormat.format(o.getReviewTime())));
+                val ret = createOrder(o.getOtype() ? OrderType.STORAGE_OUT_ORDER : OrderType.STORAGE_IN_ORDER,
+                        o.getId(), o.getBatch(), o.getSid(), o.getValue(), o.getApply(), dateFormat.format(o.getApplyTime()),
+                        o.getReview(), null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));
+                HashMap<String, Object> datas = storageOrderService.find(id);
+                if (null != datas) {
+                    ret.put("comms", datas.get("comms"));
+                    ret.put("attrs", datas.get("attrs"));
+                }
+                list2.add(ret);
             }
         }
 
@@ -107,16 +200,84 @@ public class OrderService {
         if (null != list && !list.isEmpty()) {
             for (TUserOrderApply oa : list) {
                 switch (OrderType.valueOf(oa.getOtype())) {
-                    case STORAGE_IN_ORDER:
+                    case STORAGE_IN_ORDER: {
                         TStorageOrder o = storageOrderRepository.find(oa.getOid());
-                        list2.add(createOrder(OrderType.STORAGE_IN_ORDER, o.getId(), o.getBatch(), o.getSid(), o.getValue(),
-                                o.getApply(), dateFormat.format(o.getApplyTime()),
-                                o.getReview(), null == o.getReview() ? null : dateFormat.format(o.getReviewTime())));
+                        val ret = createOrder(OrderType.STORAGE_IN_ORDER, o.getId(), o.getBatch(), o.getSid(), o.getValue(),
+                                o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(),
+                                null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));
+                        HashMap<String, Object> datas = storageOrderService.find(id);
+                        if (null != datas) {
+                            ret.put("comms", datas.get("comms"));
+                            ret.put("attrs", datas.get("attrs"));
+                        }
+                        list2.add(ret);
                         break;
-                    case PRODUCT_IN_ORDER:
+                    }
+                    case STORAGE_OUT_ORDER: {
+                        TStorageOrder o = storageOrderRepository.find(oa.getOid());
+                        val ret = createOrder(OrderType.STORAGE_OUT_ORDER, o.getId(), o.getBatch(), o.getSid(), o.getValue(),
+                                o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(),
+                                null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));
+                        HashMap<String, Object> datas = storageOrderService.find(id);
+                        if (null != datas) {
+                            ret.put("comms", datas.get("comms"));
+                            ret.put("attrs", datas.get("attrs"));
+                        }
+                        list2.add(ret);
                         break;
-                    case AGREEMENT_IN_ORDER:
+                    }
+                    case PRODUCT_IN_ORDER: {
+                        TProductOrder o = productOrderRepository.find(oa.getOid());
+                        val ret = createOrder(OrderType.PRODUCT_IN_ORDER, o.getId(), o.getBatch(), o.getSid(), o.getValue(),
+                                o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(),
+                                null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));
+                        HashMap<String, Object> datas = productOrderService.find(id);
+                        if (null != datas) {
+                            ret.put("comms", datas.get("comms"));
+                            ret.put("attrs", datas.get("attrs"));
+                        }
+                        list2.add(ret);
                         break;
+                    }
+                    case PRODUCT_OUT_ORDER: {
+                        TProductOrder o = productOrderRepository.find(oa.getOid());
+                        val ret = createOrder(OrderType.PRODUCT_OUT_ORDER, o.getId(), o.getBatch(), o.getSid(), o.getValue(),
+                                o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(),
+                                null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));
+                        HashMap<String, Object> datas = productOrderService.find(id);
+                        if (null != datas) {
+                            ret.put("comms", datas.get("comms"));
+                            ret.put("attrs", datas.get("attrs"));
+                        }
+                        list2.add(ret);
+                        break;
+                    }
+                    case AGREEMENT_IN_ORDER: {
+                        TAgreementOrder o = agreementOrderRepository.find(oa.getOid());
+                        val ret = createOrder(OrderType.AGREEMENT_IN_ORDER, o.getId(), o.getBatch(), o.getSid(), o.getValue(),
+                                o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(),
+                                null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));
+                        HashMap<String, Object> datas = agreementOrderService.find(id);
+                        if (null != datas) {
+                            ret.put("comms", datas.get("comms"));
+                            ret.put("attrs", datas.get("attrs"));
+                        }
+                        list2.add(ret);
+                        break;
+                    }
+                    case AGREEMENT_OUT_ORDER: {
+                        TAgreementOrder o = agreementOrderRepository.find(oa.getOid());
+                        val ret = createOrder(OrderType.AGREEMENT_OUT_ORDER, o.getId(), o.getBatch(), o.getSid(), o.getValue(),
+                                o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(),
+                                null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));
+                        HashMap<String, Object> datas = agreementOrderService.find(id);
+                        if (null != datas) {
+                            ret.put("comms", datas.get("comms"));
+                            ret.put("attrs", datas.get("attrs"));
+                        }
+                        list2.add(ret);
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -145,16 +306,84 @@ public class OrderService {
         if (null != list && !list.isEmpty()) {
             for (TUserOrderReview or : list) {
                 switch (OrderType.valueOf(or.getOtype())) {
-                    case STORAGE_IN_ORDER:
+                    case STORAGE_IN_ORDER: {
                         TStorageOrder o = storageOrderRepository.find(or.getOid());
-                        list2.add(createOrder(OrderType.STORAGE_IN_ORDER, o.getId(), o.getBatch(), o.getSid(), o.getValue(),
-                                o.getApply(), dateFormat.format(o.getApplyTime()),
-                                o.getReview(), null == o.getReview() ? null : dateFormat.format(o.getReviewTime())));
+                        val ret = createOrder(OrderType.STORAGE_IN_ORDER, o.getId(), o.getBatch(), o.getSid(), o.getValue(),
+                                o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(),
+                                null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));
+                        HashMap<String, Object> datas = storageOrderService.find(id);
+                        if (null != datas) {
+                            ret.put("comms", datas.get("comms"));
+                            ret.put("attrs", datas.get("attrs"));
+                        }
+                        list2.add(ret);
                         break;
-                    case PRODUCT_IN_ORDER:
+                    }
+                    case STORAGE_OUT_ORDER: {
+                        TStorageOrder o = storageOrderRepository.find(or.getOid());
+                        val ret = createOrder(OrderType.STORAGE_OUT_ORDER, o.getId(), o.getBatch(), o.getSid(), o.getValue(),
+                                o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(),
+                                null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));
+                        HashMap<String, Object> datas = storageOrderService.find(id);
+                        if (null != datas) {
+                            ret.put("comms", datas.get("comms"));
+                            ret.put("attrs", datas.get("attrs"));
+                        }
+                        list2.add(ret);
                         break;
-                    case AGREEMENT_IN_ORDER:
+                    }
+                    case PRODUCT_IN_ORDER: {
+                        TProductOrder o = productOrderRepository.find(or.getOid());
+                        val ret = createOrder(OrderType.PRODUCT_IN_ORDER, o.getId(), o.getBatch(), o.getSid(), o.getValue(),
+                                o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(),
+                                null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));
+                        HashMap<String, Object> datas = productOrderService.find(id);
+                        if (null != datas) {
+                            ret.put("comms", datas.get("comms"));
+                            ret.put("attrs", datas.get("attrs"));
+                        }
+                        list2.add(ret);
                         break;
+                    }
+                    case PRODUCT_OUT_ORDER: {
+                        TProductOrder o = productOrderRepository.find(or.getOid());
+                        val ret = createOrder(OrderType.PRODUCT_OUT_ORDER, o.getId(), o.getBatch(), o.getSid(), o.getValue(),
+                                o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(),
+                                null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));
+                        HashMap<String, Object> datas = productOrderService.find(id);
+                        if (null != datas) {
+                            ret.put("comms", datas.get("comms"));
+                            ret.put("attrs", datas.get("attrs"));
+                        }
+                        list2.add(ret);
+                        break;
+                    }
+                    case AGREEMENT_IN_ORDER: {
+                        TAgreementOrder o = agreementOrderRepository.find(or.getOid());
+                        val ret = createOrder(OrderType.AGREEMENT_IN_ORDER, o.getId(), o.getBatch(), o.getSid(), o.getValue(),
+                                o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(),
+                                null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));
+                        HashMap<String, Object> datas = agreementOrderService.find(id);
+                        if (null != datas) {
+                            ret.put("comms", datas.get("comms"));
+                            ret.put("attrs", datas.get("attrs"));
+                        }
+                        list2.add(ret);
+                        break;
+                    }
+                    case AGREEMENT_OUT_ORDER: {
+                        TAgreementOrder o = agreementOrderRepository.find(or.getOid());
+                        val ret = createOrder(OrderType.AGREEMENT_OUT_ORDER, o.getId(), o.getBatch(), o.getSid(), o.getValue(),
+                                o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(),
+                                null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));
+                        HashMap<String, Object> datas = agreementOrderService.find(id);
+                        if (null != datas) {
+                            ret.put("comms", datas.get("comms"));
+                            ret.put("attrs", datas.get("attrs"));
+                        }
+                        list2.add(ret);
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -168,7 +397,7 @@ public class OrderService {
     }
 
     public RestResult getMyComplete(int id, int page, int limit, String search) {
-        int total = userOrderApplyRepository.total(id, search);
+        int total = userOrderCompleteRepository.total(id, search);
         if (0 == total) {
             val data = new HashMap<String, Object>();
             data.put("total", 0);
@@ -179,20 +408,88 @@ public class OrderService {
         // 查询联系人
         SimpleDateFormat dateFormat = dateUtil.getDateFormat();
         val list2 = new ArrayList<>();
-        val list = userOrderApplyRepository.pagination(id, page, limit, search);
+        val list = userOrderCompleteRepository.pagination(id, page, limit, search);
         if (null != list && !list.isEmpty()) {
-            for (TUserOrderApply oa : list) {
-                switch (OrderType.valueOf(oa.getOtype())) {
-                    case STORAGE_IN_ORDER:
-                        TStorageOrder o = storageOrderRepository.find(oa.getOid());
-                        list2.add(createOrder(OrderType.STORAGE_IN_ORDER, o.getId(), o.getBatch(), o.getSid(), o.getValue(),
-                                o.getApply(), dateFormat.format(o.getApplyTime()),
-                                o.getReview(), null == o.getReview() ? null : dateFormat.format(o.getReviewTime())));
+            for (TUserOrderComplete oc : list) {
+                switch (OrderType.valueOf(oc.getOtype())) {
+                    case STORAGE_IN_ORDER: {
+                        TStorageOrder o = storageOrderRepository.find(oc.getOid());
+                        val ret = createOrder(OrderType.STORAGE_IN_ORDER, o.getId(), o.getBatch(), o.getSid(), o.getValue(),
+                                o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(),
+                                null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));
+                        HashMap<String, Object> datas = storageOrderService.find(id);
+                        if (null != datas) {
+                            ret.put("comms", datas.get("comms"));
+                            ret.put("attrs", datas.get("attrs"));
+                        }
+                        list2.add(ret);
                         break;
-                    case PRODUCT_IN_ORDER:
+                    }
+                    case STORAGE_OUT_ORDER: {
+                        TStorageOrder o = storageOrderRepository.find(oc.getOid());
+                        val ret = createOrder(OrderType.STORAGE_OUT_ORDER, o.getId(), o.getBatch(), o.getSid(), o.getValue(),
+                                o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(),
+                                null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));
+                        HashMap<String, Object> datas = storageOrderService.find(id);
+                        if (null != datas) {
+                            ret.put("comms", datas.get("comms"));
+                            ret.put("attrs", datas.get("attrs"));
+                        }
+                        list2.add(ret);
                         break;
-                    case AGREEMENT_IN_ORDER:
+                    }
+                    case PRODUCT_IN_ORDER: {
+                        TProductOrder o = productOrderRepository.find(oc.getOid());
+                        val ret = createOrder(OrderType.PRODUCT_IN_ORDER, o.getId(), o.getBatch(), o.getSid(), o.getValue(),
+                                o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(),
+                                null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));
+                        HashMap<String, Object> datas = productOrderService.find(id);
+                        if (null != datas) {
+                            ret.put("comms", datas.get("comms"));
+                            ret.put("attrs", datas.get("attrs"));
+                        }
+                        list2.add(ret);
                         break;
+                    }
+                    case PRODUCT_OUT_ORDER: {
+                        TProductOrder o = productOrderRepository.find(oc.getOid());
+                        val ret = createOrder(OrderType.PRODUCT_OUT_ORDER, o.getId(), o.getBatch(), o.getSid(), o.getValue(),
+                                o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(),
+                                null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));
+                        HashMap<String, Object> datas = productOrderService.find(id);
+                        if (null != datas) {
+                            ret.put("comms", datas.get("comms"));
+                            ret.put("attrs", datas.get("attrs"));
+                        }
+                        list2.add(ret);
+                        break;
+                    }
+                    case AGREEMENT_IN_ORDER: {
+                        TAgreementOrder o = agreementOrderRepository.find(oc.getOid());
+                        val ret = createOrder(OrderType.AGREEMENT_IN_ORDER, o.getId(), o.getBatch(), o.getSid(), o.getValue(),
+                                o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(),
+                                null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));
+                        HashMap<String, Object> datas = agreementOrderService.find(id);
+                        if (null != datas) {
+                            ret.put("comms", datas.get("comms"));
+                            ret.put("attrs", datas.get("attrs"));
+                        }
+                        list2.add(ret);
+                        break;
+                    }
+                    case AGREEMENT_OUT_ORDER: {
+                        TAgreementOrder o = agreementOrderRepository.find(oc.getOid());
+                        val ret = createOrder(OrderType.AGREEMENT_OUT_ORDER, o.getId(), o.getBatch(), o.getSid(), o.getValue(),
+                                o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(),
+                                null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));
+                        HashMap<String, Object> datas = agreementOrderService.find(id);
+                        if (null != datas) {
+                            ret.put("comms", datas.get("comms"));
+                            ret.put("attrs", datas.get("attrs"));
+                        }
+                        list2.add(ret);
+                        break;
+                    }
                     default:
                         break;
                 }
@@ -233,12 +530,6 @@ public class OrderService {
                 ret.put("reviewName", uv.getName());
             }
             ret.put("reviewTime", reviewTime);
-        }
-
-        HashMap<String, Object> datas = storageOrderService.find(id);
-        if (null != datas) {
-            ret.put("comms", datas.get("comms"));
-            ret.put("attrs", datas.get("attrs"));
         }
         return ret;
     }

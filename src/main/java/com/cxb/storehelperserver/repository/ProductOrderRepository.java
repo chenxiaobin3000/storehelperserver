@@ -2,10 +2,12 @@ package com.cxb.storehelperserver.repository;
 
 import com.cxb.storehelperserver.mapper.TProductOrderMapper;
 import com.cxb.storehelperserver.model.TProductOrder;
+import com.cxb.storehelperserver.model.TProductOrderExample;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * desc: 生产出入库订单仓库
@@ -34,6 +36,37 @@ public class ProductOrderRepository extends BaseRepository<TProductOrder> {
             setCache(id, productOrder);
         }
         return productOrder;
+    }
+
+    public int total(int gid, String search) {
+        // 包含搜索的不缓存
+        if (null != search) {
+            TProductOrderExample example = new TProductOrderExample();
+            example.or().andGidEqualTo(gid).andBatchLike("%" + search + "%");
+            return (int) productOrderMapper.countByExample(example);
+        } else {
+            int total = getTotalCache(gid);
+            if (0 != total) {
+                return total;
+            }
+            TProductOrderExample example = new TProductOrderExample();
+            example.or().andGidEqualTo(gid);
+            total = (int) productOrderMapper.countByExample(example);
+            setTotalCache(gid, total);
+            return total;
+        }
+    }
+
+    public List<TProductOrder> pagination(int gid, int page, int limit, String search) {
+        TProductOrderExample example = new TProductOrderExample();
+        if (null == search) {
+            example.or().andGidEqualTo(gid);
+        } else {
+            example.or().andGidEqualTo(gid).andBatchLike("%" + search + "%");
+        }
+        example.setOffset((page - 1) * limit);
+        example.setLimit(limit);
+        return productOrderMapper.selectByExample(example);
     }
 
     public boolean insert(TProductOrder row) {

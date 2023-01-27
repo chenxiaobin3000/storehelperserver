@@ -4,6 +4,7 @@ import com.cxb.storehelperserver.mapper.TStockDestroyMapper;
 import com.cxb.storehelperserver.model.TStockDestroy;
 import com.cxb.storehelperserver.model.TStockDestroyExample;
 import com.cxb.storehelperserver.repository.mapper.MyStockDestroyMapper;
+import com.cxb.storehelperserver.repository.model.MyStockDestroy;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
@@ -29,14 +30,9 @@ public class StockDestroyRepository extends BaseRepository<TStockDestroy> {
         init("stockD::");
     }
 
-    public TStockDestroy find(int sid, int id) {
-        TStockDestroy destroy = getCache(joinKey(sid, id), TStockDestroy.class);
-        if (null != destroy) {
-            return destroy;
-        }
-
+    public TStockDestroy find(int sid, int id, Date date) {
         TStockDestroyExample example = new TStockDestroyExample();
-        example.or().andSidEqualTo(sid).andDidEqualTo(id);
+        example.or().andSidEqualTo(sid).andDidEqualTo(id).andCdateEqualTo(date);
         return stockDestroyMapper.selectOneByExample(example);
     }
 
@@ -50,7 +46,7 @@ public class StockDestroyRepository extends BaseRepository<TStockDestroy> {
         }
     }
 
-    public List<TStockDestroy> pagination(int sid, int page, int limit, Date date, String search) {
+    public List<MyStockDestroy> pagination(int sid, int page, int limit, Date date, String search) {
         if (null != search) {
             return myStockDestroyMapper.selectByExample((page - 1) * limit, limit, sid, date, "%" + search + "%");
         } else {
@@ -66,7 +62,9 @@ public class StockDestroyRepository extends BaseRepository<TStockDestroy> {
         return stockDestroyMapper.updateByPrimaryKey(row) > 0;
     }
 
-    public boolean delete(int id) {
-        return stockDestroyMapper.deleteByPrimaryKey(id) > 0;
+    public boolean delete(int sid, int did, Date date) {
+        TStockDestroyExample example = new TStockDestroyExample();
+        example.or().andSidEqualTo(sid).andDidEqualTo(did).andCdateGreaterThanOrEqualTo(date);
+        return stockDestroyMapper.deleteByExample(example) > 0;
     }
 }

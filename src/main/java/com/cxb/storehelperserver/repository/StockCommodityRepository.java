@@ -4,6 +4,7 @@ import com.cxb.storehelperserver.mapper.TStockCommodityMapper;
 import com.cxb.storehelperserver.model.TStockCommodity;
 import com.cxb.storehelperserver.model.TStockCommodityExample;
 import com.cxb.storehelperserver.repository.mapper.MyStockCommodityMapper;
+import com.cxb.storehelperserver.repository.model.MyStockCommodity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
@@ -29,14 +30,9 @@ public class StockCommodityRepository extends BaseRepository<TStockCommodity> {
         init("stockC::");
     }
 
-    public TStockCommodity find(int sid, int id) {
-        TStockCommodity commodity = getCache(joinKey(sid, id), TStockCommodity.class);
-        if (null != commodity) {
-            return commodity;
-        }
-
+    public TStockCommodity find(int sid, int id, Date date) {
         TStockCommodityExample example = new TStockCommodityExample();
-        example.or().andSidEqualTo(sid).andCidEqualTo(id);
+        example.or().andSidEqualTo(sid).andCidEqualTo(id).andCdateEqualTo(date);
         return stockCommodityMapper.selectOneByExample(example);
     }
 
@@ -50,7 +46,7 @@ public class StockCommodityRepository extends BaseRepository<TStockCommodity> {
         }
     }
 
-    public List<TStockCommodity> pagination(int sid, int page, int limit, Date date, String search) {
+    public List<MyStockCommodity> pagination(int sid, int page, int limit, Date date, String search) {
         if (null != search) {
             return myStockCommodityMapper.selectByExample((page - 1) * limit, limit, sid, date, "%" + search + "%");
         } else {
@@ -62,7 +58,9 @@ public class StockCommodityRepository extends BaseRepository<TStockCommodity> {
         return stockCommodityMapper.insert(row) > 0;
     }
 
-    public boolean delete(int id) {
-        return stockCommodityMapper.deleteByPrimaryKey(id) > 0;
+    public boolean delete(int sid, int cid, Date date) {
+        TStockCommodityExample example = new TStockCommodityExample();
+        example.or().andSidEqualTo(sid).andCidEqualTo(cid).andCdateGreaterThanOrEqualTo(date);
+        return stockCommodityMapper.deleteByExample(example) > 0;
     }
 }

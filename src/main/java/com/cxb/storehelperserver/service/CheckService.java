@@ -39,7 +39,7 @@ public class CheckService {
     @Resource
     private GroupRepository groupRepository;
 
-    /*
+    /**
      * desc: 判断 id 是否在 gid 公司
      */
     public String checkGroup(int uid, int gid) {
@@ -57,7 +57,7 @@ public class CheckService {
         return null;
     }
 
-    /*
+    /**
      * desc: 判断 id 和 uid 是否在同一公司
      */
     public String checkSampGroup(int id, int uid) {

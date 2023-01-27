@@ -80,7 +80,7 @@ public class StorageController {
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));
         } catch (ParseException e) {
-            return RestResult.fail("订单制单日期转换错误");
+            return RestResult.fail("订单制单日期转换失败");
         }
         return storageService.purchase(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
     }
@@ -98,7 +98,7 @@ public class StorageController {
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));
         } catch (ParseException e) {
-            return RestResult.fail("订单制单日期转换错误");
+            return RestResult.fail("订单制单日期转换失败");
         }
         return storageService.setPurchase(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
     }
@@ -106,5 +106,45 @@ public class StorageController {
     @PostMapping("/delPurchase")
     public RestResult delPurchase(@Validated @RequestBody DelPurchaseValid req) {
         return storageService.delPurchase(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/returnc")
+    public RestResult returnc(@Validated @RequestBody ReturnValid req) {
+        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
+        TStorageOrder order = new TStorageOrder();
+        order.setGid(req.getGid());
+        order.setBatch(req.getBatch());
+        order.setSid(req.getSid());
+        order.setOtype(OrderInOutType.OUT_ORDER.getValue());
+        order.setApply(req.getId());
+        try {
+            order.setApplyTime(simpleDateFormat.parse(req.getDate()));
+        } catch (ParseException e) {
+            return RestResult.fail("订单制单日期转换失败");
+        }
+        return storageService.returnc(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
+    }
+
+    @PostMapping("/setReturn")
+    public RestResult setReturn(@Validated @RequestBody SetReturnValid req) {
+        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
+        TStorageOrder order = new TStorageOrder();
+        order.setId(req.getOid());
+        order.setGid(req.getGid());
+        order.setBatch(req.getBatch());
+        order.setSid(req.getSid());
+        order.setOtype(OrderInOutType.OUT_ORDER.getValue());
+        order.setApply(req.getId());
+        try {
+            order.setApplyTime(simpleDateFormat.parse(req.getDate()));
+        } catch (ParseException e) {
+            return RestResult.fail("订单制单日期转换失败");
+        }
+        return storageService.setReturn(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
+    }
+
+    @PostMapping("/delReturn")
+    public RestResult delReturn(@Validated @RequestBody DelReturnValid req) {
+        return storageService.delReturn(req.getId(), req.getOid());
     }
 }

@@ -4,6 +4,7 @@ import com.cxb.storehelperserver.mapper.TStorageOrderAttachmentMapper;
 import com.cxb.storehelperserver.model.TStorageOrderAttachment;
 import com.cxb.storehelperserver.model.TStorageOrderAttachmentExample;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
@@ -60,8 +61,14 @@ public class StorageOrderAttachmentRepository extends BaseRepository<TStorageOrd
         return false;
     }
 
-    public boolean delete(int id) {
-        delCache(id);
-        return storageOrderAttachmentMapper.deleteByPrimaryKey(id) > 0;
+    public boolean delete(int oid) {
+        val attrs = findByOid(oid);
+        for (TStorageOrderAttachment a : attrs) {
+            delCache(a.getId());
+            if (storageOrderAttachmentMapper.deleteByPrimaryKey(a.getId()) <= 0) {
+                return false;
+            }
+        }
+        return true;
     }
 }

@@ -11,9 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import static com.cxb.storehelperserver.util.Permission.*;
 
@@ -33,10 +31,19 @@ public class StorageService {
     private StorageOrderService storageOrderService;
 
     @Resource
+    private StockService stockService;
+
+    @Resource
     private StorageRepository storageRepository;
 
     @Resource
     private StorageOrderRepository storageOrderRepository;
+
+    @Resource
+    private StorageOrderCommodityRepository storageOrderCommodityRepository;
+
+    @Resource
+    private StorageOrderAttachmentRepository storageOrderAttachmentRepository;
 
     @Resource
     private UserRepository userRepository;
@@ -46,6 +53,9 @@ public class StorageService {
 
     @Resource
     private UserOrderReviewRepository userOrderReviewRepository;
+
+    @Resource
+    private UserOrderCompleteRepository userOrderCompleteRepository;
 
     @Resource
     private UserGroupRepository userGroupRepository;
@@ -61,6 +71,9 @@ public class StorageService {
 
     @Resource
     private StandardRepository standardRepository;
+
+    @Resource
+    private DestroyRepository destroyRepository;
 
     @Resource
     private OrderReviewerRepository orderReviewerRepository;
@@ -157,7 +170,7 @@ public class StorageService {
         return RestResult.ok(data);
     }
 
-    /*
+    /**
      * desc: 原料进货
      */
     public RestResult purchase(int id, TStorageOrder order, List<Integer> types, List<Integer> commoditys,
@@ -169,8 +182,8 @@ public class StorageService {
         }
 
         // 生成进货单
-        val list = new ArrayList<TStorageOrderCommodity>();
-        ret = createStorageComms(order, types, commoditys, values, prices, list);
+        val comms = new ArrayList<TStorageOrderCommodity>();
+        ret = createStorageComms(order, types, commoditys, values, prices, comms);
         if (null != ret) {
             return ret;
         }
@@ -181,10 +194,7 @@ public class StorageService {
 
         // 插入订单商品和附件数据
         int oid = order.getId();
-        for (TStorageOrderCommodity c : list) {
-            c.setOid(oid);
-        }
-        String msg = storageOrderService.update(oid, list, attrs);
+        String msg = storageOrderService.update(oid, comms, attrs);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -223,9 +233,12 @@ public class StorageService {
             return ret;
         }
 
+        // 已经审核的订单不能修改
+        
+
         // 生成进货单
-        val list = new ArrayList<TStorageOrderCommodity>();
-        ret = createStorageComms(order, types, commoditys, values, prices, list);
+        val comms = new ArrayList<TStorageOrderCommodity>();
+        ret = createStorageComms(order, types, commoditys, values, prices, comms);
         if (null != ret) {
             return ret;
         }
@@ -236,10 +249,7 @@ public class StorageService {
 
         // 插入订单商品和附件数据
         int oid = order.getId();
-        for (TStorageOrderCommodity c : list) {
-            c.setOid(oid);
-        }
-        String msg = storageOrderService.update(oid, list, attrs);
+        String msg = storageOrderService.update(oid, comms, attrs);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -252,8 +262,37 @@ public class StorageService {
             return RestResult.fail("未查询到要删除的订单");
         }
 
-        // 删除生效日期以后的所有库存记录
+        // 校验是否订单提交人，已经审核的订单，必须由审核人删除
+        Integer review = storageOrder.getReview();
+        if (null == review) {
+            if (!storageOrder.getApply().equals(id)) {
+                return RestResult.fail("订单必须由申请人删除");
+            }
+        } else {
+            if (!review.equals(id)) {
+                return RestResult.fail("订单必须由审核人删除");
+            }
+        }
 
+        // 删除生效日期以后的所有库存记录
+        val comms = storageOrderCommodityRepository.find(oid);
+        for (TStorageOrderCommodity c : comms) {
+            // 删除日期是制单日期的前一天
+            Calendar calendar = new GregorianCalendar();
+            calendar.setTime(storageOrder.getApplyTime());
+            calendar.add(Calendar.DATE, -1);
+
+            if (!stockService.delStock(TypeDefine.CommodityType.valueOf(c.getCtype()),
+                    storageOrder.getSid(), c.getCid(), calendar.getTime())) {
+                return RestResult.fail("删除关联商品库存失败");
+            }
+        }
+        if (!storageOrderCommodityRepository.delete(oid)) {
+            return RestResult.fail("删除关联商品失败");
+        }
+        if (!storageOrderAttachmentRepository.delete(oid)) {
+            return RestResult.fail("删除关联商品附件失败");
+        }
 
         if (!userOrderApplyRepository.delete(TypeDefine.OrderType.STORAGE_IN_ORDER.getValue(), oid)) {
             return RestResult.fail("删除订单申请人失败");
@@ -261,7 +300,148 @@ public class StorageService {
         if (!userOrderReviewRepository.delete(TypeDefine.OrderType.STORAGE_IN_ORDER.getValue(), oid)) {
             return RestResult.fail("删除订单审核人失败");
         }
-        //if (!storageOrderRepository)
+        if (!userOrderCompleteRepository.delete(TypeDefine.OrderType.STORAGE_IN_ORDER.getValue(), oid)) {
+            return RestResult.fail("删除完成订单失败");
+        }
+        if (!storageOrderRepository.delete(oid)) {
+            return RestResult.fail("删除订单失败");
+        }
+        return RestResult.ok();
+    }
+
+    /**
+     * desc: 原料退货
+     */
+    public RestResult returnc(int id, TStorageOrder order, List<Integer> types, List<Integer> commoditys,
+                              List<Integer> values, List<BigDecimal> prices, List<Integer> attrs) {
+        val reviews = new ArrayList<Integer>();
+        RestResult ret = check(id, order, mp_storage_out_apply, mp_storage_out_review, reviews);
+        if (null != ret) {
+            return ret;
+        }
+
+        // 生成进货单
+        val comms = new ArrayList<TStorageOrderCommodity>();
+        ret = createStorageComms(order, types, commoditys, values, prices, comms);
+        if (null != ret) {
+            return ret;
+        }
+
+        if (!storageOrderRepository.insert(order)) {
+            return RestResult.fail("生成进货订单失败");
+        }
+
+        // 插入订单商品和附件数据
+        int oid = order.getId();
+        String msg = storageOrderService.update(oid, comms, attrs);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+
+        // 添加用户订单冗余信息
+        String batch = order.getBatch();
+        TUserOrderApply userOrderApply = new TUserOrderApply();
+        userOrderApply.setUid(id);
+        userOrderApply.setOtype(TypeDefine.OrderType.STORAGE_OUT_ORDER.getValue());
+        userOrderApply.setOid(oid);
+        userOrderApply.setBatch(batch);
+        if (!userOrderApplyRepository.insert(userOrderApply)) {
+            return RestResult.fail("添加用户订单信息失败");
+        }
+
+        // 添加用户订单审核信息
+        TUserOrderReview userOrderReview = new TUserOrderReview();
+        userOrderReview.setOtype(TypeDefine.OrderType.STORAGE_OUT_ORDER.getValue());
+        userOrderReview.setOid(oid);
+        userOrderReview.setBatch(batch);
+        for (Integer reviewer : reviews) {
+            userOrderReview.setId(0);
+            userOrderReview.setUid(reviewer);
+        }
+        return RestResult.ok();
+    }
+
+    /**
+     * desc: 原料退货修改
+     */
+    public RestResult setReturn(int id, TStorageOrder order, List<Integer> types, List<Integer> commoditys,
+                                List<Integer> values, List<BigDecimal> prices, List<Integer> attrs) {
+        val reviews = new ArrayList<Integer>();
+        RestResult ret = check(id, order, mp_storage_out_apply, mp_storage_out_review, reviews);
+        if (null != ret) {
+            return ret;
+        }
+
+        // 生成进货单
+        val comms = new ArrayList<TStorageOrderCommodity>();
+        ret = createStorageComms(order, types, commoditys, values, prices, comms);
+        if (null != ret) {
+            return ret;
+        }
+
+        if (!storageOrderRepository.update(order)) {
+            return RestResult.fail("生成进货订单失败");
+        }
+
+        // 插入订单商品和附件数据
+        int oid = order.getId();
+        String msg = storageOrderService.update(oid, comms, attrs);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+        return RestResult.ok();
+    }
+
+    public RestResult delReturn(int id, int oid) {
+        TStorageOrder storageOrder = storageOrderRepository.find(oid);
+        if (null == storageOrder) {
+            return RestResult.fail("未查询到要删除的订单");
+        }
+
+        // 校验是否订单提交人，已经审核的订单，必须由审核人删除
+        Integer review = storageOrder.getReview();
+        if (null == review) {
+            if (!storageOrder.getApply().equals(id)) {
+                return RestResult.fail("订单必须由申请人删除");
+            }
+        } else {
+            if (!review.equals(id)) {
+                return RestResult.fail("订单必须由审核人删除");
+            }
+        }
+
+        // 删除生效日期以后的所有库存记录
+        val comms = storageOrderCommodityRepository.find(oid);
+        for (TStorageOrderCommodity c : comms) {
+            // 删除日期是制单日期的前一天
+            Calendar calendar = new GregorianCalendar();
+            calendar.setTime(storageOrder.getApplyTime());
+            calendar.add(Calendar.DATE, -1);
+
+            if (!stockService.delStock(TypeDefine.CommodityType.valueOf(c.getCtype()),
+                    storageOrder.getSid(), c.getCid(), calendar.getTime())) {
+                return RestResult.fail("删除关联商品库存失败");
+            }
+        }
+        if (!storageOrderCommodityRepository.delete(oid)) {
+            return RestResult.fail("删除关联商品失败");
+        }
+        if (!storageOrderAttachmentRepository.delete(oid)) {
+            return RestResult.fail("删除关联商品附件失败");
+        }
+
+        if (!userOrderApplyRepository.delete(TypeDefine.OrderType.STORAGE_OUT_ORDER.getValue(), oid)) {
+            return RestResult.fail("删除订单申请人失败");
+        }
+        if (!userOrderReviewRepository.delete(TypeDefine.OrderType.STORAGE_OUT_ORDER.getValue(), oid)) {
+            return RestResult.fail("删除订单审核人失败");
+        }
+        if (!userOrderCompleteRepository.delete(TypeDefine.OrderType.STORAGE_OUT_ORDER.getValue(), oid)) {
+            return RestResult.fail("删除完成订单失败");
+        }
+        if (!storageOrderRepository.delete(oid)) {
+            return RestResult.fail("删除订单失败");
+        }
         return RestResult.ok();
     }
 
@@ -335,6 +515,13 @@ public class StorageService {
                         return RestResult.fail("未查询到标品：" + cid);
                     }
                     unit = find4.getUnit();
+                    break;
+                default:
+                    TDestroy find5 = destroyRepository.find(cid);
+                    if (null == find5) {
+                        return RestResult.fail("未查询到废品：" + cid);
+                    }
+                    unit = find5.getUnit();
                     break;
             }
 

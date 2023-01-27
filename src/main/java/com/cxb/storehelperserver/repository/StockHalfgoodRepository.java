@@ -4,6 +4,7 @@ import com.cxb.storehelperserver.mapper.TStockHalfgoodMapper;
 import com.cxb.storehelperserver.model.TStockHalfgood;
 import com.cxb.storehelperserver.model.TStockHalfgoodExample;
 import com.cxb.storehelperserver.repository.mapper.MyStockHalfgoodMapper;
+import com.cxb.storehelperserver.repository.model.MyStockHalfgood;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
@@ -29,14 +30,9 @@ public class StockHalfgoodRepository extends BaseRepository<TStockHalfgood> {
         init("stockH::");
     }
 
-    public TStockHalfgood find(int sid, int id) {
-        TStockHalfgood halfgood = getCache(joinKey(sid, id), TStockHalfgood.class);
-        if (null != halfgood) {
-            return halfgood;
-        }
-
+    public TStockHalfgood find(int sid, int id, Date date) {
         TStockHalfgoodExample example = new TStockHalfgoodExample();
-        example.or().andSidEqualTo(sid).andHidEqualTo(id);
+        example.or().andSidEqualTo(sid).andHidEqualTo(id).andCdateEqualTo(date);
         return stockHalfgoodMapper.selectOneByExample(example);
     }
 
@@ -50,7 +46,7 @@ public class StockHalfgoodRepository extends BaseRepository<TStockHalfgood> {
         }
     }
 
-    public List<TStockHalfgood> pagination(int sid, int page, int limit, Date date, String search) {
+    public List<MyStockHalfgood> pagination(int sid, int page, int limit, Date date, String search) {
         if (null != search) {
             return myStockHalfgoodMapper.selectByExample((page - 1) * limit, limit, sid, date, "%" + search + "%");
         } else {
@@ -66,7 +62,9 @@ public class StockHalfgoodRepository extends BaseRepository<TStockHalfgood> {
         return stockHalfgoodMapper.updateByPrimaryKey(row) > 0;
     }
 
-    public boolean delete(int id) {
-        return stockHalfgoodMapper.deleteByPrimaryKey(id) > 0;
+    public boolean delete(int sid, int hid, Date date) {
+        TStockHalfgoodExample example = new TStockHalfgoodExample();
+        example.or().andSidEqualTo(sid).andHidEqualTo(hid).andCdateGreaterThanOrEqualTo(date);
+        return stockHalfgoodMapper.deleteByExample(example) > 0;
     }
 }
