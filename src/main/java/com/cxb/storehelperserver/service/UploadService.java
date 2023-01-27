@@ -59,13 +59,13 @@ public class UploadService {
         File dest = new File(uploadpath + path + '/' + name);
         if (!dest.getParentFile().exists()) {
             if (!dest.getParentFile().mkdirs()) {
-                return RestResult.fail("服务器文件系统异常，请再试一次");
+                return RestResult.fail("服务器文件系统失败，请再试一次");
             }
         }
         try {
             file.transferTo(dest);
         } catch (Exception e) {
-            return RestResult.fail("上传文件异常，请再试一次");
+            return RestResult.fail("上传文件失败，请再试一次");
         }
 
         // 写入数据库

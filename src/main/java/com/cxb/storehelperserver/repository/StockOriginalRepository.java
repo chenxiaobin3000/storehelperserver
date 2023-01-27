@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -17,34 +18,43 @@ import java.util.List;
  */
 @Slf4j
 @Repository
-public class StockOriginalRepository {
+public class StockOriginalRepository extends BaseRepository<TStockOriginal> {
     @Resource
     private TStockOriginalMapper stockOriginalMapper;
 
     @Resource
     private MyStockOriginalMapper myStockOriginalMapper;
 
+    public StockOriginalRepository() {
+        init("stockO::");
+    }
+
     public TStockOriginal find(int sid, int id) {
+        TStockOriginal original = getCache(joinKey(sid, id), TStockOriginal.class);
+        if (null != original) {
+            return original;
+        }
+
         TStockOriginalExample example = new TStockOriginalExample();
         example.or().andSidEqualTo(sid).andOidEqualTo(id);
         return stockOriginalMapper.selectOneByExample(example);
     }
 
-    public int total(int sid, String search) {
+    public int total(int sid, Date date, String search) {
         if (null != search) {
-            return myStockOriginalMapper.countByExample(sid, "%" + search + "%");
+            return myStockOriginalMapper.countByExample(sid, date, "%" + search + "%");
         } else {
             TStockOriginalExample example = new TStockOriginalExample();
-            example.or().andSidEqualTo(sid);
+            example.or().andSidEqualTo(sid).andCdateEqualTo(date);
             return (int) stockOriginalMapper.countByExample(example);
         }
     }
 
-    public List<TStockOriginal> pagination(int sid, int page, int limit, String search) {
+    public List<TStockOriginal> pagination(int sid, Date date, int page, int limit, String search) {
         if (null != search) {
-            return myStockOriginalMapper.selectByExample((page - 1) * limit, limit, sid, "%" + search + "%");
+            return myStockOriginalMapper.selectByExample((page - 1) * limit, limit, sid, date, "%" + search + "%");
         } else {
-            return myStockOriginalMapper.selectByExample((page - 1) * limit, limit, sid, null);
+            return myStockOriginalMapper.selectByExample((page - 1) * limit, limit, sid, date, null);
         }
     }
 

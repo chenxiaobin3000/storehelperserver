@@ -66,7 +66,7 @@ public class DestroyService {
         // 检测属性数量是否匹配
         List<TAttributeTemplate> attributeTemplates = attributeTemplateRepository.find(destroy.getGid(), CommodityType.DESTROY.getValue());
         if (null == attributeTemplates) {
-            return RestResult.fail("废料属性模板信息异常");
+            return RestResult.fail("废料属性模板信息失败");
         }
         if (null == attributes || attributes.isEmpty() || attributeTemplates.size() != attributes.size()) {
             return RestResult.fail("废料属性数量不匹配");
@@ -100,7 +100,7 @@ public class DestroyService {
         // 检测属性数量是否匹配
         List<TAttributeTemplate> attributeTemplates = attributeTemplateRepository.find(destroy.getGid(), CommodityType.DESTROY.getValue());
         if (null == attributeTemplates) {
-            return RestResult.fail("废料属性模板信息异常");
+            return RestResult.fail("废料属性模板信息失败");
         }
         if (null == attributes || attributes.isEmpty() || attributeTemplates.size() != attributes.size()) {
             return RestResult.fail("废料属性数量不匹配");
@@ -176,7 +176,7 @@ public class DestroyService {
         // 获取公司信息
         TUserGroup group = userGroupRepository.find(id);
         if (null == group) {
-            return RestResult.fail("获取公司信息异常");
+            return RestResult.fail("获取公司信息失败");
         }
 
         int gid = group.getGid();
@@ -190,7 +190,7 @@ public class DestroyService {
 
         val commodities = destroyRepository.pagination(gid, page, limit, search);
         if (null == commodities) {
-            return RestResult.fail("获取废料信息异常");
+            return RestResult.fail("获取废料信息失败");
         }
 
         val datas = new ArrayList<HashMap<String, Object>>();

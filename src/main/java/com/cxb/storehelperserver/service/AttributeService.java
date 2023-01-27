@@ -98,12 +98,12 @@ public class AttributeService {
         // 获取公司信息
         TUserGroup group = userGroupRepository.find(id);
         if (null == group) {
-            return RestResult.fail("获取公司信息异常");
+            return RestResult.fail("获取公司信息失败");
         }
 
         List<TAttribute> attributes = attributeRepository.findByGroup(group.getGid());
         if (null == attributes) {
-            return RestResult.fail("获取属性信息异常");
+            return RestResult.fail("获取属性信息失败");
         }
 
         val data = new HashMap<String, Object>();
@@ -128,7 +128,7 @@ public class AttributeService {
         // 获取公司所有属性
         List<TAttribute> attributes = attributeRepository.findByGroup(gid);
         if (null == attributes) {
-            return RestResult.fail("获取属性信息异常");
+            return RestResult.fail("获取属性信息失败");
         }
 
         val templates = new ArrayList<List<TAttributeTemplate>>();
@@ -147,20 +147,20 @@ public class AttributeService {
         // 获取公司信息
         TUserGroup group = userGroupRepository.find(id);
         if (null == group) {
-            return RestResult.fail("获取公司信息异常");
+            return RestResult.fail("获取公司信息失败");
         }
 
         // 获取公司所有属性
         List<TAttribute> attributes = attributeRepository.findByGroup(group.getGid());
         if (null == attributes) {
-            return RestResult.fail("获取属性信息异常");
+            return RestResult.fail("获取属性信息失败");
         }
 
         val data = new HashMap<String, Object>();
         if (0 == atid) {
             List<List<TAttributeTemplate>> attrTemps = attributeTemplateRepository.findByGroup(group.getGid());
             if (null == attrTemps) {
-                return RestResult.fail("获取属性模板信息异常");
+                return RestResult.fail("获取属性模板信息失败");
             }
 
             data.put("list1", temp2Name(attrTemps.get(0), attributes));
@@ -171,7 +171,7 @@ public class AttributeService {
         } else {
             List<TAttributeTemplate> attrTemp = attributeTemplateRepository.find(group.getGid(), atid);
             if (null == attrTemp) {
-                return RestResult.fail("获取属性模板信息异常");
+                return RestResult.fail("获取属性模板信息失败");
             }
             data.put("list", temp2Name(attrTemp, attributes));
         }

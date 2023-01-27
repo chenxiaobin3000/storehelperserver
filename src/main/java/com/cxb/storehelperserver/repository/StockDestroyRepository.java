@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -17,34 +18,43 @@ import java.util.List;
  */
 @Slf4j
 @Repository
-public class StockDestroyRepository {
+public class StockDestroyRepository extends BaseRepository<TStockDestroy> {
     @Resource
     private TStockDestroyMapper stockDestroyMapper;
 
     @Resource
     private MyStockDestroyMapper myStockDestroyMapper;
 
+    public StockDestroyRepository() {
+        init("stockD::");
+    }
+
     public TStockDestroy find(int sid, int id) {
+        TStockDestroy destroy = getCache(joinKey(sid, id), TStockDestroy.class);
+        if (null != destroy) {
+            return destroy;
+        }
+
         TStockDestroyExample example = new TStockDestroyExample();
         example.or().andSidEqualTo(sid).andDidEqualTo(id);
         return stockDestroyMapper.selectOneByExample(example);
     }
 
-    public int total(int sid, String search) {
+    public int total(int sid, Date date, String search) {
         if (null != search) {
-            return myStockDestroyMapper.countByExample(sid, "%" + search + "%");
+            return myStockDestroyMapper.countByExample(sid, date, "%" + search + "%");
         } else {
             TStockDestroyExample example = new TStockDestroyExample();
-            example.or().andSidEqualTo(sid);
+            example.or().andSidEqualTo(sid).andCdateEqualTo(date);
             return (int) stockDestroyMapper.countByExample(example);
         }
     }
 
-    public List<TStockDestroy> pagination(int sid, int page, int limit, String search) {
+    public List<TStockDestroy> pagination(int sid, int page, int limit, Date date, String search) {
         if (null != search) {
-            return myStockDestroyMapper.selectByExample((page - 1) * limit, limit, sid, "%" + search + "%");
+            return myStockDestroyMapper.selectByExample((page - 1) * limit, limit, sid, date, "%" + search + "%");
         } else {
-            return myStockDestroyMapper.selectByExample((page - 1) * limit, limit, sid, null);
+            return myStockDestroyMapper.selectByExample((page - 1) * limit, limit, sid, date, null);
         }
     }
 

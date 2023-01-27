@@ -96,12 +96,12 @@ public class CategoryService {
         // 获取公司信息
         TUserGroup group = userGroupRepository.find(id);
         if (null == group) {
-            return RestResult.fail("获取公司信息异常");
+            return RestResult.fail("获取公司信息失败");
         }
 
         List<TCategory> categories = categoryRepository.findByGroup(group.getGid());
         if (null == categories) {
-            return RestResult.fail("获取品类信息异常");
+            return RestResult.fail("获取品类信息失败");
         }
 
         val datas = new ArrayList<HashMap<String, Object>>(); // 结果树

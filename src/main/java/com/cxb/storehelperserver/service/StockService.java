@@ -1,5 +1,7 @@
 package com.cxb.storehelperserver.service;
 
+import com.cxb.storehelperserver.model.TStorage;
+import com.cxb.storehelperserver.model.TUserGroup;
 import com.cxb.storehelperserver.repository.*;
 import com.cxb.storehelperserver.util.RestResult;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +34,23 @@ public class StockService {
     @Resource
     private StockDestroyRepository stockDestroyRepository;
 
+    @Resource
+    private UserGroupRepository userGroupRepository;
+
+    @Resource
+    private StorageRepository storageRepository;
+
     public RestResult getStockCommodity(int id, int sid, int page, int limit, String search) {
+        // 获取公司信息
+        TUserGroup group = userGroupRepository.find(id);
+        if (null == group) {
+            return RestResult.fail("获取公司信息失败");
+        }
+
+        TStorage storage = storageRepository.find(sid);
+        if (null == storage) {
+            return RestResult.fail("获取仓库信息失败");
+        }
         return RestResult.ok();
     }
 

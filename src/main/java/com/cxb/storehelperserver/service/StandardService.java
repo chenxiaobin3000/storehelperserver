@@ -60,7 +60,7 @@ public class StandardService {
         // 检测属性数量是否匹配
         List<TAttributeTemplate> attributeTemplates = attributeTemplateRepository.find(standard.getGid(), CommodityType.STANDARD.getValue());
         if (null == attributeTemplates) {
-            return RestResult.fail("标品属性模板信息异常");
+            return RestResult.fail("标品属性模板信息失败");
         }
         if (null == attributes || attributes.isEmpty() || attributeTemplates.size() != attributes.size()) {
             return RestResult.fail("标品属性数量不匹配");
@@ -94,7 +94,7 @@ public class StandardService {
         // 检测属性数量是否匹配
         List<TAttributeTemplate> attributeTemplates = attributeTemplateRepository.find(standard.getGid(), CommodityType.STANDARD.getValue());
         if (null == attributeTemplates) {
-            return RestResult.fail("标品属性模板信息异常");
+            return RestResult.fail("标品属性模板信息失败");
         }
         if (null == attributes || attributes.isEmpty() || attributeTemplates.size() != attributes.size()) {
             return RestResult.fail("标品属性数量不匹配");
@@ -167,7 +167,7 @@ public class StandardService {
         // 获取公司信息
         TUserGroup group = userGroupRepository.find(id);
         if (null == group) {
-            return RestResult.fail("获取公司信息异常");
+            return RestResult.fail("获取公司信息失败");
         }
 
         int total = standardRepository.total(group.getGid(), search);
@@ -180,7 +180,7 @@ public class StandardService {
 
         val commodities = standardRepository.pagination(group.getGid(), page, limit, search);
         if (null == commodities) {
-            return RestResult.fail("获取标品信息异常");
+            return RestResult.fail("获取标品信息失败");
         }
 
         val datas = new ArrayList<HashMap<String, Object>>();

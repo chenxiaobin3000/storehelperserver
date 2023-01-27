@@ -65,12 +65,12 @@ public class UserService {
         // 验证角色信息
         TUserGroup group = userGroupRepository.find(id);
         if (null == group) {
-            return RestResult.fail("获取公司信息异常");
+            return RestResult.fail("获取公司信息失败");
         }
 
         List<TRole> roles = roleRepository.findByGroup(group.getGid());
         if (null == roles) {
-            return RestResult.fail("获取角色信息异常");
+            return RestResult.fail("获取角色信息失败");
         }
         boolean find = false;
         for (TRole role : roles) {

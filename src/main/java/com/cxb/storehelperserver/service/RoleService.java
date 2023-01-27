@@ -153,11 +153,11 @@ public class RoleService {
 
         TUserRole userRole = userRoleRepository.find(uid);
         if (null == userRole) {
-            return RestResult.fail("用户信息异常");
+            return RestResult.fail("用户信息失败");
         }
         TRole role = roleRepository.find(userRole.getRid());
         if (null == role) {
-            return RestResult.fail("获取角色信息异常");
+            return RestResult.fail("获取角色信息失败");
         }
         return RestResult.ok(role);
     }
@@ -196,12 +196,12 @@ public class RoleService {
         // 获取公司信息
         TUserGroup group = userGroupRepository.find(id);
         if (null == group) {
-            return RestResult.fail("获取公司信息异常");
+            return RestResult.fail("获取公司信息失败");
         }
 
         List<TRole> roles = roleRepository.findByGroup(group.getGid());
         if (null == roles) {
-            return RestResult.fail("获取角色信息异常");
+            return RestResult.fail("获取角色信息失败");
         }
         val data = new HashMap<String, Object>();
         data.put("list", roles);

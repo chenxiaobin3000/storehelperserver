@@ -166,11 +166,11 @@ public class RoleMpService {
 
         TUserRoleMp userRoleMp = userRoleMpRepository.find(uid);
         if (null == userRoleMp) {
-            return RestResult.fail("用户信息异常");
+            return RestResult.fail("用户信息失败");
         }
         TRoleMp role = roleMpRepository.find(userRoleMp.getRid());
         if (null == role) {
-            return RestResult.fail("获取角色信息异常");
+            return RestResult.fail("获取角色信息失败");
         }
         return RestResult.ok(role);
     }
@@ -225,12 +225,12 @@ public class RoleMpService {
         // 获取公司信息
         TUserGroup group = userGroupRepository.find(id);
         if (null == group) {
-            return RestResult.fail("获取公司信息异常");
+            return RestResult.fail("获取公司信息失败");
         }
 
         List<TRoleMp> roles = roleMpRepository.findByGroup(group.getGid());
         if (null == roles) {
-            return RestResult.fail("获取角色信息异常");
+            return RestResult.fail("获取角色信息失败");
         }
         val data = new HashMap<String, Object>();
         data.put("list", roles);

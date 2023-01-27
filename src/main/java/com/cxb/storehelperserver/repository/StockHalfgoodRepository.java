@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -17,34 +18,43 @@ import java.util.List;
  */
 @Slf4j
 @Repository
-public class StockHalfgoodRepository {
+public class StockHalfgoodRepository extends BaseRepository<TStockHalfgood> {
     @Resource
     private TStockHalfgoodMapper stockHalfgoodMapper;
 
     @Resource
     private MyStockHalfgoodMapper myStockHalfgoodMapper;
 
+    public StockHalfgoodRepository() {
+        init("stockH::");
+    }
+
     public TStockHalfgood find(int sid, int id) {
+        TStockHalfgood halfgood = getCache(joinKey(sid, id), TStockHalfgood.class);
+        if (null != halfgood) {
+            return halfgood;
+        }
+
         TStockHalfgoodExample example = new TStockHalfgoodExample();
         example.or().andSidEqualTo(sid).andHidEqualTo(id);
         return stockHalfgoodMapper.selectOneByExample(example);
     }
 
-    public int total(int sid, String search) {
+    public int total(int sid, Date date, String search) {
         if (null != search) {
-            return myStockHalfgoodMapper.countByExample(sid, "%" + search + "%");
+            return myStockHalfgoodMapper.countByExample(sid, date, "%" + search + "%");
         } else {
             TStockHalfgoodExample example = new TStockHalfgoodExample();
-            example.or().andSidEqualTo(sid);
+            example.or().andSidEqualTo(sid).andCdateEqualTo(date);
             return (int) stockHalfgoodMapper.countByExample(example);
         }
     }
 
-    public List<TStockHalfgood> pagination(int sid, int page, int limit, String search) {
+    public List<TStockHalfgood> pagination(int sid, int page, int limit, Date date, String search) {
         if (null != search) {
-            return myStockHalfgoodMapper.selectByExample((page - 1) * limit, limit, sid, "%" + search + "%");
+            return myStockHalfgoodMapper.selectByExample((page - 1) * limit, limit, sid, date, "%" + search + "%");
         } else {
-            return myStockHalfgoodMapper.selectByExample((page - 1) * limit, limit, sid, null);
+            return myStockHalfgoodMapper.selectByExample((page - 1) * limit, limit, sid, date, null);
         }
     }
 
