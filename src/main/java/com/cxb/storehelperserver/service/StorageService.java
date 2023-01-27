@@ -218,6 +218,9 @@ public class StorageService {
         for (Integer reviewer : reviews) {
             userOrderReview.setId(0);
             userOrderReview.setUid(reviewer);
+            if (!userOrderReviewRepository.insert(userOrderReview)) {
+                return RestResult.fail("添加用户订单审核信息失败");
+            }
         }
         return RestResult.ok();
     }
@@ -234,7 +237,13 @@ public class StorageService {
         }
 
         // 已经审核的订单不能修改
-        
+        TStorageOrder storageOrder = storageOrderRepository.find(order.getId());
+        if (null == storageOrder) {
+            return RestResult.fail("未查询到要删除的订单");
+        }
+        if (null != storageOrder.getReview()) {
+            return RestResult.fail("已审核的订单不能修改");
+        }
 
         // 生成进货单
         val comms = new ArrayList<TStorageOrderCommodity>();
@@ -309,6 +318,50 @@ public class StorageService {
         return RestResult.ok();
     }
 
+    public RestResult reviewPurchase(int id, int oid) {
+        // 校验审核人员信息
+        val reviews = userOrderReviewRepository.find(TypeDefine.OrderType.STORAGE_IN_ORDER.getValue(), oid);
+        boolean find = false;
+        for (TUserOrderReview review : reviews) {
+            if (review.getUid().equals(id)) {
+                find = true;
+                break;
+            }
+        }
+        if (!find) {
+            return RestResult.fail("您没有审核权限");
+        }
+
+        // 添加审核信息
+        TStorageOrder storageOrder = storageOrderRepository.find(oid);
+        if (null == storageOrder) {
+            return RestResult.fail("未查询到要审核的订单");
+        }
+        storageOrder.setReview(id);
+        storageOrder.setReviewTime(new Date());
+        if (!storageOrderRepository.update(storageOrder)) {
+            return RestResult.fail("审核用户订单信息失败");
+        }
+
+        // 删除apply和review信息
+        if (!userOrderApplyRepository.delete(TypeDefine.OrderType.STORAGE_IN_ORDER.getValue(), oid)) {
+            return RestResult.fail("删除用户订单信息失败");
+        }
+        if (!userOrderReviewRepository.delete(TypeDefine.OrderType.STORAGE_IN_ORDER.getValue(), oid)) {
+            return RestResult.fail("添加用户订单审核信息失败");
+        }
+        // 插入complete信息
+        TUserOrderComplete complete = new TUserOrderComplete();
+        complete.setUid(id);
+        complete.setOtype(TypeDefine.OrderType.STORAGE_IN_ORDER.getValue());
+        complete.setOid(oid);
+        complete.setBatch(storageOrder.getBatch());
+        if (!userOrderCompleteRepository.insert(complete)) {
+            return RestResult.fail("完成用户订单审核信息失败");
+        }
+        return RestResult.ok();
+    }
+
     /**
      * desc: 原料退货
      */
@@ -357,6 +410,9 @@ public class StorageService {
         for (Integer reviewer : reviews) {
             userOrderReview.setId(0);
             userOrderReview.setUid(reviewer);
+            if (!userOrderReviewRepository.insert(userOrderReview)) {
+                return RestResult.fail("添加用户订单审核信息失败");
+            }
         }
         return RestResult.ok();
     }
@@ -370,6 +426,15 @@ public class StorageService {
         RestResult ret = check(id, order, mp_storage_out_apply, mp_storage_out_review, reviews);
         if (null != ret) {
             return ret;
+        }
+
+        // 已经审核的订单不能修改
+        TStorageOrder storageOrder = storageOrderRepository.find(order.getId());
+        if (null == storageOrder) {
+            return RestResult.fail("未查询到要删除的订单");
+        }
+        if (null != storageOrder.getReview()) {
+            return RestResult.fail("已审核的订单不能修改");
         }
 
         // 生成进货单
@@ -441,6 +506,50 @@ public class StorageService {
         }
         if (!storageOrderRepository.delete(oid)) {
             return RestResult.fail("删除订单失败");
+        }
+        return RestResult.ok();
+    }
+
+    public RestResult reviewReturn(int id, int oid) {
+        // 校验审核人员信息
+        val reviews = userOrderReviewRepository.find(TypeDefine.OrderType.STORAGE_OUT_ORDER.getValue(), oid);
+        boolean find = false;
+        for (TUserOrderReview review : reviews) {
+            if (review.getUid().equals(id)) {
+                find = true;
+                break;
+            }
+        }
+        if (!find) {
+            return RestResult.fail("您没有审核权限");
+        }
+
+        // 添加审核信息
+        TStorageOrder storageOrder = storageOrderRepository.find(oid);
+        if (null == storageOrder) {
+            return RestResult.fail("未查询到要审核的订单");
+        }
+        storageOrder.setReview(id);
+        storageOrder.setReviewTime(new Date());
+        if (!storageOrderRepository.update(storageOrder)) {
+            return RestResult.fail("审核用户订单信息失败");
+        }
+
+        // 删除apply和review信息
+        if (!userOrderApplyRepository.delete(TypeDefine.OrderType.STORAGE_OUT_ORDER.getValue(), oid)) {
+            return RestResult.fail("删除用户订单信息失败");
+        }
+        if (!userOrderReviewRepository.delete(TypeDefine.OrderType.STORAGE_OUT_ORDER.getValue(), oid)) {
+            return RestResult.fail("添加用户订单审核信息失败");
+        }
+        // 插入complete信息
+        TUserOrderComplete complete = new TUserOrderComplete();
+        complete.setUid(id);
+        complete.setOtype(TypeDefine.OrderType.STORAGE_OUT_ORDER.getValue());
+        complete.setOid(oid);
+        complete.setBatch(storageOrder.getBatch());
+        if (!userOrderCompleteRepository.insert(complete)) {
+            return RestResult.fail("完成用户订单审核信息失败");
         }
         return RestResult.ok();
     }

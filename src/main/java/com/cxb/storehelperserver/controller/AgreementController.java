@@ -72,6 +72,11 @@ public class AgreementController {
         return agreementService.delShipped(req.getId(), req.getOid());
     }
 
+    @PostMapping("/reviewShipped")
+    public RestResult reviewShipped(@Validated @RequestBody ReviewShippedValid req) {
+        return agreementService.reviewShipped(req.getId(), req.getOid());
+    }
+
     @PostMapping("/returnc")
     public RestResult returnc(@Validated @RequestBody ReturnValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
@@ -110,5 +115,10 @@ public class AgreementController {
     @PostMapping("/delReturn")
     public RestResult delReturn(@Validated @RequestBody DelReturnValid req) {
         return agreementService.delReturn(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/reviewReturn")
+    public RestResult reviewReturn(@Validated @RequestBody ReviewReturnValid req) {
+        return agreementService.reviewReturn(req.getId(), req.getOid());
     }
 }

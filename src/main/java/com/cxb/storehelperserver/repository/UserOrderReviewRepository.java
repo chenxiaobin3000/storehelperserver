@@ -16,7 +16,7 @@ import java.util.List;
  */
 @Slf4j
 @Repository
-public class UserOrderReviewRepository extends BaseRepository<TUserOrderReview> {
+public class UserOrderReviewRepository extends BaseRepository<List> {
     @Resource
     private TUserOrderReviewMapper userOrderReviewMapper;
 
@@ -24,20 +24,20 @@ public class UserOrderReviewRepository extends BaseRepository<TUserOrderReview> 
         init("userOR::");
     }
 
-    public TUserOrderReview find(int otype, int oid) {
-        TUserOrderReview userOrderReview = getCache(joinKey(otype, oid), TUserOrderReview.class);
-        if (null != userOrderReview) {
-            return userOrderReview;
+    public List<TUserOrderReview> find(int otype, int oid) {
+        List<TUserOrderReview> userOrderReviews = getCache(joinKey(otype, oid), List.class);
+        if (null != userOrderReviews) {
+            return userOrderReviews;
         }
 
         // 缓存没有就查询数据库
         TUserOrderReviewExample example = new TUserOrderReviewExample();
         example.or().andOtypeEqualTo(otype).andOidEqualTo(oid);
-        userOrderReview = userOrderReviewMapper.selectOneByExample(example);
-        if (null != userOrderReview) {
-            setCache(joinKey(otype, oid), userOrderReview);
+        userOrderReviews = userOrderReviewMapper.selectByExample(example);
+        if (null != userOrderReviews) {
+            setCache(joinKey(otype, oid), userOrderReviews);
         }
-        return userOrderReview;
+        return userOrderReviews;
     }
 
     public int total(int uid, String search) {
@@ -64,7 +64,7 @@ public class UserOrderReviewRepository extends BaseRepository<TUserOrderReview> 
 
     public boolean insert(TUserOrderReview row) {
         if (userOrderReviewMapper.insert(row) > 0) {
-            setCache(joinKey(row.getOtype(), row.getOid()), row);
+            delCache(joinKey(row.getOtype(), row.getOid()));
             return true;
         }
         return false;
@@ -72,7 +72,7 @@ public class UserOrderReviewRepository extends BaseRepository<TUserOrderReview> 
 
     public boolean update(TUserOrderReview row) {
         if (userOrderReviewMapper.updateByPrimaryKey(row) > 0) {
-            setCache(joinKey(row.getOtype(), row.getOid()), row);
+            delCache(joinKey(row.getOtype(), row.getOid()));
             return true;
         }
         return false;

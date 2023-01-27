@@ -72,6 +72,11 @@ public class ProductController {
         return productService.delProcess(req.getId(), req.getOid());
     }
 
+    @PostMapping("/reviewProcess")
+    public RestResult reviewProcess(@Validated @RequestBody ReviewProcessValid req) {
+        return productService.reviewProcess(req.getId(), req.getOid());
+    }
+
     @PostMapping("/complete")
     public RestResult complete(@Validated @RequestBody CompleteValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
@@ -110,5 +115,10 @@ public class ProductController {
     @PostMapping("/delComplete")
     public RestResult delComplete(@Validated @RequestBody DelCompleteValid req) {
         return productService.delComplete(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/reviewComplete")
+    public RestResult reviewComplete(@Validated @RequestBody ReviewCompleteValid req) {
+        return productService.reviewComplete(req.getId(), req.getOid());
     }
 }

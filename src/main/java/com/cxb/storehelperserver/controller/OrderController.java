@@ -1,9 +1,6 @@
 package com.cxb.storehelperserver.controller;
 
-import com.cxb.storehelperserver.controller.request.order.GetMyCheckValid;
-import com.cxb.storehelperserver.controller.request.order.GetMyCompleteValid;
-import com.cxb.storehelperserver.controller.request.order.GetMyWaitValid;
-import com.cxb.storehelperserver.controller.request.order.GetStorageOrderValid;
+import com.cxb.storehelperserver.controller.request.order.*;
 import com.cxb.storehelperserver.service.OrderService;
 import com.cxb.storehelperserver.util.RestResult;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +23,16 @@ import javax.annotation.Resource;
 public class OrderController {
     @Resource
     private OrderService orderService;
+
+    @PostMapping("/getAgreementOrder")
+    public RestResult getAgreementOrder(@Validated @RequestBody GetAgreementOrderValid req) {
+        return orderService.getAgreementOrder(req.getId(), req.getPage(), req.getLimit(), req.getSearch());
+    }
+
+    @PostMapping("/getProductOrder")
+    public RestResult getProductOrder(@Validated @RequestBody GetProductOrderValid req) {
+        return orderService.getProductOrder(req.getId(), req.getPage(), req.getLimit(), req.getSearch());
+    }
 
     @PostMapping("/getStorageOrder")
     public RestResult getStorageOrder(@Validated @RequestBody GetStorageOrderValid req) {
