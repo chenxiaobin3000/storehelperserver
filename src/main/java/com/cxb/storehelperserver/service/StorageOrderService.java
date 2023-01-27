@@ -2,7 +2,6 @@ package com.cxb.storehelperserver.service;
 
 import com.cxb.storehelperserver.model.*;
 import com.cxb.storehelperserver.repository.*;
-import com.cxb.storehelperserver.util.RestResult;
 import com.cxb.storehelperserver.util.TypeDefine;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -15,14 +14,14 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * desc: 仓库商品业务
+ * desc: 仓库订单缓存业务
  * auth: cxb
  * date: 2023/1/3
  */
 @Slf4j
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class StorageCacheService extends BaseService<HashMap> {
+public class StorageOrderService extends BaseService<HashMap> {
     @Resource
     private StorageOrderRepository storageOrderRepository;
 
@@ -44,7 +43,7 @@ public class StorageCacheService extends BaseService<HashMap> {
     @Resource
     private StandardRepository standardRepository;
 
-    public StorageCacheService() {
+    public StorageOrderService() {
         init("scserv::");
     }
 

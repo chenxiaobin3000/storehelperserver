@@ -3,7 +3,6 @@ package com.cxb.storehelperserver.controller;
 import com.cxb.storehelperserver.controller.request.product.CompleteValid;
 import com.cxb.storehelperserver.controller.request.product.ProcessValid;
 import com.cxb.storehelperserver.service.ProductService;
-import com.cxb.storehelperserver.service.StorageStockService;
 import com.cxb.storehelperserver.util.RestResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
@@ -26,16 +25,13 @@ public class ProductController {
     @Resource
     private ProductService productService;
 
-    @Resource
-    private StorageStockService storageStockService;
-
     @PostMapping("/process")
     public RestResult process(@Validated @RequestBody ProcessValid req) {
-        return storageStockService.process(req.getId(), req.getGid(), req.getSid(), req.getCommoditys(), req.getValues(), req.getPrices());
+        return productService.process(req.getId(), req.getGid(), req.getSid(), req.getCommoditys(), req.getValues(), req.getPrices());
     }
 
     @PostMapping("/complete")
     public RestResult complete(@Validated @RequestBody CompleteValid req) {
-        return storageStockService.complete(req.getId(), req.getGid(), req.getSid(), req.getCommoditys(), req.getValues(), req.getPrices());
+        return productService.complete(req.getId(), req.getGid(), req.getSid(), req.getCommoditys(), req.getValues(), req.getPrices());
     }
 }

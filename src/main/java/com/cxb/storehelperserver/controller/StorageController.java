@@ -4,7 +4,6 @@ import com.cxb.storehelperserver.controller.request.storage.*;
 import com.cxb.storehelperserver.model.TStorage;
 import com.cxb.storehelperserver.model.TStorageOrder;
 import com.cxb.storehelperserver.service.StorageService;
-import com.cxb.storehelperserver.service.StorageStockService;
 import com.cxb.storehelperserver.util.DateUtil;
 import com.cxb.storehelperserver.util.RestResult;
 import lombok.extern.slf4j.Slf4j;
@@ -32,9 +31,6 @@ import static com.cxb.storehelperserver.util.TypeDefine.OrderInOutType;
 public class StorageController {
     @Resource
     private StorageService storageService;
-
-    @Resource
-    private StorageStockService storageStockService;
 
     @Resource
     private DateUtil dateUtil;
@@ -86,8 +82,7 @@ public class StorageController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换错误");
         }
-        return storageStockService.purchase(req.getId(), order, req.getTypes(),
-                req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
+        return storageService.purchase(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
     }
 
     @PostMapping("/setPurchase")
@@ -105,12 +100,11 @@ public class StorageController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换错误");
         }
-        return storageStockService.setPurchase(req.getId(), order, req.getTypes(),
-                req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
+        return storageService.setPurchase(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
     }
 
     @PostMapping("/delPurchase")
     public RestResult delPurchase(@Validated @RequestBody DelPurchaseValid req) {
-        return storageStockService.delPurchase(req.getId(), req.getOid());
+        return storageService.delPurchase(req.getId(), req.getOid());
     }
 }

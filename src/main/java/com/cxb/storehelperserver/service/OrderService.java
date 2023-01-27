@@ -29,7 +29,7 @@ public class OrderService {
     private CheckService checkService;
 
     @Resource
-    private StorageCacheService storageCacheService;
+    private StorageOrderService storageOrderService;
 
     @Resource
     private StorageOrderRepository storageOrderRepository;
@@ -129,8 +129,80 @@ public class OrderService {
         return RestResult.ok(data);
     }
 
+    public RestResult getMyCheck(int id, int page, int limit, String search) {
+        int total = userOrderReviewRepository.total(id, search);
+        if (0 == total) {
+            val data = new HashMap<String, Object>();
+            data.put("total", 0);
+            data.put("list", null);
+            return RestResult.ok(data);
+        }
+
+        // 查询联系人
+        SimpleDateFormat dateFormat = dateUtil.getDateFormat();
+        val list2 = new ArrayList<>();
+        val list = userOrderReviewRepository.pagination(id, page, limit, search);
+        if (null != list && !list.isEmpty()) {
+            for (TUserOrderReview or : list) {
+                switch (OrderType.valueOf(or.getOtype())) {
+                    case STORAGE_IN_ORDER:
+                        TStorageOrder o = storageOrderRepository.find(or.getOid());
+                        list2.add(createOrder(OrderType.STORAGE_IN_ORDER, o.getId(), o.getBatch(), o.getSid(), o.getValue(),
+                                o.getApply(), dateFormat.format(o.getApplyTime()),
+                                o.getReview(), null == o.getReview() ? null : dateFormat.format(o.getReviewTime())));
+                        break;
+                    case PRODUCT_IN_ORDER:
+                        break;
+                    case AGREEMENT_IN_ORDER:
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        val data = new HashMap<String, Object>();
+        data.put("total", total);
+        data.put("list", list2);
+        return RestResult.ok(data);
+    }
+
     public RestResult getMyComplete(int id, int page, int limit, String search) {
-        return RestResult.ok();
+        int total = userOrderApplyRepository.total(id, search);
+        if (0 == total) {
+            val data = new HashMap<String, Object>();
+            data.put("total", 0);
+            data.put("list", null);
+            return RestResult.ok(data);
+        }
+
+        // 查询联系人
+        SimpleDateFormat dateFormat = dateUtil.getDateFormat();
+        val list2 = new ArrayList<>();
+        val list = userOrderApplyRepository.pagination(id, page, limit, search);
+        if (null != list && !list.isEmpty()) {
+            for (TUserOrderApply oa : list) {
+                switch (OrderType.valueOf(oa.getOtype())) {
+                    case STORAGE_IN_ORDER:
+                        TStorageOrder o = storageOrderRepository.find(oa.getOid());
+                        list2.add(createOrder(OrderType.STORAGE_IN_ORDER, o.getId(), o.getBatch(), o.getSid(), o.getValue(),
+                                o.getApply(), dateFormat.format(o.getApplyTime()),
+                                o.getReview(), null == o.getReview() ? null : dateFormat.format(o.getReviewTime())));
+                        break;
+                    case PRODUCT_IN_ORDER:
+                        break;
+                    case AGREEMENT_IN_ORDER:
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        val data = new HashMap<String, Object>();
+        data.put("total", total);
+        data.put("list", list2);
+        return RestResult.ok(data);
     }
 
     private HashMap<String, Object> createOrder(OrderType type, int id, String batch, int sid, int value,
@@ -163,7 +235,7 @@ public class OrderService {
             ret.put("reviewTime", reviewTime);
         }
 
-        HashMap<String, Object> datas = storageCacheService.find(id);
+        HashMap<String, Object> datas = storageOrderService.find(id);
         if (null != datas) {
             ret.put("comms", datas.get("comms"));
             ret.put("attrs", datas.get("attrs"));

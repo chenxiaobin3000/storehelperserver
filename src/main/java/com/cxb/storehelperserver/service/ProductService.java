@@ -20,4 +20,18 @@ import java.util.List;
 public class ProductService {
     @Resource
     private CheckService checkService;
+
+    /*
+     * desc: 生产开始
+     */
+    public RestResult process(int id, int gid, int sid, List<Integer> commoditys, List<Integer> values, List<String> prices) {
+        return RestResult.ok();
+    }
+
+    /*
+     * desc: 生产完成
+     */
+    public RestResult complete(int id, int gid, int sid, List<Integer> commoditys, List<Integer> values, List<String> prices) {
+        return RestResult.ok();
+    }
 }

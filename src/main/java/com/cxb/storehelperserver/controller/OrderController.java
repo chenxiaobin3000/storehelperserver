@@ -1,5 +1,6 @@
 package com.cxb.storehelperserver.controller;
 
+import com.cxb.storehelperserver.controller.request.order.GetMyCheckValid;
 import com.cxb.storehelperserver.controller.request.order.GetMyCompleteValid;
 import com.cxb.storehelperserver.controller.request.order.GetMyWaitValid;
 import com.cxb.storehelperserver.controller.request.order.GetStorageOrderValid;
@@ -34,6 +35,11 @@ public class OrderController {
     @PostMapping("/getMyWait")
     public RestResult getMyWait(@Validated @RequestBody GetMyWaitValid req) {
         return orderService.getMyWait(req.getId(), req.getPage(), req.getLimit(), req.getSearch());
+    }
+
+    @PostMapping("/getMyCheck")
+    public RestResult getMyCheck(@Validated @RequestBody GetMyCheckValid req) {
+        return orderService.getMyCheck(req.getId(), req.getPage(), req.getLimit(), req.getSearch());
     }
 
     @PostMapping("/getMyComplete")
