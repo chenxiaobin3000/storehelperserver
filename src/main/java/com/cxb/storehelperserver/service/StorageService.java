@@ -37,6 +37,12 @@ public class StorageService {
     private StorageRepository storageRepository;
 
     @Resource
+    private AgreementOrderRepository agreementOrderRepository;
+
+    @Resource
+    private ProductOrderRepository productOrderRepository;
+
+    @Resource
     private StorageOrderRepository storageOrderRepository;
 
     @Resource
@@ -126,7 +132,16 @@ public class StorageService {
             return RestResult.fail(msg);
         }
 
-        // TODO 检验是否存在库存商品、原料、废料、标品
+        // 检验是否存在各种订单
+        if (agreementOrderRepository.check(sid)) {
+            return RestResult.fail("仓库还存在履约订单");
+        }
+        if (productOrderRepository.check(sid)) {
+            return RestResult.fail("仓库还存在生产订单");
+        }
+        if (storageOrderRepository.check(sid)) {
+            return RestResult.fail("仓库还存在库存订单");
+        }
 
         if (!storageRepository.delete(sid)) {
             return RestResult.fail("删除仓库信息失败");

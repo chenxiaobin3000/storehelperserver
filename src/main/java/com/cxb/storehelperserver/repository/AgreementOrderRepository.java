@@ -69,6 +69,12 @@ public class AgreementOrderRepository extends BaseRepository<TAgreementOrder> {
         return agreementOrderMapper.selectByExample(example);
     }
 
+    public boolean check(int sid) {
+        TAgreementOrderExample example = new TAgreementOrderExample();
+        example.or().andSidEqualTo(sid);
+        return null != agreementOrderMapper.selectOneByExample(example);
+    }
+
     public boolean insert(TAgreementOrder row) {
         if (agreementOrderMapper.insert(row) > 0) {
             setCache(row.getId(), row);
