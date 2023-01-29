@@ -24,7 +24,7 @@ import java.text.SimpleDateFormat;
  */
 @Slf4j
 @RestController
-@RequestMapping("/api/agree")
+@RequestMapping("/api/agreement")
 public class AgreementController {
     @Resource
     private AgreementService agreementService;

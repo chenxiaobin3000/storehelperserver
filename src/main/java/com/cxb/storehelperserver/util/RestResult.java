@@ -56,48 +56,11 @@ public class RestResult {
     /**
      * desc: 失败
      */
-    public static RestResult fail(String msg, HashMap<String, Object> data) {
-        RestResult ret = new RestResult();
-        ret.code = -1;
-        ret.msg = msg;
-        ret.data = data;
-        return ret;
-    }
-
-    /**
-     * desc: 失败
-     */
-    public static RestResult fail(String msg, Object data) {
-        ObjectMapper mapper = new ObjectMapper();
-        HashMap<String, Object> map = mapper.convertValue(data, HashMap.class);
-        RestResult ret = new RestResult();
-        ret.code = -1;
-        ret.msg = msg;
-        ret.data = map;
-        return ret;
-    }
-
-    /**
-     * desc: 失败
-     */
-    public static RestResult fail(int code, String msg, HashMap<String, Object> data) {
+    public static RestResult fail(int code, String msg) {
         RestResult ret = new RestResult();
         ret.code = code;
         ret.msg = msg;
-        ret.data = data;
-        return ret;
-    }
-
-    /**
-     * desc: 失败
-     */
-    public static RestResult fail(int code, String msg, Object data) {
-        ObjectMapper mapper = new ObjectMapper();
-        HashMap<String, Object> map = mapper.convertValue(data, HashMap.class);
-        RestResult ret = new RestResult();
-        ret.code = code;
-        ret.msg = msg;
-        ret.data = map;
+        ret.data = null;
         return ret;
     }
 }

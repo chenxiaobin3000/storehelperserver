@@ -189,11 +189,8 @@ public class ProductService {
             Calendar calendar = new GregorianCalendar();
             calendar.setTime(productOrder.getApplyTime());
             calendar.add(Calendar.DATE, -1);
-
-            if (!stockService.delStock(TypeDefine.CommodityType.valueOf(c.getCtype()),
-                    productOrder.getSid(), c.getCid(), calendar.getTime())) {
-                return RestResult.fail("删除关联商品库存失败");
-            }
+            stockService.delStock(TypeDefine.CommodityType.valueOf(c.getCtype()),
+                    productOrder.getSid(), c.getCid(), calendar.getTime());
         }
         if (!productOrderCommodityRepository.delete(oid)) {
             return RestResult.fail("删除关联商品失败");
@@ -202,14 +199,17 @@ public class ProductService {
             return RestResult.fail("删除关联商品附件失败");
         }
 
-        if (!userOrderApplyRepository.delete(TypeDefine.OrderType.PRODUCT_OUT_ORDER.getValue(), oid)) {
-            return RestResult.fail("删除订单申请人失败");
-        }
-        if (!userOrderReviewRepository.delete(TypeDefine.OrderType.PRODUCT_OUT_ORDER.getValue(), oid)) {
-            return RestResult.fail("删除订单审核人失败");
-        }
-        if (!userOrderCompleteRepository.delete(TypeDefine.OrderType.PRODUCT_IN_ORDER.getValue(), oid)) {
-            return RestResult.fail("删除完成订单失败");
+        if (null == review) {
+            if (!userOrderApplyRepository.delete(TypeDefine.OrderType.PRODUCT_OUT_ORDER.getValue(), oid)) {
+                return RestResult.fail("删除订单申请人失败");
+            }
+            if (!userOrderReviewRepository.delete(TypeDefine.OrderType.PRODUCT_OUT_ORDER.getValue(), oid)) {
+                return RestResult.fail("删除订单审核人失败");
+            }
+        } else {
+            if (!userOrderCompleteRepository.delete(TypeDefine.OrderType.PRODUCT_IN_ORDER.getValue(), oid)) {
+                return RestResult.fail("删除完成订单失败");
+            }
         }
         if (!productOrderRepository.delete(oid)) {
             return RestResult.fail("删除订单失败");
@@ -381,11 +381,8 @@ public class ProductService {
             Calendar calendar = new GregorianCalendar();
             calendar.setTime(productOrder.getApplyTime());
             calendar.add(Calendar.DATE, -1);
-
-            if (!stockService.delStock(TypeDefine.CommodityType.valueOf(c.getCtype()),
-                    productOrder.getSid(), c.getCid(), calendar.getTime())) {
-                return RestResult.fail("删除关联商品库存失败");
-            }
+            stockService.delStock(TypeDefine.CommodityType.valueOf(c.getCtype()),
+                    productOrder.getSid(), c.getCid(), calendar.getTime());
         }
         if (!productOrderCommodityRepository.delete(oid)) {
             return RestResult.fail("删除关联商品失败");
@@ -394,14 +391,17 @@ public class ProductService {
             return RestResult.fail("删除关联商品附件失败");
         }
 
-        if (!userOrderApplyRepository.delete(TypeDefine.OrderType.PRODUCT_IN_ORDER.getValue(), oid)) {
-            return RestResult.fail("删除订单申请人失败");
-        }
-        if (!userOrderReviewRepository.delete(TypeDefine.OrderType.PRODUCT_IN_ORDER.getValue(), oid)) {
-            return RestResult.fail("删除订单审核人失败");
-        }
-        if (!userOrderCompleteRepository.delete(TypeDefine.OrderType.PRODUCT_IN_ORDER.getValue(), oid)) {
-            return RestResult.fail("删除完成订单失败");
+        if (null == review) {
+            if (!userOrderApplyRepository.delete(TypeDefine.OrderType.PRODUCT_IN_ORDER.getValue(), oid)) {
+                return RestResult.fail("删除订单申请人失败");
+            }
+            if (!userOrderReviewRepository.delete(TypeDefine.OrderType.PRODUCT_IN_ORDER.getValue(), oid)) {
+                return RestResult.fail("删除订单审核人失败");
+            }
+        } else {
+            if (!userOrderCompleteRepository.delete(TypeDefine.OrderType.PRODUCT_IN_ORDER.getValue(), oid)) {
+                return RestResult.fail("删除完成订单失败");
+            }
         }
         if (!productOrderRepository.delete(oid)) {
             return RestResult.fail("删除订单失败");

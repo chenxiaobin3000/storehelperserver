@@ -189,11 +189,8 @@ public class AgreementService {
             Calendar calendar = new GregorianCalendar();
             calendar.setTime(agreementOrder.getApplyTime());
             calendar.add(Calendar.DATE, -1);
-
-            if (!stockService.delStock(TypeDefine.CommodityType.valueOf(c.getCtype()),
-                    agreementOrder.getSid(), c.getCid(), calendar.getTime())) {
-                return RestResult.fail("删除关联商品库存失败");
-            }
+            stockService.delStock(TypeDefine.CommodityType.valueOf(c.getCtype()),
+                    agreementOrder.getSid(), c.getCid(), calendar.getTime());
         }
         if (!agreementOrderCommodityRepository.delete(oid)) {
             return RestResult.fail("删除关联商品失败");
@@ -202,14 +199,17 @@ public class AgreementService {
             return RestResult.fail("删除关联商品附件失败");
         }
 
-        if (!userOrderApplyRepository.delete(TypeDefine.OrderType.AGREEMENT_OUT_ORDER.getValue(), oid)) {
-            return RestResult.fail("删除订单申请人失败");
-        }
-        if (!userOrderReviewRepository.delete(TypeDefine.OrderType.AGREEMENT_OUT_ORDER.getValue(), oid)) {
-            return RestResult.fail("删除订单审核人失败");
-        }
-        if (!userOrderCompleteRepository.delete(TypeDefine.OrderType.AGREEMENT_IN_ORDER.getValue(), oid)) {
-            return RestResult.fail("删除完成订单失败");
+        if (null == review) {
+            if (!userOrderApplyRepository.delete(TypeDefine.OrderType.AGREEMENT_OUT_ORDER.getValue(), oid)) {
+                return RestResult.fail("删除订单申请人失败");
+            }
+            if (!userOrderReviewRepository.delete(TypeDefine.OrderType.AGREEMENT_OUT_ORDER.getValue(), oid)) {
+                return RestResult.fail("删除订单审核人失败");
+            }
+        } else {
+            if (!userOrderCompleteRepository.delete(TypeDefine.OrderType.AGREEMENT_IN_ORDER.getValue(), oid)) {
+                return RestResult.fail("删除完成订单失败");
+            }
         }
         if (!agreementOrderRepository.delete(oid)) {
             return RestResult.fail("删除订单失败");
@@ -381,11 +381,8 @@ public class AgreementService {
             Calendar calendar = new GregorianCalendar();
             calendar.setTime(agreementOrder.getApplyTime());
             calendar.add(Calendar.DATE, -1);
-
-            if (!stockService.delStock(TypeDefine.CommodityType.valueOf(c.getCtype()),
-                    agreementOrder.getSid(), c.getCid(), calendar.getTime())) {
-                return RestResult.fail("删除关联商品库存失败");
-            }
+            stockService.delStock(TypeDefine.CommodityType.valueOf(c.getCtype()),
+                    agreementOrder.getSid(), c.getCid(), calendar.getTime());
         }
         if (!agreementOrderCommodityRepository.delete(oid)) {
             return RestResult.fail("删除关联商品失败");
@@ -394,14 +391,17 @@ public class AgreementService {
             return RestResult.fail("删除关联商品附件失败");
         }
 
-        if (!userOrderApplyRepository.delete(TypeDefine.OrderType.AGREEMENT_IN_ORDER.getValue(), oid)) {
-            return RestResult.fail("删除订单申请人失败");
-        }
-        if (!userOrderReviewRepository.delete(TypeDefine.OrderType.AGREEMENT_IN_ORDER.getValue(), oid)) {
-            return RestResult.fail("删除订单审核人失败");
-        }
-        if (!userOrderCompleteRepository.delete(TypeDefine.OrderType.AGREEMENT_IN_ORDER.getValue(), oid)) {
-            return RestResult.fail("删除完成订单失败");
+        if (null == review) {
+            if (!userOrderApplyRepository.delete(TypeDefine.OrderType.AGREEMENT_IN_ORDER.getValue(), oid)) {
+                return RestResult.fail("删除订单申请人失败");
+            }
+            if (!userOrderReviewRepository.delete(TypeDefine.OrderType.AGREEMENT_IN_ORDER.getValue(), oid)) {
+                return RestResult.fail("删除订单审核人失败");
+            }
+        } else {
+            if (!userOrderCompleteRepository.delete(TypeDefine.OrderType.AGREEMENT_IN_ORDER.getValue(), oid)) {
+                return RestResult.fail("删除完成订单失败");
+            }
         }
         if (!agreementOrderRepository.delete(oid)) {
             return RestResult.fail("删除订单失败");

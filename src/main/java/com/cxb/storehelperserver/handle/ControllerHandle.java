@@ -106,11 +106,12 @@ public class ControllerHandle {
                 log.info("--->" + url + ":" + objectMapper.writeValueAsString(obj[0]));
             } catch (JsonProcessingException e) {
                 log.warn("--->" + url + ":{json error}");
+                return RestResult.fail(-2, "传入参数异常");
             }
 
             // 直接返回
-            log.info("<---" + url + ":{\"code\":-1,\"msg\":\"无效token\",\"data\":{}}");
-            return RestResult.fail("无效token");
+            log.info("<---" + url + ":{\"code\":-1,\"msg\":\"账号登陆信息已过期\",\"data\":{}}");
+            return RestResult.fail(-3, "账号登陆信息已过期，请重新登陆");
         }
     }
 }

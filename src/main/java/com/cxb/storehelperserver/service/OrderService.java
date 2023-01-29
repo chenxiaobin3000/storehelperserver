@@ -205,7 +205,7 @@ public class OrderService {
                         val ret = createOrder(OrderType.STORAGE_IN_ORDER, o.getId(), o.getBatch(), o.getSid(), o.getValue(),
                                 o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(),
                                 null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));
-                        HashMap<String, Object> datas = storageOrderService.find(id);
+                        HashMap<String, Object> datas = storageOrderService.find(o.getId());
                         if (null != datas) {
                             ret.put("comms", datas.get("comms"));
                             ret.put("attrs", datas.get("attrs"));
@@ -218,7 +218,7 @@ public class OrderService {
                         val ret = createOrder(OrderType.STORAGE_OUT_ORDER, o.getId(), o.getBatch(), o.getSid(), o.getValue(),
                                 o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(),
                                 null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));
-                        HashMap<String, Object> datas = storageOrderService.find(id);
+                        HashMap<String, Object> datas = storageOrderService.find(o.getId());
                         if (null != datas) {
                             ret.put("comms", datas.get("comms"));
                             ret.put("attrs", datas.get("attrs"));
@@ -231,7 +231,7 @@ public class OrderService {
                         val ret = createOrder(OrderType.PRODUCT_IN_ORDER, o.getId(), o.getBatch(), o.getSid(), o.getValue(),
                                 o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(),
                                 null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));
-                        HashMap<String, Object> datas = productOrderService.find(id);
+                        HashMap<String, Object> datas = productOrderService.find(o.getId());
                         if (null != datas) {
                             ret.put("comms", datas.get("comms"));
                             ret.put("attrs", datas.get("attrs"));
@@ -244,7 +244,7 @@ public class OrderService {
                         val ret = createOrder(OrderType.PRODUCT_OUT_ORDER, o.getId(), o.getBatch(), o.getSid(), o.getValue(),
                                 o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(),
                                 null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));
-                        HashMap<String, Object> datas = productOrderService.find(id);
+                        HashMap<String, Object> datas = productOrderService.find(o.getId());
                         if (null != datas) {
                             ret.put("comms", datas.get("comms"));
                             ret.put("attrs", datas.get("attrs"));
@@ -257,7 +257,7 @@ public class OrderService {
                         val ret = createOrder(OrderType.AGREEMENT_IN_ORDER, o.getId(), o.getBatch(), o.getSid(), o.getValue(),
                                 o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(),
                                 null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));
-                        HashMap<String, Object> datas = agreementOrderService.find(id);
+                        HashMap<String, Object> datas = agreementOrderService.find(o.getId());
                         if (null != datas) {
                             ret.put("comms", datas.get("comms"));
                             ret.put("attrs", datas.get("attrs"));
@@ -270,7 +270,7 @@ public class OrderService {
                         val ret = createOrder(OrderType.AGREEMENT_OUT_ORDER, o.getId(), o.getBatch(), o.getSid(), o.getValue(),
                                 o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(),
                                 null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));
-                        HashMap<String, Object> datas = agreementOrderService.find(id);
+                        HashMap<String, Object> datas = agreementOrderService.find(o.getId());
                         if (null != datas) {
                             ret.put("comms", datas.get("comms"));
                             ret.put("attrs", datas.get("attrs"));
@@ -311,7 +311,7 @@ public class OrderService {
                         val ret = createOrder(OrderType.STORAGE_IN_ORDER, o.getId(), o.getBatch(), o.getSid(), o.getValue(),
                                 o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(),
                                 null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));
-                        HashMap<String, Object> datas = storageOrderService.find(id);
+                        HashMap<String, Object> datas = storageOrderService.find(o.getId());
                         if (null != datas) {
                             ret.put("comms", datas.get("comms"));
                             ret.put("attrs", datas.get("attrs"));
@@ -324,7 +324,7 @@ public class OrderService {
                         val ret = createOrder(OrderType.STORAGE_OUT_ORDER, o.getId(), o.getBatch(), o.getSid(), o.getValue(),
                                 o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(),
                                 null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));
-                        HashMap<String, Object> datas = storageOrderService.find(id);
+                        HashMap<String, Object> datas = storageOrderService.find(o.getId());
                         if (null != datas) {
                             ret.put("comms", datas.get("comms"));
                             ret.put("attrs", datas.get("attrs"));
@@ -337,7 +337,7 @@ public class OrderService {
                         val ret = createOrder(OrderType.PRODUCT_IN_ORDER, o.getId(), o.getBatch(), o.getSid(), o.getValue(),
                                 o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(),
                                 null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));
-                        HashMap<String, Object> datas = productOrderService.find(id);
+                        HashMap<String, Object> datas = productOrderService.find(o.getId());
                         if (null != datas) {
                             ret.put("comms", datas.get("comms"));
                             ret.put("attrs", datas.get("attrs"));
@@ -350,7 +350,7 @@ public class OrderService {
                         val ret = createOrder(OrderType.PRODUCT_OUT_ORDER, o.getId(), o.getBatch(), o.getSid(), o.getValue(),
                                 o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(),
                                 null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));
-                        HashMap<String, Object> datas = productOrderService.find(id);
+                        HashMap<String, Object> datas = productOrderService.find(o.getId());
                         if (null != datas) {
                             ret.put("comms", datas.get("comms"));
                             ret.put("attrs", datas.get("attrs"));
@@ -363,7 +363,7 @@ public class OrderService {
                         val ret = createOrder(OrderType.AGREEMENT_IN_ORDER, o.getId(), o.getBatch(), o.getSid(), o.getValue(),
                                 o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(),
                                 null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));
-                        HashMap<String, Object> datas = agreementOrderService.find(id);
+                        HashMap<String, Object> datas = agreementOrderService.find(o.getId());
                         if (null != datas) {
                             ret.put("comms", datas.get("comms"));
                             ret.put("attrs", datas.get("attrs"));
@@ -376,7 +376,7 @@ public class OrderService {
                         val ret = createOrder(OrderType.AGREEMENT_OUT_ORDER, o.getId(), o.getBatch(), o.getSid(), o.getValue(),
                                 o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(),
                                 null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));
-                        HashMap<String, Object> datas = agreementOrderService.find(id);
+                        HashMap<String, Object> datas = agreementOrderService.find(o.getId());
                         if (null != datas) {
                             ret.put("comms", datas.get("comms"));
                             ret.put("attrs", datas.get("attrs"));
@@ -417,7 +417,7 @@ public class OrderService {
                         val ret = createOrder(OrderType.STORAGE_IN_ORDER, o.getId(), o.getBatch(), o.getSid(), o.getValue(),
                                 o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(),
                                 null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));
-                        HashMap<String, Object> datas = storageOrderService.find(id);
+                        HashMap<String, Object> datas = storageOrderService.find(o.getId());
                         if (null != datas) {
                             ret.put("comms", datas.get("comms"));
                             ret.put("attrs", datas.get("attrs"));
@@ -430,7 +430,7 @@ public class OrderService {
                         val ret = createOrder(OrderType.STORAGE_OUT_ORDER, o.getId(), o.getBatch(), o.getSid(), o.getValue(),
                                 o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(),
                                 null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));
-                        HashMap<String, Object> datas = storageOrderService.find(id);
+                        HashMap<String, Object> datas = storageOrderService.find(o.getId());
                         if (null != datas) {
                             ret.put("comms", datas.get("comms"));
                             ret.put("attrs", datas.get("attrs"));
@@ -443,7 +443,7 @@ public class OrderService {
                         val ret = createOrder(OrderType.PRODUCT_IN_ORDER, o.getId(), o.getBatch(), o.getSid(), o.getValue(),
                                 o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(),
                                 null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));
-                        HashMap<String, Object> datas = productOrderService.find(id);
+                        HashMap<String, Object> datas = productOrderService.find(o.getId());
                         if (null != datas) {
                             ret.put("comms", datas.get("comms"));
                             ret.put("attrs", datas.get("attrs"));
@@ -456,7 +456,7 @@ public class OrderService {
                         val ret = createOrder(OrderType.PRODUCT_OUT_ORDER, o.getId(), o.getBatch(), o.getSid(), o.getValue(),
                                 o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(),
                                 null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));
-                        HashMap<String, Object> datas = productOrderService.find(id);
+                        HashMap<String, Object> datas = productOrderService.find(o.getId());
                         if (null != datas) {
                             ret.put("comms", datas.get("comms"));
                             ret.put("attrs", datas.get("attrs"));
@@ -469,7 +469,7 @@ public class OrderService {
                         val ret = createOrder(OrderType.AGREEMENT_IN_ORDER, o.getId(), o.getBatch(), o.getSid(), o.getValue(),
                                 o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(),
                                 null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));
-                        HashMap<String, Object> datas = agreementOrderService.find(id);
+                        HashMap<String, Object> datas = agreementOrderService.find(o.getId());
                         if (null != datas) {
                             ret.put("comms", datas.get("comms"));
                             ret.put("attrs", datas.get("attrs"));
@@ -482,7 +482,7 @@ public class OrderService {
                         val ret = createOrder(OrderType.AGREEMENT_OUT_ORDER, o.getId(), o.getBatch(), o.getSid(), o.getValue(),
                                 o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(),
                                 null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));
-                        HashMap<String, Object> datas = agreementOrderService.find(id);
+                        HashMap<String, Object> datas = agreementOrderService.find(o.getId());
                         if (null != datas) {
                             ret.put("comms", datas.get("comms"));
                             ret.put("attrs", datas.get("attrs"));

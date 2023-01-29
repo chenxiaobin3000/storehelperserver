@@ -59,6 +59,7 @@ public class UserOrderReviewRepository extends BaseRepository<List> {
         }
         example.setOffset((page - 1) * limit);
         example.setLimit(limit);
+        example.setOrderByClause("ctime desc");
         return userOrderReviewMapper.selectByExample(example);
     }
 
