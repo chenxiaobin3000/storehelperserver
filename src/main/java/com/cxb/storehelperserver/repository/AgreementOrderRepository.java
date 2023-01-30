@@ -3,6 +3,7 @@ package com.cxb.storehelperserver.repository;
 import com.cxb.storehelperserver.mapper.TAgreementOrderMapper;
 import com.cxb.storehelperserver.model.TAgreementOrder;
 import com.cxb.storehelperserver.model.TAgreementOrderExample;
+import com.cxb.storehelperserver.repository.mapper.MyOrderMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
@@ -19,6 +20,9 @@ import java.util.List;
 public class AgreementOrderRepository extends BaseRepository<TAgreementOrder> {
     @Resource
     private TAgreementOrderMapper agreementOrderMapper;
+
+    @Resource
+    private MyOrderMapper myOrderMapper;
 
     public AgreementOrderRepository() {
         init("aOrder::");
@@ -94,5 +98,10 @@ public class AgreementOrderRepository extends BaseRepository<TAgreementOrder> {
     public boolean delete(int id) {
         delCache(id);
         return agreementOrderMapper.deleteByPrimaryKey(id) > 0;
+    }
+
+    public boolean setReviewNull(int id) {
+        delCache(id);
+        return myOrderMapper.setAgreementReviewNull(id) > 0;
     }
 }

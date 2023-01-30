@@ -113,6 +113,11 @@ public class StorageController {
         return storageService.reviewPurchase(req.getId(), req.getOid());
     }
 
+    @PostMapping("/revokePurchase")
+    public RestResult revokePurchase(@Validated @RequestBody RevokePurchaseValid req) {
+        return storageService.revokePurchase(req.getId(), req.getOid());
+    }
+
     @PostMapping("/returnc")
     public RestResult returnc(@Validated @RequestBody ReturnValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
@@ -156,5 +161,10 @@ public class StorageController {
     @PostMapping("/reviewReturn")
     public RestResult reviewReturn(@Validated @RequestBody ReviewReturnValid req) {
         return storageService.reviewReturn(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/revokeReturn")
+    public RestResult revokeReturn(@Validated @RequestBody RevokeReturnValid req) {
+        return storageService.revokeReturn(req.getId(), req.getOid());
     }
 }

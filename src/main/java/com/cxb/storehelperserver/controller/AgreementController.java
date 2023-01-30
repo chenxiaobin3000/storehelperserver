@@ -77,6 +77,11 @@ public class AgreementController {
         return agreementService.reviewShipped(req.getId(), req.getOid());
     }
 
+    @PostMapping("/revokeShipped")
+    public RestResult revokeShipped(@Validated @RequestBody RevokeShippedValid req) {
+        return agreementService.revokeShipped(req.getId(), req.getOid());
+    }
+
     @PostMapping("/returnc")
     public RestResult returnc(@Validated @RequestBody ReturnValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
@@ -120,5 +125,10 @@ public class AgreementController {
     @PostMapping("/reviewReturn")
     public RestResult reviewReturn(@Validated @RequestBody ReviewReturnValid req) {
         return agreementService.reviewReturn(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/revokeReturn")
+    public RestResult revokeReturn(@Validated @RequestBody RevokeReturnValid req) {
+        return agreementService.revokeReturn(req.getId(), req.getOid());
     }
 }

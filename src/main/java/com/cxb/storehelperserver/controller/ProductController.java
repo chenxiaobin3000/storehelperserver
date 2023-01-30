@@ -77,6 +77,11 @@ public class ProductController {
         return productService.reviewProcess(req.getId(), req.getOid());
     }
 
+    @PostMapping("/revokeProcess")
+    public RestResult revokeProcess(@Validated @RequestBody RevokeProcessValid req) {
+        return productService.revokeProcess(req.getId(), req.getOid());
+    }
+
     @PostMapping("/complete")
     public RestResult complete(@Validated @RequestBody CompleteValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
@@ -120,5 +125,10 @@ public class ProductController {
     @PostMapping("/reviewComplete")
     public RestResult reviewComplete(@Validated @RequestBody ReviewCompleteValid req) {
         return productService.reviewComplete(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/revokeComplete")
+    public RestResult revokeComplete(@Validated @RequestBody RevokeCompleteValid req) {
+        return productService.revokeComplete(req.getId(), req.getOid());
     }
 }

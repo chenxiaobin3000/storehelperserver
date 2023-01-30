@@ -3,6 +3,7 @@ package com.cxb.storehelperserver.repository;
 import com.cxb.storehelperserver.mapper.TStorageOrderMapper;
 import com.cxb.storehelperserver.model.TStorageOrder;
 import com.cxb.storehelperserver.model.TStorageOrderExample;
+import com.cxb.storehelperserver.repository.mapper.MyOrderMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
@@ -19,6 +20,9 @@ import java.util.List;
 public class StorageOrderRepository extends BaseRepository<TStorageOrder> {
     @Resource
     private TStorageOrderMapper storageOrderMapper;
+
+    @Resource
+    private MyOrderMapper myOrderMapper;
 
     public StorageOrderRepository() {
         init("sOrder::");
@@ -94,5 +98,10 @@ public class StorageOrderRepository extends BaseRepository<TStorageOrder> {
     public boolean delete(int id) {
         delCache(id);
         return storageOrderMapper.deleteByPrimaryKey(id) > 0;
+    }
+
+    public boolean setReviewNull(int id) {
+        delCache(id);
+        return myOrderMapper.setStorageReviewNull(id) > 0;
     }
 }

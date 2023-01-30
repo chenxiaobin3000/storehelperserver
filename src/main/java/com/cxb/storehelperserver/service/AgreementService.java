@@ -82,7 +82,7 @@ public class AgreementService {
 
         // 生成进货单
         val comms = new ArrayList<TAgreementOrderCommodity>();
-        ret = createStorageComms(order, types, commoditys, values, prices, comms);
+        ret = createAgreementComms(order, types, commoditys, values, prices, comms);
         if (null != ret) {
             return ret;
         }
@@ -146,7 +146,7 @@ public class AgreementService {
 
         // 生成进货单
         val comms = new ArrayList<TAgreementOrderCommodity>();
-        ret = createStorageComms(order, types, commoditys, values, prices, comms);
+        ret = createAgreementComms(order, types, commoditys, values, prices, comms);
         if (null != ret) {
             return ret;
         }
@@ -165,15 +165,15 @@ public class AgreementService {
     }
 
     public RestResult delShipped(int id, int oid) {
-        TAgreementOrder agreementOrder = agreementOrderRepository.find(oid);
-        if (null == agreementOrder) {
+        TAgreementOrder order = agreementOrderRepository.find(oid);
+        if (null == order) {
             return RestResult.fail("未查询到要删除的订单");
         }
 
         // 校验是否订单提交人，已经审核的订单，必须由审核人删除
-        Integer review = agreementOrder.getReview();
+        Integer review = order.getReview();
         if (null == review) {
-            if (!agreementOrder.getApply().equals(id)) {
+            if (!order.getApply().equals(id)) {
                 return RestResult.fail("订单必须由申请人删除");
             }
         } else {
@@ -187,10 +187,10 @@ public class AgreementService {
         for (TAgreementOrderCommodity c : comms) {
             // 删除日期是制单日期的前一天
             Calendar calendar = new GregorianCalendar();
-            calendar.setTime(agreementOrder.getApplyTime());
+            calendar.setTime(order.getApplyTime());
             calendar.add(Calendar.DATE, -1);
             stockService.delStock(TypeDefine.CommodityType.valueOf(c.getCtype()),
-                    agreementOrder.getSid(), c.getCid(), calendar.getTime());
+                    order.getSid(), c.getCid(), calendar.getTime());
         }
         if (!agreementOrderCommodityRepository.delete(oid)) {
             return RestResult.fail("删除关联商品失败");
@@ -232,13 +232,13 @@ public class AgreementService {
         }
 
         // 添加审核信息
-        TAgreementOrder agreementOrder = agreementOrderRepository.find(oid);
-        if (null == agreementOrder) {
+        TAgreementOrder order = agreementOrderRepository.find(oid);
+        if (null == order) {
             return RestResult.fail("未查询到要审核的订单");
         }
-        agreementOrder.setReview(id);
-        agreementOrder.setReviewTime(new Date());
-        if (!agreementOrderRepository.update(agreementOrder)) {
+        order.setReview(id);
+        order.setReviewTime(new Date());
+        if (!agreementOrderRepository.update(order)) {
             return RestResult.fail("审核用户订单信息失败");
         }
 
@@ -254,9 +254,73 @@ public class AgreementService {
         complete.setUid(id);
         complete.setOtype(TypeDefine.OrderType.AGREEMENT_OUT_ORDER.getValue());
         complete.setOid(oid);
-        complete.setBatch(agreementOrder.getBatch());
+        complete.setBatch(order.getBatch());
         if (!userOrderCompleteRepository.insert(complete)) {
             return RestResult.fail("完成用户订单审核信息失败");
+        }
+        return RestResult.ok();
+    }
+
+    public RestResult revokeShipped(int id, int oid) {
+        TAgreementOrder order = agreementOrderRepository.find(oid);
+        if (null == order) {
+            return RestResult.fail("未查询到要撤销的订单");
+        }
+
+        // 验证公司
+        int gid = order.getGid();
+        String msg = checkService.checkGroup(id, gid);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+
+        // 校验申请订单权限
+        if (!checkService.checkRolePermission(id, agreement_getlist)) {
+            return RestResult.fail("本账号没有相关的权限，请联系管理员");
+        }
+
+        val orderReviewers = orderReviewerRepository.find(gid);
+        if (null == orderReviewers || orderReviewers.isEmpty()) {
+            return RestResult.fail("未设置订单审核人，请联系系统管理员");
+        }
+        val reviews = new ArrayList<Integer>();
+        for (TOrderReviewer orderReviewer : orderReviewers) {
+            if (orderReviewer.getPid().equals(mp_agreement_out_review)) {
+                reviews.add(orderReviewer.getUid());
+            }
+        }
+
+        if (!userOrderCompleteRepository.delete(TypeDefine.OrderType.AGREEMENT_OUT_ORDER.getValue(), oid)) {
+            return RestResult.fail("添加用户订单完成信息失败");
+        }
+
+        // 添加用户订单冗余信息
+        String batch = order.getBatch();
+        TUserOrderApply userOrderApply = new TUserOrderApply();
+        userOrderApply.setUid(id);
+        userOrderApply.setOtype(TypeDefine.OrderType.AGREEMENT_OUT_ORDER.getValue());
+        userOrderApply.setOid(oid);
+        userOrderApply.setBatch(batch);
+        if (!userOrderApplyRepository.insert(userOrderApply)) {
+            return RestResult.fail("添加用户订单信息失败");
+        }
+
+        // 添加用户订单审核信息
+        TUserOrderReview userOrderReview = new TUserOrderReview();
+        userOrderReview.setOtype(TypeDefine.OrderType.AGREEMENT_OUT_ORDER.getValue());
+        userOrderReview.setOid(oid);
+        userOrderReview.setBatch(batch);
+        for (Integer reviewer : reviews) {
+            userOrderReview.setId(0);
+            userOrderReview.setUid(reviewer);
+            if (!userOrderReviewRepository.insert(userOrderReview)) {
+                return RestResult.fail("添加用户订单审核信息失败");
+            }
+        }
+
+        // 撤销审核人信息
+        if (!agreementOrderRepository.setReviewNull(order.getId())) {
+            return RestResult.fail("撤销订单审核信息失败");
         }
         return RestResult.ok();
     }
@@ -274,7 +338,7 @@ public class AgreementService {
 
         // 生成进货单
         val comms = new ArrayList<TAgreementOrderCommodity>();
-        ret = createStorageComms(order, types, commoditys, values, prices, comms);
+        ret = createAgreementComms(order, types, commoditys, values, prices, comms);
         if (null != ret) {
             return ret;
         }
@@ -338,7 +402,7 @@ public class AgreementService {
 
         // 生成进货单
         val comms = new ArrayList<TAgreementOrderCommodity>();
-        ret = createStorageComms(order, types, commoditys, values, prices, comms);
+        ret = createAgreementComms(order, types, commoditys, values, prices, comms);
         if (null != ret) {
             return ret;
         }
@@ -357,15 +421,15 @@ public class AgreementService {
     }
 
     public RestResult delReturn(int id, int oid) {
-        TAgreementOrder agreementOrder = agreementOrderRepository.find(oid);
-        if (null == agreementOrder) {
+        TAgreementOrder order = agreementOrderRepository.find(oid);
+        if (null == order) {
             return RestResult.fail("未查询到要删除的订单");
         }
 
         // 校验是否订单提交人，已经审核的订单，必须由审核人删除
-        Integer review = agreementOrder.getReview();
+        Integer review = order.getReview();
         if (null == review) {
-            if (!agreementOrder.getApply().equals(id)) {
+            if (!order.getApply().equals(id)) {
                 return RestResult.fail("订单必须由申请人删除");
             }
         } else {
@@ -379,10 +443,10 @@ public class AgreementService {
         for (TAgreementOrderCommodity c : comms) {
             // 删除日期是制单日期的前一天
             Calendar calendar = new GregorianCalendar();
-            calendar.setTime(agreementOrder.getApplyTime());
+            calendar.setTime(order.getApplyTime());
             calendar.add(Calendar.DATE, -1);
             stockService.delStock(TypeDefine.CommodityType.valueOf(c.getCtype()),
-                    agreementOrder.getSid(), c.getCid(), calendar.getTime());
+                    order.getSid(), c.getCid(), calendar.getTime());
         }
         if (!agreementOrderCommodityRepository.delete(oid)) {
             return RestResult.fail("删除关联商品失败");
@@ -424,13 +488,13 @@ public class AgreementService {
         }
 
         // 添加审核信息
-        TAgreementOrder agreementOrder = agreementOrderRepository.find(oid);
-        if (null == agreementOrder) {
+        TAgreementOrder order = agreementOrderRepository.find(oid);
+        if (null == order) {
             return RestResult.fail("未查询到要审核的订单");
         }
-        agreementOrder.setReview(id);
-        agreementOrder.setReviewTime(new Date());
-        if (!agreementOrderRepository.update(agreementOrder)) {
+        order.setReview(id);
+        order.setReviewTime(new Date());
+        if (!agreementOrderRepository.update(order)) {
             return RestResult.fail("审核用户订单信息失败");
         }
 
@@ -446,9 +510,73 @@ public class AgreementService {
         complete.setUid(id);
         complete.setOtype(TypeDefine.OrderType.AGREEMENT_IN_ORDER.getValue());
         complete.setOid(oid);
-        complete.setBatch(agreementOrder.getBatch());
+        complete.setBatch(order.getBatch());
         if (!userOrderCompleteRepository.insert(complete)) {
             return RestResult.fail("完成用户订单审核信息失败");
+        }
+        return RestResult.ok();
+    }
+
+    public RestResult revokeReturn(int id, int oid) {
+        TAgreementOrder order = agreementOrderRepository.find(oid);
+        if (null == order) {
+            return RestResult.fail("未查询到要撤销的订单");
+        }
+
+        // 验证公司
+        int gid = order.getGid();
+        String msg = checkService.checkGroup(id, gid);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+
+        // 校验申请订单权限
+        if (!checkService.checkRolePermission(id, agreement_getlist)) {
+            return RestResult.fail("本账号没有相关的权限，请联系管理员");
+        }
+
+        val orderReviewers = orderReviewerRepository.find(gid);
+        if (null == orderReviewers || orderReviewers.isEmpty()) {
+            return RestResult.fail("未设置订单审核人，请联系系统管理员");
+        }
+        val reviews = new ArrayList<Integer>();
+        for (TOrderReviewer orderReviewer : orderReviewers) {
+            if (orderReviewer.getPid().equals(mp_agreement_in_review)) {
+                reviews.add(orderReviewer.getUid());
+            }
+        }
+
+        if (!userOrderCompleteRepository.delete(TypeDefine.OrderType.PRODUCT_IN_ORDER.getValue(), oid)) {
+            return RestResult.fail("添加用户订单完成信息失败");
+        }
+
+        // 添加用户订单冗余信息
+        String batch = order.getBatch();
+        TUserOrderApply userOrderApply = new TUserOrderApply();
+        userOrderApply.setUid(id);
+        userOrderApply.setOtype(TypeDefine.OrderType.PRODUCT_IN_ORDER.getValue());
+        userOrderApply.setOid(oid);
+        userOrderApply.setBatch(batch);
+        if (!userOrderApplyRepository.insert(userOrderApply)) {
+            return RestResult.fail("添加用户订单信息失败");
+        }
+
+        // 添加用户订单审核信息
+        TUserOrderReview userOrderReview = new TUserOrderReview();
+        userOrderReview.setOtype(TypeDefine.OrderType.PRODUCT_IN_ORDER.getValue());
+        userOrderReview.setOid(oid);
+        userOrderReview.setBatch(batch);
+        for (Integer reviewer : reviews) {
+            userOrderReview.setId(0);
+            userOrderReview.setUid(reviewer);
+            if (!userOrderReviewRepository.insert(userOrderReview)) {
+                return RestResult.fail("添加用户订单审核信息失败");
+            }
+        }
+
+        // 撤销审核人信息
+        if (!agreementOrderRepository.setReviewNull(order.getId())) {
+            return RestResult.fail("撤销订单审核信息失败");
         }
         return RestResult.ok();
     }
@@ -482,7 +610,7 @@ public class AgreementService {
         return null;
     }
 
-    private RestResult createStorageComms(TAgreementOrder order, List<Integer> types, List<Integer> commoditys,
+    private RestResult createAgreementComms(TAgreementOrder order, List<Integer> types, List<Integer> commoditys,
                                           List<Integer> values, List<BigDecimal> prices, List<TAgreementOrderCommodity> list) {
         // 生成进货单
         int size = commoditys.size();
