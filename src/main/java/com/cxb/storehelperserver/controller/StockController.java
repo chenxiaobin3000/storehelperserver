@@ -92,15 +92,9 @@ public class StockController {
         return stockService.getStockDestroy(req.getId(), req.getSid(), req.getPage(), req.getLimit(), date, req.getSearch());
     }
 
+    // TODO 库存，展示，包装，销售
     @PostMapping("/countStock")
     public RestResult countStock(@Validated @RequestBody CountStockValid req) {
-        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
-        Date date = null;
-        try {
-            date = simpleDateFormat.parse(req.getDate() + " 00:00:00");
-        } catch (ParseException e) {
-            return RestResult.fail("查询日期转换失败");
-        }
-        return stockService.countStock(req.getId(), req.getSid(), date);
+        return stockService.countStock(req.getId(), req.getSid());
     }
 }

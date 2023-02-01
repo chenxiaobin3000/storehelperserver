@@ -55,7 +55,7 @@ public class AgreementOrderService extends BaseService<HashMap> {
 
         // 商品
         val commoditys = new ArrayList<HashMap<String, Object>>();
-        List<TAgreementOrderCommodity> agreementOrderCommodities = agreementOrderCommodityRepository.find(oid);
+        val agreementOrderCommodities = agreementOrderCommodityRepository.find(oid);
         if (null != agreementOrderCommodities && !agreementOrderCommodities.isEmpty()) {
             for (TAgreementOrderCommodity sc : agreementOrderCommodities) {
                 val data = new HashMap<String, Object>();

@@ -36,6 +36,17 @@ public class StockOriginalRepository extends BaseRepository<TStockOriginal> {
         return stockOriginalMapper.selectOneByExample(example);
     }
 
+    public TStockOriginal findLast(int sid, int oid) {
+        TStockOriginalExample example = new TStockOriginalExample();
+        if (0 == oid) {
+            example.or().andSidEqualTo(sid);
+        } else {
+            example.or().andSidEqualTo(sid).andOidEqualTo(oid);
+        }
+        example.setOrderByClause("cdate desc");
+        return stockOriginalMapper.selectOneByExample(example);
+    }
+
     public int total(int sid, Date date, String search) {
         if (null != search) {
             return myStockOriginalMapper.countByExample(sid, date, "%" + search + "%");
@@ -62,9 +73,9 @@ public class StockOriginalRepository extends BaseRepository<TStockOriginal> {
         return stockOriginalMapper.updateByPrimaryKey(row) > 0;
     }
 
-    public boolean delete(int sid, int oid, Date date) {
+    public boolean delete(int sid, Date date) {
         TStockOriginalExample example = new TStockOriginalExample();
-        example.or().andSidEqualTo(sid).andOidEqualTo(oid).andCdateGreaterThanOrEqualTo(date);
+        example.or().andSidEqualTo(sid).andCdateGreaterThanOrEqualTo(date);
         return stockOriginalMapper.deleteByExample(example) > 0;
     }
 }

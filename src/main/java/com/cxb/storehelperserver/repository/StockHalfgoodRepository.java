@@ -36,6 +36,17 @@ public class StockHalfgoodRepository extends BaseRepository<TStockHalfgood> {
         return stockHalfgoodMapper.selectOneByExample(example);
     }
 
+    public TStockHalfgood findLast(int sid, int hid) {
+        TStockHalfgoodExample example = new TStockHalfgoodExample();
+        if (0 == hid) {
+            example.or().andSidEqualTo(sid);
+        } else {
+            example.or().andSidEqualTo(sid).andHidEqualTo(hid);
+        }
+        example.setOrderByClause("cdate desc");
+        return stockHalfgoodMapper.selectOneByExample(example);
+    }
+
     public int total(int sid, Date date, String search) {
         if (null != search) {
             return myStockHalfgoodMapper.countByExample(sid, date, "%" + search + "%");
@@ -62,9 +73,9 @@ public class StockHalfgoodRepository extends BaseRepository<TStockHalfgood> {
         return stockHalfgoodMapper.updateByPrimaryKey(row) > 0;
     }
 
-    public boolean delete(int sid, int hid, Date date) {
+    public boolean delete(int sid, Date date) {
         TStockHalfgoodExample example = new TStockHalfgoodExample();
-        example.or().andSidEqualTo(sid).andHidEqualTo(hid).andCdateGreaterThanOrEqualTo(date);
+        example.or().andSidEqualTo(sid).andCdateGreaterThanOrEqualTo(date);
         return stockHalfgoodMapper.deleteByExample(example) > 0;
     }
 }

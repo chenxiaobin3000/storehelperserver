@@ -3,10 +3,13 @@ package com.cxb.storehelperserver.repository;
 import com.cxb.storehelperserver.mapper.TProductOrderCommodityMapper;
 import com.cxb.storehelperserver.model.TProductOrderCommodity;
 import com.cxb.storehelperserver.model.TProductOrderCommodityExample;
+import com.cxb.storehelperserver.repository.mapper.MyProductOrderCommodityMapper;
+import com.cxb.storehelperserver.repository.model.MyOrderCommodity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -19,6 +22,9 @@ import java.util.List;
 public class ProductOrderCommodityRepository extends BaseRepository<List> {
     @Resource
     private TProductOrderCommodityMapper productOrderCommodityMapper;
+
+    @Resource
+    private MyProductOrderCommodityMapper myProductOrderCommodityMapper;
 
     public ProductOrderCommodityRepository() {
         init("poComm::");
@@ -38,6 +44,10 @@ public class ProductOrderCommodityRepository extends BaseRepository<List> {
             setCache(oid, productOrderCommoditys);
         }
         return productOrderCommoditys;
+    }
+
+    public List<MyOrderCommodity> findBySid(int sid, Date start, Date end) {
+        return myProductOrderCommodityMapper.select(sid, start, end);
     }
 
     // 注意：数据被缓存在ProductCommodityService，所以不能直接调用该函数

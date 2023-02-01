@@ -36,6 +36,17 @@ public class StockDestroyRepository extends BaseRepository<TStockDestroy> {
         return stockDestroyMapper.selectOneByExample(example);
     }
 
+    public TStockDestroy findLast(int sid, int did) {
+        TStockDestroyExample example = new TStockDestroyExample();
+        if (0 == did) {
+            example.or().andSidEqualTo(sid);
+        } else {
+            example.or().andSidEqualTo(sid).andDidEqualTo(did);
+        }
+        example.setOrderByClause("cdate desc");
+        return stockDestroyMapper.selectOneByExample(example);
+    }
+
     public int total(int sid, Date date, String search) {
         if (null != search) {
             return myStockDestroyMapper.countByExample(sid, date, "%" + search + "%");
@@ -62,9 +73,9 @@ public class StockDestroyRepository extends BaseRepository<TStockDestroy> {
         return stockDestroyMapper.updateByPrimaryKey(row) > 0;
     }
 
-    public boolean delete(int sid, int did, Date date) {
+    public boolean delete(int sid, Date date) {
         TStockDestroyExample example = new TStockDestroyExample();
-        example.or().andSidEqualTo(sid).andDidEqualTo(did).andCdateGreaterThanOrEqualTo(date);
+        example.or().andSidEqualTo(sid).andCdateGreaterThanOrEqualTo(date);
         return stockDestroyMapper.deleteByExample(example) > 0;
     }
 }

@@ -95,3 +95,5 @@ store-app:
     imagesrc: 1
     # 图片地址
     imagepath: s/
+    # 计算库存间隔时间(毫秒)
+    stockspan: 200

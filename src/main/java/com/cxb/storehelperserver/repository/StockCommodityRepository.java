@@ -36,6 +36,17 @@ public class StockCommodityRepository extends BaseRepository<TStockCommodity> {
         return stockCommodityMapper.selectOneByExample(example);
     }
 
+    public TStockCommodity findLast(int sid, int cid) {
+        TStockCommodityExample example = new TStockCommodityExample();
+        if (0 == cid) {
+            example.or().andSidEqualTo(sid);
+        } else {
+            example.or().andSidEqualTo(sid).andCidEqualTo(cid);
+        }
+        example.setOrderByClause("cdate desc");
+        return stockCommodityMapper.selectOneByExample(example);
+    }
+
     public int total(int sid, Date date, String search) {
         if (null != search) {
             return myStockCommodityMapper.countByExample(sid, date, "%" + search + "%");
@@ -58,9 +69,9 @@ public class StockCommodityRepository extends BaseRepository<TStockCommodity> {
         return stockCommodityMapper.insert(row) > 0;
     }
 
-    public boolean delete(int sid, int cid, Date date) {
+    public boolean delete(int sid, Date date) {
         TStockCommodityExample example = new TStockCommodityExample();
-        example.or().andSidEqualTo(sid).andCidEqualTo(cid).andCdateGreaterThanOrEqualTo(date);
+        example.or().andSidEqualTo(sid).andCdateGreaterThanOrEqualTo(date);
         return stockCommodityMapper.deleteByExample(example) > 0;
     }
 }

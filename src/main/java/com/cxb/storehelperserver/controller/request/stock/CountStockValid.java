@@ -19,8 +19,4 @@ public class CountStockValid implements IValid {
 
     @Min(value = 1, message = "仓库编号错误")
     private int sid;
-
-    @NotEmpty(message = "请输入开始日期")
-    @Length(min = 10, max = 10, message = "开始日期格式错误")
-    private String date;
 }

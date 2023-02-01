@@ -55,7 +55,7 @@ public class ProductOrderService extends BaseService<HashMap> {
 
         // 商品
         val commoditys = new ArrayList<HashMap<String, Object>>();
-        List<TProductOrderCommodity> productOrderCommodities = productOrderCommodityRepository.find(oid);
+        val productOrderCommodities = productOrderCommodityRepository.find(oid);
         if (null != productOrderCommodities && !productOrderCommodities.isEmpty()) {
             for (TProductOrderCommodity sc : productOrderCommodities) {
                 val data = new HashMap<String, Object>();

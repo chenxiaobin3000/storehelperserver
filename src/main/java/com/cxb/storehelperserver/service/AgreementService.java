@@ -2,6 +2,7 @@ package com.cxb.storehelperserver.service;
 
 import com.cxb.storehelperserver.model.*;
 import com.cxb.storehelperserver.repository.*;
+import com.cxb.storehelperserver.util.DateUtil;
 import com.cxb.storehelperserver.util.RestResult;
 import com.cxb.storehelperserver.util.TypeDefine;
 import lombok.extern.slf4j.Slf4j;
@@ -68,6 +69,9 @@ public class AgreementService {
 
     @Resource
     private OrderReviewerRepository orderReviewerRepository;
+
+    @Resource
+    private DateUtil dateUtil;
 
     /**
      * desc: 履约发货
@@ -182,16 +186,13 @@ public class AgreementService {
             }
         }
 
-        // 删除生效日期以后的所有库存记录
-        val comms = agreementOrderCommodityRepository.find(oid);
-        for (TAgreementOrderCommodity c : comms) {
-            // 删除日期是制单日期的前一天
-            Calendar calendar = new GregorianCalendar();
-            calendar.setTime(order.getApplyTime());
-            calendar.add(Calendar.DATE, -1);
-            stockService.delStock(TypeDefine.CommodityType.valueOf(c.getCtype()),
-                    order.getSid(), c.getCid(), calendar.getTime());
-        }
+        // 删除生效日期以后的所有库存记录，删除日期是制单日期的前一天
+        Calendar calendar = new GregorianCalendar();
+        calendar.setTime(order.getApplyTime());
+        calendar.add(Calendar.DATE, -1);
+        stockService.delStock(order.getSid(), calendar.getTime());
+
+        // 删除商品附件数据
         if (!agreementOrderCommodityRepository.delete(oid)) {
             return RestResult.fail("删除关联商品失败");
         }
@@ -254,7 +255,9 @@ public class AgreementService {
         complete.setUid(id);
         complete.setOtype(TypeDefine.OrderType.AGREEMENT_OUT_ORDER.getValue());
         complete.setOid(oid);
+        complete.setSid(order.getSid());
         complete.setBatch(order.getBatch());
+        complete.setCdate(dateUtil.getStartTime(order.getApplyTime()));
         if (!userOrderCompleteRepository.insert(complete)) {
             return RestResult.fail("完成用户订单审核信息失败");
         }
@@ -438,16 +441,13 @@ public class AgreementService {
             }
         }
 
-        // 删除生效日期以后的所有库存记录
-        val comms = agreementOrderCommodityRepository.find(oid);
-        for (TAgreementOrderCommodity c : comms) {
-            // 删除日期是制单日期的前一天
-            Calendar calendar = new GregorianCalendar();
-            calendar.setTime(order.getApplyTime());
-            calendar.add(Calendar.DATE, -1);
-            stockService.delStock(TypeDefine.CommodityType.valueOf(c.getCtype()),
-                    order.getSid(), c.getCid(), calendar.getTime());
-        }
+        // 删除生效日期以后的所有库存记录，删除日期是制单日期的前一天
+        Calendar calendar = new GregorianCalendar();
+        calendar.setTime(order.getApplyTime());
+        calendar.add(Calendar.DATE, -1);
+        stockService.delStock(order.getSid(), calendar.getTime());
+
+        // 删除商品附件数据
         if (!agreementOrderCommodityRepository.delete(oid)) {
             return RestResult.fail("删除关联商品失败");
         }
@@ -510,7 +510,9 @@ public class AgreementService {
         complete.setUid(id);
         complete.setOtype(TypeDefine.OrderType.AGREEMENT_IN_ORDER.getValue());
         complete.setOid(oid);
+        complete.setSid(order.getSid());
         complete.setBatch(order.getBatch());
+        complete.setCdate(dateUtil.getStartTime(order.getApplyTime()));
         if (!userOrderCompleteRepository.insert(complete)) {
             return RestResult.fail("完成用户订单审核信息失败");
         }
@@ -611,7 +613,7 @@ public class AgreementService {
     }
 
     private RestResult createAgreementComms(TAgreementOrder order, List<Integer> types, List<Integer> commoditys,
-                                          List<Integer> values, List<BigDecimal> prices, List<TAgreementOrderCommodity> list) {
+                                            List<Integer> values, List<BigDecimal> prices, List<TAgreementOrderCommodity> list) {
         // 生成进货单
         int size = commoditys.size();
         if (size != types.size() || size != values.size() || size != prices.size()) {

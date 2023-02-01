@@ -40,6 +40,13 @@ public class UserOrderCompleteRepository extends BaseRepository<TUserOrderComple
         return userOrderComplete;
     }
 
+    public TUserOrderComplete findFirstOrder(int sid) {
+        TUserOrderCompleteExample example = new TUserOrderCompleteExample();
+        example.or().andSidEqualTo(sid);
+        example.setOrderByClause("cdate asc");
+        return userOrderCompleteMapper.selectOneByExample(example);
+    }
+
     public int total(int uid, String search) {
         TUserOrderCompleteExample example = new TUserOrderCompleteExample();
         if (null != search) {

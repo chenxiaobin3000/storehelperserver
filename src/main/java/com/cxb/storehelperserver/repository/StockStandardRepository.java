@@ -36,6 +36,17 @@ public class StockStandardRepository extends BaseRepository<TStockStandard> {
         return stockStandardMapper.selectOneByExample(example);
     }
 
+    public TStockStandard findLast(int sid, int stid) {
+        TStockStandardExample example = new TStockStandardExample();
+        if (0 == stid) {
+            example.or().andSidEqualTo(sid);
+        } else {
+            example.or().andSidEqualTo(sid).andStidEqualTo(stid);
+        }
+        example.setOrderByClause("cdate desc");
+        return stockStandardMapper.selectOneByExample(example);
+    }
+
     public int total(int sid, Date date, String search) {
         if (null != search) {
             return myStockStandardMapper.countByExample(sid, date, "%" + search + "%");
@@ -62,9 +73,9 @@ public class StockStandardRepository extends BaseRepository<TStockStandard> {
         return stockStandardMapper.updateByPrimaryKey(row) > 0;
     }
 
-    public boolean delete(int sid, int stid, Date date) {
+    public boolean delete(int sid, Date date) {
         TStockStandardExample example = new TStockStandardExample();
-        example.or().andSidEqualTo(sid).andStidEqualTo(stid).andCdateGreaterThanOrEqualTo(date);
+        example.or().andSidEqualTo(sid).andCdateGreaterThanOrEqualTo(date);
         return stockStandardMapper.deleteByExample(example) > 0;
     }
 }

@@ -3,6 +3,7 @@ package com.cxb.storehelperserver.util;
 import org.springframework.stereotype.Component;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -26,6 +27,49 @@ public class DateUtil {
 
     public SimpleDateFormat getSimpleDateFormat() {
         return simpleDateFormat;
+    }
+
+    /**
+     * desc: 当前日期加N天
+     */
+    public Date addOneDay(Date date, int day) {
+        if (null == date) {
+            return null;
+        }
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(Calendar.DATE, day);
+        return calendar.getTime();
+    }
+
+    /**
+     * desc: 获取当天00：00：00的时间戳
+     */
+    public Date getStartTime(Date date) {
+        if (null == date) {
+            return null;
+        }
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        return calendar.getTime();
+    }
+
+    /**
+     * desc: 获取当天23：59：59的时间戳
+     */
+    public Date getEndTime(Date date) {
+        if (null == date) {
+            return null;
+        }
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
+        return calendar.getTime();
     }
 
     public int getSecondTimestamp(Date date) {
