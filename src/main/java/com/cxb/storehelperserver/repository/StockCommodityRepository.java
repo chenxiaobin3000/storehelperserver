@@ -1,9 +1,9 @@
 package com.cxb.storehelperserver.repository;
 
-import com.cxb.storehelperserver.mapper.TStockCommodityMapper;
-import com.cxb.storehelperserver.model.TStockCommodity;
-import com.cxb.storehelperserver.model.TStockCommodityExample;
-import com.cxb.storehelperserver.repository.mapper.MyStockCommodityMapper;
+import com.cxb.storehelperserver.mapper.TStockCommodityDayMapper;
+import com.cxb.storehelperserver.model.TStockCommodityDay;
+import com.cxb.storehelperserver.model.TStockCommodityDayExample;
+import com.cxb.storehelperserver.repository.mapper.MyStockCommodityDayMapper;
 import com.cxb.storehelperserver.repository.model.MyStockCommodity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
@@ -19,59 +19,59 @@ import java.util.List;
  */
 @Slf4j
 @Repository
-public class StockCommodityRepository extends BaseRepository<TStockCommodity> {
+public class StockCommodityRepository extends BaseRepository<TStockCommodityDay> {
     @Resource
-    private TStockCommodityMapper stockCommodityMapper;
+    private TStockCommodityDayMapper stockCommodityDayMapper;
 
     @Resource
-    private MyStockCommodityMapper myStockCommodityMapper;
+    private MyStockCommodityDayMapper myStockCommodityDayMapper;
 
     public StockCommodityRepository() {
-        init("stockC::");
+        init("stockCD::");
     }
 
-    public TStockCommodity find(int sid, int id, Date date) {
-        TStockCommodityExample example = new TStockCommodityExample();
+    public TStockCommodityDay find(int sid, int id, Date date) {
+        TStockCommodityDayExample example = new TStockCommodityDayExample();
         example.or().andSidEqualTo(sid).andCidEqualTo(id).andCdateEqualTo(date);
-        return stockCommodityMapper.selectOneByExample(example);
+        return stockCommodityDayMapper.selectOneByExample(example);
     }
 
-    public TStockCommodity findLast(int sid, int cid) {
-        TStockCommodityExample example = new TStockCommodityExample();
+    public TStockCommodityDay findLast(int sid, int cid) {
+        TStockCommodityDayExample example = new TStockCommodityDayExample();
         if (0 == cid) {
             example.or().andSidEqualTo(sid);
         } else {
             example.or().andSidEqualTo(sid).andCidEqualTo(cid);
         }
         example.setOrderByClause("cdate desc");
-        return stockCommodityMapper.selectOneByExample(example);
+        return stockCommodityDayMapper.selectOneByExample(example);
     }
 
     public int total(int sid, Date date, String search) {
         if (null != search) {
-            return myStockCommodityMapper.countByExample(sid, date, "%" + search + "%");
+            return myStockCommodityDayMapper.countByExample(sid, new java.sql.Date(date.getTime()), "%" + search + "%");
         } else {
-            TStockCommodityExample example = new TStockCommodityExample();
+            TStockCommodityDayExample example = new TStockCommodityDayExample();
             example.or().andSidEqualTo(sid).andCdateEqualTo(date);
-            return (int) stockCommodityMapper.countByExample(example);
+            return (int) stockCommodityDayMapper.countByExample(example);
         }
     }
 
     public List<MyStockCommodity> pagination(int sid, int page, int limit, Date date, String search) {
         if (null != search) {
-            return myStockCommodityMapper.selectByExample((page - 1) * limit, limit, sid, date, "%" + search + "%");
+            return myStockCommodityDayMapper.selectByExample((page - 1) * limit, limit, sid, new java.sql.Date(date.getTime()), "%" + search + "%");
         } else {
-            return myStockCommodityMapper.selectByExample((page - 1) * limit, limit, sid, date, null);
+            return myStockCommodityDayMapper.selectByExample((page - 1) * limit, limit, sid, new java.sql.Date(date.getTime()), null);
         }
     }
 
-    public boolean insert(TStockCommodity row) {
-        return stockCommodityMapper.insert(row) > 0;
+    public boolean insert(TStockCommodityDay row) {
+        return stockCommodityDayMapper.insert(row) > 0;
     }
 
     public boolean delete(int sid, Date date) {
-        TStockCommodityExample example = new TStockCommodityExample();
+        TStockCommodityDayExample example = new TStockCommodityDayExample();
         example.or().andSidEqualTo(sid).andCdateGreaterThanOrEqualTo(date);
-        return stockCommodityMapper.deleteByExample(example) > 0;
+        return stockCommodityDayMapper.deleteByExample(example) > 0;
     }
 }

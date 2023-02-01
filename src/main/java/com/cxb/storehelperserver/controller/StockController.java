@@ -1,10 +1,11 @@
 package com.cxb.storehelperserver.controller;
 
-import com.cxb.storehelperserver.controller.request.stock.CountStockValid;
+import com.cxb.storehelperserver.controller.request.stock.CountStockDayValid;
 import com.cxb.storehelperserver.controller.request.stock.GetStockCommodityValid;
 import com.cxb.storehelperserver.service.StockService;
 import com.cxb.storehelperserver.util.DateUtil;
 import com.cxb.storehelperserver.util.RestResult;
+import com.cxb.storehelperserver.util.TypeDefine;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +17,8 @@ import javax.annotation.Resource;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import static com.cxb.storehelperserver.util.TypeDefine.ReportCycleType;
 
 /**
  * desc: 库存接口
@@ -41,7 +44,7 @@ public class StockController {
         } catch (ParseException e) {
             return RestResult.fail("查询日期转换失败");
         }
-        return stockService.getStockCommodity(req.getId(), req.getSid(), req.getPage(), req.getLimit(), date, req.getSearch());
+        return stockService.getStockCommodity(req.getId(), req.getSid(), date, ReportCycleType.valueOf(req.getCycle()), req.getPage(), req.getLimit(), req.getSearch());
     }
 
     @PostMapping("/getStockHalfgood")
@@ -53,7 +56,7 @@ public class StockController {
         } catch (ParseException e) {
             return RestResult.fail("查询日期转换失败");
         }
-        return stockService.getStockHalfgood(req.getId(), req.getSid(), req.getPage(), req.getLimit(), date, req.getSearch());
+        return stockService.getStockHalfgood(req.getId(), req.getSid(), date, ReportCycleType.valueOf(req.getCycle()), req.getPage(), req.getLimit(), req.getSearch());
     }
 
     @PostMapping("/getStockOriginal")
@@ -65,7 +68,7 @@ public class StockController {
         } catch (ParseException e) {
             return RestResult.fail("查询日期转换失败");
         }
-        return stockService.getStockOriginal(req.getId(), req.getSid(), req.getPage(), req.getLimit(), date, req.getSearch());
+        return stockService.getStockOriginal(req.getId(), req.getSid(), date, ReportCycleType.valueOf(req.getCycle()), req.getPage(), req.getLimit(), req.getSearch());
     }
 
     @PostMapping("/getStockStandard")
@@ -77,7 +80,7 @@ public class StockController {
         } catch (ParseException e) {
             return RestResult.fail("查询日期转换失败");
         }
-        return stockService.getStockStandard(req.getId(), req.getSid(), req.getPage(), req.getLimit(), date, req.getSearch());
+        return stockService.getStockStandard(req.getId(), req.getSid(), date, ReportCycleType.valueOf(req.getCycle()), req.getPage(), req.getLimit(), req.getSearch());
     }
 
     @PostMapping("/getStockDestroy")
@@ -89,12 +92,12 @@ public class StockController {
         } catch (ParseException e) {
             return RestResult.fail("查询日期转换失败");
         }
-        return stockService.getStockDestroy(req.getId(), req.getSid(), req.getPage(), req.getLimit(), date, req.getSearch());
+        return stockService.getStockDestroy(req.getId(), req.getSid(), date, ReportCycleType.valueOf(req.getCycle()), req.getPage(), req.getLimit(), req.getSearch());
     }
 
     // TODO 库存，展示，包装，销售
-    @PostMapping("/countStock")
-    public RestResult countStock(@Validated @RequestBody CountStockValid req) {
-        return stockService.countStock(req.getId(), req.getSid());
+    @PostMapping("/countStockDay")
+    public RestResult countStockDay(@Validated @RequestBody CountStockDayValid req) {
+        return stockService.countStockDay(req.getId(), req.getSid());
     }
 }

@@ -126,7 +126,7 @@ public class StorageService {
 
     public RestResult delStorage(int id, int gid, int sid) {
         // 权限校验，必须admin
-        if (!checkService.checkRolePermission(id, storage_address)) {
+        if (!checkService.checkRolePermission(id, system_storagelist)) {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
@@ -348,6 +348,8 @@ public class StorageService {
             return RestResult.fail("您没有审核权限");
         }
 
+        // TODO 校验库存数量扣除后是否大于0
+
         // 添加审核信息
         TStorageOrder order = storageOrderRepository.find(oid);
         if (null == order) {
@@ -395,7 +397,7 @@ public class StorageService {
         }
 
         // 校验申请订单权限
-        if (!checkService.checkRolePermission(id, storage_purchase)) {
+        if (!checkService.checkRolePermission(id, storage_getlist)) {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
@@ -650,7 +652,7 @@ public class StorageService {
         }
 
         // 校验申请订单权限
-        if (!checkService.checkRolePermission(id, storage_purchase)) {
+        if (!checkService.checkRolePermission(id, storage_getlist)) {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 

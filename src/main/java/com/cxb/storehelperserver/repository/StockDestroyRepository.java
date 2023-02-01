@@ -1,9 +1,9 @@
 package com.cxb.storehelperserver.repository;
 
-import com.cxb.storehelperserver.mapper.TStockDestroyMapper;
-import com.cxb.storehelperserver.model.TStockDestroy;
-import com.cxb.storehelperserver.model.TStockDestroyExample;
-import com.cxb.storehelperserver.repository.mapper.MyStockDestroyMapper;
+import com.cxb.storehelperserver.mapper.TStockDestroyDayMapper;
+import com.cxb.storehelperserver.model.TStockDestroyDay;
+import com.cxb.storehelperserver.model.TStockDestroyDayExample;
+import com.cxb.storehelperserver.repository.mapper.MyStockDestroyDayMapper;
 import com.cxb.storehelperserver.repository.model.MyStockDestroy;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
@@ -19,63 +19,63 @@ import java.util.List;
  */
 @Slf4j
 @Repository
-public class StockDestroyRepository extends BaseRepository<TStockDestroy> {
+public class StockDestroyRepository extends BaseRepository<TStockDestroyDay> {
     @Resource
-    private TStockDestroyMapper stockDestroyMapper;
+    private TStockDestroyDayMapper stockDestroyDayMapper;
 
     @Resource
-    private MyStockDestroyMapper myStockDestroyMapper;
+    private MyStockDestroyDayMapper myStockDestroyDayMapper;
 
     public StockDestroyRepository() {
-        init("stockD::");
+        init("stockDD::");
     }
 
-    public TStockDestroy find(int sid, int id, Date date) {
-        TStockDestroyExample example = new TStockDestroyExample();
+    public TStockDestroyDay find(int sid, int id, Date date) {
+        TStockDestroyDayExample example = new TStockDestroyDayExample();
         example.or().andSidEqualTo(sid).andDidEqualTo(id).andCdateEqualTo(date);
-        return stockDestroyMapper.selectOneByExample(example);
+        return stockDestroyDayMapper.selectOneByExample(example);
     }
 
-    public TStockDestroy findLast(int sid, int did) {
-        TStockDestroyExample example = new TStockDestroyExample();
+    public TStockDestroyDay findLast(int sid, int did) {
+        TStockDestroyDayExample example = new TStockDestroyDayExample();
         if (0 == did) {
             example.or().andSidEqualTo(sid);
         } else {
             example.or().andSidEqualTo(sid).andDidEqualTo(did);
         }
         example.setOrderByClause("cdate desc");
-        return stockDestroyMapper.selectOneByExample(example);
+        return stockDestroyDayMapper.selectOneByExample(example);
     }
 
     public int total(int sid, Date date, String search) {
         if (null != search) {
-            return myStockDestroyMapper.countByExample(sid, date, "%" + search + "%");
+            return myStockDestroyDayMapper.countByExample(sid, new java.sql.Date(date.getTime()), "%" + search + "%");
         } else {
-            TStockDestroyExample example = new TStockDestroyExample();
+            TStockDestroyDayExample example = new TStockDestroyDayExample();
             example.or().andSidEqualTo(sid).andCdateEqualTo(date);
-            return (int) stockDestroyMapper.countByExample(example);
+            return (int) stockDestroyDayMapper.countByExample(example);
         }
     }
 
     public List<MyStockDestroy> pagination(int sid, int page, int limit, Date date, String search) {
         if (null != search) {
-            return myStockDestroyMapper.selectByExample((page - 1) * limit, limit, sid, date, "%" + search + "%");
+            return myStockDestroyDayMapper.selectByExample((page - 1) * limit, limit, sid, new java.sql.Date(date.getTime()), "%" + search + "%");
         } else {
-            return myStockDestroyMapper.selectByExample((page - 1) * limit, limit, sid, date, null);
+            return myStockDestroyDayMapper.selectByExample((page - 1) * limit, limit, sid, new java.sql.Date(date.getTime()), null);
         }
     }
 
-    public boolean insert(TStockDestroy row) {
-        return stockDestroyMapper.insert(row) > 0;
+    public boolean insert(TStockDestroyDay row) {
+        return stockDestroyDayMapper.insert(row) > 0;
     }
 
-    public boolean update(TStockDestroy row) {
-        return stockDestroyMapper.updateByPrimaryKey(row) > 0;
+    public boolean update(TStockDestroyDay row) {
+        return stockDestroyDayMapper.updateByPrimaryKey(row) > 0;
     }
 
     public boolean delete(int sid, Date date) {
-        TStockDestroyExample example = new TStockDestroyExample();
+        TStockDestroyDayExample example = new TStockDestroyDayExample();
         example.or().andSidEqualTo(sid).andCdateGreaterThanOrEqualTo(date);
-        return stockDestroyMapper.deleteByExample(example) > 0;
+        return stockDestroyDayMapper.deleteByExample(example) > 0;
     }
 }

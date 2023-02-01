@@ -24,6 +24,9 @@ public class GetStockStandardValid implements IValid {
     @Length(min = 10, max = 10, message = "查询日期格式错误")
     private String date;
 
+    @Min(value = 1, message = "查询周期")
+    private int cycle;
+
     @Min(value = 1, message = "页面编号错误")
     private int page;
 

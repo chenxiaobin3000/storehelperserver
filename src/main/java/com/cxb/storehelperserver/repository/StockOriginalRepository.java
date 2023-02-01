@@ -1,9 +1,9 @@
 package com.cxb.storehelperserver.repository;
 
-import com.cxb.storehelperserver.mapper.TStockOriginalMapper;
-import com.cxb.storehelperserver.model.TStockOriginal;
-import com.cxb.storehelperserver.model.TStockOriginalExample;
-import com.cxb.storehelperserver.repository.mapper.MyStockOriginalMapper;
+import com.cxb.storehelperserver.mapper.TStockOriginalDayMapper;
+import com.cxb.storehelperserver.model.TStockOriginalDay;
+import com.cxb.storehelperserver.model.TStockOriginalDayExample;
+import com.cxb.storehelperserver.repository.mapper.MyStockOriginalDayMapper;
 import com.cxb.storehelperserver.repository.model.MyStockOriginal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
@@ -19,63 +19,63 @@ import java.util.List;
  */
 @Slf4j
 @Repository
-public class StockOriginalRepository extends BaseRepository<TStockOriginal> {
+public class StockOriginalRepository extends BaseRepository<TStockOriginalDay> {
     @Resource
-    private TStockOriginalMapper stockOriginalMapper;
+    private TStockOriginalDayMapper stockOriginalDayMapper;
 
     @Resource
-    private MyStockOriginalMapper myStockOriginalMapper;
+    private MyStockOriginalDayMapper myStockOriginalDayMapper;
 
     public StockOriginalRepository() {
-        init("stockO::");
+        init("stockOD::");
     }
 
-    public TStockOriginal find(int sid, int id, Date date) {
-        TStockOriginalExample example = new TStockOriginalExample();
+    public TStockOriginalDay find(int sid, int id, Date date) {
+        TStockOriginalDayExample example = new TStockOriginalDayExample();
         example.or().andSidEqualTo(sid).andOidEqualTo(id).andCdateEqualTo(date);
-        return stockOriginalMapper.selectOneByExample(example);
+        return stockOriginalDayMapper.selectOneByExample(example);
     }
 
-    public TStockOriginal findLast(int sid, int oid) {
-        TStockOriginalExample example = new TStockOriginalExample();
+    public TStockOriginalDay findLast(int sid, int oid) {
+        TStockOriginalDayExample example = new TStockOriginalDayExample();
         if (0 == oid) {
             example.or().andSidEqualTo(sid);
         } else {
             example.or().andSidEqualTo(sid).andOidEqualTo(oid);
         }
         example.setOrderByClause("cdate desc");
-        return stockOriginalMapper.selectOneByExample(example);
+        return stockOriginalDayMapper.selectOneByExample(example);
     }
 
     public int total(int sid, Date date, String search) {
         if (null != search) {
-            return myStockOriginalMapper.countByExample(sid, date, "%" + search + "%");
+            return myStockOriginalDayMapper.countByExample(sid, new java.sql.Date(date.getTime()), "%" + search + "%");
         } else {
-            TStockOriginalExample example = new TStockOriginalExample();
+            TStockOriginalDayExample example = new TStockOriginalDayExample();
             example.or().andSidEqualTo(sid).andCdateEqualTo(date);
-            return (int) stockOriginalMapper.countByExample(example);
+            return (int) stockOriginalDayMapper.countByExample(example);
         }
     }
 
     public List<MyStockOriginal> pagination(int sid, int page, int limit, Date date, String search) {
         if (null != search) {
-            return myStockOriginalMapper.selectByExample((page - 1) * limit, limit, sid, date, "%" + search + "%");
+            return myStockOriginalDayMapper.selectByExample((page - 1) * limit, limit, sid, new java.sql.Date(date.getTime()), "%" + search + "%");
         } else {
-            return myStockOriginalMapper.selectByExample((page - 1) * limit, limit, sid, date, null);
+            return myStockOriginalDayMapper.selectByExample((page - 1) * limit, limit, sid, new java.sql.Date(date.getTime()), null);
         }
     }
 
-    public boolean insert(TStockOriginal row) {
-        return stockOriginalMapper.insert(row) > 0;
+    public boolean insert(TStockOriginalDay row) {
+        return stockOriginalDayMapper.insert(row) > 0;
     }
 
-    public boolean update(TStockOriginal row) {
-        return stockOriginalMapper.updateByPrimaryKey(row) > 0;
+    public boolean update(TStockOriginalDay row) {
+        return stockOriginalDayMapper.updateByPrimaryKey(row) > 0;
     }
 
     public boolean delete(int sid, Date date) {
-        TStockOriginalExample example = new TStockOriginalExample();
+        TStockOriginalDayExample example = new TStockOriginalDayExample();
         example.or().andSidEqualTo(sid).andCdateGreaterThanOrEqualTo(date);
-        return stockOriginalMapper.deleteByExample(example) > 0;
+        return stockOriginalDayMapper.deleteByExample(example) > 0;
     }
 }

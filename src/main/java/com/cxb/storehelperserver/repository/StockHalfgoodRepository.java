@@ -1,9 +1,9 @@
 package com.cxb.storehelperserver.repository;
 
-import com.cxb.storehelperserver.mapper.TStockHalfgoodMapper;
-import com.cxb.storehelperserver.model.TStockHalfgood;
-import com.cxb.storehelperserver.model.TStockHalfgoodExample;
-import com.cxb.storehelperserver.repository.mapper.MyStockHalfgoodMapper;
+import com.cxb.storehelperserver.mapper.TStockHalfgoodDayMapper;
+import com.cxb.storehelperserver.model.TStockHalfgoodDay;
+import com.cxb.storehelperserver.model.TStockHalfgoodDayExample;
+import com.cxb.storehelperserver.repository.mapper.MyStockHalfgoodDayMapper;
 import com.cxb.storehelperserver.repository.model.MyStockHalfgood;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
@@ -19,63 +19,63 @@ import java.util.List;
  */
 @Slf4j
 @Repository
-public class StockHalfgoodRepository extends BaseRepository<TStockHalfgood> {
+public class StockHalfgoodRepository extends BaseRepository<TStockHalfgoodDay> {
     @Resource
-    private TStockHalfgoodMapper stockHalfgoodMapper;
+    private TStockHalfgoodDayMapper stockHalfgoodDayMapper;
 
     @Resource
-    private MyStockHalfgoodMapper myStockHalfgoodMapper;
+    private MyStockHalfgoodDayMapper myStockHalfgoodDayMapper;
 
     public StockHalfgoodRepository() {
-        init("stockH::");
+        init("stockHD::");
     }
 
-    public TStockHalfgood find(int sid, int id, Date date) {
-        TStockHalfgoodExample example = new TStockHalfgoodExample();
+    public TStockHalfgoodDay find(int sid, int id, Date date) {
+        TStockHalfgoodDayExample example = new TStockHalfgoodDayExample();
         example.or().andSidEqualTo(sid).andHidEqualTo(id).andCdateEqualTo(date);
-        return stockHalfgoodMapper.selectOneByExample(example);
+        return stockHalfgoodDayMapper.selectOneByExample(example);
     }
 
-    public TStockHalfgood findLast(int sid, int hid) {
-        TStockHalfgoodExample example = new TStockHalfgoodExample();
+    public TStockHalfgoodDay findLast(int sid, int hid) {
+        TStockHalfgoodDayExample example = new TStockHalfgoodDayExample();
         if (0 == hid) {
             example.or().andSidEqualTo(sid);
         } else {
             example.or().andSidEqualTo(sid).andHidEqualTo(hid);
         }
         example.setOrderByClause("cdate desc");
-        return stockHalfgoodMapper.selectOneByExample(example);
+        return stockHalfgoodDayMapper.selectOneByExample(example);
     }
 
     public int total(int sid, Date date, String search) {
         if (null != search) {
-            return myStockHalfgoodMapper.countByExample(sid, date, "%" + search + "%");
+            return myStockHalfgoodDayMapper.countByExample(sid, new java.sql.Date(date.getTime()), "%" + search + "%");
         } else {
-            TStockHalfgoodExample example = new TStockHalfgoodExample();
+            TStockHalfgoodDayExample example = new TStockHalfgoodDayExample();
             example.or().andSidEqualTo(sid).andCdateEqualTo(date);
-            return (int) stockHalfgoodMapper.countByExample(example);
+            return (int) stockHalfgoodDayMapper.countByExample(example);
         }
     }
 
     public List<MyStockHalfgood> pagination(int sid, int page, int limit, Date date, String search) {
         if (null != search) {
-            return myStockHalfgoodMapper.selectByExample((page - 1) * limit, limit, sid, date, "%" + search + "%");
+            return myStockHalfgoodDayMapper.selectByExample((page - 1) * limit, limit, sid, new java.sql.Date(date.getTime()), "%" + search + "%");
         } else {
-            return myStockHalfgoodMapper.selectByExample((page - 1) * limit, limit, sid, date, null);
+            return myStockHalfgoodDayMapper.selectByExample((page - 1) * limit, limit, sid, new java.sql.Date(date.getTime()), null);
         }
     }
 
-    public boolean insert(TStockHalfgood row) {
-        return stockHalfgoodMapper.insert(row) > 0;
+    public boolean insert(TStockHalfgoodDay row) {
+        return stockHalfgoodDayMapper.insert(row) > 0;
     }
 
-    public boolean update(TStockHalfgood row) {
-        return stockHalfgoodMapper.updateByPrimaryKey(row) > 0;
+    public boolean update(TStockHalfgoodDay row) {
+        return stockHalfgoodDayMapper.updateByPrimaryKey(row) > 0;
     }
 
     public boolean delete(int sid, Date date) {
-        TStockHalfgoodExample example = new TStockHalfgoodExample();
+        TStockHalfgoodDayExample example = new TStockHalfgoodDayExample();
         example.or().andSidEqualTo(sid).andCdateGreaterThanOrEqualTo(date);
-        return stockHalfgoodMapper.deleteByExample(example) > 0;
+        return stockHalfgoodDayMapper.deleteByExample(example) > 0;
     }
 }

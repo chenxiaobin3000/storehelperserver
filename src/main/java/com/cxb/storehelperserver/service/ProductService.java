@@ -232,6 +232,8 @@ public class ProductService {
             return RestResult.fail("您没有审核权限");
         }
 
+        // TODO 校验库存数量扣除后是否大于0
+
         // 添加审核信息
         TProductOrder order = productOrderRepository.find(oid);
         if (null == order) {
