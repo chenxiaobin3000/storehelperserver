@@ -1,6 +1,12 @@
 package com.cxb.storehelperserver.service;
 
-import com.cxb.storehelperserver.repository.ReportRepository;
+import com.cxb.storehelperserver.model.TAgreementOrder;
+import com.cxb.storehelperserver.model.TProductOrder;
+import com.cxb.storehelperserver.model.TStorageOrder;
+import com.cxb.storehelperserver.repository.AgreementOrderRepository;
+import com.cxb.storehelperserver.repository.ProductOrderRepository;
+import com.cxb.storehelperserver.repository.StorageOrderRepository;
+import com.cxb.storehelperserver.util.DateUtil;
 import com.cxb.storehelperserver.util.RestResult;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -8,9 +14,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.HashMap;
 
-import static com.cxb.storehelperserver.util.TypeDefine.ReportCycleType;
+import static com.cxb.storehelperserver.util.Permission.dashboard_report;
+import static com.cxb.storehelperserver.util.Permission.mp_report;
 
 /**
  * desc: 报表业务
@@ -22,35 +30,73 @@ import static com.cxb.storehelperserver.util.TypeDefine.ReportCycleType;
 @Transactional(rollbackFor = Exception.class)
 public class ReportService {
     @Resource
-    private ReportRepository reportRepository;
+    private CheckService checkService;
 
-    public RestResult getAgreement(int id, int gid, ReportCycleType type) {
-        val data = new HashMap<String, Object>();
-        data.put("list", reportRepository.find());
-        return RestResult.ok(data);
-    }
+    @Resource
+    private StockService stockService;
 
-    public RestResult getFinance(int id, int gid, ReportCycleType type) {
-        val data = new HashMap<String, Object>();
-        data.put("list", reportRepository.find());
-        return RestResult.ok(data);
-    }
+    @Resource
+    private AgreementOrderRepository agreementOrderRepository;
 
-    public RestResult getMarket(int id, int gid, ReportCycleType type) {
-        val data = new HashMap<String, Object>();
-        data.put("list", reportRepository.find());
-        return RestResult.ok(data);
-    }
+    @Resource
+    private ProductOrderRepository productOrderRepository;
 
-    public RestResult getProduct(int id, int gid, ReportCycleType type) {
-        val data = new HashMap<String, Object>();
-        data.put("list", reportRepository.find());
-        return RestResult.ok(data);
-    }
+    @Resource
+    private StorageOrderRepository storageOrderRepository;
 
-    public RestResult getStorage(int id, int gid, ReportCycleType type) {
+    @Resource
+    private DateUtil dateUtil;
+
+    public RestResult getTodayReport(int id, int gid) {
+        // 验证公司
+        String msg = checkService.checkGroup(id, gid);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+
+        // 权限校验，必须admin
+        if (!checkService.checkRolePermission(id, dashboard_report) && !checkService.checkRolePermissionMp(id, mp_report)) {
+            return RestResult.fail("本账号没有相关的权限，请联系管理员");
+        }
+
+        // 使用昨天时间
+        Date yesterday = dateUtil.addOneDay(new Date(), -1);
+        Date start = dateUtil.getStartTime(yesterday);
+        Date end = dateUtil.getEndTime(yesterday);
+
+
+        // TODO 销售报表
         val data = new HashMap<String, Object>();
-        data.put("list", reportRepository.find());
+
+        // 仓储订单
+        // 根据当天时间计算
+        val storageOrders = storageOrderRepository.getAllByDate(gid, start, end);
+        if (null != storageOrders && !storageOrders.isEmpty()) {
+            for (TStorageOrder order : storageOrders) {
+
+            }
+        }
+
+        // 履约订单
+        total = agreementOrderRepository.total(gid, null);
+        val agreementOrders = agreementOrderRepository.pagination(gid, 1, total, null);
+        if (null != agreementOrders && !agreementOrders.isEmpty()) {
+            for (TAgreementOrder order : agreementOrders) {
+
+            }
+        }
+
+        // 生产订单
+        total = productOrderRepository.total(gid, null);
+        val productOrders = productOrderRepository.pagination(gid, 1, total, null);
+        if (null != productOrders && !productOrders.isEmpty()) {
+            for (TProductOrder order : productOrders) {
+
+            }
+        }
+
+        // 库存
+        //stockService.getStockCommodity(id, 0, );
         return RestResult.ok(data);
     }
 }

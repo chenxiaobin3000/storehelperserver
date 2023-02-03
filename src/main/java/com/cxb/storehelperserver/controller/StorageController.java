@@ -68,6 +68,11 @@ public class StorageController {
         return storageService.getGroupStorage(req.getId(), req.getPage(), req.getLimit(), req.getSearch());
     }
 
+    @PostMapping("/getGroupAllStorage")
+    public RestResult getGroupAllStorage(@Validated @RequestBody GetGroupAllStorageValid req) {
+        return storageService.getGroupAllStorage(req.getId());
+    }
+
     @PostMapping("/purchase")
     public RestResult purchase(@Validated @RequestBody PurchaseValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();

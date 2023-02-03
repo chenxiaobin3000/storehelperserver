@@ -232,6 +232,66 @@ public class HalfgoodService {
         return RestResult.ok(data);
     }
 
+    public RestResult getGroupAllHalfgood(int id) {
+        // 获取公司信息
+        TUserGroup group = userGroupRepository.find(id);
+        if (null == group) {
+            return RestResult.fail("获取公司信息失败");
+        }
+
+        int gid = group.getGid();
+        int total = halfgoodRepository.total(gid, null);
+        if (0 == total) {
+            val data = new HashMap<String, Object>();
+            data.put("total", 0);
+            data.put("list", null);
+            return RestResult.ok(data);
+        }
+
+        val commodities = halfgoodRepository.pagination(gid, 1, total, null);
+        if (null == commodities) {
+            return RestResult.fail("获取半成品信息失败");
+        }
+
+        val datas = new ArrayList<HashMap<String, Object>>();
+        for (THalfgood c : commodities) {
+            val tmp = new HashMap<String, Object>();
+            tmp.put("id", c.getId());
+            tmp.put("code", c.getCode());
+            tmp.put("name", c.getName());
+            tmp.put("cid", c.getCid());
+            tmp.put("price", c.getPrice().floatValue());
+            tmp.put("unit", c.getUnit());
+            tmp.put("remark", c.getRemark());
+            datas.add(tmp);
+
+            // 属性
+            List<THalfgoodAttr> attrs = halfgoodAttrRepository.find(c.getId());
+            if (null != attrs && !attrs.isEmpty()) {
+                val list = new ArrayList<String>();
+                tmp.put("attrs", list);
+                for (THalfgoodAttr attr : attrs) {
+                    list.add(attr.getValue());
+                }
+            }
+
+            // 关联来源
+            TOriginalHalfgood originalHalfgood = originalHalfgoodRepository.find(gid, c.getId());
+            if (null != originalHalfgood) {
+                TOriginal original = originalRepository.find(originalHalfgood.getOid());
+                if (null != original) {
+                    tmp.put("oid", original.getId());
+                    tmp.put("oname", original.getName());
+                }
+            }
+        }
+
+        val data = new HashMap<String, Object>();
+        data.put("total", total);
+        data.put("list", datas);
+        return RestResult.ok(data);
+    }
+
     public RestResult setHalfgoodOriginal(int id, int gid, int hid, int oid) {
         // 验证公司
         String msg = checkService.checkGroup(id, gid);

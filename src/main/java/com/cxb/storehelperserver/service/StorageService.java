@@ -189,6 +189,42 @@ public class StorageService {
         return RestResult.ok(data);
     }
 
+    public RestResult getGroupAllStorage(int id) {
+        // 获取公司信息
+        TUserGroup group = userGroupRepository.find(id);
+        if (null == group) {
+            return RestResult.fail("获取公司信息失败");
+        }
+
+        int total = storageRepository.total(group.getGid(), null);
+        if (0 == total) {
+            val data = new HashMap<String, Object>();
+            data.put("total", 0);
+            data.put("list", null);
+            return RestResult.ok(data);
+        }
+
+        // 查询联系人
+        val list2 = new ArrayList<>();
+        val list = storageRepository.pagination(group.getGid(), 1, total, null);
+        if (null != list && !list.isEmpty()) {
+            for (TStorage g : list) {
+                val storage = new HashMap<String, Object>();
+                storage.put("id", g.getId());
+                storage.put("area", String.valueOf(g.getArea()));
+                storage.put("name", g.getName());
+                storage.put("address", g.getAddress());
+                storage.put("contact", userRepository.find(g.getContact()));
+                list2.add(storage);
+            }
+        }
+
+        val data = new HashMap<String, Object>();
+        data.put("total", total);
+        data.put("list", list2);
+        return RestResult.ok(data);
+    }
+
     /**
      * desc: 原料进货
      */

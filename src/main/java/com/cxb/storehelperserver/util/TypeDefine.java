@@ -100,9 +100,7 @@ public class TypeDefine {
         REPORT_DAILY(1), // 每日报表
         REPORT_WEEKLY(2), // 每周报表
         REPORT_MONTH(3), // 月报表
-        REPORT_QUARTER(4), // 季度报表
-        REPORT_HALF(5), // 半年报表
-        REPORT_YEARLY(6); // 年度报表
+        REPORT_YEARLY(4); // 年度报表
 
         private int value = 0;
 
@@ -118,10 +116,6 @@ public class TypeDefine {
                     return REPORT_WEEKLY;
                 case 3:
                     return REPORT_MONTH;
-                case 4:
-                    return REPORT_QUARTER;
-                case 5:
-                    return REPORT_HALF;
             }
             return REPORT_YEARLY;
         }

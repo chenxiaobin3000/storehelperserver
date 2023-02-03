@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -70,6 +71,12 @@ public class StorageOrderRepository extends BaseRepository<TStorageOrder> {
         }
         example.setOffset((page - 1) * limit);
         example.setLimit(limit);
+        return storageOrderMapper.selectByExample(example);
+    }
+
+    public List<TStorageOrder> getAllByDate(int gid, Date start, Date end) {
+        TStorageOrderExample example = new TStorageOrderExample();
+        example.or().andGidEqualTo(gid).andApplyTimeGreaterThanOrEqualTo(start).andApplyTimeLessThan(end).andReviewGreaterThan(0);
         return storageOrderMapper.selectByExample(example);
     }
 

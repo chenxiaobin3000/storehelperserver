@@ -19,14 +19,14 @@ import java.util.List;
  */
 @Slf4j
 @Repository
-public class StockCommodityRepository extends BaseRepository<TStockCommodityDay> {
+public class StockCommodityDayRepository extends BaseRepository<TStockCommodityDay> {
     @Resource
     private TStockCommodityDayMapper stockCommodityDayMapper;
 
     @Resource
     private MyStockCommodityDayMapper myStockCommodityDayMapper;
 
-    public StockCommodityRepository() {
+    public StockCommodityDayRepository() {
         init("stockCD::");
     }
 
@@ -47,9 +47,9 @@ public class StockCommodityRepository extends BaseRepository<TStockCommodityDay>
         return stockCommodityDayMapper.selectOneByExample(example);
     }
 
-    public int total(int sid, Date date, String search) {
+    public int totalBySid(int sid, Date date, String search) {
         if (null != search) {
-            return myStockCommodityDayMapper.countByExample(sid, new java.sql.Date(date.getTime()), "%" + search + "%");
+            return myStockCommodityDayMapper.countBySid(sid, new java.sql.Date(date.getTime()), "%" + search + "%");
         } else {
             TStockCommodityDayExample example = new TStockCommodityDayExample();
             example.or().andSidEqualTo(sid).andCdateEqualTo(date);
@@ -57,11 +57,29 @@ public class StockCommodityRepository extends BaseRepository<TStockCommodityDay>
         }
     }
 
-    public List<MyStockCommodity> pagination(int sid, int page, int limit, Date date, String search) {
+    public List<MyStockCommodity> paginationBySid(int sid, int page, int limit, Date date, String search) {
         if (null != search) {
-            return myStockCommodityDayMapper.selectByExample((page - 1) * limit, limit, sid, new java.sql.Date(date.getTime()), "%" + search + "%");
+            return myStockCommodityDayMapper.selectBySid((page - 1) * limit, limit, sid, new java.sql.Date(date.getTime()), "%" + search + "%");
         } else {
-            return myStockCommodityDayMapper.selectByExample((page - 1) * limit, limit, sid, new java.sql.Date(date.getTime()), null);
+            return myStockCommodityDayMapper.selectBySid((page - 1) * limit, limit, sid, new java.sql.Date(date.getTime()), null);
+        }
+    }
+
+    public int totalByGid(int gid, Date date, String search) {
+        if (null != search) {
+            return myStockCommodityDayMapper.countByGid(gid, new java.sql.Date(date.getTime()), "%" + search + "%");
+        } else {
+            TStockCommodityDayExample example = new TStockCommodityDayExample();
+            example.or().andGidEqualTo(gid).andCdateEqualTo(date);
+            return (int) stockCommodityDayMapper.countByExample(example);
+        }
+    }
+
+    public List<MyStockCommodity> paginationByGid(int gid, int page, int limit, Date date, String search) {
+        if (null != search) {
+            return myStockCommodityDayMapper.selectByGid((page - 1) * limit, limit, gid, new java.sql.Date(date.getTime()), "%" + search + "%");
+        } else {
+            return myStockCommodityDayMapper.selectByGid((page - 1) * limit, limit, gid, new java.sql.Date(date.getTime()), null);
         }
     }
 

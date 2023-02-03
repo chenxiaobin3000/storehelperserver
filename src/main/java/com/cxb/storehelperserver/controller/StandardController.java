@@ -66,4 +66,9 @@ public class StandardController {
     public RestResult getGroupStandard(@Validated @RequestBody GetGroupStandardValid req) {
         return standardService.getGroupStandard(req.getId(), req.getPage(), req.getLimit(), req.getSearch());
     }
+
+    @PostMapping("/getGroupAllStandard")
+    public RestResult getGroupAllStandard(@Validated @RequestBody GetGroupAllStandardValid req) {
+        return standardService.getGroupAllStandard(req.getId());
+    }
 }

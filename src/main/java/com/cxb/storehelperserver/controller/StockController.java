@@ -98,6 +98,6 @@ public class StockController {
     // TODO 库存，展示，包装，销售
     @PostMapping("/countStockDay")
     public RestResult countStockDay(@Validated @RequestBody CountStockDayValid req) {
-        return stockService.countStockDay(req.getId(), req.getSid());
+        return stockService.countStockDay(req.getId(), req.getGid());
     }
 }

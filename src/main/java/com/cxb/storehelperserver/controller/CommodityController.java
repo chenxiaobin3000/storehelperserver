@@ -67,6 +67,11 @@ public class CommodityController {
         return commodityService.getGroupCommodity(req.getId(), req.getPage(), req.getLimit(), req.getSearch());
     }
 
+    @PostMapping("/getGroupAllCommodity")
+    public RestResult getGroupAllCommodity(@Validated @RequestBody GetGroupAllCommodityValid req) {
+        return commodityService.getGroupAllCommodity(req.getId());
+    }
+
     @PostMapping("/setCommodityOriginal")
     public RestResult setCommodityOriginal(@Validated @RequestBody SetCommodityOriginalValid req) {
         return commodityService.setCommodityOriginal(req.getId(), req.getGid(), req.getCid(), req.getOid());

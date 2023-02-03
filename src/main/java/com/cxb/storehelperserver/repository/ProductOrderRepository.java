@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -70,6 +71,12 @@ public class ProductOrderRepository extends BaseRepository<TProductOrder> {
         }
         example.setOffset((page - 1) * limit);
         example.setLimit(limit);
+        return productOrderMapper.selectByExample(example);
+    }
+
+    public List<TProductOrder> getAllByDate(int gid, Date start, Date end) {
+        TProductOrderExample example = new TProductOrderExample();
+        example.or().andGidEqualTo(gid).andApplyTimeGreaterThanOrEqualTo(start).andApplyTimeLessThan(end).andReviewGreaterThan(0);
         return productOrderMapper.selectByExample(example);
     }
 

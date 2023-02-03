@@ -67,6 +67,11 @@ public class DestroyController {
         return destroyService.getGroupDestroy(req.getId(), req.getPage(), req.getLimit(), req.getSearch());
     }
 
+    @PostMapping("/getGroupAllDestroy")
+    public RestResult getGroupAllDestroy(@Validated @RequestBody GetGroupAllDestroyValid req) {
+        return destroyService.getGroupAllDestroy(req.getId());
+    }
+
     @PostMapping("/setDestroyOriginal")
     public RestResult setDestroyOriginal(@Validated @RequestBody SetDestroyOriginalValid req) {
         return destroyService.setDestroyOriginal(req.getId(), req.getGid(), req.getDid(), req.getOid());

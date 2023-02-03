@@ -19,14 +19,14 @@ import java.util.List;
  */
 @Slf4j
 @Repository
-public class StockHalfgoodRepository extends BaseRepository<TStockHalfgoodDay> {
+public class StockHalfgoodDayRepository extends BaseRepository<TStockHalfgoodDay> {
     @Resource
     private TStockHalfgoodDayMapper stockHalfgoodDayMapper;
 
     @Resource
     private MyStockHalfgoodDayMapper myStockHalfgoodDayMapper;
 
-    public StockHalfgoodRepository() {
+    public StockHalfgoodDayRepository() {
         init("stockHD::");
     }
 
@@ -47,9 +47,9 @@ public class StockHalfgoodRepository extends BaseRepository<TStockHalfgoodDay> {
         return stockHalfgoodDayMapper.selectOneByExample(example);
     }
 
-    public int total(int sid, Date date, String search) {
+    public int totalBySid(int sid, Date date, String search) {
         if (null != search) {
-            return myStockHalfgoodDayMapper.countByExample(sid, new java.sql.Date(date.getTime()), "%" + search + "%");
+            return myStockHalfgoodDayMapper.countBySid(sid, new java.sql.Date(date.getTime()), "%" + search + "%");
         } else {
             TStockHalfgoodDayExample example = new TStockHalfgoodDayExample();
             example.or().andSidEqualTo(sid).andCdateEqualTo(date);
@@ -57,20 +57,34 @@ public class StockHalfgoodRepository extends BaseRepository<TStockHalfgoodDay> {
         }
     }
 
-    public List<MyStockHalfgood> pagination(int sid, int page, int limit, Date date, String search) {
+    public List<MyStockHalfgood> paginationBySid(int sid, int page, int limit, Date date, String search) {
         if (null != search) {
-            return myStockHalfgoodDayMapper.selectByExample((page - 1) * limit, limit, sid, new java.sql.Date(date.getTime()), "%" + search + "%");
+            return myStockHalfgoodDayMapper.selectBySid((page - 1) * limit, limit, sid, new java.sql.Date(date.getTime()), "%" + search + "%");
         } else {
-            return myStockHalfgoodDayMapper.selectByExample((page - 1) * limit, limit, sid, new java.sql.Date(date.getTime()), null);
+            return myStockHalfgoodDayMapper.selectBySid((page - 1) * limit, limit, sid, new java.sql.Date(date.getTime()), null);
+        }
+    }
+
+    public int totalByGid(int gid, Date date, String search) {
+        if (null != search) {
+            return myStockHalfgoodDayMapper.countByGid(gid, new java.sql.Date(date.getTime()), "%" + search + "%");
+        } else {
+            TStockHalfgoodDayExample example = new TStockHalfgoodDayExample();
+            example.or().andGidEqualTo(gid).andCdateEqualTo(date);
+            return (int) stockHalfgoodDayMapper.countByExample(example);
+        }
+    }
+
+    public List<MyStockHalfgood> paginationByGid(int gid, int page, int limit, Date date, String search) {
+        if (null != search) {
+            return myStockHalfgoodDayMapper.selectByGid((page - 1) * limit, limit, gid, new java.sql.Date(date.getTime()), "%" + search + "%");
+        } else {
+            return myStockHalfgoodDayMapper.selectByGid((page - 1) * limit, limit, gid, new java.sql.Date(date.getTime()), null);
         }
     }
 
     public boolean insert(TStockHalfgoodDay row) {
         return stockHalfgoodDayMapper.insert(row) > 0;
-    }
-
-    public boolean update(TStockHalfgoodDay row) {
-        return stockHalfgoodDayMapper.updateByPrimaryKey(row) > 0;
     }
 
     public boolean delete(int sid, Date date) {

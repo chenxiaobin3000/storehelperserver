@@ -19,14 +19,14 @@ import java.util.List;
  */
 @Slf4j
 @Repository
-public class StockStandardRepository extends BaseRepository<TStockStandardDay> {
+public class StockStandardDayRepository extends BaseRepository<TStockStandardDay> {
     @Resource
     private TStockStandardDayMapper stockStandardDayMapper;
 
     @Resource
     private MyStockStandardDayMapper myStockStandardDayMapper;
 
-    public StockStandardRepository() {
+    public StockStandardDayRepository() {
         init("stockSD::");
     }
 
@@ -47,9 +47,9 @@ public class StockStandardRepository extends BaseRepository<TStockStandardDay> {
         return stockStandardDayMapper.selectOneByExample(example);
     }
 
-    public int total(int sid, Date date, String search) {
+    public int totalBySid(int sid, Date date, String search) {
         if (null != search) {
-            return myStockStandardDayMapper.countByExample(sid, new java.sql.Date(date.getTime()), "%" + search + "%");
+            return myStockStandardDayMapper.countBySid(sid, new java.sql.Date(date.getTime()), "%" + search + "%");
         } else {
             TStockStandardDayExample example = new TStockStandardDayExample();
             example.or().andSidEqualTo(sid).andCdateEqualTo(date);
@@ -57,20 +57,34 @@ public class StockStandardRepository extends BaseRepository<TStockStandardDay> {
         }
     }
 
-    public List<MyStockStandard> pagination(int sid, int page, int limit, Date date, String search) {
+    public List<MyStockStandard> paginationBySid(int sid, int page, int limit, Date date, String search) {
         if (null != search) {
-            return myStockStandardDayMapper.selectByExample((page - 1) * limit, limit, sid, new java.sql.Date(date.getTime()), "%" + search + "%");
+            return myStockStandardDayMapper.selectBySid((page - 1) * limit, limit, sid, new java.sql.Date(date.getTime()), "%" + search + "%");
         } else {
-            return myStockStandardDayMapper.selectByExample((page - 1) * limit, limit, sid, new java.sql.Date(date.getTime()), null);
+            return myStockStandardDayMapper.selectBySid((page - 1) * limit, limit, sid, new java.sql.Date(date.getTime()), null);
+        }
+    }
+
+    public int totalByGid(int gid, Date date, String search) {
+        if (null != search) {
+            return myStockStandardDayMapper.countByGid(gid, new java.sql.Date(date.getTime()), "%" + search + "%");
+        } else {
+            TStockStandardDayExample example = new TStockStandardDayExample();
+            example.or().andGidEqualTo(gid).andCdateEqualTo(date);
+            return (int) stockStandardDayMapper.countByExample(example);
+        }
+    }
+
+    public List<MyStockStandard> paginationByGid(int gid, int page, int limit, Date date, String search) {
+        if (null != search) {
+            return myStockStandardDayMapper.selectByGid((page - 1) * limit, limit, gid, new java.sql.Date(date.getTime()), "%" + search + "%");
+        } else {
+            return myStockStandardDayMapper.selectByGid((page - 1) * limit, limit, gid, new java.sql.Date(date.getTime()), null);
         }
     }
 
     public boolean insert(TStockStandardDay row) {
         return stockStandardDayMapper.insert(row) > 0;
-    }
-
-    public boolean update(TStockStandardDay row) {
-        return stockStandardDayMapper.updateByPrimaryKey(row) > 0;
     }
 
     public boolean delete(int sid, Date date) {
