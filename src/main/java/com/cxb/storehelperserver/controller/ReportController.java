@@ -24,7 +24,7 @@ public class ReportController {
     @Resource
     private ReportService reportService;
 
-    @PostMapping("/getToday")
+    @PostMapping("/getYesterday")
     public RestResult getToday(@Validated @RequestBody getTodayReportValid req) {
         return reportService.getTodayReport(req.getId(), req.getGid());
     }

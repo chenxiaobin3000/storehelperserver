@@ -71,6 +71,7 @@ public class StorageOrderRepository extends BaseRepository<TStorageOrder> {
         }
         example.setOffset((page - 1) * limit);
         example.setLimit(limit);
+        example.setOrderByClause("ctime desc");
         return storageOrderMapper.selectByExample(example);
     }
 

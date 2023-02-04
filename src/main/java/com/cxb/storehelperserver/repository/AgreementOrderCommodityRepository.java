@@ -46,8 +46,12 @@ public class AgreementOrderCommodityRepository extends BaseRepository<List> {
         return agreementOrderCommoditys;
     }
 
+    public List<MyOrderCommodity> findByGid(int gid, Date start, Date end) {
+        return myAgreementOrderCommodityMapper.selectByGid(gid, start, end);
+    }
+
     public List<MyOrderCommodity> findBySid(int sid, Date start, Date end) {
-        return myAgreementOrderCommodityMapper.select(sid, start, end);
+        return myAgreementOrderCommodityMapper.selectBySid(sid, start, end);
     }
 
     // 注意：数据被缓存在AgreementCommodityService，所以不能直接调用该函数

@@ -71,6 +71,7 @@ public class AgreementOrderRepository extends BaseRepository<TAgreementOrder> {
         }
         example.setOffset((page - 1) * limit);
         example.setLimit(limit);
+        example.setOrderByClause("ctime desc");
         return agreementOrderMapper.selectByExample(example);
     }
 

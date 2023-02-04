@@ -8,6 +8,10 @@ import java.math.BigDecimal;
 public class MyStockStandard {
     private Integer id;
 
+    private Integer gid;
+
+    private Integer sid;
+
     private Integer unit;
 
     private Integer value;

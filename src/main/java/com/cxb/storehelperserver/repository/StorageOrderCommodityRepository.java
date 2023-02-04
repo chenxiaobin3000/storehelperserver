@@ -46,8 +46,12 @@ public class StorageOrderCommodityRepository extends BaseRepository<List> {
         return storageOrderCommoditys;
     }
 
+    public List<MyOrderCommodity> findByGid(int gid, Date start, Date end) {
+        return myStorageOrderCommodityMapper.selectByGid(gid, start, end);
+    }
+
     public List<MyOrderCommodity> findBySid(int sid, Date start, Date end) {
-        return myStorageOrderCommodityMapper.select(sid, start, end);
+        return myStorageOrderCommodityMapper.selectBySid(sid, start, end);
     }
 
     // 注意：数据被缓存在StorageCommodityService，所以不能直接调用该函数

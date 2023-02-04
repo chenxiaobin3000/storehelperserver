@@ -66,6 +66,7 @@ public class OriginalRepository extends BaseRepository<TOriginal> {
         }
         example.setOffset((page - 1) * limit);
         example.setLimit(limit);
+        example.setOrderByClause("ctime desc");
         return originalMapper.selectByExample(example);
     }
 

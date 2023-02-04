@@ -71,6 +71,7 @@ public class ProductOrderRepository extends BaseRepository<TProductOrder> {
         }
         example.setOffset((page - 1) * limit);
         example.setLimit(limit);
+        example.setOrderByClause("ctime desc");
         return productOrderMapper.selectByExample(example);
     }
 

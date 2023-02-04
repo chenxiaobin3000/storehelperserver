@@ -66,6 +66,7 @@ public class DestroyRepository extends BaseRepository<TDestroy> {
         }
         example.setOffset((page - 1) * limit);
         example.setLimit(limit);
+        example.setOrderByClause("ctime desc");
         return destroyMapper.selectByExample(example);
     }
 

@@ -66,6 +66,7 @@ public class CommodityRepository extends BaseRepository<TCommodity> {
         }
         example.setOffset((page - 1) * limit);
         example.setLimit(limit);
+        example.setOrderByClause("ctime desc");
         return commodityMapper.selectByExample(example);
     }
 

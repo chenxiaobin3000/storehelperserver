@@ -11,7 +11,7 @@ import javax.validation.constraints.Min;
  * date: 2023/1/24
  */
 @Data
-public class CountStockDayValid implements IValid {
+public class CountStockValid implements IValid {
     @Min(value = 1, message = "账号错误")
     private int id;
 

@@ -1,11 +1,11 @@
 package com.cxb.storehelperserver.service;
 
-import com.cxb.storehelperserver.model.TAgreementOrder;
-import com.cxb.storehelperserver.model.TProductOrder;
-import com.cxb.storehelperserver.model.TStorageOrder;
+import com.cxb.storehelperserver.model.TStorage;
 import com.cxb.storehelperserver.repository.AgreementOrderRepository;
 import com.cxb.storehelperserver.repository.ProductOrderRepository;
 import com.cxb.storehelperserver.repository.StorageOrderRepository;
+import com.cxb.storehelperserver.repository.StorageRepository;
+import com.cxb.storehelperserver.repository.model.*;
 import com.cxb.storehelperserver.util.DateUtil;
 import com.cxb.storehelperserver.util.RestResult;
 import lombok.extern.slf4j.Slf4j;
@@ -14,11 +14,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 import static com.cxb.storehelperserver.util.Permission.dashboard_report;
 import static com.cxb.storehelperserver.util.Permission.mp_report;
+import static com.cxb.storehelperserver.util.TypeDefine.ReportCycleType.*;
 
 /**
  * desc: 报表业务
@@ -45,6 +48,9 @@ public class ReportService {
     private StorageOrderRepository storageOrderRepository;
 
     @Resource
+    private StorageRepository storageRepository;
+
+    @Resource
     private DateUtil dateUtil;
 
     public RestResult getTodayReport(int id, int gid) {
@@ -60,43 +66,116 @@ public class ReportService {
         }
 
         // 使用昨天时间
-        Date yesterday = dateUtil.addOneDay(new Date(), -1);
+        Date today = new Date();
+        Date yesterday = dateUtil.addOneDay(today, -1);
         Date start = dateUtil.getStartTime(yesterday);
         Date end = dateUtil.getEndTime(yesterday);
 
-
         // TODO 销售报表
         val data = new HashMap<String, Object>();
+        val market = new HashMap<String, Object>();
+        data.put("market", market);
+        market.put("total", 0);
+        market.put("list", null);
 
         // 仓储订单
-        // 根据当天时间计算
+        val storage = new HashMap<String, Object>();
+        data.put("storage", storage);
         val storageOrders = storageOrderRepository.getAllByDate(gid, start, end);
-        if (null != storageOrders && !storageOrders.isEmpty()) {
-            for (TStorageOrder order : storageOrders) {
-
-            }
-        }
+        storage.put("total", (null == storageOrders || storageOrders.isEmpty()) ? 0 : storageOrders.size());
+        storage.put("list", storageOrders);
 
         // 履约订单
-        total = agreementOrderRepository.total(gid, null);
-        val agreementOrders = agreementOrderRepository.pagination(gid, 1, total, null);
-        if (null != agreementOrders && !agreementOrders.isEmpty()) {
-            for (TAgreementOrder order : agreementOrders) {
-
-            }
-        }
+        val agreement = new HashMap<String, Object>();
+        data.put("agreement", agreement);
+        val agreementOrders = agreementOrderRepository.getAllByDate(gid, start, end);
+        agreement.put("total", (null == agreementOrders || agreementOrders.isEmpty()) ? 0 : agreementOrders.size());
+        agreement.put("list", agreementOrders);
 
         // 生产订单
-        total = productOrderRepository.total(gid, null);
-        val productOrders = productOrderRepository.pagination(gid, 1, total, null);
-        if (null != productOrders && !productOrders.isEmpty()) {
-            for (TProductOrder order : productOrders) {
+        val product = new HashMap<String, Object>();
+        data.put("product", product);
+        val productOrders = productOrderRepository.getAllByDate(gid, start, end);
+        product.put("total", (null == productOrders || productOrders.isEmpty()) ? 0 : productOrders.size());
+        product.put("list", productOrders);
 
+        // 库存
+        val cdata = new HashMap<Integer, Integer>();
+        val commodities = stockService.getAllStockCommodity(gid, 0, today, REPORT_DAILY);
+        if (null != commodities && !commodities.isEmpty()) {
+            for (MyStockCommodity c : commodities) {
+                cdata.merge(c.getSid(), c.getValue(), Integer::sum);
+            }
+        }
+        val hdata = new HashMap<Integer, Integer>();
+        val halfgoods = stockService.getAllStockHalfgood(gid, 0, today, REPORT_DAILY);
+        if (null != halfgoods && !halfgoods.isEmpty()) {
+            for (MyStockHalfgood c : halfgoods) {
+                hdata.merge(c.getSid(), c.getValue(), Integer::sum);
+            }
+        }
+        val odata = new HashMap<Integer, Integer>();
+        val originals = stockService.getAllStockOriginal(gid, 0, today, REPORT_DAILY);
+        if (null != originals && !originals.isEmpty()) {
+            for (MyStockOriginal c : originals) {
+                odata.merge(c.getSid(), c.getValue(), Integer::sum);
+            }
+        }
+        val sdata = new HashMap<Integer, Integer>();
+        val standards = stockService.getAllStockStandard(gid, 0, today, REPORT_DAILY);
+        if (null != standards && !standards.isEmpty()) {
+            for (MyStockStandard c : standards) {
+                sdata.merge(c.getSid(), c.getValue(), Integer::sum);
+            }
+        }
+        val ddata = new HashMap<Integer, Integer>();
+        val destroys = stockService.getAllStockDestroy(gid, 0, today, REPORT_DAILY);
+        if (null != destroys && !destroys.isEmpty()) {
+            for (MyStockDestroy c : destroys) {
+                ddata.merge(c.getSid(), c.getValue(), Integer::sum);
             }
         }
 
-        // 库存
-        //stockService.getStockCommodity(id, 0, );
+        // 仓库信息
+        val stocks = new ArrayList<>();
+        int total = storageRepository.total(gid, null);
+        val storages = storageRepository.pagination(gid, 1, total, null);
+        if (null != storages && !storages.isEmpty()) {
+            for (TStorage s : storages) {
+                int sid = s.getId();
+                int sum = 0;
+                for (Map.Entry<Integer, Integer> entry : cdata.entrySet()) {
+                    if (entry.getKey().equals(sid)) {
+                        sum += entry.getValue();
+                    }
+                }
+                for (Map.Entry<Integer, Integer> entry : hdata.entrySet()) {
+                    if (entry.getKey().equals(sid)) {
+                        sum += entry.getValue();
+                    }
+                }
+                for (Map.Entry<Integer, Integer> entry : odata.entrySet()) {
+                    if (entry.getKey().equals(sid)) {
+                        sum += entry.getValue();
+                    }
+                }
+                for (Map.Entry<Integer, Integer> entry : sdata.entrySet()) {
+                    if (entry.getKey().equals(sid)) {
+                        sum += entry.getValue();
+                    }
+                }
+                for (Map.Entry<Integer, Integer> entry : ddata.entrySet()) {
+                    if (entry.getKey().equals(sid)) {
+                        sum += entry.getValue();
+                    }
+                }
+                val stock = new HashMap<String, Object>();
+                stock.put("name", s.getName());
+                stock.put("total", sum);
+                stocks.add(stock);
+            }
+        }
+        data.put("stock", stocks);
         return RestResult.ok(data);
     }
 }

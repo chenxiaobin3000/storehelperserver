@@ -66,6 +66,7 @@ public class HalfgoodRepository extends BaseRepository<THalfgood> {
         }
         example.setOffset((page - 1) * limit);
         example.setLimit(limit);
+        example.setOrderByClause("ctime desc");
         return halfgoodMapper.selectByExample(example);
     }
 

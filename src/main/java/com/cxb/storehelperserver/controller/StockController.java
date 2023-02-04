@@ -1,11 +1,10 @@
 package com.cxb.storehelperserver.controller;
 
-import com.cxb.storehelperserver.controller.request.stock.CountStockDayValid;
+import com.cxb.storehelperserver.controller.request.stock.CountStockValid;
 import com.cxb.storehelperserver.controller.request.stock.GetStockCommodityValid;
 import com.cxb.storehelperserver.service.StockService;
 import com.cxb.storehelperserver.util.DateUtil;
 import com.cxb.storehelperserver.util.RestResult;
-import com.cxb.storehelperserver.util.TypeDefine;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -96,8 +95,8 @@ public class StockController {
     }
 
     // TODO 库存，展示，包装，销售
-    @PostMapping("/countStockDay")
-    public RestResult countStockDay(@Validated @RequestBody CountStockDayValid req) {
-        return stockService.countStockDay(req.getId(), req.getGid());
+    @PostMapping("/countStock")
+    public RestResult countStock(@Validated @RequestBody CountStockValid req) {
+        return stockService.countStock(req.getId(), req.getGid());
     }
 }

@@ -8,6 +8,10 @@ import java.math.BigDecimal;
 public class MyStockDestroy {
     private Integer id;
 
+    private Integer gid;
+
+    private Integer sid;
+
     private Integer unit;
 
     private Integer value;

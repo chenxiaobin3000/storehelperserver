@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.util.*;
 
 import static com.cxb.storehelperserver.util.Permission.*;
+import static com.cxb.storehelperserver.util.TypeDefine.OrderType.*;
 
 /**
  * desc: 履约业务
@@ -104,24 +105,28 @@ public class AgreementService {
 
         // 添加用户订单冗余信息
         String batch = order.getBatch();
-        TUserOrderApply userOrderApply = new TUserOrderApply();
-        userOrderApply.setUid(id);
-        userOrderApply.setOtype(TypeDefine.OrderType.AGREEMENT_OUT_ORDER.getValue());
-        userOrderApply.setOid(oid);
-        userOrderApply.setBatch(batch);
-        if (!userOrderApplyRepository.insert(userOrderApply)) {
+        TUserOrderApply apply = new TUserOrderApply();
+        apply.setUid(id);
+        apply.setGid(order.getGid());
+        apply.setSid(order.getSid());
+        apply.setOtype(AGREEMENT_OUT_ORDER.getValue());
+        apply.setOid(oid);
+        apply.setBatch(batch);
+        if (!userOrderApplyRepository.insert(apply)) {
             return RestResult.fail("添加用户订单信息失败");
         }
 
         // 添加用户订单审核信息
-        TUserOrderReview userOrderReview = new TUserOrderReview();
-        userOrderReview.setOtype(TypeDefine.OrderType.AGREEMENT_OUT_ORDER.getValue());
-        userOrderReview.setOid(oid);
-        userOrderReview.setBatch(batch);
+        TUserOrderReview review = new TUserOrderReview();
+        review.setGid(order.getGid());
+        review.setSid(order.getSid());
+        review.setOtype(AGREEMENT_OUT_ORDER.getValue());
+        review.setOid(oid);
+        review.setBatch(batch);
         for (Integer reviewer : reviews) {
-            userOrderReview.setId(0);
-            userOrderReview.setUid(reviewer);
-            if (!userOrderReviewRepository.insert(userOrderReview)) {
+            review.setId(0);
+            review.setUid(reviewer);
+            if (!userOrderReviewRepository.insert(review)) {
                 return RestResult.fail("添加用户订单审核信息失败");
             }
         }
@@ -146,6 +151,23 @@ public class AgreementService {
         }
         if (null != agreementOrder.getReview()) {
             return RestResult.fail("已审核的订单不能修改");
+        }
+
+        // 更新仓库信息
+        if (!agreementOrder.getSid().equals(order.getSid())) {
+            val userOrderApply = userOrderApplyRepository.find(AGREEMENT_OUT_ORDER.getValue(), order.getId());
+            userOrderApply.setSid(order.getSid());
+            if (!userOrderApplyRepository.update(userOrderApply)) {
+                return RestResult.fail("修改用户订单信息失败");
+            }
+
+            val userOrderReviews = userOrderReviewRepository.find(AGREEMENT_OUT_ORDER.getValue(), order.getId());
+            for (TUserOrderReview review : userOrderReviews) {
+                review.setSid(order.getSid());
+                if (!userOrderReviewRepository.update(review)) {
+                    return RestResult.fail("修改用户订单审核信息失败");
+                }
+            }
         }
 
         // 生成进货单
@@ -201,14 +223,14 @@ public class AgreementService {
         }
 
         if (null == review) {
-            if (!userOrderApplyRepository.delete(TypeDefine.OrderType.AGREEMENT_OUT_ORDER.getValue(), oid)) {
+            if (!userOrderApplyRepository.delete(AGREEMENT_OUT_ORDER.getValue(), oid)) {
                 return RestResult.fail("删除订单申请人失败");
             }
-            if (!userOrderReviewRepository.delete(TypeDefine.OrderType.AGREEMENT_OUT_ORDER.getValue(), oid)) {
+            if (!userOrderReviewRepository.delete(AGREEMENT_OUT_ORDER.getValue(), oid)) {
                 return RestResult.fail("删除订单审核人失败");
             }
         } else {
-            if (!userOrderCompleteRepository.delete(TypeDefine.OrderType.AGREEMENT_IN_ORDER.getValue(), oid)) {
+            if (!userOrderCompleteRepository.delete(AGREEMENT_OUT_ORDER.getValue(), oid)) {
                 return RestResult.fail("删除完成订单失败");
             }
         }
@@ -220,7 +242,7 @@ public class AgreementService {
 
     public RestResult reviewShipped(int id, int oid) {
         // 校验审核人员信息
-        val reviews = userOrderReviewRepository.find(TypeDefine.OrderType.AGREEMENT_OUT_ORDER.getValue(), oid);
+        val reviews = userOrderReviewRepository.find(AGREEMENT_OUT_ORDER.getValue(), oid);
         boolean find = false;
         for (TUserOrderReview review : reviews) {
             if (review.getUid().equals(id)) {
@@ -246,18 +268,19 @@ public class AgreementService {
         }
 
         // 删除apply和review信息
-        if (!userOrderApplyRepository.delete(TypeDefine.OrderType.AGREEMENT_OUT_ORDER.getValue(), oid)) {
+        if (!userOrderApplyRepository.delete(AGREEMENT_OUT_ORDER.getValue(), oid)) {
             return RestResult.fail("删除用户订单信息失败");
         }
-        if (!userOrderReviewRepository.delete(TypeDefine.OrderType.AGREEMENT_OUT_ORDER.getValue(), oid)) {
+        if (!userOrderReviewRepository.delete(AGREEMENT_OUT_ORDER.getValue(), oid)) {
             return RestResult.fail("添加用户订单审核信息失败");
         }
         // 插入complete信息
         TUserOrderComplete complete = new TUserOrderComplete();
         complete.setUid(id);
-        complete.setOtype(TypeDefine.OrderType.AGREEMENT_OUT_ORDER.getValue());
-        complete.setOid(oid);
+        complete.setGid(order.getGid());
         complete.setSid(order.getSid());
+        complete.setOtype(AGREEMENT_OUT_ORDER.getValue());
+        complete.setOid(oid);
         complete.setBatch(order.getBatch());
         complete.setCdate(dateUtil.getStartTime(order.getApplyTime()));
         if (!userOrderCompleteRepository.insert(complete)) {
@@ -295,30 +318,34 @@ public class AgreementService {
             }
         }
 
-        if (!userOrderCompleteRepository.delete(TypeDefine.OrderType.AGREEMENT_OUT_ORDER.getValue(), oid)) {
+        if (!userOrderCompleteRepository.delete(AGREEMENT_OUT_ORDER.getValue(), oid)) {
             return RestResult.fail("添加用户订单完成信息失败");
         }
 
         // 添加用户订单冗余信息
         String batch = order.getBatch();
-        TUserOrderApply userOrderApply = new TUserOrderApply();
-        userOrderApply.setUid(id);
-        userOrderApply.setOtype(TypeDefine.OrderType.AGREEMENT_OUT_ORDER.getValue());
-        userOrderApply.setOid(oid);
-        userOrderApply.setBatch(batch);
-        if (!userOrderApplyRepository.insert(userOrderApply)) {
+        TUserOrderApply apply = new TUserOrderApply();
+        apply.setUid(id);
+        apply.setGid(order.getGid());
+        apply.setSid(order.getSid());
+        apply.setOtype(AGREEMENT_OUT_ORDER.getValue());
+        apply.setOid(oid);
+        apply.setBatch(batch);
+        if (!userOrderApplyRepository.insert(apply)) {
             return RestResult.fail("添加用户订单信息失败");
         }
 
         // 添加用户订单审核信息
-        TUserOrderReview userOrderReview = new TUserOrderReview();
-        userOrderReview.setOtype(TypeDefine.OrderType.AGREEMENT_OUT_ORDER.getValue());
-        userOrderReview.setOid(oid);
-        userOrderReview.setBatch(batch);
+        TUserOrderReview review = new TUserOrderReview();
+        review.setGid(order.getGid());
+        review.setSid(order.getSid());
+        review.setOtype(AGREEMENT_OUT_ORDER.getValue());
+        review.setOid(oid);
+        review.setBatch(batch);
         for (Integer reviewer : reviews) {
-            userOrderReview.setId(0);
-            userOrderReview.setUid(reviewer);
-            if (!userOrderReviewRepository.insert(userOrderReview)) {
+            review.setId(0);
+            review.setUid(reviewer);
+            if (!userOrderReviewRepository.insert(review)) {
                 return RestResult.fail("添加用户订单审核信息失败");
             }
         }
@@ -361,24 +388,28 @@ public class AgreementService {
 
         // 添加用户订单冗余信息
         String batch = order.getBatch();
-        TUserOrderApply userOrderApply = new TUserOrderApply();
-        userOrderApply.setUid(id);
-        userOrderApply.setOtype(TypeDefine.OrderType.AGREEMENT_IN_ORDER.getValue());
-        userOrderApply.setOid(oid);
-        userOrderApply.setBatch(batch);
-        if (!userOrderApplyRepository.insert(userOrderApply)) {
+        TUserOrderApply apply = new TUserOrderApply();
+        apply.setUid(id);
+        apply.setGid(order.getGid());
+        apply.setSid(order.getSid());
+        apply.setOtype(AGREEMENT_IN_ORDER.getValue());
+        apply.setOid(oid);
+        apply.setBatch(batch);
+        if (!userOrderApplyRepository.insert(apply)) {
             return RestResult.fail("添加用户订单信息失败");
         }
 
         // 添加用户订单审核信息
-        TUserOrderReview userOrderReview = new TUserOrderReview();
-        userOrderReview.setOtype(TypeDefine.OrderType.AGREEMENT_IN_ORDER.getValue());
-        userOrderReview.setOid(oid);
-        userOrderReview.setBatch(batch);
+        TUserOrderReview review = new TUserOrderReview();
+        review.setGid(order.getGid());
+        review.setSid(order.getSid());
+        review.setOtype(AGREEMENT_IN_ORDER.getValue());
+        review.setOid(oid);
+        review.setBatch(batch);
         for (Integer reviewer : reviews) {
-            userOrderReview.setId(0);
-            userOrderReview.setUid(reviewer);
-            if (!userOrderReviewRepository.insert(userOrderReview)) {
+            review.setId(0);
+            review.setUid(reviewer);
+            if (!userOrderReviewRepository.insert(review)) {
                 return RestResult.fail("添加用户订单审核信息失败");
             }
         }
@@ -403,6 +434,23 @@ public class AgreementService {
         }
         if (null != agreementOrder.getReview()) {
             return RestResult.fail("已审核的订单不能修改");
+        }
+
+        // 更新仓库信息
+        if (!agreementOrder.getSid().equals(order.getSid())) {
+            val userOrderApply = userOrderApplyRepository.find(AGREEMENT_IN_ORDER.getValue(), order.getId());
+            userOrderApply.setSid(order.getSid());
+            if (!userOrderApplyRepository.update(userOrderApply)) {
+                return RestResult.fail("修改用户订单信息失败");
+            }
+
+            val userOrderReviews = userOrderReviewRepository.find(AGREEMENT_IN_ORDER.getValue(), order.getId());
+            for (TUserOrderReview review : userOrderReviews) {
+                review.setSid(order.getSid());
+                if (!userOrderReviewRepository.update(review)) {
+                    return RestResult.fail("修改用户订单审核信息失败");
+                }
+            }
         }
 
         // 生成进货单
@@ -458,14 +506,14 @@ public class AgreementService {
         }
 
         if (null == review) {
-            if (!userOrderApplyRepository.delete(TypeDefine.OrderType.AGREEMENT_IN_ORDER.getValue(), oid)) {
+            if (!userOrderApplyRepository.delete(AGREEMENT_IN_ORDER.getValue(), oid)) {
                 return RestResult.fail("删除订单申请人失败");
             }
-            if (!userOrderReviewRepository.delete(TypeDefine.OrderType.AGREEMENT_IN_ORDER.getValue(), oid)) {
+            if (!userOrderReviewRepository.delete(AGREEMENT_IN_ORDER.getValue(), oid)) {
                 return RestResult.fail("删除订单审核人失败");
             }
         } else {
-            if (!userOrderCompleteRepository.delete(TypeDefine.OrderType.AGREEMENT_IN_ORDER.getValue(), oid)) {
+            if (!userOrderCompleteRepository.delete(AGREEMENT_IN_ORDER.getValue(), oid)) {
                 return RestResult.fail("删除完成订单失败");
             }
         }
@@ -477,7 +525,7 @@ public class AgreementService {
 
     public RestResult reviewReturn(int id, int oid) {
         // 校验审核人员信息
-        val reviews = userOrderReviewRepository.find(TypeDefine.OrderType.AGREEMENT_IN_ORDER.getValue(), oid);
+        val reviews = userOrderReviewRepository.find(AGREEMENT_IN_ORDER.getValue(), oid);
         boolean find = false;
         for (TUserOrderReview review : reviews) {
             if (review.getUid().equals(id)) {
@@ -501,18 +549,19 @@ public class AgreementService {
         }
 
         // 删除apply和review信息
-        if (!userOrderApplyRepository.delete(TypeDefine.OrderType.AGREEMENT_IN_ORDER.getValue(), oid)) {
+        if (!userOrderApplyRepository.delete(AGREEMENT_IN_ORDER.getValue(), oid)) {
             return RestResult.fail("删除用户订单信息失败");
         }
-        if (!userOrderReviewRepository.delete(TypeDefine.OrderType.AGREEMENT_IN_ORDER.getValue(), oid)) {
+        if (!userOrderReviewRepository.delete(AGREEMENT_IN_ORDER.getValue(), oid)) {
             return RestResult.fail("添加用户订单审核信息失败");
         }
         // 插入complete信息
         TUserOrderComplete complete = new TUserOrderComplete();
         complete.setUid(id);
-        complete.setOtype(TypeDefine.OrderType.AGREEMENT_IN_ORDER.getValue());
-        complete.setOid(oid);
+        complete.setGid(order.getGid());
         complete.setSid(order.getSid());
+        complete.setOtype(AGREEMENT_IN_ORDER.getValue());
+        complete.setOid(oid);
         complete.setBatch(order.getBatch());
         complete.setCdate(dateUtil.getStartTime(order.getApplyTime()));
         if (!userOrderCompleteRepository.insert(complete)) {
@@ -550,30 +599,34 @@ public class AgreementService {
             }
         }
 
-        if (!userOrderCompleteRepository.delete(TypeDefine.OrderType.PRODUCT_IN_ORDER.getValue(), oid)) {
+        if (!userOrderCompleteRepository.delete(PRODUCT_IN_ORDER.getValue(), oid)) {
             return RestResult.fail("添加用户订单完成信息失败");
         }
 
         // 添加用户订单冗余信息
         String batch = order.getBatch();
-        TUserOrderApply userOrderApply = new TUserOrderApply();
-        userOrderApply.setUid(id);
-        userOrderApply.setOtype(TypeDefine.OrderType.PRODUCT_IN_ORDER.getValue());
-        userOrderApply.setOid(oid);
-        userOrderApply.setBatch(batch);
-        if (!userOrderApplyRepository.insert(userOrderApply)) {
+        TUserOrderApply apply = new TUserOrderApply();
+        apply.setUid(id);
+        apply.setGid(order.getGid());
+        apply.setSid(order.getSid());
+        apply.setOtype(PRODUCT_IN_ORDER.getValue());
+        apply.setOid(oid);
+        apply.setBatch(batch);
+        if (!userOrderApplyRepository.insert(apply)) {
             return RestResult.fail("添加用户订单信息失败");
         }
 
         // 添加用户订单审核信息
-        TUserOrderReview userOrderReview = new TUserOrderReview();
-        userOrderReview.setOtype(TypeDefine.OrderType.PRODUCT_IN_ORDER.getValue());
-        userOrderReview.setOid(oid);
-        userOrderReview.setBatch(batch);
+        TUserOrderReview review = new TUserOrderReview();
+        review.setGid(order.getGid());
+        review.setSid(order.getSid());
+        review.setOtype(PRODUCT_IN_ORDER.getValue());
+        review.setOid(oid);
+        review.setBatch(batch);
         for (Integer reviewer : reviews) {
-            userOrderReview.setId(0);
-            userOrderReview.setUid(reviewer);
-            if (!userOrderReviewRepository.insert(userOrderReview)) {
+            review.setId(0);
+            review.setUid(reviewer);
+            if (!userOrderReviewRepository.insert(review)) {
                 return RestResult.fail("添加用户订单审核信息失败");
             }
         }
