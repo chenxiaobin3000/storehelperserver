@@ -86,10 +86,11 @@ public class Permission {
     static public final int report_stock = 705;
 
     static public final int storage = 800;
-    static public final int storage_report = 801;
+    static public final int storage_reportstock = 801;
     static public final int storage_stock = 802;
-    static public final int storage_getlist = 803;
-    static public final int storage_alarm = 804;
+    static public final int storage_reportstorage = 803;
+    static public final int storage_getlist = 804;
+    static public final int storage_alarm = 805;
 
     static public final int supplier = 900;
     static public final int supplier_getlist = 901;

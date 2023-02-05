@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -185,19 +186,78 @@ public class ReportService {
     }
 
     public RestResult getAgreementReport(int id, int gid, ReportCycleType cycle) {
+        // 验证公司
+        String msg = checkService.checkGroup(id, gid);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+
+        SimpleDateFormat dateFormat = dateUtil.getSimpleDateFormat();
         Date end = dateUtil.getEndTime(new Date());
         Date start = dateUtil.addOneDay(end, -7);
-        val myUserOrderCompletes = userOrderCompleteRepository.findByAgreement(gid, 0, start, end);
-
-        return RestResult.ok();
+        val orders = userOrderCompleteRepository.findByAgreement(gid, 0, start, end);
+        val list = new ArrayList<>();
+        for (MyUserOrderComplete order : orders) {
+            val tmp = new HashMap<String, Object>();
+            tmp.put("num" , order.getCnum());
+            tmp.put("total" , order.getCtotal());
+            tmp.put("type" , order.getOtype());
+            tmp.put("date" , dateFormat.format(order.getCdate()));
+            list.add(tmp);
+        }
+        val data = new HashMap<String, Object>();
+        data.put("list", list);
+        return RestResult.ok(data);
     }
 
     public RestResult getProductReport(int id, int gid, ReportCycleType cycle) {
-        return RestResult.ok();
+        // 验证公司
+        String msg = checkService.checkGroup(id, gid);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+
+        SimpleDateFormat dateFormat = dateUtil.getSimpleDateFormat();
+        Date end = dateUtil.getEndTime(new Date());
+        Date start = dateUtil.addOneDay(end, -7);
+        val orders = userOrderCompleteRepository.findByProduct(gid, 0, start, end);
+        val list = new ArrayList<>();
+        for (MyUserOrderComplete order : orders) {
+            val tmp = new HashMap<String, Object>();
+            tmp.put("num" , order.getCnum());
+            tmp.put("total" , order.getCtotal());
+            tmp.put("type" , order.getOtype());
+            tmp.put("date" , dateFormat.format(order.getCdate()));
+            list.add(tmp);
+        }
+        val data = new HashMap<String, Object>();
+        data.put("list", list);
+        return RestResult.ok(data);
     }
 
     public RestResult getStorageReport(int id, int gid, ReportCycleType cycle) {
-        return RestResult.ok();
+        // 验证公司
+        String msg = checkService.checkGroup(id, gid);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+
+        SimpleDateFormat dateFormat = dateUtil.getSimpleDateFormat();
+        Date end = dateUtil.getEndTime(new Date());
+        Date start = dateUtil.addOneDay(end, -7);
+        val orders = userOrderCompleteRepository.findByStorage(gid, 0, start, end);
+        val list = new ArrayList<>();
+        for (MyUserOrderComplete order : orders) {
+            val tmp = new HashMap<String, Object>();
+            tmp.put("num" , order.getCnum());
+            tmp.put("total" , order.getCtotal());
+            tmp.put("type" , order.getOtype());
+            tmp.put("date" , dateFormat.format(order.getCdate()));
+            list.add(tmp);
+        }
+        val data = new HashMap<String, Object>();
+        data.put("list", list);
+        return RestResult.ok(data);
     }
 
     public RestResult getStockReport(int id, int gid, ReportCycleType cycle) {
