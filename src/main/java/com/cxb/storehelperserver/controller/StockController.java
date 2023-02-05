@@ -1,7 +1,6 @@
 package com.cxb.storehelperserver.controller;
 
-import com.cxb.storehelperserver.controller.request.stock.CountStockValid;
-import com.cxb.storehelperserver.controller.request.stock.GetStockCommodityValid;
+import com.cxb.storehelperserver.controller.request.stock.*;
 import com.cxb.storehelperserver.service.StockService;
 import com.cxb.storehelperserver.util.DateUtil;
 import com.cxb.storehelperserver.util.RestResult;
@@ -16,8 +15,6 @@ import javax.annotation.Resource;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
-import static com.cxb.storehelperserver.util.TypeDefine.ReportCycleType;
 
 /**
  * desc: 库存接口
@@ -43,11 +40,11 @@ public class StockController {
         } catch (ParseException e) {
             return RestResult.fail("查询日期转换失败");
         }
-        return stockService.getStockCommodity(req.getId(), req.getSid(), date, ReportCycleType.valueOf(req.getCycle()), req.getPage(), req.getLimit(), req.getSearch());
+        return stockService.getStockCommodity(req.getId(), req.getSid(), date, req.getPage(), req.getLimit(), req.getSearch());
     }
 
     @PostMapping("/getStockHalfgood")
-    public RestResult getStockHalfgood(@Validated @RequestBody GetStockCommodityValid req) {
+    public RestResult getStockHalfgood(@Validated @RequestBody GetStockHalfgoodValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
         Date date = null;
         try {
@@ -55,11 +52,11 @@ public class StockController {
         } catch (ParseException e) {
             return RestResult.fail("查询日期转换失败");
         }
-        return stockService.getStockHalfgood(req.getId(), req.getSid(), date, ReportCycleType.valueOf(req.getCycle()), req.getPage(), req.getLimit(), req.getSearch());
+        return stockService.getStockHalfgood(req.getId(), req.getSid(), date, req.getPage(), req.getLimit(), req.getSearch());
     }
 
     @PostMapping("/getStockOriginal")
-    public RestResult getStockOriginal(@Validated @RequestBody GetStockCommodityValid req) {
+    public RestResult getStockOriginal(@Validated @RequestBody GetStockOriginalValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
         Date date = null;
         try {
@@ -67,11 +64,11 @@ public class StockController {
         } catch (ParseException e) {
             return RestResult.fail("查询日期转换失败");
         }
-        return stockService.getStockOriginal(req.getId(), req.getSid(), date, ReportCycleType.valueOf(req.getCycle()), req.getPage(), req.getLimit(), req.getSearch());
+        return stockService.getStockOriginal(req.getId(), req.getSid(), date, req.getPage(), req.getLimit(), req.getSearch());
     }
 
     @PostMapping("/getStockStandard")
-    public RestResult getStockStandard(@Validated @RequestBody GetStockCommodityValid req) {
+    public RestResult getStockStandard(@Validated @RequestBody GetStockStandardValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
         Date date = null;
         try {
@@ -79,11 +76,11 @@ public class StockController {
         } catch (ParseException e) {
             return RestResult.fail("查询日期转换失败");
         }
-        return stockService.getStockStandard(req.getId(), req.getSid(), date, ReportCycleType.valueOf(req.getCycle()), req.getPage(), req.getLimit(), req.getSearch());
+        return stockService.getStockStandard(req.getId(), req.getSid(), date, req.getPage(), req.getLimit(), req.getSearch());
     }
 
     @PostMapping("/getStockDestroy")
-    public RestResult getStockDestroy(@Validated @RequestBody GetStockCommodityValid req) {
+    public RestResult getStockDestroy(@Validated @RequestBody GetStockDestoryValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
         Date date = null;
         try {
@@ -91,7 +88,7 @@ public class StockController {
         } catch (ParseException e) {
             return RestResult.fail("查询日期转换失败");
         }
-        return stockService.getStockDestroy(req.getId(), req.getSid(), date, ReportCycleType.valueOf(req.getCycle()), req.getPage(), req.getLimit(), req.getSearch());
+        return stockService.getStockDestroy(req.getId(), req.getSid(), date, req.getPage(), req.getLimit(), req.getSearch());
     }
 
     // TODO 库存，展示，包装，销售

@@ -3,11 +3,16 @@ package com.cxb.storehelperserver.repository;
 import com.cxb.storehelperserver.mapper.TUserOrderCompleteMapper;
 import com.cxb.storehelperserver.model.TUserOrderComplete;
 import com.cxb.storehelperserver.model.TUserOrderCompleteExample;
+import com.cxb.storehelperserver.repository.mapper.MyUserOrderCompleteMapper;
+import com.cxb.storehelperserver.repository.model.MyUserOrderComplete;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
+
+import static com.cxb.storehelperserver.util.TypeDefine.OrderType.*;
 
 /**
  * desc: 用户订单完成仓库
@@ -19,6 +24,9 @@ import java.util.List;
 public class UserOrderCompleteRepository extends BaseRepository<TUserOrderComplete> {
     @Resource
     private TUserOrderCompleteMapper userOrderCompleteMapper;
+
+    @Resource
+    private MyUserOrderCompleteMapper myUserOrderCompleteMapper;
 
     public UserOrderCompleteRepository() {
         init("userOC::");
@@ -45,6 +53,21 @@ public class UserOrderCompleteRepository extends BaseRepository<TUserOrderComple
         example.or().andSidEqualTo(sid);
         example.setOrderByClause("cdate asc");
         return userOrderCompleteMapper.selectOneByExample(example);
+    }
+
+    public List<MyUserOrderComplete> findByAgreement(int gid, int sid, Date start, Date end) {
+        return myUserOrderCompleteMapper.selectByAgreement(gid, sid, AGREEMENT_IN_ORDER.getValue(),
+                AGREEMENT_OUT_ORDER.getValue(), new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
+    }
+
+    public List<MyUserOrderComplete> findByProduct(int gid, int sid, Date start, Date end) {
+        return myUserOrderCompleteMapper.selectByProduct(gid, sid, PRODUCT_IN_ORDER.getValue(),
+                PRODUCT_OUT_ORDER.getValue(), new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
+    }
+
+    public List<MyUserOrderComplete> findByStorage(int gid, int sid, Date start, Date end) {
+        return myUserOrderCompleteMapper.selectByStorage(gid, sid, STORAGE_IN_ORDER.getValue(),
+                STORAGE_OUT_ORDER.getValue(), new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
     }
 
     public int total(int uid, String search) {

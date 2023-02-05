@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 
+import static com.cxb.storehelperserver.util.TypeDefine.ReportCycleType;
+
 /**
  * desc: 报表接口
  * auth: cxb
@@ -24,8 +26,33 @@ public class ReportController {
     @Resource
     private ReportService reportService;
 
-    @PostMapping("/getYesterday")
-    public RestResult getToday(@Validated @RequestBody getTodayReportValid req) {
+    @PostMapping("/getTodayReport")
+    public RestResult getTodayReport(@Validated @RequestBody getTodayReportValid req) {
         return reportService.getTodayReport(req.getId(), req.getGid());
+    }
+
+    @PostMapping("/getMarketReport")
+    public RestResult getMarketReport(@Validated @RequestBody getMarketReportValid req) {
+        return reportService.getMarketReport(req.getId(), req.getGid(), ReportCycleType.valueOf(req.getCycle()));
+    }
+
+    @PostMapping("/getAgreementReport")
+    public RestResult getAgreementReport(@Validated @RequestBody getAgreementReportValid req) {
+        return reportService.getAgreementReport(req.getId(), req.getGid(), ReportCycleType.valueOf(req.getCycle()));
+    }
+
+    @PostMapping("/getProductReport")
+    public RestResult getProductReport(@Validated @RequestBody getProductReportValid req) {
+        return reportService.getProductReport(req.getId(), req.getGid(), ReportCycleType.valueOf(req.getCycle()));
+    }
+
+    @PostMapping("/getStorageReport")
+    public RestResult getStorageReport(@Validated @RequestBody getStorageReportValid req) {
+        return reportService.getStorageReport(req.getId(), req.getGid(), ReportCycleType.valueOf(req.getCycle()));
+    }
+
+    @PostMapping("/getStockReport")
+    public RestResult getStockReport(@Validated @RequestBody getStockReportValid req) {
+        return reportService.getStockReport(req.getId(), req.getGid(), ReportCycleType.valueOf(req.getCycle()));
     }
 }

@@ -79,7 +79,7 @@ public class StockService {
 
     private static final Object lock = new Object();
 
-    public RestResult getStockCommodity(int id, int sid, Date date, ReportCycleType type, int page, int limit, String search) {
+    public RestResult getStockCommodity(int id, int sid, Date date, int page, int limit, String search) {
         RestResult ret = check(id, sid);
         if (null != ret) {
             return ret;
@@ -141,7 +141,7 @@ public class StockService {
         return null;
     }
 
-    public RestResult getStockHalfgood(int id, int sid, Date date, ReportCycleType type, int page, int limit, String search) {
+    public RestResult getStockHalfgood(int id, int sid, Date date, int page, int limit, String search) {
         RestResult ret = check(id, sid);
         if (null != ret) {
             return ret;
@@ -203,7 +203,7 @@ public class StockService {
         return null;
     }
 
-    public RestResult getStockOriginal(int id, int sid, Date date, ReportCycleType type, int page, int limit, String search) {
+    public RestResult getStockOriginal(int id, int sid, Date date, int page, int limit, String search) {
         RestResult ret = check(id, sid);
         if (null != ret) {
             return ret;
@@ -265,7 +265,7 @@ public class StockService {
         return null;
     }
 
-    public RestResult getStockStandard(int id, int sid, Date date, ReportCycleType type, int page, int limit, String search) {
+    public RestResult getStockStandard(int id, int sid, Date date, int page, int limit, String search) {
         RestResult ret = check(id, sid);
         if (null != ret) {
             return ret;
@@ -327,7 +327,7 @@ public class StockService {
         return null;
     }
 
-    public RestResult getStockDestroy(int id, int sid, Date date, ReportCycleType type, int page, int limit, String search) {
+    public RestResult getStockDestroy(int id, int sid, Date date, int page, int limit, String search) {
         RestResult ret = check(id, sid);
         if (null != ret) {
             return ret;

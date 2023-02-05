@@ -1,10 +1,7 @@
 package com.cxb.storehelperserver.service;
 
 import com.cxb.storehelperserver.model.TStorage;
-import com.cxb.storehelperserver.repository.AgreementOrderRepository;
-import com.cxb.storehelperserver.repository.ProductOrderRepository;
-import com.cxb.storehelperserver.repository.StorageOrderRepository;
-import com.cxb.storehelperserver.repository.StorageRepository;
+import com.cxb.storehelperserver.repository.*;
 import com.cxb.storehelperserver.repository.model.*;
 import com.cxb.storehelperserver.util.DateUtil;
 import com.cxb.storehelperserver.util.RestResult;
@@ -21,6 +18,7 @@ import java.util.Map;
 
 import static com.cxb.storehelperserver.util.Permission.dashboard_report;
 import static com.cxb.storehelperserver.util.Permission.mp_report;
+import static com.cxb.storehelperserver.util.TypeDefine.ReportCycleType;
 import static com.cxb.storehelperserver.util.TypeDefine.ReportCycleType.*;
 
 /**
@@ -46,6 +44,9 @@ public class ReportService {
 
     @Resource
     private StorageOrderRepository storageOrderRepository;
+
+    @Resource
+    private UserOrderCompleteRepository userOrderCompleteRepository;
 
     @Resource
     private StorageRepository storageRepository;
@@ -177,5 +178,29 @@ public class ReportService {
         }
         data.put("stock", stocks);
         return RestResult.ok(data);
+    }
+
+    public RestResult getMarketReport(int id, int gid, ReportCycleType cycle) {
+        return RestResult.ok();
+    }
+
+    public RestResult getAgreementReport(int id, int gid, ReportCycleType cycle) {
+        Date end = dateUtil.getEndTime(new Date());
+        Date start = dateUtil.addOneDay(end, -7);
+        val myUserOrderCompletes = userOrderCompleteRepository.findByAgreement(gid, 0, start, end);
+
+        return RestResult.ok();
+    }
+
+    public RestResult getProductReport(int id, int gid, ReportCycleType cycle) {
+        return RestResult.ok();
+    }
+
+    public RestResult getStorageReport(int id, int gid, ReportCycleType cycle) {
+        return RestResult.ok();
+    }
+
+    public RestResult getStockReport(int id, int gid, ReportCycleType cycle) {
+        return RestResult.ok();
     }
 }

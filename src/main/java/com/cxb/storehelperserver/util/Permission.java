@@ -32,7 +32,7 @@ public class Permission {
     static public final int agreement_alarm = 203;
 
     static public final int commodity = 300;
-    static public final int commodity_salereport = 301;
+    static public final int commodity_report = 301;
     static public final int commodity_commoditylist = 302;
     static public final int commodity_halfgoodlist = 303;
     static public final int commodity_originallist = 304;
@@ -79,10 +79,11 @@ public class Permission {
     static public final int product_alarm = 603;
 
     static public final int report = 700;
-    static public final int report_day = 701;
-    static public final int report_month = 702;
-    static public final int report_week = 703;
-    static public final int report_year = 704;
+    static public final int report_market = 701;
+    static public final int report_agreement = 702;
+    static public final int report_product = 703;
+    static public final int report_storage = 704;
+    static public final int report_stock = 705;
 
     static public final int storage = 800;
     static public final int storage_report = 801;
