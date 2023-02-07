@@ -25,6 +25,21 @@ public class GroupRepository extends BaseRepository<TGroup> {
         init("group::");
     }
 
+    public TGroup find(int id) {
+        TGroup tGroup = getCache(id, TGroup.class);
+        if (null != tGroup) {
+            return tGroup;
+        }
+
+        // 缓存没有就查询数据库
+        tGroup = groupMapper.selectByPrimaryKey(id);
+        if (null != tGroup && null == tGroup.getDtime()) { // 软删除
+            setCache(id, tGroup);
+            return tGroup;
+        }
+        return null;
+    }
+
     public int total(String search) {
         // 包含搜索的不缓存
         if (null != search) {
@@ -54,21 +69,6 @@ public class GroupRepository extends BaseRepository<TGroup> {
         example.setOffset((page - 1) * limit);
         example.setLimit(limit);
         return groupMapper.selectByExample(example);
-    }
-
-    public TGroup find(int id) {
-        TGroup tGroup = getCache(id, TGroup.class);
-        if (null != tGroup) {
-            return tGroup;
-        }
-
-        // 缓存没有就查询数据库
-        tGroup = groupMapper.selectByPrimaryKey(id);
-        if (null != tGroup && null == tGroup.getDtime()) { // 软删除
-            setCache(id, tGroup);
-            return tGroup;
-        }
-        return null;
     }
 
     public boolean insert(TGroup row) {

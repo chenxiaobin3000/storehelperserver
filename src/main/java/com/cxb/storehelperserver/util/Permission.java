@@ -46,32 +46,26 @@ public class Permission {
     static public final int finance_getlist = 402;
 
     static public final int market = 500;
-    static public final int market_offline = 501;
-    static public final int market_report = 502;
+    static public final int market_report = 501;
+    static public final int market_offline = 502;
 
     static public final int market_pdd = 510;
-    static public final int market_pdd_alarm = 511;
-    static public final int market_pdd_comein = 512;
-    static public final int market_pdd_price = 513;
-    static public final int market_pdd_sendout = 514;
-    static public final int market_pdd_setting = 515;
-    static public final int market_pdd_surplus = 516;
+    static public final int market_pdd_report = 511;
+    static public final int market_pdd_getlist = 512;
+    static public final int market_pdd_commodity = 513;
+    static public final int market_pdd_alarm = 514;
 
     static public final int market_meituan = 520;
-    static public final int market_meituan_alarm = 521;
-    static public final int market_meituan_comein = 522;
-    static public final int market_meituan_price = 523;
-    static public final int market_meituan_sendout = 524;
-    static public final int market_meituan_setting = 525;
-    static public final int market_meituan_surplus = 526;
+    static public final int market_meituan_report = 521;
+    static public final int market_meituan_getlist = 522;
+    static public final int market_meituan_commodity = 523;
+    static public final int market_meituan_alarm = 524;
 
     static public final int market_kuailv = 530;
-    static public final int market_kuailv_alarm = 531;
-    static public final int market_kuailv_comein = 532;
-    static public final int market_kuailv_price = 533;
-    static public final int market_kuailv_sendout = 534;
-    static public final int market_kuailv_setting = 535;
-    static public final int market_kuailv_surplus = 536;
+    static public final int market_kuailv_report = 531;
+    static public final int market_kuailv_getlist = 532;
+    static public final int market_kuailv_commodity = 533;
+    static public final int market_kuailv_alarm = 534;
 
     static public final int product = 600;
     static public final int product_report = 601;

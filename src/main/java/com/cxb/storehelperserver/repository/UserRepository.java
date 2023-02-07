@@ -31,6 +31,34 @@ public class UserRepository extends BaseRepository<TUser> {
         cachePhone = cacheName + "p::";
     }
 
+    public TUser find(int id) {
+        TUser user = getCache(id, TUser.class);
+        if (null != user) {
+            return user;
+        }
+        user = userMapper.selectByPrimaryKey(id);
+        if (null != user) {
+            setCache(id, user);
+            return user;
+        }
+        return null;
+    }
+
+    public TUser findByPhone(String phone) {
+        TUser user = getCache(cachePhone + phone, TUser.class);
+        if (null != user) {
+            return user;
+        }
+        TUserExample example = new TUserExample();
+        example.or().andPhoneEqualTo(phone);
+        user = userMapper.selectOneByExample(example);
+        if (null != user) {
+            setCache(cachePhone + phone, user);
+            return user;
+        }
+        return null;
+    }
+
     public int total(int gid, String search) {
         // 包含搜索的不缓存
         if (null != search) {
@@ -73,34 +101,6 @@ public class UserRepository extends BaseRepository<TUser> {
                 return myUserMapper.selectByExample((page - 1) * limit, limit, gid, null);
             }
         }
-    }
-
-    public TUser find(int id) {
-        TUser user = getCache(id, TUser.class);
-        if (null != user) {
-            return user;
-        }
-        user = userMapper.selectByPrimaryKey(id);
-        if (null != user) {
-            setCache(id, user);
-            return user;
-        }
-        return null;
-    }
-
-    public TUser findByPhone(String phone) {
-        TUser user = getCache(cachePhone + phone, TUser.class);
-        if (null != user) {
-            return user;
-        }
-        TUserExample example = new TUserExample();
-        example.or().andPhoneEqualTo(phone);
-        user = userMapper.selectOneByExample(example);
-        if (null != user) {
-            setCache(cachePhone + phone, user);
-            return user;
-        }
-        return null;
     }
 
     public boolean insert(TUser row) {

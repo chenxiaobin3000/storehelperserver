@@ -3,6 +3,7 @@ package com.cxb.storehelperserver;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 /**
@@ -11,6 +12,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  * date: 2022/11/29
  */
 @SpringBootApplication
+@EnableScheduling
 @EnableTransactionManagement
 public class StorehelperserverApplication extends SpringBootServletInitializer {
 	public static void main(String[] args) {

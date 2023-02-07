@@ -50,6 +50,9 @@ public class UserService {
     private GroupRepository groupRepository;
 
     @Resource
+    private GroupMarketRepository groupMarketRepository;
+
+    @Resource
     private RoleRepository roleRepository;
 
     @Resource
@@ -193,6 +196,16 @@ public class UserService {
                 return RestResult.fail("获取用户公司信息失败");
             }
             data.put("group", group);
+
+            // 获取公司授权平台信息
+            val market = new ArrayList<>();
+            val markets = groupMarketRepository.find(group.getId());
+            if (null != markets && !markets.isEmpty()) {
+                for (TGroupMarket m : markets) {
+                    market.add(m.getMid());
+                }
+            }
+            data.put("market", market);
         }
 
         data.put("user", user);

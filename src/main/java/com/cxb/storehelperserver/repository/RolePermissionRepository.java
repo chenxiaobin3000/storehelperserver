@@ -61,9 +61,7 @@ public class RolePermissionRepository extends BaseRepository<List> {
     }
 
     public boolean update(int rid, List<Integer> permissions) {
-        if (!delete(rid)) {
-            return false;
-        }
+        delete(rid);
         return insert(rid, permissions);
     }
 

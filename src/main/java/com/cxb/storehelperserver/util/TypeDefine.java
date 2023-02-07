@@ -6,7 +6,34 @@ package com.cxb.storehelperserver.util;
  * date: 2023/1/11
  */
 public class TypeDefine {
-    // 商品类型: 1商品，2原料，3半成品，4标品，5废料
+    // 销售平台
+    public enum MarketType {
+        MARKET_PDD(1), // 拼多多
+        MARKET_MEITUAN(2), // 美团
+        MARKET_KUAILV(3); // 快驴
+
+        private int value = 0;
+
+        private MarketType(int v) {
+            this.value = v;
+        }
+
+        public static MarketType valueOf(int v) {
+            switch (v) {
+                case 1:
+                    return MARKET_PDD;
+                case 2:
+                    return MARKET_MEITUAN;
+            }
+            return MARKET_KUAILV;
+        }
+
+        public int getValue() {
+            return value;
+        }
+    }
+
+    // 商品类型
     public enum CommodityType {
         COMMODITY(1), // 商品
         HALFGOOD(2), // 半成品

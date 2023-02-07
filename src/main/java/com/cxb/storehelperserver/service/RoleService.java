@@ -98,7 +98,7 @@ public class RoleService {
         }
 
         if (!rolePermissionRepository.delete(rid)) {
-            return RestResult.fail("修改角色权限失败");
+            return RestResult.fail("删除角色权限失败");
         }
         if (!roleRepository.delete(rid)) {
             return RestResult.fail("删除角色信息失败");
