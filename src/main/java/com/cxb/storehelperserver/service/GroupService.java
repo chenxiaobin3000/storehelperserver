@@ -43,14 +43,27 @@ public class GroupService {
     @Resource
     private RoleRepository roleRepository;
 
-    public RestResult addGroup(TGroup group) {
+    public RestResult addGroup(int id, TGroup group) {
+        // 权限校验，必须admin
+        if (!checkService.checkRolePermission(id, admin_grouplist)) {
+            return RestResult.fail("本账号没有管理员权限");
+        }
         if (!groupRepository.insert(group)) {
             return RestResult.fail("添加公司信息失败");
         }
         return RestResult.ok();
     }
 
-    public RestResult setGroup(TGroup group) {
+    public RestResult setGroup(int id, TGroup group) {
+        // 权限校验，必须admin
+        if (!checkService.checkRolePermission(id, admin_grouplist)) {
+            return RestResult.fail("本账号没有管理员权限");
+        }
+        TGroup group1 = groupRepository.find(group.getId());
+        if (null == group1) {
+            return RestResult.fail("获取公司信息失败");
+        }
+        group.setMoney(group1.getMoney());
         if (!groupRepository.update(group)) {
             return RestResult.fail("修改公司信息失败");
         }
@@ -104,10 +117,11 @@ public class GroupService {
         for (TGroup g : list) {
             val group = new HashMap<String, Object>();
             group.put("id", g.getId());
-            group.put("area", g.getArea());
+            group.put("area", String.valueOf(g.getArea()));
             group.put("name", g.getName());
             group.put("address", g.getAddress());
             group.put("contact", userRepository.find(g.getContact()));
+            group.put("money", g.getMoney());
             list2.add(group);
         }
 

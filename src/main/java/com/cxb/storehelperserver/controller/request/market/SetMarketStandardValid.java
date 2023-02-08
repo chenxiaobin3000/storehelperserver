@@ -14,7 +14,7 @@ import java.math.BigDecimal;
  * date: 2022/12/21
  */
 @Data
-public class SetMarketCommodityValid implements IValid {
+public class SetMarketStandardValid implements IValid {
     @Min(value = 1, message = "账号错误")
     private int id;
 

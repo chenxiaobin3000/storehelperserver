@@ -6,7 +6,6 @@ import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
-import java.math.BigDecimal;
 
 /**
  * desc:
@@ -14,7 +13,7 @@ import java.math.BigDecimal;
  * date: 2022/12/21
  */
 @Data
-public class SetMarketCommodityValid implements IValid {
+public class DelMarketStandardDetailValid implements IValid {
     @Min(value = 1, message = "账号错误")
     private int id;
 
@@ -27,11 +26,7 @@ public class SetMarketCommodityValid implements IValid {
     @Min(value = 1, message = "商品账号错误")
     private int cid;
 
-    @NotEmpty(message = "请输入对接商品名称")
-    @Length(min = 2, message = "对接商品名称长度不能小于2个字符")
-    @Length(max = 16, message = "对接商品名称长度不能大于16个字符")
-    private String name;
-
-    @Min(value = 0, message = "对接商品预警价格错误")
-    private BigDecimal price;
+    @NotEmpty(message = "请输入查询日期")
+    @Length(min = 10, max = 10, message = "查询日期格式错误")
+    private String date;
 }

@@ -92,6 +92,17 @@ public class BaseRepository<Model> {
     /**
      * desc: 读取总数缓存
      */
+    protected int getTotalCache(String id) {
+        val ret = redisTemplate.opsForValue().get(cacheTotal + id);
+        if (null == ret) {
+            return 0;
+        }
+        return (int) ret;
+    }
+
+    /**
+     * desc: 读取总数缓存
+     */
     protected int getTotalCache(int id) {
         val ret = redisTemplate.opsForValue().get(cacheTotal + String.valueOf(id));
         if (null == ret) {
@@ -103,8 +114,22 @@ public class BaseRepository<Model> {
     /**
      * desc: 写入总数缓存
      */
+    protected void setTotalCache(String id, int value) {
+        redisTemplate.opsForValue().set(cacheTotal + id, value, cachetime, TimeUnit.MINUTES);
+    }
+
+    /**
+     * desc: 写入总数缓存
+     */
     protected void setTotalCache(int id, int value) {
         redisTemplate.opsForValue().set(cacheTotal + String.valueOf(id), value, cachetime, TimeUnit.MINUTES);
+    }
+
+    /**
+     * desc: 删除总数缓存
+     */
+    protected void delTotalCache(String id) {
+        redisTemplate.delete(cacheTotal + id);
     }
 
     /**

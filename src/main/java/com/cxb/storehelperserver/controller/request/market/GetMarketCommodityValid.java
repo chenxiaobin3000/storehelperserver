@@ -5,8 +5,6 @@ import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotEmpty;
-import java.math.BigDecimal;
 
 /**
  * desc:
@@ -14,22 +12,19 @@ import java.math.BigDecimal;
  * date: 2022/12/21
  */
 @Data
-public class AddMarketDetailValid implements IValid {
+public class GetMarketCommodityValid implements IValid {
     @Min(value = 1, message = "账号错误")
     private int id;
 
-    @Min(value = 1, message = "公司账号错误")
-    private int gid;
+    @Min(value = 1, message = "页面编号错误")
+    private int page;
+
+    @Min(value = 10, message = "页面数量错误")
+    private int limit;
 
     @Min(value = 1, message = "平台账号错误")
     private int mid;
 
-    @Min(value = 1, message = "商品账号错误")
-    private int cid;
-
-    @Min(value = 1, message = "商品数量错误")
-    private int value;
-
-    @Min(value = 1, message = "商品价格错误")
-    private BigDecimal price;
+    @Length(max = 16, message = "搜索内容不能大于16个字符")
+    private String search;
 }

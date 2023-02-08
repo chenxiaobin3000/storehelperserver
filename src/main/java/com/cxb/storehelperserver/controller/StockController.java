@@ -91,7 +91,7 @@ public class StockController {
         return stockService.getStockDestroy(req.getId(), req.getSid(), date, req.getPage(), req.getLimit(), req.getSearch());
     }
 
-    // TODO 库存，展示，包装，销售
+    // TODO 包装，移除商品价格，商家列表配置销售平台
     @PostMapping("/countStock")
     public RestResult countStock(@Validated @RequestBody CountStockValid req) {
         return stockService.countStock(req.getId(), req.getGid());
