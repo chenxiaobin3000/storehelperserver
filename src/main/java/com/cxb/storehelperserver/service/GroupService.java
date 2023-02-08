@@ -96,7 +96,7 @@ public class GroupService {
 
         val list = groupRepository.pagination(page, limit, search);
         if (null == list) {
-            return RestResult.fail("未查询到任何公司信息");
+            return RestResult.fail("未查询到公司信息");
         }
 
         // 查询联系人

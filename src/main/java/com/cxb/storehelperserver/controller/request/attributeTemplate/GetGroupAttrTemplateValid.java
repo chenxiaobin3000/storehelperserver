@@ -15,6 +15,6 @@ public class GetGroupAttrTemplateValid implements IValid {
     @Min(value = 1, message = "账号错误")
     private int id;
 
-    @Min(value = 0, message = "模板id错误")
+    @Min(value = 0, message = "模板账号错误")
     private int atid;
 }

@@ -24,16 +24,18 @@ public class MarketCommodityRepository extends BaseRepository<TMarketCommodity> 
         init("marketComm::");
     }
 
-    public TMarketCommodity find(int id) {
-        TMarketCommodity marketCommodity = getCache(id, TMarketCommodity.class);
+    public TMarketCommodity find(int gid, int mid, int cid) {
+        TMarketCommodity marketCommodity = getCache(joinKey(gid, mid, cid), TMarketCommodity.class);
         if (null != marketCommodity) {
             return marketCommodity;
         }
 
         // 缓存没有就查询数据库
-        marketCommodity = marketCommodityMapper.selectByPrimaryKey(id);
+        TMarketCommodityExample example = new TMarketCommodityExample();
+        example.or().andGidEqualTo(gid).andMidEqualTo(mid).andCidEqualTo(cid);
+        marketCommodity = marketCommodityMapper.selectOneByExample(example);
         if (null != marketCommodity) {
-            setCache(id, marketCommodity);
+            setCache(joinKey(gid, mid, cid), marketCommodity);
         }
         return marketCommodity;
     }
@@ -70,30 +72,23 @@ public class MarketCommodityRepository extends BaseRepository<TMarketCommodity> 
         return marketCommodityMapper.selectByExample(example);
     }
 
-    public boolean insert(TMarketCommodity row) {
+    public boolean update(TMarketCommodity row) {
+        delete(row.getGid(), row.getMid(), row.getCid());
         if (marketCommodityMapper.insert(row) > 0) {
-            setCache(row.getId(), row);
+            setCache(joinKey(row.getGid(), row.getMid(), row.getCid()), row);
             delTotalCache(row.getGid());
             return true;
         }
         return false;
     }
 
-    public boolean update(TMarketCommodity row) {
-        if (marketCommodityMapper.updateByPrimaryKey(row) > 0) {
-            setCache(row.getId(), row);
-            return true;
-        }
-        return false;
-    }
-
-    public boolean delete(int id) {
-        TMarketCommodity marketCommodity = find(id);
+    public boolean delete(int gid, int mid, int cid) {
+        TMarketCommodity marketCommodity = find(gid, mid, cid);
         if (null == marketCommodity) {
             return false;
         }
-        delCache(id);
+        delCache(joinKey(gid, mid, cid));
         delTotalCache(marketCommodity.getGid());
-        return marketCommodityMapper.deleteByPrimaryKey(id) > 0;
+        return marketCommodityMapper.deleteByPrimaryKey(marketCommodity.getId()) > 0;
     }
 }

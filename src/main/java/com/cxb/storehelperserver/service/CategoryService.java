@@ -92,7 +92,19 @@ public class CategoryService {
         return RestResult.ok();
     }
 
-    public RestResult getGroupCategory(int id) {
+    public RestResult getGroupCategoryList(int id) {
+        // 获取公司信息
+        TUserGroup group = userGroupRepository.find(id);
+        if (null == group) {
+            return RestResult.fail("获取公司信息失败");
+        }
+
+        val data = new HashMap<String, Object>();
+        data.put("list", categoryRepository.findByGroup(group.getGid()));
+        return RestResult.ok(data);
+    }
+
+    public RestResult getGroupCategoryTree(int id) {
         // 获取公司信息
         TUserGroup group = userGroupRepository.find(id);
         if (null == group) {

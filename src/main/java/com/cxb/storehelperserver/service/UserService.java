@@ -252,7 +252,7 @@ public class UserService {
 
         val list = userRepository.pagination(page, limit, group.getGid(), search);
         if (null == list) {
-            return RestResult.fail("未查询到任何公司信息");
+            return RestResult.fail("未查询到公司信息");
         }
 
         // 查询角色信息

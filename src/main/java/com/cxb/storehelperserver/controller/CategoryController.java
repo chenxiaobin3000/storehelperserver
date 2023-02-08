@@ -51,8 +51,13 @@ public class CategoryController {
         return categoryService.delCategory(req.getId(), req.getCid());
     }
 
-    @PostMapping("/getGroupCategory")
-    public RestResult getGroupCategory(@Validated @RequestBody GetGroupCategoryValid req) {
-        return categoryService.getGroupCategory(req.getId());
+    @PostMapping("/getGroupCategoryList")
+    public RestResult getGroupCategoryList(@Validated @RequestBody GetGroupCategoryValid req) {
+        return categoryService.getGroupCategoryList(req.getId());
+    }
+
+    @PostMapping("/getGroupCategoryTree")
+    public RestResult getGroupCategoryTree(@Validated @RequestBody GetGroupCategoryValid req) {
+        return categoryService.getGroupCategoryTree(req.getId());
     }
 }
