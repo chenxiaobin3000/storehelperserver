@@ -20,13 +20,6 @@ public class DelMarketCommodityDetailValid implements IValid {
     @Min(value = 1, message = "公司账号错误")
     private int gid;
 
-    @Min(value = 1, message = "平台账号错误")
-    private int mid;
-
-    @Min(value = 1, message = "商品账号错误")
-    private int cid;
-
-    @NotEmpty(message = "请输入查询日期")
-    @Length(min = 10, max = 10, message = "查询日期格式错误")
-    private String date;
+    @Min(value = 1, message = "明细账号错误")
+    private int did;
 }

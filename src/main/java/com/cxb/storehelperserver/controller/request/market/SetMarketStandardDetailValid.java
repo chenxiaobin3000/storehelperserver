@@ -24,6 +24,9 @@ public class SetMarketStandardDetailValid implements IValid {
     @Min(value = 1, message = "平台账号错误")
     private int mid;
 
+    @Min(value = 0, message = "明细账号错误")
+    private int did;
+
     @Min(value = 1, message = "商品账号错误")
     private int cid;
 

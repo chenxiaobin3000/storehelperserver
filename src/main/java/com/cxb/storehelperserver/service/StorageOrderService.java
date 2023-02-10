@@ -117,7 +117,7 @@ public class StorageOrderService extends BaseService<HashMap> {
             c.setOid(oid);
         }
         if (!storageOrderCommodityRepository.update(comms, oid)) {
-            return "生成订单商品数据失败";
+            return "生成订单商品信息失败";
         }
 
         // 修改附件oid

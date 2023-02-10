@@ -3,6 +3,7 @@ package com.cxb.storehelperserver.service;
 import com.cxb.storehelperserver.model.*;
 import com.cxb.storehelperserver.repository.*;
 import com.cxb.storehelperserver.repository.model.MyMarketCommodity;
+import com.cxb.storehelperserver.util.DateUtil;
 import com.cxb.storehelperserver.util.RestResult;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -53,6 +54,9 @@ public class MarketService {
 
     @Resource
     private UserGroupRepository userGroupRepository;
+
+    @Resource
+    private DateUtil dateUtil;
 
     public RestResult setMarketCommodity(int id, int gid, int mid, int cid, String name, BigDecimal price) {
         // 验证公司
@@ -186,32 +190,46 @@ public class MarketService {
         return RestResult.ok(data);
     }
 
-    public RestResult setMarketCommDetail(int id, int gid, int mid, int cid, int value, BigDecimal price, Date date) {
+    public RestResult setMarketCommDetail(int id, int gid, TMarketCommodityDetail detail) {
         // 验证公司
         String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
             return RestResult.fail(msg);
         }
-        TMarketCommodityDetail detail = new TMarketCommodityDetail();
-        detail.setGid(gid);
-        detail.setMid(mid);
-        detail.setCid(cid);
-        detail.setValue(value);
-        detail.setPrice(price);
-        detail.setCdate(date);
-        if (!marketCommodityDetailRepository.update(detail)) {
-            return RestResult.fail("更新商品销售信息失败");
+        if (null == detail.getId()) {
+            if (!marketCommodityDetailRepository.insert(detail)) {
+                return RestResult.fail("插入商品销售信息失败");
+            }
+        } else {
+            // 只处理当天信息
+            Date today = dateUtil.getEndTime(dateUtil.addOneDay(new Date(), -1));
+            if (detail.getCdate().before(today)) {
+                return RestResult.fail("只能更新当日销售信息");
+            }
+            if (!marketCommodityDetailRepository.update(detail)) {
+                return RestResult.fail("更新信息失败");
+            }
         }
         return RestResult.ok();
     }
 
-    public RestResult delMarketCommDetail(int id, int gid, int mid, int cid, Date date) {
+    public RestResult delMarketCommDetail(int id, int gid, int did) {
         // 验证公司
         String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
             return RestResult.fail(msg);
         }
-        if (!marketCommodityDetailRepository.delete(gid, mid, cid, date)) {
+
+        TMarketCommodityDetail detail = marketCommodityDetailRepository.find(did);
+        if (null == detail) {
+            return RestResult.fail("未查询到商品销售信息");
+        }
+        // 只处理当天信息
+        Date today = dateUtil.getEndTime(dateUtil.addOneDay(new Date(), -1));
+        if (detail.getCdate().before(today)) {
+            return RestResult.fail("只能更新当日信息");
+        }
+        if (!marketCommodityDetailRepository.delete(did)) {
             return RestResult.fail("删除商品销售信息失败");
         }
         return RestResult.ok();
@@ -242,33 +260,47 @@ public class MarketService {
         return RestResult.ok(data);
     }
 
-    public RestResult setMarketStanDetail(int id, int gid, int mid, int cid, int value, BigDecimal price, Date date) {
+    public RestResult setMarketStanDetail(int id, int gid, TMarketStandardDetail detail) {
         // 验证公司
         String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
             return RestResult.fail(msg);
         }
-        TMarketStandardDetail detail = new TMarketStandardDetail();
-        detail.setGid(gid);
-        detail.setMid(mid);
-        detail.setCid(cid);
-        detail.setValue(value);
-        detail.setPrice(price);
-        detail.setCdate(date);
-        if (!marketStandardDetailRepository.update(detail)) {
-            return RestResult.fail("更新标品销售信息失败");
+        if (null == detail.getId()) {
+            if (!marketStandardDetailRepository.insert(detail)) {
+                return RestResult.fail("插入商品销售信息失败");
+            }
+        } else {
+            // 只处理当天信息
+            Date today = dateUtil.getEndTime(dateUtil.addOneDay(new Date(), -1));
+            if (detail.getCdate().before(today)) {
+                return RestResult.fail("只能更新当日销售信息");
+            }
+            if (!marketStandardDetailRepository.update(detail)) {
+                return RestResult.fail("更新信息失败");
+            }
         }
         return RestResult.ok();
     }
 
-    public RestResult delMarketStanDetail(int id, int gid, int mid, int cid, Date date) {
+    public RestResult delMarketStanDetail(int id, int gid, int did) {
         // 验证公司
         String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
             return RestResult.fail(msg);
         }
-        if (!marketStandardDetailRepository.delete(gid, mid, cid, date)) {
-            return RestResult.fail("删除标品销售信息失败");
+
+        TMarketStandardDetail detail = marketStandardDetailRepository.find(did);
+        if (null == detail) {
+            return RestResult.fail("未查询到商品销售信息");
+        }
+        // 只处理当天信息
+        Date today = dateUtil.getEndTime(dateUtil.addOneDay(new Date(), -1));
+        if (detail.getCdate().before(today)) {
+            return RestResult.fail("只能更新当日信息");
+        }
+        if (!marketStandardDetailRepository.delete(did)) {
+            return RestResult.fail("删除商品销售信息失败");
         }
         return RestResult.ok();
     }

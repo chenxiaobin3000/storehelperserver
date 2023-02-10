@@ -1,6 +1,8 @@
 package com.cxb.storehelperserver.controller;
 
 import com.cxb.storehelperserver.controller.request.market.*;
+import com.cxb.storehelperserver.model.TMarketCommodityDetail;
+import com.cxb.storehelperserver.model.TMarketStandardDetail;
 import com.cxb.storehelperserver.service.MarketService;
 import com.cxb.storehelperserver.util.DateUtil;
 import com.cxb.storehelperserver.util.RestResult;
@@ -70,19 +72,25 @@ public class MarketController {
         } catch (ParseException e) {
             return RestResult.fail("查询日期转换失败");
         }
-        return marketService.setMarketCommDetail(req.getId(), req.getGid(), req.getMid(), req.getCid(), req.getValue(), req.getPrice(), date);
+        // 只处理当天数据
+        Date today = dateUtil.getEndTime(dateUtil.addOneDay(new Date(), -1));
+        if (date.before(today)) {
+            return RestResult.fail("只能更新今日数据");
+        }
+        TMarketCommodityDetail detail = new TMarketCommodityDetail();
+        detail.setId(0 == req.getDid() ? null : req.getDid());
+        detail.setGid(req.getGid());
+        detail.setMid(req.getMid());
+        detail.setCid(req.getCid());
+        detail.setValue(req.getValue());
+        detail.setPrice(req.getPrice());
+        detail.setCdate(date);
+        return marketService.setMarketCommDetail(req.getId(), req.getGid(), detail);
     }
 
     @PostMapping("/delMarketCommDetail")
     public RestResult delMarketCommDetail(@Validated @RequestBody DelMarketCommodityDetailValid req) {
-        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
-        Date date = null;
-        try {
-            date = simpleDateFormat.parse(req.getDate() + " 00:00:00");
-        } catch (ParseException e) {
-            return RestResult.fail("查询日期转换失败");
-        }
-        return marketService.delMarketCommDetail(req.getId(), req.getGid(), req.getMid(), req.getCid(), date);
+        return marketService.delMarketCommDetail(req.getId(), req.getGid(), req.getDid());
     }
 
     @PostMapping("/getMarketCommDetail")
@@ -106,19 +114,25 @@ public class MarketController {
         } catch (ParseException e) {
             return RestResult.fail("查询日期转换失败");
         }
-        return marketService.setMarketStanDetail(req.getId(), req.getGid(), req.getMid(), req.getCid(), req.getValue(), req.getPrice(), date);
+        // 只处理当天数据
+        Date today = dateUtil.getEndTime(dateUtil.addOneDay(new Date(), -1));
+        if (date.before(today)) {
+            return RestResult.fail("只能更新今日数据");
+        }
+        TMarketStandardDetail detail = new TMarketStandardDetail();
+        detail.setId(0 == req.getDid() ? null : req.getDid());
+        detail.setGid(req.getGid());
+        detail.setMid(req.getMid());
+        detail.setCid(req.getCid());
+        detail.setValue(req.getValue());
+        detail.setPrice(req.getPrice());
+        detail.setCdate(date);
+        return marketService.setMarketStanDetail(req.getId(), req.getGid(), detail);
     }
 
     @PostMapping("/delMarketStanDetail")
     public RestResult delMarketStanDetail(@Validated @RequestBody DelMarketCommodityDetailValid req) {
-        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
-        Date date = null;
-        try {
-            date = simpleDateFormat.parse(req.getDate() + " 00:00:00");
-        } catch (ParseException e) {
-            return RestResult.fail("查询日期转换失败");
-        }
-        return marketService.delMarketStanDetail(req.getId(), req.getGid(), req.getMid(), req.getCid(), date);
+        return marketService.delMarketStanDetail(req.getId(), req.getGid(), req.getDid());
     }
 
     @PostMapping("/getMarketStanDetail")
