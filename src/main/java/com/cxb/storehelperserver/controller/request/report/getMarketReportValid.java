@@ -18,6 +18,12 @@ public class getMarketReportValid implements IValid {
     @Min(value = 1, message = "公司账号错误")
     private int gid;
 
+    @Min(value = 0, message = "平台账号错误")
+    private int mid;
+
+    @Min(value = 0, message = "商品类型错误")
+    private int type;
+
     @Min(value = 1, message = "查询周期错误")
     private int cycle;
 }

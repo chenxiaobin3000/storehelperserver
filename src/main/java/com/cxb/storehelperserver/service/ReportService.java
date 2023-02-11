@@ -12,13 +12,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static com.cxb.storehelperserver.util.Permission.dashboard_report;
 import static com.cxb.storehelperserver.util.Permission.mp_report;
+import static com.cxb.storehelperserver.util.TypeDefine.CommodityType.COMMODITY;
+import static com.cxb.storehelperserver.util.TypeDefine.CommodityType.STANDARD;
 import static com.cxb.storehelperserver.util.TypeDefine.ReportCycleType;
 import static com.cxb.storehelperserver.util.TypeDefine.ReportCycleType.*;
 
@@ -36,6 +35,12 @@ public class ReportService {
 
     @Resource
     private StockService stockService;
+
+    @Resource
+    private MarketCommodityDetailRepository marketCommodityDetailRepository;
+
+    @Resource
+    private MarketStandardDetailRepository marketStandardDetailRepository;
 
     @Resource
     private AgreementOrderRepository agreementOrderRepository;
@@ -181,8 +186,47 @@ public class ReportService {
         return RestResult.ok(data);
     }
 
-    public RestResult getMarketReport(int id, int gid, ReportCycleType cycle) {
-        return RestResult.ok();
+    public RestResult getMarketReport(int id, int gid, int mid, int type, ReportCycleType cycle) {
+        // 验证公司
+        String msg = checkService.checkGroup(id, gid);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+
+        SimpleDateFormat dateFormat = dateUtil.getSimpleDateFormat();
+        Date end = dateUtil.getEndTime(new Date());
+        Date start = dateUtil.addOneDay(end, -7);
+        List<MyMarketDetailReport> list = null;
+        if (COMMODITY.getValue() == type) {
+            list = marketCommodityDetailRepository.findByDate(mid, start, end);
+        } else if (STANDARD.getValue() == type) {
+            list = marketStandardDetailRepository.findByDate(mid, start, end);
+        } else {
+            list = marketCommodityDetailRepository.findByDate(mid, start, end);
+            if (null == list || list.isEmpty()) {
+                list = marketStandardDetailRepository.findByDate(mid, start, end);
+            } else {
+                val list2 = marketStandardDetailRepository.findByDate(mid, start, end);
+                if (null != list2 && !list2.isEmpty()) {
+                    list.addAll(list2);
+                }
+            }
+        }
+        val list2 = new ArrayList<>();
+        for (MyMarketDetailReport detail : list) {
+            val tmp = new HashMap<String, Object>();
+            tmp.put("id", detail.getId());
+            tmp.put("type", detail.getType());
+            tmp.put("cid", detail.getCid());
+            tmp.put("value", detail.getValue());
+            tmp.put("price", detail.getPrice());
+            tmp.put("total", detail.getTotal());
+            tmp.put("date", dateFormat.format(detail.getCdate()));
+            list2.add(tmp);
+        }
+        val data = new HashMap<String, Object>();
+        data.put("list", list2);
+        return RestResult.ok(data);
     }
 
     public RestResult getAgreementReport(int id, int gid, ReportCycleType cycle) {
@@ -199,10 +243,10 @@ public class ReportService {
         val list = new ArrayList<>();
         for (MyUserOrderComplete order : orders) {
             val tmp = new HashMap<String, Object>();
-            tmp.put("num" , order.getCnum());
-            tmp.put("total" , order.getCtotal());
-            tmp.put("type" , order.getOtype());
-            tmp.put("date" , dateFormat.format(order.getCdate()));
+            tmp.put("num", order.getCnum());
+            tmp.put("total", order.getCtotal());
+            tmp.put("type", order.getOtype());
+            tmp.put("date", dateFormat.format(order.getCdate()));
             list.add(tmp);
         }
         val data = new HashMap<String, Object>();
@@ -224,10 +268,10 @@ public class ReportService {
         val list = new ArrayList<>();
         for (MyUserOrderComplete order : orders) {
             val tmp = new HashMap<String, Object>();
-            tmp.put("num" , order.getCnum());
-            tmp.put("total" , order.getCtotal());
-            tmp.put("type" , order.getOtype());
-            tmp.put("date" , dateFormat.format(order.getCdate()));
+            tmp.put("num", order.getCnum());
+            tmp.put("total", order.getCtotal());
+            tmp.put("type", order.getOtype());
+            tmp.put("date", dateFormat.format(order.getCdate()));
             list.add(tmp);
         }
         val data = new HashMap<String, Object>();
@@ -249,10 +293,10 @@ public class ReportService {
         val list = new ArrayList<>();
         for (MyUserOrderComplete order : orders) {
             val tmp = new HashMap<String, Object>();
-            tmp.put("num" , order.getCnum());
-            tmp.put("total" , order.getCtotal());
-            tmp.put("type" , order.getOtype());
-            tmp.put("date" , dateFormat.format(order.getCdate()));
+            tmp.put("num", order.getCnum());
+            tmp.put("total", order.getCtotal());
+            tmp.put("type", order.getOtype());
+            tmp.put("date", dateFormat.format(order.getCdate()));
             list.add(tmp);
         }
         val data = new HashMap<String, Object>();

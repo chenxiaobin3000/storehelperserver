@@ -47,25 +47,10 @@ public class Permission {
 
     static public final int market = 500;
     static public final int market_report = 501;
-    static public final int market_offline = 502;
-
-    static public final int market_pdd = 510;
-    static public final int market_pdd_report = 511;
-    static public final int market_pdd_getlist = 512;
-    static public final int market_pdd_commodity = 513;
-    static public final int market_pdd_alarm = 514;
-
-    static public final int market_meituan = 520;
-    static public final int market_meituan_report = 521;
-    static public final int market_meituan_getlist = 522;
-    static public final int market_meituan_commodity = 523;
-    static public final int market_meituan_alarm = 524;
-
-    static public final int market_kuailv = 530;
-    static public final int market_kuailv_report = 531;
-    static public final int market_kuailv_getlist = 532;
-    static public final int market_kuailv_commodity = 533;
-    static public final int market_kuailv_alarm = 534;
+    static public final int market_getlist = 502;
+    static public final int market_commodity = 503;
+    static public final int market_alarm = 504;
+    static public final int market_offline = 505;
 
     static public final int product = 600;
     static public final int product_report = 601;

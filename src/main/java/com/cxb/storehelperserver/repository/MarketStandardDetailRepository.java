@@ -3,10 +3,13 @@ package com.cxb.storehelperserver.repository;
 import com.cxb.storehelperserver.mapper.TMarketStandardDetailMapper;
 import com.cxb.storehelperserver.model.TMarketStandardDetail;
 import com.cxb.storehelperserver.model.TMarketStandardDetailExample;
+import com.cxb.storehelperserver.repository.mapper.MyMarketStandardDetailMapper;
+import com.cxb.storehelperserver.repository.model.MyMarketDetailReport;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -19,6 +22,9 @@ import java.util.List;
 public class MarketStandardDetailRepository extends BaseRepository<TMarketStandardDetail> {
     @Resource
     private TMarketStandardDetailMapper marketStandardDetailMapper;
+
+    @Resource
+    private MyMarketStandardDetailMapper myMarketStandardDetailMapper;
 
     public MarketStandardDetailRepository() {
         init("marketStanDetail::");
@@ -36,6 +42,10 @@ public class MarketStandardDetailRepository extends BaseRepository<TMarketStanda
             setCache(id, detail);
         }
         return detail;
+    }
+
+    public List<MyMarketDetailReport> findByDate(int mid, Date start, Date end) {
+        return myMarketStandardDetailMapper.select(mid, new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
     }
 
     public int total(int gid, int mid, String search) {
