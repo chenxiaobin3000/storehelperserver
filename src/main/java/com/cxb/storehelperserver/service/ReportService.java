@@ -16,8 +16,8 @@ import java.util.*;
 
 import static com.cxb.storehelperserver.util.Permission.dashboard_report;
 import static com.cxb.storehelperserver.util.Permission.mp_report;
-import static com.cxb.storehelperserver.util.TypeDefine.CommodityType.COMMODITY;
-import static com.cxb.storehelperserver.util.TypeDefine.CommodityType.STANDARD;
+import static com.cxb.storehelperserver.util.TypeDefine.CommodityType;
+import static com.cxb.storehelperserver.util.TypeDefine.CommodityType.*;
 import static com.cxb.storehelperserver.util.TypeDefine.ReportCycleType;
 import static com.cxb.storehelperserver.util.TypeDefine.ReportCycleType.*;
 
@@ -53,6 +53,21 @@ public class ReportService {
 
     @Resource
     private UserOrderCompleteRepository userOrderCompleteRepository;
+
+    @Resource
+    private StockCommodityDayRepository stockCommodityDayRepository;
+
+    @Resource
+    private StockHalfgoodDayRepository stockHalfgoodDayRepository;
+
+    @Resource
+    private StockOriginalDayRepository stockOriginalDayRepository;
+
+    @Resource
+    private StockStandardDayRepository stockStandardDayRepository;
+
+    @Resource
+    private StockDestroyDayRepository stockDestroyDayRepository;
 
     @Resource
     private StorageRepository storageRepository;
@@ -229,7 +244,7 @@ public class ReportService {
         return RestResult.ok(data);
     }
 
-    public RestResult getAgreementReport(int id, int gid, ReportCycleType cycle) {
+    public RestResult getAgreementReport(int id, int gid, int sid, ReportCycleType cycle) {
         // 验证公司
         String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
@@ -239,7 +254,7 @@ public class ReportService {
         SimpleDateFormat dateFormat = dateUtil.getSimpleDateFormat();
         Date end = dateUtil.getEndTime(new Date());
         Date start = dateUtil.addOneDay(end, -7);
-        val orders = userOrderCompleteRepository.findByAgreement(gid, 0, start, end);
+        val orders = userOrderCompleteRepository.findByAgreement(gid, sid, start, end);
         val list = new ArrayList<>();
         for (MyUserOrderComplete order : orders) {
             val tmp = new HashMap<String, Object>();
@@ -254,7 +269,7 @@ public class ReportService {
         return RestResult.ok(data);
     }
 
-    public RestResult getProductReport(int id, int gid, ReportCycleType cycle) {
+    public RestResult getProductReport(int id, int gid, int sid, ReportCycleType cycle) {
         // 验证公司
         String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
@@ -264,7 +279,7 @@ public class ReportService {
         SimpleDateFormat dateFormat = dateUtil.getSimpleDateFormat();
         Date end = dateUtil.getEndTime(new Date());
         Date start = dateUtil.addOneDay(end, -7);
-        val orders = userOrderCompleteRepository.findByProduct(gid, 0, start, end);
+        val orders = userOrderCompleteRepository.findByProduct(gid, sid, start, end);
         val list = new ArrayList<>();
         for (MyUserOrderComplete order : orders) {
             val tmp = new HashMap<String, Object>();
@@ -279,7 +294,7 @@ public class ReportService {
         return RestResult.ok(data);
     }
 
-    public RestResult getStorageReport(int id, int gid, ReportCycleType cycle) {
+    public RestResult getStorageReport(int id, int gid, int sid, ReportCycleType cycle) {
         // 验证公司
         String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
@@ -289,7 +304,7 @@ public class ReportService {
         SimpleDateFormat dateFormat = dateUtil.getSimpleDateFormat();
         Date end = dateUtil.getEndTime(new Date());
         Date start = dateUtil.addOneDay(end, -7);
-        val orders = userOrderCompleteRepository.findByStorage(gid, 0, start, end);
+        val orders = userOrderCompleteRepository.findByStorage(gid, sid, start, end);
         val list = new ArrayList<>();
         for (MyUserOrderComplete order : orders) {
             val tmp = new HashMap<String, Object>();
@@ -304,7 +319,44 @@ public class ReportService {
         return RestResult.ok(data);
     }
 
-    public RestResult getStockReport(int id, int gid, ReportCycleType cycle) {
-        return RestResult.ok();
+    public RestResult getStockReport(int id, int gid, CommodityType type, ReportCycleType cycle) {
+        // 验证公司
+        String msg = checkService.checkGroup(id, gid);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+
+        SimpleDateFormat dateFormat = dateUtil.getSimpleDateFormat();
+        Date end = dateUtil.getEndTime(new Date());
+        Date start = dateUtil.addOneDay(end, -7);
+        List<MyStockReport> stocks = null;
+        switch (type) {
+            case COMMODITY:
+                stocks = stockCommodityDayRepository.findReport(gid, start, end);
+                break;
+            case HALFGOOD:
+                stocks = stockHalfgoodDayRepository.findReport(gid, start, end);
+                break;
+            case ORIGINAL:
+                stocks = stockOriginalDayRepository.findReport(gid, start, end);
+                break;
+            case STANDARD:
+                stocks = stockStandardDayRepository.findReport(gid, start, end);
+                break;
+            default:
+                stocks = stockDestroyDayRepository.findReport(gid, start, end);
+                break;
+        }
+        val list = new ArrayList<>();
+        for (MyStockReport stock : stocks) {
+            val tmp = new HashMap<String, Object>();
+            tmp.put("id", stock.getId());
+            tmp.put("total", stock.getTotal());
+            tmp.put("date", dateFormat.format(stock.getCdate()));
+            list.add(tmp);
+        }
+        val data = new HashMap<String, Object>();
+        data.put("list", list);
+        return RestResult.ok(data);
     }
 }

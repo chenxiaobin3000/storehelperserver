@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 
+import static com.cxb.storehelperserver.util.TypeDefine.CommodityType;
 import static com.cxb.storehelperserver.util.TypeDefine.ReportCycleType;
 
 /**
@@ -38,21 +39,21 @@ public class ReportController {
 
     @PostMapping("/getAgreementReport")
     public RestResult getAgreementReport(@Validated @RequestBody getAgreementReportValid req) {
-        return reportService.getAgreementReport(req.getId(), req.getGid(), ReportCycleType.valueOf(req.getCycle()));
+        return reportService.getAgreementReport(req.getId(), req.getGid(), req.getSid(), ReportCycleType.valueOf(req.getCycle()));
     }
 
     @PostMapping("/getProductReport")
     public RestResult getProductReport(@Validated @RequestBody getProductReportValid req) {
-        return reportService.getProductReport(req.getId(), req.getGid(), ReportCycleType.valueOf(req.getCycle()));
+        return reportService.getProductReport(req.getId(), req.getGid(), req.getSid(), ReportCycleType.valueOf(req.getCycle()));
     }
 
     @PostMapping("/getStorageReport")
     public RestResult getStorageReport(@Validated @RequestBody getStorageReportValid req) {
-        return reportService.getStorageReport(req.getId(), req.getGid(), ReportCycleType.valueOf(req.getCycle()));
+        return reportService.getStorageReport(req.getId(), req.getGid(), req.getSid(), ReportCycleType.valueOf(req.getCycle()));
     }
 
     @PostMapping("/getStockReport")
     public RestResult getStockReport(@Validated @RequestBody getStockReportValid req) {
-        return reportService.getStockReport(req.getId(), req.getGid(), ReportCycleType.valueOf(req.getCycle()));
+        return reportService.getStockReport(req.getId(), req.getGid(), CommodityType.valueOf(req.getType()), ReportCycleType.valueOf(req.getCycle()));
     }
 }

@@ -1,6 +1,7 @@
 package com.cxb.storehelperserver.repository.mapper;
 
 import com.cxb.storehelperserver.repository.model.MyStockDestroy;
+import com.cxb.storehelperserver.repository.model.MyStockReport;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
@@ -49,4 +50,10 @@ public interface MyStockDestroyDayMapper {
             "limit #{offset}, #{limit}",
             "</script>"})
     List<MyStockDestroy> selectByGid(int offset, int limit, int gid, Date date, String search);
+
+    @Select({"<script>",
+            "select sid as id, sum(value) as total, cdate from t_stock_destroy_day where gid = #{gid}",
+            "and cdate <![CDATA[ >= ]]> #{start} and cdate <![CDATA[ < ]]> #{end} group by sid, cdate",
+            "</script>"})
+    List<MyStockReport> selectReport(int gid, Date start, Date end);
 }

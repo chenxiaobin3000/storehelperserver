@@ -5,6 +5,7 @@ import com.cxb.storehelperserver.model.TStockHalfgoodDay;
 import com.cxb.storehelperserver.model.TStockHalfgoodDayExample;
 import com.cxb.storehelperserver.repository.mapper.MyStockHalfgoodDayMapper;
 import com.cxb.storehelperserver.repository.model.MyStockHalfgood;
+import com.cxb.storehelperserver.repository.model.MyStockReport;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
@@ -45,6 +46,10 @@ public class StockHalfgoodDayRepository extends BaseRepository<TStockHalfgoodDay
         }
         example.setOrderByClause("cdate desc");
         return stockHalfgoodDayMapper.selectOneByExample(example);
+    }
+
+    public List<MyStockReport> findReport(int gid, Date start, Date end) {
+        return myStockHalfgoodDayMapper.selectReport(gid, new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
     }
 
     public int totalBySid(int sid, Date date, String search) {

@@ -5,6 +5,7 @@ import com.cxb.storehelperserver.model.TStockOriginalDay;
 import com.cxb.storehelperserver.model.TStockOriginalDayExample;
 import com.cxb.storehelperserver.repository.mapper.MyStockOriginalDayMapper;
 import com.cxb.storehelperserver.repository.model.MyStockOriginal;
+import com.cxb.storehelperserver.repository.model.MyStockReport;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
@@ -45,6 +46,10 @@ public class StockOriginalDayRepository extends BaseRepository<TStockOriginalDay
         }
         example.setOrderByClause("cdate desc");
         return stockOriginalDayMapper.selectOneByExample(example);
+    }
+
+    public List<MyStockReport> findReport(int gid, Date start, Date end) {
+        return myStockOriginalDayMapper.selectReport(gid, new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
     }
 
     public int totalBySid(int sid, Date date, String search) {

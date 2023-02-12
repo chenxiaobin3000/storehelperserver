@@ -18,6 +18,9 @@ public class getAgreementReportValid implements IValid {
     @Min(value = 1, message = "公司账号错误")
     private int gid;
 
+    @Min(value = 0, message = "仓库账号错误")
+    private int sid;
+
     @Min(value = 1, message = "查询周期错误")
     private int cycle;
 }

@@ -5,6 +5,7 @@ import com.cxb.storehelperserver.model.TStockDestroyDay;
 import com.cxb.storehelperserver.model.TStockDestroyDayExample;
 import com.cxb.storehelperserver.repository.mapper.MyStockDestroyDayMapper;
 import com.cxb.storehelperserver.repository.model.MyStockDestroy;
+import com.cxb.storehelperserver.repository.model.MyStockReport;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
@@ -45,6 +46,10 @@ public class StockDestroyDayRepository extends BaseRepository<TStockDestroyDay> 
         }
         example.setOrderByClause("cdate desc");
         return stockDestroyDayMapper.selectOneByExample(example);
+    }
+
+    public List<MyStockReport> findReport(int gid, Date start, Date end) {
+        return myStockDestroyDayMapper.selectReport(gid, new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
     }
 
     public int totalBySid(int sid, Date date, String search) {
