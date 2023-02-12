@@ -196,24 +196,24 @@ public class ReportService {
         SimpleDateFormat dateFormat = dateUtil.getSimpleDateFormat();
         Date end = dateUtil.getEndTime(new Date());
         Date start = dateUtil.addOneDay(end, -7);
-        List<MyMarketDetailReport> list = null;
+        List<MyMarketReport> list = null;
         if (COMMODITY.getValue() == type) {
-            list = marketCommodityDetailRepository.findByDate(mid, start, end);
+            list = marketCommodityDetailRepository.findByDate(gid, mid, start, end);
         } else if (STANDARD.getValue() == type) {
-            list = marketStandardDetailRepository.findByDate(mid, start, end);
+            list = marketStandardDetailRepository.findByDate(gid, mid, start, end);
         } else {
-            list = marketCommodityDetailRepository.findByDate(mid, start, end);
+            list = marketCommodityDetailRepository.findByDate(gid, mid, start, end);
             if (null == list || list.isEmpty()) {
-                list = marketStandardDetailRepository.findByDate(mid, start, end);
+                list = marketStandardDetailRepository.findByDate(gid, mid, start, end);
             } else {
-                val list2 = marketStandardDetailRepository.findByDate(mid, start, end);
+                val list2 = marketStandardDetailRepository.findByDate(gid, mid, start, end);
                 if (null != list2 && !list2.isEmpty()) {
                     list.addAll(list2);
                 }
             }
         }
         val list2 = new ArrayList<>();
-        for (MyMarketDetailReport detail : list) {
+        for (MyMarketReport detail : list) {
             val tmp = new HashMap<String, Object>();
             tmp.put("id", detail.getId());
             tmp.put("type", detail.getType());

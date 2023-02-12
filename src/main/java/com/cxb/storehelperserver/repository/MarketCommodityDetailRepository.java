@@ -4,7 +4,8 @@ import com.cxb.storehelperserver.mapper.TMarketCommodityDetailMapper;
 import com.cxb.storehelperserver.model.TMarketCommodityDetail;
 import com.cxb.storehelperserver.model.TMarketCommodityDetailExample;
 import com.cxb.storehelperserver.repository.mapper.MyMarketCommodityDetailMapper;
-import com.cxb.storehelperserver.repository.model.MyMarketDetailReport;
+import com.cxb.storehelperserver.repository.model.MyMarketReport;
+import com.cxb.storehelperserver.repository.model.MyMarketSaleInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
@@ -44,8 +45,12 @@ public class MarketCommodityDetailRepository extends BaseRepository<TMarketCommo
         return detail;
     }
 
-    public List<MyMarketDetailReport> findByDate(int mid, Date start, Date end) {
-        return myMarketCommodityDetailMapper.select(mid, new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
+    public List<MyMarketReport> findByDate(int gid, int mid, Date start, Date end) {
+        return myMarketCommodityDetailMapper.select(gid, mid, new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
+    }
+
+    public List<MyMarketSaleInfo> findInCids(int gid, int mid, List<Integer> cids) {
+        return myMarketCommodityDetailMapper.selectInCids(gid, mid, cids);
     }
 
     public int total(int gid, int mid, String search) {

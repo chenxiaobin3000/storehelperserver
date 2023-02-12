@@ -18,6 +18,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import static com.cxb.storehelperserver.util.TypeDefine.ReportCycleType;
+
 /**
  * desc: 市场接口
  * auth: cxb
@@ -145,5 +147,15 @@ public class MarketController {
             return RestResult.fail("查询日期转换失败");
         }
         return marketService.getMarketStanDetail(req.getId(), req.getPage(), req.getLimit(), req.getMid(), date, req.getSearch());
+    }
+
+    @PostMapping("/getCommoditySaleInfo")
+    public RestResult getCommoditySaleInfo(@Validated @RequestBody GetCommoditySaleInfoValid req) {
+        return marketService.getCommoditySaleInfo(req.getId(), req.getPage(), req.getLimit(), req.getMid(), ReportCycleType.valueOf(req.getCycle()), req.getSearch());
+    }
+
+    @PostMapping("/getStandardSaleInfo")
+    public RestResult getStandardSaleInfo(@Validated @RequestBody GetStandardSaleInfoValid req) {
+        return marketService.getStandardSaleInfo(req.getId(), req.getPage(), req.getLimit(), req.getMid(), ReportCycleType.valueOf(req.getCycle()), req.getSearch());
     }
 }

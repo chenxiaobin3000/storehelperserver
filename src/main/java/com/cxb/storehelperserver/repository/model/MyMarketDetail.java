@@ -5,7 +5,7 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 @Data
-public class MyMarketDetailCommodity {
+public class MyMarketDetail {
     private Integer id;
 
     private Integer cid;

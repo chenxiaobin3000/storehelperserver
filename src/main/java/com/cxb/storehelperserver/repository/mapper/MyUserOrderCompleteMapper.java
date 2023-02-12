@@ -15,7 +15,7 @@ import java.util.List;
 @Mapper
 public interface MyUserOrderCompleteMapper {
     @Select({"<script>",
-            "select count(t1.id) as cnum, sum(t2.value) as ctotal, t1.otype as otype, t1.cdate as cdate",
+            "select count(t1.id) as cnum, sum(t2.value) as ctotal, t1.otype, t1.cdate",
             "from t_user_order_complete t1 left join t_agreement_order_commodity t2 on t1.oid = t2.oid",
             "where <if test='0 == sid'>t1.gid = #{gid}</if><if test='0 != sid'>t1.sid = #{sid}</if>",
             "and t1.cdate <![CDATA[ >= ]]> #{start} and t1.cdate <![CDATA[ < ]]> #{end}",
@@ -24,7 +24,7 @@ public interface MyUserOrderCompleteMapper {
     List<MyUserOrderComplete> selectByAgreement(int gid, int sid, int type1, int type2, Date start, Date end);
 
     @Select({"<script>",
-            "select count(t1.id) as cnum, sum(t2.value) as ctotal, t1.otype as otype, t1.cdate as cdate",
+            "select count(t1.id) as cnum, sum(t2.value) as ctotal, t1.otype, t1.cdate",
             "from t_user_order_complete t1 left join t_product_order_commodity t2 on t1.oid = t2.oid",
             "where <if test='0 == sid'>t1.gid = #{gid}</if><if test='0 != sid'>t1.sid = #{sid}</if>",
             "and t1.cdate <![CDATA[ >= ]]> #{start} and t1.cdate <![CDATA[ < ]]> #{end}",
@@ -33,7 +33,7 @@ public interface MyUserOrderCompleteMapper {
     List<MyUserOrderComplete> selectByProduct(int gid, int sid, int type1, int type2, Date start, Date end);
 
     @Select({"<script>",
-            "select count(t1.id) as cnum, sum(t2.value) as ctotal, t1.otype as otype, t1.cdate as cdate",
+            "select count(t1.id) as cnum, sum(t2.value) as ctotal, t1.otype, t1.cdate",
             "from t_user_order_complete t1 left join t_storage_order_commodity t2 on t1.oid = t2.oid",
             "where <if test='0 == sid'>t1.gid = #{gid}</if><if test='0 != sid'>t1.sid = #{sid}</if>",
             "and t1.cdate <![CDATA[ >= ]]> #{start} and t1.cdate <![CDATA[ < ]]> #{end}",

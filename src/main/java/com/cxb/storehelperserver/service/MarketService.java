@@ -3,6 +3,7 @@ package com.cxb.storehelperserver.service;
 import com.cxb.storehelperserver.model.*;
 import com.cxb.storehelperserver.repository.*;
 import com.cxb.storehelperserver.repository.model.MyMarketCommodity;
+import com.cxb.storehelperserver.repository.model.MyMarketSaleInfo;
 import com.cxb.storehelperserver.util.DateUtil;
 import com.cxb.storehelperserver.util.RestResult;
 import lombok.extern.slf4j.Slf4j;
@@ -12,9 +13,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
+
+import static com.cxb.storehelperserver.util.TypeDefine.*;
 
 /**
  * desc: 市场业务
@@ -327,6 +332,160 @@ public class MarketService {
         val data = new HashMap<String, Object>();
         data.put("total", total);
         data.put("list", list);
+        return RestResult.ok(data);
+    }
+
+    public RestResult getCommoditySaleInfo(int id, int page, int limit, int mid, ReportCycleType cycle, String search) {
+        // 获取公司信息
+        TUserGroup group = userGroupRepository.find(id);
+        if (null == group) {
+            return RestResult.fail("获取公司信息失败");
+        }
+
+        int gid = group.getGid();
+        int total = commodityRepository.total(gid, search);
+        if (0 == total) {
+            val data = new HashMap<String, Object>();
+            data.put("total", 0);
+            data.put("list", null);
+            return RestResult.ok(data);
+        }
+
+        val commodities = commodityRepository.pagination(gid, page, limit, search);
+        if (null == commodities) {
+            return RestResult.fail("获取商品信息失败");
+        }
+
+        // 销售数据
+        val cids = new ArrayList<Integer>();
+        for (TCommodity c : commodities) {
+            cids.add(c.getId());
+        }
+        val list = marketCommodityDetailRepository.findInCids(group.getGid(), mid, cids);
+
+        SimpleDateFormat simpleDateFormat = dateUtil.getSimpleDateFormat();
+        val datas = new ArrayList<HashMap<String, Object>>();
+        for (TCommodity c : commodities) {
+            val tmp = new HashMap<String, Object>();
+            tmp.put("id", c.getId());
+            tmp.put("code", c.getCode());
+            tmp.put("name", c.getName());
+            tmp.put("cid", c.getCid());
+            tmp.put("price", c.getPrice().floatValue());
+            tmp.put("unit", c.getUnit());
+            tmp.put("remark", c.getRemark());
+            datas.add(tmp);
+
+            // 属性
+            List<TCommodityAttr> attrs = commodityAttrRepository.find(c.getId());
+            if (null != attrs && !attrs.isEmpty()) {
+                val list1 = new ArrayList<String>();
+                tmp.put("attrs", list1);
+                for (TCommodityAttr attr : attrs) {
+                    list1.add(attr.getValue());
+                }
+            }
+
+            // 销售数据
+            val details = new HashMap<String, HashMap<String, Object>>();
+            int value = 0;
+            BigDecimal price2 = new BigDecimal(0);
+            for (MyMarketSaleInfo detail : list) {
+                if (detail.getCid().equals(c.getId())) {
+                    value += detail.getValue();
+                    price2 = price2.add(detail.getTotal());
+
+                    val data = new HashMap<String, Object>();
+                    data.put("value", detail.getValue());
+                    data.put("total", detail.getTotal());
+                    details.put(simpleDateFormat.format(detail.getCdate()), data);
+                }
+            }
+            tmp.put("detail", details);
+            tmp.put("value", value);
+            tmp.put("total", price2);
+        }
+
+        val data = new HashMap<String, Object>();
+        data.put("total", total);
+        data.put("list", datas);
+        return RestResult.ok(data);
+    }
+
+    public RestResult getStandardSaleInfo(int id, int page, int limit, int mid, ReportCycleType cycle, String search) {
+        // 获取公司信息
+        TUserGroup group = userGroupRepository.find(id);
+        if (null == group) {
+            return RestResult.fail("获取公司信息失败");
+        }
+
+        int gid = group.getGid();
+        int total = standardRepository.total(gid, search);
+        if (0 == total) {
+            val data = new HashMap<String, Object>();
+            data.put("total", 0);
+            data.put("list", null);
+            return RestResult.ok(data);
+        }
+
+        val standards = standardRepository.pagination(gid, page, limit, search);
+        if (null == standards) {
+            return RestResult.fail("获取标品信息失败");
+        }
+
+        // 销售数据
+        val cids = new ArrayList<Integer>();
+        for (TStandard c : standards) {
+            cids.add(c.getId());
+        }
+        val list = marketStandardDetailRepository.findInCids(group.getGid(), mid, cids);
+
+        SimpleDateFormat simpleDateFormat = dateUtil.getSimpleDateFormat();
+        val datas = new ArrayList<HashMap<String, Object>>();
+        for (TStandard c : standards) {
+            val tmp = new HashMap<String, Object>();
+            tmp.put("id", c.getId());
+            tmp.put("code", c.getCode());
+            tmp.put("name", c.getName());
+            tmp.put("cid", c.getCid());
+            tmp.put("price", c.getPrice().floatValue());
+            tmp.put("unit", c.getUnit());
+            tmp.put("remark", c.getRemark());
+            datas.add(tmp);
+
+            // 属性
+            List<TStandardAttr> attrs = standardAttrRepository.find(c.getId());
+            if (null != attrs && !attrs.isEmpty()) {
+                val list1 = new ArrayList<String>();
+                tmp.put("attrs", list1);
+                for (TStandardAttr attr : attrs) {
+                    list1.add(attr.getValue());
+                }
+            }
+
+            // 销售数据
+            val details = new HashMap<String, HashMap<String, Object>>();
+            int value = 0;
+            BigDecimal price2 = new BigDecimal(0);
+            for (MyMarketSaleInfo detail : list) {
+                if (detail.getCid().equals(c.getId())) {
+                    value += detail.getValue();
+                    price2 = price2.add(detail.getTotal());
+
+                    val data = new HashMap<String, Object>();
+                    data.put("value", detail.getValue());
+                    data.put("total", detail.getTotal());
+                    details.put(simpleDateFormat.format(detail.getCdate()), data);
+                }
+            }
+            tmp.put("detail", details);
+            tmp.put("value", value);
+            tmp.put("total", price2);
+        }
+
+        val data = new HashMap<String, Object>();
+        data.put("total", total);
+        data.put("list", datas);
         return RestResult.ok(data);
     }
 }
