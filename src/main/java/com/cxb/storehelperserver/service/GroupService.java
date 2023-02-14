@@ -1,14 +1,11 @@
 package com.cxb.storehelperserver.service;
 
-import com.cxb.storehelperserver.model.TGroup;
-import com.cxb.storehelperserver.model.TUserGroup;
-import com.cxb.storehelperserver.repository.GroupRepository;
-import com.cxb.storehelperserver.repository.RoleRepository;
-import com.cxb.storehelperserver.repository.UserGroupRepository;
-import com.cxb.storehelperserver.repository.UserRepository;
+import com.cxb.storehelperserver.model.*;
+import com.cxb.storehelperserver.repository.*;
 import com.cxb.storehelperserver.util.RestResult;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +13,7 @@ import javax.annotation.Resource;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import static com.cxb.storehelperserver.util.Permission.*;
 
@@ -35,26 +33,93 @@ public class GroupService {
     private GroupRepository groupRepository;
 
     @Resource
+    private GroupMarketRepository groupMarketRepository;
+
+    @Resource
     private UserGroupRepository userGroupRepository;
 
     @Resource
     private UserRepository userRepository;
 
     @Resource
+    private UserRoleRepository userRoleRepository;
+
+    @Resource
     private RoleRepository roleRepository;
 
-    public RestResult addGroup(int id, TGroup group) {
+    @Resource
+    private RolePermissionRepository rolePermissionRepository;
+
+    @Resource
+    private AccountRepository accountRepository;
+
+    @Value("${store-app.config.defaultpwd}")
+    private String defaultpwd;
+
+    public RestResult addGroup(int id, String account, String phone, TGroup group, List<Integer> markets) {
         // 权限校验，必须admin
         if (!checkService.checkRolePermission(id, admin_grouplist)) {
             return RestResult.fail("本账号没有管理员权限");
         }
+
+        TUser user = new TUser();
+        user.setName(account);
+        user.setPhone(phone);
+        if (!userRepository.insert(user)) {
+            return RestResult.fail("新增用户信息失败");
+        }
+        int uid = user.getId();
+
+        group.setContact(uid);
         if (!groupRepository.insert(group)) {
             return RestResult.fail("添加公司信息失败");
+        }
+        int gid = group.getId();
+
+        if (!groupMarketRepository.update(gid, markets)) {
+            return RestResult.fail("新增公司对接平台信息失败");
+        }
+
+        TRole role = new TRole();
+        role.setGid(gid);
+        role.setName("默认角色");
+        if (!roleRepository.insert(role)) {
+            return RestResult.fail("添加角色信息失败");
+        }
+        int rid = role.getId();
+
+        val permissions = new ArrayList<Integer>();
+        permissions.add(system);
+        permissions.add(system_rolelist);
+        if (!rolePermissionRepository.insert(rid, permissions)) {
+            return RestResult.fail("添加角色权限失败");
+        }
+
+        TUserRole userRole = new TUserRole();
+        userRole.setUid(uid);
+        userRole.setRid(rid);
+        if (!userRoleRepository.insert(userRole)) {
+            return RestResult.fail("新增用户角色信息失败");
+        }
+
+        TUserGroup userGroup = new TUserGroup();
+        userGroup.setUid(uid);
+        userGroup.setGid(gid);
+        if (!userGroupRepository.insert(userGroup)) {
+            return RestResult.fail("新增用户公司信息失败");
+        }
+
+        TAccount tAccount = new TAccount();
+        tAccount.setAccount(account);
+        tAccount.setPassword(defaultpwd);
+        tAccount.setUid(uid);
+        if (!accountRepository.insert(tAccount)) {
+            return RestResult.fail("新增账号信息失败");
         }
         return RestResult.ok();
     }
 
-    public RestResult setGroup(int id, TGroup group) {
+    public RestResult setGroup(int id, TGroup group, List<Integer> markets) {
         // 权限校验，必须admin
         if (!checkService.checkRolePermission(id, admin_grouplist)) {
             return RestResult.fail("本账号没有管理员权限");
@@ -66,6 +131,9 @@ public class GroupService {
         group.setMoney(group1.getMoney());
         if (!groupRepository.update(group)) {
             return RestResult.fail("修改公司信息失败");
+        }
+        if (!groupMarketRepository.update(group.getId(), markets)) {
+            return RestResult.fail("修改公司对接平台信息失败");
         }
         return RestResult.ok();
     }
@@ -122,6 +190,7 @@ public class GroupService {
             group.put("address", g.getAddress());
             group.put("contact", userRepository.find(g.getContact()));
             group.put("money", g.getMoney());
+            group.put("market", groupMarketRepository.find(g.getId()));
             list2.add(group);
         }
 

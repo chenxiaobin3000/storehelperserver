@@ -27,11 +27,10 @@ public class GroupController {
     public RestResult addGroup(@Validated @RequestBody AddGroupValid req) {
         TGroup group = new TGroup();
         group.setArea(Long.valueOf(req.getArea()));
-        group.setContact(req.getContact());
         group.setName(req.getName());
         group.setAddress(req.getAddress());
         group.setMoney(new BigDecimal(0));
-        return groupService.addGroup(req.getId(), group);
+        return groupService.addGroup(req.getId(), req.getAccount(), req.getPhone(), group, req.getMarkets());
     }
 
     @PostMapping("/setGroup")
@@ -42,7 +41,7 @@ public class GroupController {
         group.setContact(req.getContact());
         group.setName(req.getName());
         group.setAddress(req.getAddress());
-        return groupService.setGroup(req.getId(), group);
+        return groupService.setGroup(req.getId(), group, req.getMarkets());
     }
 
     @PostMapping("/delGroup")

@@ -49,7 +49,7 @@ public class AccountService {
     private String defaultpwd;
 
     /**
-     * desc: 注册用户，用户 id:0 用于错误返回
+     * desc: 注册用户
      */
     public RestResult register(String account, String password, String phone) {
         if (!openreg) {

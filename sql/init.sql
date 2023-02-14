@@ -1,0 +1,9 @@
+insert t_user(name,phone) value('系统管理员','13612348888');
+insert t_account(account,password,uid) value('admin','e10adc3949ba59abbe56e057f20f883e',1);
+insert t_group(area,contact,name,address,money) value(0,1,'福州集数科技有限公司','福建省福州市鼓楼区',0);
+insert t_user_group(uid,gid) value(1,1);
+insert t_role(gid,name,description) value(1,'超级管理员','集数系统后台管理员');
+insert t_user_role(uid,rid) value(1,1);
+insert t_role_permission(rid,pid) value(1,1100);
+insert t_role_permission(rid,pid) value(1,1103);
+insert t_role_permission(rid,pid) value(1,8888);

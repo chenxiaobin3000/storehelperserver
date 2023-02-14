@@ -58,20 +58,20 @@ public class GroupMarketRepository extends BaseRepository<List> {
         return null != groupMarketMapper.selectOneByExample(example);
     }
 
-    public boolean insert(TGroupMarket row) {
-        if (groupMarketMapper.insert(row) > 0) {
-            delCache(row.getGid());
-            return true;
+    public boolean update(int gid, List<Integer> rows) {
+        delete(gid);
+        if (null != rows && !rows.isEmpty()) {
+            TGroupMarket market = new TGroupMarket();
+            market.setGid(gid);
+            for (Integer mid : rows) {
+                market.setId(0);
+                market.setMid(mid);
+                if (groupMarketMapper.insert(market) <= 0) {
+                    return false;
+                }
+            }
         }
-        return false;
-    }
-
-    public boolean update(TGroupMarket row) {
-        if (groupMarketMapper.updateByPrimaryKey(row) > 0) {
-            delCache(row.getGid());
-            return true;
-        }
-        return false;
+        return true;
     }
 
     public boolean delete(int gid) {

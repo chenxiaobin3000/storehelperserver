@@ -6,6 +6,8 @@ import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Size;
+import java.util.List;
 
 /**
  * desc:
@@ -35,4 +37,8 @@ public class SetGroupValid implements IValid {
     @Length(min = 4, message = "公司地址长度不能小于4个字符")
     @Length(max = 32, message = "公司地址长度不能大于32个字符")
     private String address;
+
+    @NotEmpty(message = "请选择平台账号")
+    @Size(min = 1, message = "请至少选择一个平台账号")
+    private List<Integer> markets;
 }

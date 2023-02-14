@@ -23,7 +23,7 @@ public class HalfgoodAttrRepository extends BaseRepository<List> {
     private THalfgoodAttrMapper halfgoodAttrMapper;
 
     public HalfgoodAttrRepository() {
-        init("commAttr::");
+        init("halfAttr::");
     }
 
     public List<THalfgoodAttr> find(int hid) {
