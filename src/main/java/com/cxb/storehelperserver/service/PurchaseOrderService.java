@@ -1,6 +1,9 @@
 package com.cxb.storehelperserver.service;
 
-import com.cxb.storehelperserver.model.*;
+import com.cxb.storehelperserver.model.TOriginal;
+import com.cxb.storehelperserver.model.TStandard;
+import com.cxb.storehelperserver.model.TPurchaseAttachment;
+import com.cxb.storehelperserver.model.TPurchaseCommodity;
 import com.cxb.storehelperserver.repository.*;
 import com.cxb.storehelperserver.util.TypeDefine;
 import lombok.extern.slf4j.Slf4j;
@@ -14,34 +17,31 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * desc: 生产订单缓存业务
+ * desc: 采购订单缓存业务
  * auth: cxb
- * date: 2023/1/27
+ * date: 2023/1/3
  */
 @Slf4j
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class ProductOrderService extends BaseService<HashMap> {
+public class PurchaseOrderService extends BaseService<HashMap> {
     @Resource
-    private ProductOrderRepository productOrderRepository;
+    private PurchaseOrderRepository purchaseOrderRepository;
 
     @Resource
-    private ProductCommodityRepository productCommodityRepository;
+    private PurchaseCommodityRepository purchaseCommodityRepository;
 
     @Resource
-    private ProductAttachmentRepository productAttachmentRepository;
-
-    @Resource
-    private CommodityRepository commodityRepository;
-
-    @Resource
-    private HalfgoodRepository halfgoodRepository;
+    private PurchaseAttachmentRepository purchaseAttachmentRepository;
 
     @Resource
     private OriginalRepository originalRepository;
 
-    public ProductOrderService() {
-        init("productServ::");
+    @Resource
+    private StandardRepository standardRepository;
+
+    public PurchaseOrderService() {
+        init("purchaseServ::");
     }
 
     public HashMap<String, Object> find(int oid) {
@@ -52,9 +52,9 @@ public class ProductOrderService extends BaseService<HashMap> {
 
         // 商品
         val commoditys = new ArrayList<HashMap<String, Object>>();
-        val productCommodities = productCommodityRepository.find(oid);
-        if (null != productCommodities && !productCommodities.isEmpty()) {
-            for (TProductCommodity sc : productCommodities) {
+        val purchaseCommodities = purchaseCommodityRepository.find(oid);
+        if (null != purchaseCommodities && !purchaseCommodities.isEmpty()) {
+            for (TPurchaseCommodity sc : purchaseCommodities) {
                 val data = new HashMap<String, Object>();
                 data.put("id", sc.getId());
                 data.put("cid", sc.getCid());
@@ -68,25 +68,18 @@ public class ProductOrderService extends BaseService<HashMap> {
                 TypeDefine.CommodityType type = TypeDefine.CommodityType.valueOf(sc.getCtype());
                 int cid = sc.getCid();
                 switch (type) {
-                    case COMMODITY:
-                        TCommodity find1 = commodityRepository.find(cid);
-                        if (null != find1) {
-                            data.put("code", find1.getCode());
-                            data.put("name", find1.getName());
-                        }
-                        break;
-                    case HALFGOOD:
-                        THalfgood find2 = halfgoodRepository.find(cid);
-                        if (null != find2) {
-                            data.put("code", find2.getCode());
-                            data.put("name", find2.getName());
-                        }
-                        break;
                     case ORIGINAL:
                         TOriginal find3 = originalRepository.find(cid);
                         if (null != find3) {
                             data.put("code", find3.getCode());
                             data.put("name", find3.getName());
+                        }
+                        break;
+                    case STANDARD:
+                        TStandard find4 = standardRepository.find(cid);
+                        if (null != find4) {
+                            data.put("code", find4.getCode());
+                            data.put("name", find4.getName());
                         }
                         break;
                     default:
@@ -98,26 +91,26 @@ public class ProductOrderService extends BaseService<HashMap> {
         // 附件
         datas = new HashMap<>();
         datas.put("comms", commoditys);
-        datas.put("attrs", productAttachmentRepository.findByOid(oid));
+        datas.put("attrs", purchaseAttachmentRepository.findByOid(oid));
         setCache(oid, datas);
         return datas;
     }
 
-    public String update(int oid, List<TProductCommodity> comms, List<Integer> attrs) {
+    public String update(int oid, List<TPurchaseCommodity> comms, List<Integer> attrs) {
         delCache(oid);
-        for (TProductCommodity c : comms) {
+        for (TPurchaseCommodity c : comms) {
             c.setOid(oid);
         }
-        if (!productCommodityRepository.update(comms, oid)) {
-            return "生成订单商品数据失败";
+        if (!purchaseCommodityRepository.update(comms, oid)) {
+            return "生成订单商品信息失败";
         }
 
         // 修改附件oid
         for (Integer attr : attrs) {
-            TProductAttachment productAttachment = productAttachmentRepository.find(attr);
-            if (null != productAttachment) {
-                productAttachment.setOid(oid);
-                if (!productAttachmentRepository.update(productAttachment)) {
+            TPurchaseAttachment purchaseAttachment = purchaseAttachmentRepository.find(attr);
+            if (null != purchaseAttachment) {
+                purchaseAttachment.setOid(oid);
+                if (!purchaseAttachmentRepository.update(purchaseAttachment)) {
                     return "添加订单附件失败";
                 }
             }

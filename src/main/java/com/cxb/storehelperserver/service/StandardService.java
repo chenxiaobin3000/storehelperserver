@@ -149,7 +149,6 @@ public class StandardService {
         data.put("code", standard.getCode());
         data.put("name", standard.getName());
         data.put("cid", standard.getCid());
-        data.put("price", standard.getPrice().floatValue());
         data.put("unit", standard.getUnit());
         data.put("remark", standard.getRemark());
         List<TStandardAttr> attrs = standardAttrRepository.find(standard.getId());
@@ -190,7 +189,6 @@ public class StandardService {
             tmp.put("code", c.getCode());
             tmp.put("name", c.getName());
             tmp.put("cid", c.getCid());
-            tmp.put("price", c.getPrice().floatValue());
             tmp.put("unit", c.getUnit());
             tmp.put("remark", c.getRemark());
             datas.add(tmp);
@@ -239,7 +237,6 @@ public class StandardService {
             tmp.put("code", c.getCode());
             tmp.put("name", c.getName());
             tmp.put("cid", c.getCid());
-            tmp.put("price", c.getPrice().floatValue());
             tmp.put("unit", c.getUnit());
             tmp.put("remark", c.getRemark());
             datas.add(tmp);

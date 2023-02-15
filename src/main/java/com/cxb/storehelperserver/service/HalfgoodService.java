@@ -158,7 +158,6 @@ public class HalfgoodService {
         data.put("code", halfgood.getCode());
         data.put("name", halfgood.getName());
         data.put("cid", halfgood.getCid());
-        data.put("price", halfgood.getPrice().floatValue());
         data.put("unit", halfgood.getUnit());
         data.put("remark", halfgood.getRemark());
         List<THalfgoodAttr> attrs = halfgoodAttrRepository.find(halfgood.getId());
@@ -200,7 +199,6 @@ public class HalfgoodService {
             tmp.put("code", c.getCode());
             tmp.put("name", c.getName());
             tmp.put("cid", c.getCid());
-            tmp.put("price", c.getPrice().floatValue());
             tmp.put("unit", c.getUnit());
             tmp.put("remark", c.getRemark());
             datas.add(tmp);
@@ -260,7 +258,6 @@ public class HalfgoodService {
             tmp.put("code", c.getCode());
             tmp.put("name", c.getName());
             tmp.put("cid", c.getCid());
-            tmp.put("price", c.getPrice().floatValue());
             tmp.put("unit", c.getUnit());
             tmp.put("remark", c.getRemark());
             datas.add(tmp);

@@ -158,7 +158,6 @@ public class CommodityService {
         data.put("code", commodity.getCode());
         data.put("name", commodity.getName());
         data.put("cid", commodity.getCid());
-        data.put("price", commodity.getPrice().floatValue());
         data.put("unit", commodity.getUnit());
         data.put("remark", commodity.getRemark());
         List<TCommodityAttr> attrs = commodityAttrRepository.find(commodity.getId());
@@ -200,7 +199,6 @@ public class CommodityService {
             tmp.put("code", c.getCode());
             tmp.put("name", c.getName());
             tmp.put("cid", c.getCid());
-            tmp.put("price", c.getPrice().floatValue());
             tmp.put("unit", c.getUnit());
             tmp.put("remark", c.getRemark());
             datas.add(tmp);
@@ -260,7 +258,6 @@ public class CommodityService {
             tmp.put("code", c.getCode());
             tmp.put("name", c.getName());
             tmp.put("cid", c.getCid());
-            tmp.put("price", c.getPrice().floatValue());
             tmp.put("unit", c.getUnit());
             tmp.put("remark", c.getRemark());
             datas.add(tmp);

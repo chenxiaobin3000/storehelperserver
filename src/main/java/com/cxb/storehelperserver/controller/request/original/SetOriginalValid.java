@@ -39,9 +39,6 @@ public class SetOriginalValid implements IValid {
     @Min(value = 1, message = "原料品类错误")
     private int cid;
 
-    @Min(value = 1, message = "原料价格错误")
-    private BigDecimal price;
-
     @Min(value = 1, message = "原料单位错误")
     private int unit;
 

@@ -39,10 +39,10 @@ public class ProductService {
     private ProductOrderRepository productOrderRepository;
 
     @Resource
-    private ProductOrderCommodityRepository productOrderCommodityRepository;
+    private ProductCommodityRepository productCommodityRepository;
 
     @Resource
-    private ProductOrderAttachmentRepository productOrderAttachmentRepository;
+    private ProductAttachmentRepository productAttachmentRepository;
 
     @Resource
     private UserOrderApplyRepository userOrderApplyRepository;
@@ -63,12 +63,6 @@ public class ProductService {
     private OriginalRepository originalRepository;
 
     @Resource
-    private StandardRepository standardRepository;
-
-    @Resource
-    private DestroyRepository destroyRepository;
-
-    @Resource
     private OrderReviewerRepository orderReviewerRepository;
 
     @Resource
@@ -86,7 +80,7 @@ public class ProductService {
         }
 
         // 生成进货单
-        val comms = new ArrayList<TProductOrderCommodity>();
+        val comms = new ArrayList<TProductCommodity>();
         ret = createProductComms(order, types, commoditys, values, prices, comms);
         if (null != ret) {
             return ret;
@@ -171,7 +165,7 @@ public class ProductService {
         }
 
         // 生成进货单
-        val comms = new ArrayList<TProductOrderCommodity>();
+        val comms = new ArrayList<TProductCommodity>();
         ret = createProductComms(order, types, commoditys, values, prices, comms);
         if (null != ret) {
             return ret;
@@ -215,10 +209,10 @@ public class ProductService {
         stockService.delStock(order.getSid(), calendar.getTime());
 
         // 删除商品附件数据
-        if (!productOrderCommodityRepository.delete(oid)) {
+        if (!productCommodityRepository.delete(oid)) {
             return RestResult.fail("删除关联商品失败");
         }
-        if (!productOrderAttachmentRepository.delete(oid)) {
+        if (!productAttachmentRepository.delete(oid)) {
             return RestResult.fail("删除关联商品附件失败");
         }
 
@@ -369,7 +363,7 @@ public class ProductService {
         }
 
         // 生成进货单
-        val comms = new ArrayList<TProductOrderCommodity>();
+        val comms = new ArrayList<TProductCommodity>();
         ret = createProductComms(order, types, commoditys, values, prices, comms);
         if (null != ret) {
             return ret;
@@ -454,7 +448,7 @@ public class ProductService {
         }
 
         // 生成进货单
-        val comms = new ArrayList<TProductOrderCommodity>();
+        val comms = new ArrayList<TProductCommodity>();
         ret = createProductComms(order, types, commoditys, values, prices, comms);
         if (null != ret) {
             return ret;
@@ -498,10 +492,10 @@ public class ProductService {
         stockService.delStock(order.getSid(), calendar.getTime());
 
         // 删除商品附件数据
-        if (!productOrderCommodityRepository.delete(oid)) {
+        if (!productCommodityRepository.delete(oid)) {
             return RestResult.fail("删除关联商品失败");
         }
-        if (!productOrderAttachmentRepository.delete(oid)) {
+        if (!productAttachmentRepository.delete(oid)) {
             return RestResult.fail("删除关联商品附件失败");
         }
 
@@ -668,7 +662,7 @@ public class ProductService {
     }
 
     private RestResult createProductComms(TProductOrder order, List<Integer> types, List<Integer> commoditys,
-                                          List<Integer> values, List<BigDecimal> prices, List<TProductOrderCommodity> list) {
+                                          List<Integer> values, List<BigDecimal> prices, List<TProductCommodity> list) {
         // 生成进货单
         int size = commoditys.size();
         if (size != types.size() || size != values.size() || size != prices.size()) {
@@ -702,24 +696,12 @@ public class ProductService {
                     }
                     unit = find3.getUnit();
                     break;
-                case STANDARD:
-                    TStandard find4 = standardRepository.find(cid);
-                    if (null == find4) {
-                        return RestResult.fail("未查询到标品：" + cid);
-                    }
-                    unit = find4.getUnit();
-                    break;
                 default:
-                    TDestroy find5 = destroyRepository.find(cid);
-                    if (null == find5) {
-                        return RestResult.fail("未查询到废品：" + cid);
-                    }
-                    unit = find5.getUnit();
-                    break;
+                    return RestResult.fail("商品类型异常：" + type);
             }
 
             // 生成数据
-            TProductOrderCommodity c = new TProductOrderCommodity();
+            TProductCommodity c = new TProductCommodity();
             c.setCtype(type.getValue());
             c.setCid(cid);
             c.setUnit(unit);

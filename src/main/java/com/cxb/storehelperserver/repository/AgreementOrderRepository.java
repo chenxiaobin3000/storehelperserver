@@ -26,7 +26,7 @@ public class AgreementOrderRepository extends BaseRepository<TAgreementOrder> {
     private MyOrderMapper myOrderMapper;
 
     public AgreementOrderRepository() {
-        init("aOrder::");
+        init("agreeOrder::");
     }
 
     public TAgreementOrder find(int id) {

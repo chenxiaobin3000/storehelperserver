@@ -371,7 +371,6 @@ public class MarketService {
             tmp.put("code", c.getCode());
             tmp.put("name", c.getName());
             tmp.put("cid", c.getCid());
-            tmp.put("price", c.getPrice().floatValue());
             tmp.put("unit", c.getUnit());
             tmp.put("remark", c.getRemark());
             datas.add(tmp);
@@ -448,7 +447,6 @@ public class MarketService {
             tmp.put("code", c.getCode());
             tmp.put("name", c.getName());
             tmp.put("cid", c.getCid());
-            tmp.put("price", c.getPrice().floatValue());
             tmp.put("unit", c.getUnit());
             tmp.put("remark", c.getRemark());
             datas.add(tmp);

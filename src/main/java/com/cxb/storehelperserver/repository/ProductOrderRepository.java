@@ -26,7 +26,7 @@ public class ProductOrderRepository extends BaseRepository<TProductOrder> {
     private MyOrderMapper myOrderMapper;
 
     public ProductOrderRepository() {
-        init("pOrder::");
+        init("productOrder::");
     }
 
     public TProductOrder find(int id) {

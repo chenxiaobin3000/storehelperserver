@@ -32,7 +32,6 @@ public class OriginalController {
         original.setCode(req.getCode());
         original.setName(req.getName());
         original.setCid(req.getCid());
-        original.setPrice(req.getPrice());
         original.setUnit(req.getUnit());
         original.setRemark(req.getRemark());
         return originalService.addOriginal(req.getId(), original, req.getAttrs());
@@ -46,7 +45,6 @@ public class OriginalController {
         original.setCode(req.getCode());
         original.setName(req.getName());
         original.setCid(req.getCid());
-        original.setPrice(req.getPrice());
         original.setUnit(req.getUnit());
         original.setRemark(req.getRemark());
         return originalService.setOriginal(req.getId(), original, req.getAttrs());

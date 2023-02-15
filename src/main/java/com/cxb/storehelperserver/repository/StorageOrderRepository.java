@@ -26,7 +26,7 @@ public class StorageOrderRepository extends BaseRepository<TStorageOrder> {
     private MyOrderMapper myOrderMapper;
 
     public StorageOrderRepository() {
-        init("sOrder::");
+        init("storageOrder::");
     }
 
     public TStorageOrder find(int id) {

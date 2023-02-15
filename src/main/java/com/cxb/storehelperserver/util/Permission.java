@@ -8,18 +8,28 @@ package com.cxb.storehelperserver.util;
 public class Permission {
     // 小程序
     static public final int mp_report = 10;
-    static public final int mp_storage_in_apply = 11;
-    static public final int mp_storage_out_apply = 12;
-    static public final int mp_product_out_apply = 13;
-    static public final int mp_product_in_apply = 14;
-    static public final int mp_agreement_out_apply = 15;
-    static public final int mp_agreement_in_apply = 16;
-    static public final int mp_storage_in_review = 17;
-    static public final int mp_storage_out_review = 18;
-    static public final int mp_product_out_review = 19;
-    static public final int mp_product_in_review = 20;
-    static public final int mp_agreement_out_review = 21;
-    static public final int mp_agreement_in_review = 22;
+
+    static public final int mp_purchase_in_apply = 11;
+    static public final int mp_purchase_out_apply = 12;
+    static public final int mp_storage_in_apply = 13;
+    static public final int mp_storage_out_apply = 14;
+    static public final int mp_product_out_apply = 15;
+    static public final int mp_product_in_apply = 16;
+    static public final int mp_agreement_out_apply = 17;
+    static public final int mp_agreement_in_apply = 18;
+    static public final int mp_loss_local_apply = 19;
+    static public final int mp_loss_cloud_apply = 20;
+
+    static public final int mp_purchase_in_review = 21;
+    static public final int mp_purchase_out_review = 22;
+    static public final int mp_storage_in_review = 23;
+    static public final int mp_storage_out_review = 24;
+    static public final int mp_product_out_review = 25;
+    static public final int mp_product_in_review = 26;
+    static public final int mp_agreement_out_review = 27;
+    static public final int mp_agreement_in_review = 28;
+    static public final int mp_loss_local_review = 29;
+    static public final int mp_loss_cloud_review = 30;
 
     // 管理后台
     static public final int dashboard_report = 100;
@@ -30,6 +40,11 @@ public class Permission {
     static public final int agreement_report = 201;
     static public final int agreement_getlist = 202;
     static public final int agreement_alarm = 203;
+
+    static public final int purchase = 250;
+    static public final int purchase_report = 251;
+    static public final int purchase_getlist = 252;
+    static public final int purchase_alarm = 253;
 
     static public final int commodity = 300;
     static public final int commodity_report = 301;
@@ -56,6 +71,11 @@ public class Permission {
     static public final int product_report = 601;
     static public final int product_getlist = 602;
     static public final int product_alarm = 603;
+
+    static public final int loss = 650;
+    static public final int loss_report = 651;
+    static public final int loss_getlist = 652;
+    static public final int loss_alarm = 653;
 
     static public final int report = 700;
     static public final int report_market = 701;

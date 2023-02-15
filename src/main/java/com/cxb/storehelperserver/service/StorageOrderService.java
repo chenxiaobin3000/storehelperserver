@@ -26,16 +26,10 @@ public class StorageOrderService extends BaseService<HashMap> {
     private StorageOrderRepository storageOrderRepository;
 
     @Resource
-    private StorageOrderCommodityRepository storageOrderCommodityRepository;
+    private StorageCommodityRepository storageCommodityRepository;
 
     @Resource
-    private StorageOrderAttachmentRepository storageOrderAttachmentRepository;
-
-    @Resource
-    private CommodityRepository commodityRepository;
-
-    @Resource
-    private HalfgoodRepository halfgoodRepository;
+    private StorageAttachmentRepository storageAttachmentRepository;
 
     @Resource
     private OriginalRepository originalRepository;
@@ -44,7 +38,7 @@ public class StorageOrderService extends BaseService<HashMap> {
     private StandardRepository standardRepository;
 
     public StorageOrderService() {
-        init("scserv::");
+        init("storageServ::");
     }
 
     public HashMap<String, Object> find(int oid) {
@@ -55,9 +49,9 @@ public class StorageOrderService extends BaseService<HashMap> {
 
         // 商品
         val commoditys = new ArrayList<HashMap<String, Object>>();
-        val storageOrderCommodities = storageOrderCommodityRepository.find(oid);
-        if (null != storageOrderCommodities && !storageOrderCommodities.isEmpty()) {
-            for (TStorageOrderCommodity sc : storageOrderCommodities) {
+        val storageCommodities = storageCommodityRepository.find(oid);
+        if (null != storageCommodities && !storageCommodities.isEmpty()) {
+            for (TStorageCommodity sc : storageCommodities) {
                 val data = new HashMap<String, Object>();
                 data.put("id", sc.getId());
                 data.put("cid", sc.getCid());
@@ -71,20 +65,6 @@ public class StorageOrderService extends BaseService<HashMap> {
                 TypeDefine.CommodityType type = TypeDefine.CommodityType.valueOf(sc.getCtype());
                 int cid = sc.getCid();
                 switch (type) {
-                    case COMMODITY:
-                        TCommodity find1 = commodityRepository.find(cid);
-                        if (null != find1) {
-                            data.put("code", find1.getCode());
-                            data.put("name", find1.getName());
-                        }
-                        break;
-                    case HALFGOOD:
-                        THalfgood find2 = halfgoodRepository.find(cid);
-                        if (null != find2) {
-                            data.put("code", find2.getCode());
-                            data.put("name", find2.getName());
-                        }
-                        break;
                     case ORIGINAL:
                         TOriginal find3 = originalRepository.find(cid);
                         if (null != find3) {
@@ -99,6 +79,8 @@ public class StorageOrderService extends BaseService<HashMap> {
                             data.put("name", find4.getName());
                         }
                         break;
+                    default:
+                        break;
                 }
             }
         }
@@ -106,26 +88,26 @@ public class StorageOrderService extends BaseService<HashMap> {
         // 附件
         datas = new HashMap<>();
         datas.put("comms", commoditys);
-        datas.put("attrs", storageOrderAttachmentRepository.findByOid(oid));
+        datas.put("attrs", storageAttachmentRepository.findByOid(oid));
         setCache(oid, datas);
         return datas;
     }
 
-    public String update(int oid, List<TStorageOrderCommodity> comms, List<Integer> attrs) {
+    public String update(int oid, List<TStorageCommodity> comms, List<Integer> attrs) {
         delCache(oid);
-        for (TStorageOrderCommodity c : comms) {
+        for (TStorageCommodity c : comms) {
             c.setOid(oid);
         }
-        if (!storageOrderCommodityRepository.update(comms, oid)) {
+        if (!storageCommodityRepository.update(comms, oid)) {
             return "生成订单商品信息失败";
         }
 
         // 修改附件oid
         for (Integer attr : attrs) {
-            TStorageOrderAttachment storageOrderAttachment = storageOrderAttachmentRepository.find(attr);
-            if (null != storageOrderAttachment) {
-                storageOrderAttachment.setOid(oid);
-                if (!storageOrderAttachmentRepository.update(storageOrderAttachment)) {
+            TStorageAttachment storageAttachment = storageAttachmentRepository.find(attr);
+            if (null != storageAttachment) {
+                storageAttachment.setOid(oid);
+                if (!storageAttachmentRepository.update(storageAttachment)) {
                     return "添加订单附件失败";
                 }
             }

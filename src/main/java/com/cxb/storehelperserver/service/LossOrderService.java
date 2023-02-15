@@ -14,34 +14,31 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * desc: 生产订单缓存业务
+ * desc: 损耗订单缓存业务
  * auth: cxb
- * date: 2023/1/27
+ * date: 2023/1/3
  */
 @Slf4j
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class ProductOrderService extends BaseService<HashMap> {
+public class LossOrderService extends BaseService<HashMap> {
     @Resource
-    private ProductOrderRepository productOrderRepository;
+    private LossOrderRepository lossOrderRepository;
 
     @Resource
-    private ProductCommodityRepository productCommodityRepository;
+    private LossCommodityRepository lossCommodityRepository;
 
     @Resource
-    private ProductAttachmentRepository productAttachmentRepository;
-
-    @Resource
-    private CommodityRepository commodityRepository;
-
-    @Resource
-    private HalfgoodRepository halfgoodRepository;
+    private LossAttachmentRepository lossAttachmentRepository;
 
     @Resource
     private OriginalRepository originalRepository;
 
-    public ProductOrderService() {
-        init("productServ::");
+    @Resource
+    private HalfgoodRepository halfgoodRepository;
+
+    public LossOrderService() {
+        init("lossServ::");
     }
 
     public HashMap<String, Object> find(int oid) {
@@ -52,9 +49,9 @@ public class ProductOrderService extends BaseService<HashMap> {
 
         // 商品
         val commoditys = new ArrayList<HashMap<String, Object>>();
-        val productCommodities = productCommodityRepository.find(oid);
-        if (null != productCommodities && !productCommodities.isEmpty()) {
-            for (TProductCommodity sc : productCommodities) {
+        val lossCommodities = lossCommodityRepository.find(oid);
+        if (null != lossCommodities && !lossCommodities.isEmpty()) {
+            for (TLossCommodity sc : lossCommodities) {
                 val data = new HashMap<String, Object>();
                 data.put("id", sc.getId());
                 data.put("cid", sc.getCid());
@@ -68,13 +65,6 @@ public class ProductOrderService extends BaseService<HashMap> {
                 TypeDefine.CommodityType type = TypeDefine.CommodityType.valueOf(sc.getCtype());
                 int cid = sc.getCid();
                 switch (type) {
-                    case COMMODITY:
-                        TCommodity find1 = commodityRepository.find(cid);
-                        if (null != find1) {
-                            data.put("code", find1.getCode());
-                            data.put("name", find1.getName());
-                        }
-                        break;
                     case HALFGOOD:
                         THalfgood find2 = halfgoodRepository.find(cid);
                         if (null != find2) {
@@ -98,26 +88,26 @@ public class ProductOrderService extends BaseService<HashMap> {
         // 附件
         datas = new HashMap<>();
         datas.put("comms", commoditys);
-        datas.put("attrs", productAttachmentRepository.findByOid(oid));
+        datas.put("attrs", lossAttachmentRepository.findByOid(oid));
         setCache(oid, datas);
         return datas;
     }
 
-    public String update(int oid, List<TProductCommodity> comms, List<Integer> attrs) {
+    public String update(int oid, List<TLossCommodity> comms, List<Integer> attrs) {
         delCache(oid);
-        for (TProductCommodity c : comms) {
+        for (TLossCommodity c : comms) {
             c.setOid(oid);
         }
-        if (!productCommodityRepository.update(comms, oid)) {
-            return "生成订单商品数据失败";
+        if (!lossCommodityRepository.update(comms, oid)) {
+            return "生成订单商品信息失败";
         }
 
         // 修改附件oid
         for (Integer attr : attrs) {
-            TProductAttachment productAttachment = productAttachmentRepository.find(attr);
-            if (null != productAttachment) {
-                productAttachment.setOid(oid);
-                if (!productAttachmentRepository.update(productAttachment)) {
+            TLossAttachment lossAttachment = lossAttachmentRepository.find(attr);
+            if (null != lossAttachment) {
+                lossAttachment.setOid(oid);
+                if (!lossAttachmentRepository.update(lossAttachment)) {
                     return "添加订单附件失败";
                 }
             }

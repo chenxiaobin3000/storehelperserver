@@ -36,9 +36,6 @@ public class AddHalfgoodValid implements IValid {
     @Min(value = 1, message = "半成品品类错误")
     private int cid;
 
-    @Min(value = 1, message = "半成品价格错误")
-    private BigDecimal price;
-
     @Min(value = 1, message = "半成品单位错误")
     private int unit;
 

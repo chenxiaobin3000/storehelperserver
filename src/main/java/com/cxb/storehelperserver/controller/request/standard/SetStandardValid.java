@@ -39,9 +39,6 @@ public class SetStandardValid implements IValid {
     @Min(value = 1, message = "标品品类错误")
     private int cid;
 
-    @Min(value = 1, message = "标品价格错误")
-    private BigDecimal price;
-
     @Min(value = 1, message = "标品单位错误")
     private int unit;
 

@@ -48,10 +48,10 @@ public class StorageService {
     private StorageOrderRepository storageOrderRepository;
 
     @Resource
-    private StorageOrderCommodityRepository storageOrderCommodityRepository;
+    private StorageCommodityRepository storageCommodityRepository;
 
     @Resource
-    private StorageOrderAttachmentRepository storageOrderAttachmentRepository;
+    private StorageAttachmentRepository storageAttachmentRepository;
 
     @Resource
     private UserRepository userRepository;
@@ -69,19 +69,10 @@ public class StorageService {
     private UserGroupRepository userGroupRepository;
 
     @Resource
-    private CommodityRepository commodityRepository;
-
-    @Resource
-    private HalfgoodRepository halfgoodRepository;
-
-    @Resource
     private OriginalRepository originalRepository;
 
     @Resource
     private StandardRepository standardRepository;
-
-    @Resource
-    private DestroyRepository destroyRepository;
 
     @Resource
     private OrderReviewerRepository orderReviewerRepository;
@@ -238,7 +229,7 @@ public class StorageService {
         }
 
         // 生成进货单
-        val comms = new ArrayList<TStorageOrderCommodity>();
+        val comms = new ArrayList<TStorageCommodity>();
         ret = createStorageComms(order, types, commoditys, values, prices, comms);
         if (null != ret) {
             return ret;
@@ -323,7 +314,7 @@ public class StorageService {
         }
 
         // 生成进货单
-        val comms = new ArrayList<TStorageOrderCommodity>();
+        val comms = new ArrayList<TStorageCommodity>();
         ret = createStorageComms(order, types, commoditys, values, prices, comms);
         if (null != ret) {
             return ret;
@@ -367,10 +358,10 @@ public class StorageService {
         stockService.delStock(order.getSid(), calendar.getTime());
 
         // 删除商品附件数据
-        if (!storageOrderCommodityRepository.delete(oid)) {
+        if (!storageCommodityRepository.delete(oid)) {
             return RestResult.fail("删除关联商品失败");
         }
-        if (!storageOrderAttachmentRepository.delete(oid)) {
+        if (!storageAttachmentRepository.delete(oid)) {
             return RestResult.fail("删除关联商品附件失败");
         }
 
@@ -522,7 +513,7 @@ public class StorageService {
         }
 
         // 生成进货单
-        val comms = new ArrayList<TStorageOrderCommodity>();
+        val comms = new ArrayList<TStorageCommodity>();
         ret = createStorageComms(order, types, commoditys, values, prices, comms);
         if (null != ret) {
             return ret;
@@ -607,7 +598,7 @@ public class StorageService {
         }
 
         // 生成进货单
-        val comms = new ArrayList<TStorageOrderCommodity>();
+        val comms = new ArrayList<TStorageCommodity>();
         ret = createStorageComms(order, types, commoditys, values, prices, comms);
         if (null != ret) {
             return ret;
@@ -651,10 +642,10 @@ public class StorageService {
         stockService.delStock(order.getSid(), calendar.getTime());
 
         // 删除商品附件数据
-        if (!storageOrderCommodityRepository.delete(oid)) {
+        if (!storageCommodityRepository.delete(oid)) {
             return RestResult.fail("删除关联商品失败");
         }
-        if (!storageOrderAttachmentRepository.delete(oid)) {
+        if (!storageAttachmentRepository.delete(oid)) {
             return RestResult.fail("删除关联商品附件失败");
         }
 
@@ -821,7 +812,7 @@ public class StorageService {
     }
 
     private RestResult createStorageComms(TStorageOrder order, List<Integer> types, List<Integer> commoditys,
-                                          List<Integer> values, List<BigDecimal> prices, List<TStorageOrderCommodity> list) {
+                                          List<Integer> values, List<BigDecimal> prices, List<TStorageCommodity> list) {
         // 生成进货单
         int size = commoditys.size();
         if (size != types.size() || size != values.size() || size != prices.size()) {
@@ -834,20 +825,6 @@ public class StorageService {
             int cid = commoditys.get(i);
             int unit = 0;
             switch (type) {
-                case COMMODITY:
-                    TCommodity find1 = commodityRepository.find(cid);
-                    if (null == find1) {
-                        return RestResult.fail("未查询到商品：" + cid);
-                    }
-                    unit = find1.getUnit();
-                    break;
-                case HALFGOOD:
-                    THalfgood find2 = halfgoodRepository.find(cid);
-                    if (null == find2) {
-                        return RestResult.fail("未查询到半成品：" + cid);
-                    }
-                    unit = find2.getUnit();
-                    break;
                 case ORIGINAL:
                     TOriginal find3 = originalRepository.find(cid);
                     if (null == find3) {
@@ -863,16 +840,11 @@ public class StorageService {
                     unit = find4.getUnit();
                     break;
                 default:
-                    TDestroy find5 = destroyRepository.find(cid);
-                    if (null == find5) {
-                        return RestResult.fail("未查询到废品：" + cid);
-                    }
-                    unit = find5.getUnit();
-                    break;
+                    return RestResult.fail("商品类型异常：" + type);
             }
 
             // 生成数据
-            TStorageOrderCommodity c = new TStorageOrderCommodity();
+            TStorageCommodity c = new TStorageCommodity();
             c.setCtype(type.getValue());
             c.setCid(cid);
             c.setUnit(unit);

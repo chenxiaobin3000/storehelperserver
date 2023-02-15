@@ -16,7 +16,7 @@ import java.util.List;
 public interface MyUserOrderCompleteMapper {
     @Select({"<script>",
             "select count(t1.id) as cnum, sum(t2.value) as ctotal, t1.otype, t1.cdate",
-            "from t_user_order_complete t1 left join t_agreement_order_commodity t2 on t1.oid = t2.oid",
+            "from t_user_order_complete t1 left join t_agreement_commodity t2 on t1.oid = t2.oid",
             "where <if test='0 == sid'>t1.gid = #{gid}</if><if test='0 != sid'>t1.sid = #{sid}</if>",
             "and t1.cdate <![CDATA[ >= ]]> #{start} and t1.cdate <![CDATA[ < ]]> #{end}",
             "and (t1.otype=#{type1} or t1.otype=#{type2}) group by t1.otype, t1.cdate",
@@ -25,7 +25,7 @@ public interface MyUserOrderCompleteMapper {
 
     @Select({"<script>",
             "select count(t1.id) as cnum, sum(t2.value) as ctotal, t1.otype, t1.cdate",
-            "from t_user_order_complete t1 left join t_product_order_commodity t2 on t1.oid = t2.oid",
+            "from t_user_order_complete t1 left join t_product_commodity t2 on t1.oid = t2.oid",
             "where <if test='0 == sid'>t1.gid = #{gid}</if><if test='0 != sid'>t1.sid = #{sid}</if>",
             "and t1.cdate <![CDATA[ >= ]]> #{start} and t1.cdate <![CDATA[ < ]]> #{end}",
             "and (t1.otype=#{type1} or t1.otype=#{type2}) group by t1.otype, t1.cdate",
@@ -34,7 +34,7 @@ public interface MyUserOrderCompleteMapper {
 
     @Select({"<script>",
             "select count(t1.id) as cnum, sum(t2.value) as ctotal, t1.otype, t1.cdate",
-            "from t_user_order_complete t1 left join t_storage_order_commodity t2 on t1.oid = t2.oid",
+            "from t_user_order_complete t1 left join t_storage_commodity t2 on t1.oid = t2.oid",
             "where <if test='0 == sid'>t1.gid = #{gid}</if><if test='0 != sid'>t1.sid = #{sid}</if>",
             "and t1.cdate <![CDATA[ >= ]]> #{start} and t1.cdate <![CDATA[ < ]]> #{end}",
             "and (t1.otype=#{type1} or t1.otype=#{type2}) group by t1.otype, t1.cdate",

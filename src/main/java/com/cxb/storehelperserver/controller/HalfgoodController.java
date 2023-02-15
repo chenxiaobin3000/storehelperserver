@@ -32,7 +32,6 @@ public class HalfgoodController {
         halfgood.setCode(req.getCode());
         halfgood.setName(req.getName());
         halfgood.setCid(req.getCid());
-        halfgood.setPrice(req.getPrice());
         halfgood.setUnit(req.getUnit());
         halfgood.setRemark(req.getRemark());
         return halfgoodService.addHalfgood(req.getId(), halfgood, req.getAttrs());
@@ -46,7 +45,6 @@ public class HalfgoodController {
         halfgood.setCode(req.getCode());
         halfgood.setName(req.getName());
         halfgood.setCid(req.getCid());
-        halfgood.setPrice(req.getPrice());
         halfgood.setUnit(req.getUnit());
         halfgood.setRemark(req.getRemark());
         return halfgoodService.setHalfgood(req.getId(), halfgood, req.getAttrs());

@@ -16,7 +16,7 @@ import java.util.List;
 @Mapper
 public interface MyMarketCommodityMapper {
     @Select({"<script>",
-            "select t1.id, t1.code, t1.name, t1.cid, t1.price, t1.unit, t1.remark, t2.id as mcid, t2.name as mname, t2.price as alarm",
+            "select t1.id, t1.code, t1.name, t1.cid, t1.unit, t1.remark, t2.id as mcid, t2.name as mname, t2.price as alarm",
             "from t_commodity t1 left join (select id, cid, name, price, ctime from t_market_commodity where mid = #{mid}) as t2",
             "on t1.id = t2.cid where t1.gid = #{gid} <if test='null != search'>and t1.name like #{search}</if>",
             "order by t2.ctime desc, t1.ctime desc limit #{offset}, #{limit}",

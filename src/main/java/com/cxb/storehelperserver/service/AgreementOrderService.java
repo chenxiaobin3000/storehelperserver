@@ -26,25 +26,19 @@ public class AgreementOrderService extends BaseService<HashMap> {
     private AgreementOrderRepository agreementOrderRepository;
 
     @Resource
-    private AgreementOrderCommodityRepository agreementOrderCommodityRepository;
+    private AgreementCommodityRepository agreementCommodityRepository;
 
     @Resource
-    private AgreementOrderAttachmentRepository agreementOrderAttachmentRepository;
+    private AgreementAttachmentRepository agreementAttachmentRepository;
 
     @Resource
     private CommodityRepository commodityRepository;
 
     @Resource
-    private HalfgoodRepository halfgoodRepository;
-
-    @Resource
-    private OriginalRepository originalRepository;
-
-    @Resource
     private StandardRepository standardRepository;
 
     public AgreementOrderService() {
-        init("acserv::");
+        init("agreeServ::");
     }
 
     public HashMap<String, Object> find(int oid) {
@@ -55,9 +49,9 @@ public class AgreementOrderService extends BaseService<HashMap> {
 
         // 商品
         val commoditys = new ArrayList<HashMap<String, Object>>();
-        val agreementOrderCommodities = agreementOrderCommodityRepository.find(oid);
-        if (null != agreementOrderCommodities && !agreementOrderCommodities.isEmpty()) {
-            for (TAgreementOrderCommodity sc : agreementOrderCommodities) {
+        val agreementCommodities = agreementCommodityRepository.find(oid);
+        if (null != agreementCommodities && !agreementCommodities.isEmpty()) {
+            for (TAgreementCommodity sc : agreementCommodities) {
                 val data = new HashMap<String, Object>();
                 data.put("id", sc.getId());
                 data.put("cid", sc.getCid());
@@ -78,26 +72,14 @@ public class AgreementOrderService extends BaseService<HashMap> {
                             data.put("name", find1.getName());
                         }
                         break;
-                    case HALFGOOD:
-                        THalfgood find2 = halfgoodRepository.find(cid);
-                        if (null != find2) {
-                            data.put("code", find2.getCode());
-                            data.put("name", find2.getName());
-                        }
-                        break;
-                    case ORIGINAL:
-                        TOriginal find3 = originalRepository.find(cid);
-                        if (null != find3) {
-                            data.put("code", find3.getCode());
-                            data.put("name", find3.getName());
-                        }
-                        break;
                     case STANDARD:
                         TStandard find4 = standardRepository.find(cid);
                         if (null != find4) {
                             data.put("code", find4.getCode());
                             data.put("name", find4.getName());
                         }
+                        break;
+                    default:
                         break;
                 }
             }
@@ -106,26 +88,26 @@ public class AgreementOrderService extends BaseService<HashMap> {
         // 附件
         datas = new HashMap<>();
         datas.put("comms", commoditys);
-        datas.put("attrs", agreementOrderAttachmentRepository.findByOid(oid));
+        datas.put("attrs", agreementAttachmentRepository.findByOid(oid));
         setCache(oid, datas);
         return datas;
     }
 
-    public String update(int oid, List<TAgreementOrderCommodity> comms, List<Integer> attrs) {
+    public String update(int oid, List<TAgreementCommodity> comms, List<Integer> attrs) {
         delCache(oid);
-        for (TAgreementOrderCommodity c : comms) {
+        for (TAgreementCommodity c : comms) {
             c.setOid(oid);
         }
-        if (!agreementOrderCommodityRepository.update(comms, oid)) {
+        if (!agreementCommodityRepository.update(comms, oid)) {
             return "生成订单商品信息失败";
         }
 
         // 修改附件oid
         for (Integer attr : attrs) {
-            TAgreementOrderAttachment agreementOrderAttachment = agreementOrderAttachmentRepository.find(attr);
-            if (null != agreementOrderAttachment) {
-                agreementOrderAttachment.setOid(oid);
-                if (!agreementOrderAttachmentRepository.update(agreementOrderAttachment)) {
+            TAgreementAttachment agreementAttachment = agreementAttachmentRepository.find(attr);
+            if (null != agreementAttachment) {
+                agreementAttachment.setOid(oid);
+                if (!agreementAttachmentRepository.update(agreementAttachment)) {
                     return "添加订单附件失败";
                 }
             }

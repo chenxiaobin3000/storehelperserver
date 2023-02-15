@@ -15,8 +15,6 @@ public class MyMarketCommodity {
 
     private Integer cid;
 
-    private BigDecimal price;
-
     private Integer unit;
 
     private String remark;

@@ -51,13 +51,13 @@ public class StockService {
     private StockDestroyDayRepository stockDestroyDayRepository;
 
     @Resource
-    private AgreementOrderCommodityRepository agreementOrderCommodityRepository;
+    private AgreementCommodityRepository agreementCommodityRepository;
 
     @Resource
-    private ProductOrderCommodityRepository productOrderCommodityRepository;
+    private ProductCommodityRepository productCommodityRepository;
 
     @Resource
-    private StorageOrderCommodityRepository storageOrderCommodityRepository;
+    private StorageCommodityRepository storageCommodityRepository;
 
     @Resource
     private UserOrderCompleteRepository userOrderCompleteRepository;
@@ -608,13 +608,13 @@ public class StockService {
                                         HashMap<Integer, TStockStandardDay> stans, HashMap<Integer, TStockDestroyDay> dests) {
         Date start = dateUtil.getStartTime(date);
         Date end = dateUtil.getEndTime(date);
-        val agreementOrderCommodities = agreementOrderCommodityRepository.findBySid(sid, start, end);
-        log.info("履约订单数:" + agreementOrderCommodities.size());
-        handleCommoditys(gid, sid, agreementOrderCommodities, comms, halfs, oris, stans, dests);
-        val productOrderCommodities = productOrderCommodityRepository.findBySid(sid, start, end);
+        val agreementCommodities = agreementCommodityRepository.findBySid(sid, start, end);
+        log.info("履约订单数:" + agreementCommodities.size());
+        handleCommoditys(gid, sid, agreementCommodities, comms, halfs, oris, stans, dests);
+        val productOrderCommodities = productCommodityRepository.findBySid(sid, start, end);
         log.info("生产订单数:" + productOrderCommodities.size());
         handleCommoditys(gid, sid, productOrderCommodities, comms, halfs, oris, stans, dests);
-        val storageOrderCommodities = storageOrderCommodityRepository.findBySid(sid, start, end);
+        val storageOrderCommodities = storageCommodityRepository.findBySid(sid, start, end);
         log.info("仓储订单数:" + storageOrderCommodities.size());
         handleCommoditys(gid, sid, storageOrderCommodities, comms, halfs, oris, stans, dests);
 
@@ -800,37 +800,6 @@ public class StockService {
                     stockStandard.setStid(commodity.getCid());
                     stockStandard.setUnit(commodity.getUnit());
                     stockStandard.setPrice(commodity.getPrice());
-                    break;
-                }
-                case DESTROY: {
-                    TStockDestroyDay stockDestroy = dests.get(commodity.getCid());
-                    if (null == stockDestroy) {
-                        // 没数据就先尝试从库存获取
-                        stockDestroy = stockDestroyDayRepository.findLast(sid, commodity.getCid());
-                        if (null == stockDestroy) {
-                            stockDestroy = new TStockDestroyDay();
-                            stockDestroy.setValue(commodity.getValue());
-                            dests.put(commodity.getCid(), stockDestroy);
-                        } else {
-                            if (commodity.getIo()) {
-                                stockDestroy.setValue(stockDestroy.getValue() - commodity.getValue());
-                            } else {
-                                stockDestroy.setValue(stockDestroy.getValue() + commodity.getValue());
-                            }
-                            dests.put(commodity.getCid(), stockDestroy);
-                        }
-                    } else {
-                        if (commodity.getIo()) {
-                            stockDestroy.setValue(stockDestroy.getValue() - commodity.getValue());
-                        } else {
-                            stockDestroy.setValue(stockDestroy.getValue() + commodity.getValue());
-                        }
-                    }
-                    stockDestroy.setGid(gid);
-                    stockDestroy.setSid(sid);
-                    stockDestroy.setDid(commodity.getCid());
-                    stockDestroy.setUnit(commodity.getUnit());
-                    stockDestroy.setPrice(commodity.getPrice());
                     break;
                 }
             }
