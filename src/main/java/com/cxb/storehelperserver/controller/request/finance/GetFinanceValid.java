@@ -22,9 +22,6 @@ public class GetFinanceValid implements IValid {
     @Min(value = 10, message = "页面数量错误")
     private int limit;
 
-    @Min(value = 0, message = "财务类型错误")
-    private int type;
-
-    @Length(max = 16, message = "搜索内容不能大于16个字符")
-    private String search;
+    @Min(value = 0, message = "财务动作错误")
+    private int action;
 }

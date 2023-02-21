@@ -45,12 +45,17 @@ public class StorageAttachmentRepository extends BaseRepository<TStorageAttachme
         return storageAttachmentMapper.selectByExample(example);
     }
 
-    public boolean insert(TStorageAttachment row) {
+    public TStorageAttachment insert(int oid, int imagesrc, String path, String name) {
+        TStorageAttachment row = new TStorageAttachment();
+        row.setOid(0);
+        row.setSrc(imagesrc);
+        row.setPath(path);
+        row.setName(name);
         if (storageAttachmentMapper.insert(row) > 0) {
             setCache(row.getId(), row);
-            return true;
+            return row;
         }
-        return false;
+        return null;
     }
 
     public boolean update(TStorageAttachment row) {

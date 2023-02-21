@@ -15,10 +15,12 @@ import java.util.Date;
 public class DateUtil {
     final private SimpleDateFormat dateFormat;
     final private SimpleDateFormat simpleDateFormat;
+    final private SimpleDateFormat batchDateFormat;
 
     public DateUtil() {
         dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
+        batchDateFormat = new SimpleDateFormat("yyMMddHHmmss");
     }
 
     public SimpleDateFormat getDateFormat() {
@@ -27,6 +29,10 @@ public class DateUtil {
 
     public SimpleDateFormat getSimpleDateFormat() {
         return simpleDateFormat;
+    }
+
+    public String createBatch(String pre) {
+        return pre + batchDateFormat.format(new Date());
     }
 
     /**

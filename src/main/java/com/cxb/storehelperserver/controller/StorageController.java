@@ -78,10 +78,10 @@ public class StorageController {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
         TStorageOrder order = new TStorageOrder();
         order.setGid(req.getGid());
-        order.setBatch(req.getBatch());
         order.setSid(req.getSid());
         order.setOtype(OrderInOutType.IN_ORDER.getValue());
         order.setApply(req.getId());
+        order.setOid(req.getPid());
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));
         } catch (ParseException e) {
@@ -95,10 +95,7 @@ public class StorageController {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
         TStorageOrder order = new TStorageOrder();
         order.setId(req.getOid());
-        order.setGid(req.getGid());
-        order.setBatch(req.getBatch());
         order.setSid(req.getSid());
-        order.setOtype(OrderInOutType.IN_ORDER.getValue());
         order.setApply(req.getId());
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));
@@ -128,10 +125,10 @@ public class StorageController {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
         TStorageOrder order = new TStorageOrder();
         order.setGid(req.getGid());
-        order.setBatch(req.getBatch());
         order.setSid(req.getSid());
         order.setOtype(OrderInOutType.OUT_ORDER.getValue());
         order.setApply(req.getId());
+        order.setOid(req.getRid());
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));
         } catch (ParseException e) {
@@ -145,11 +142,7 @@ public class StorageController {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
         TStorageOrder order = new TStorageOrder();
         order.setId(req.getOid());
-        order.setGid(req.getGid());
-        order.setBatch(req.getBatch());
         order.setSid(req.getSid());
-        order.setOtype(OrderInOutType.OUT_ORDER.getValue());
-        order.setApply(req.getId());
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));
         } catch (ParseException e) {

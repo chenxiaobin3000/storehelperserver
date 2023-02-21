@@ -61,10 +61,10 @@ public class LossService {
     private UserGroupRepository userGroupRepository;
 
     @Resource
-    private OriginalRepository originalRepository;
+    private HalfgoodRepository halfgoodRepository;
 
     @Resource
-    private StandardRepository standardRepository;
+    private OriginalRepository originalRepository;
 
     @Resource
     private OrderReviewerRepository orderReviewerRepository;
@@ -73,7 +73,7 @@ public class LossService {
     private DateUtil dateUtil;
 
     /**
-     * desc: 采购进货
+     * desc: 损耗进货
      */
     public RestResult loss(int id, TLossOrder order, List<Integer> types, List<Integer> commoditys,
                                List<Integer> values, List<BigDecimal> prices, List<Integer> attrs) {
@@ -83,7 +83,7 @@ public class LossService {
             return ret;
         }
 
-        // 生成采购单
+        // 生成损耗单
         val comms = new ArrayList<TLossCommodity>();
         ret = createLossComms(order, types, commoditys, values, prices, comms);
         if (null != ret) {
@@ -91,7 +91,7 @@ public class LossService {
         }
 
         if (!lossOrderRepository.insert(order)) {
-            return RestResult.fail("生成采购订单失败");
+            return RestResult.fail("生成损耗订单失败");
         }
 
         // 插入订单商品和附件数据
@@ -132,7 +132,7 @@ public class LossService {
     }
 
     /**
-     * desc: 原料采购修改
+     * desc: 原料损耗修改
      */
     public RestResult setLoss(int id, TLossOrder order, List<Integer> types, List<Integer> commoditys,
                                   List<Integer> values, List<BigDecimal> prices, List<Integer> attrs) {
@@ -168,7 +168,7 @@ public class LossService {
             }
         }
 
-        // 生成采购单
+        // 生成损耗单
         val comms = new ArrayList<TLossCommodity>();
         ret = createLossComms(order, types, commoditys, values, prices, comms);
         if (null != ret) {
@@ -176,7 +176,7 @@ public class LossService {
         }
 
         if (!lossOrderRepository.update(order)) {
-            return RestResult.fail("生成采购订单失败");
+            return RestResult.fail("生成损耗订单失败");
         }
 
         // 插入订单商品和附件数据
@@ -367,7 +367,7 @@ public class LossService {
             return ret;
         }
 
-        // 生成采购单
+        // 生成损耗单
         val comms = new ArrayList<TLossCommodity>();
         ret = createLossComms(order, types, commoditys, values, prices, comms);
         if (null != ret) {
@@ -375,7 +375,7 @@ public class LossService {
         }
 
         if (!lossOrderRepository.insert(order)) {
-            return RestResult.fail("生成采购订单失败");
+            return RestResult.fail("生成损耗订单失败");
         }
 
         // 插入订单商品和附件数据
@@ -452,7 +452,7 @@ public class LossService {
             }
         }
 
-        // 生成采购单
+        // 生成损耗单
         val comms = new ArrayList<TLossCommodity>();
         ret = createLossComms(order, types, commoditys, values, prices, comms);
         if (null != ret) {
@@ -460,7 +460,7 @@ public class LossService {
         }
 
         if (!lossOrderRepository.update(order)) {
-            return RestResult.fail("生成采购订单失败");
+            return RestResult.fail("生成损耗订单失败");
         }
 
         // 插入订单商品和附件数据
@@ -661,14 +661,14 @@ public class LossService {
             }
         }
         if (reviews.isEmpty()) {
-            return RestResult.fail("未设置采购订单审核人，请联系系统管理员");
+            return RestResult.fail("未设置损耗订单审核人，请联系系统管理员");
         }
         return null;
     }
 
     private RestResult createLossComms(TLossOrder order, List<Integer> types, List<Integer> commoditys,
                                           List<Integer> values, List<BigDecimal> prices, List<TLossCommodity> list) {
-        // 生成采购单
+        // 生成损耗单
         int size = commoditys.size();
         if (size != types.size() || size != values.size() || size != prices.size()) {
             return RestResult.fail("商品信息出错");
@@ -680,19 +680,19 @@ public class LossService {
             int cid = commoditys.get(i);
             int unit = 0;
             switch (type) {
+                case HALFGOOD:
+                    THalfgood find2 = halfgoodRepository.find(cid);
+                    if (null == find2) {
+                        return RestResult.fail("未查询到半成品：" + cid);
+                    }
+                    unit = find2.getUnit();
+                    break;
                 case ORIGINAL:
                     TOriginal find3 = originalRepository.find(cid);
                     if (null == find3) {
                         return RestResult.fail("未查询到原料：" + cid);
                     }
                     unit = find3.getUnit();
-                    break;
-                case STANDARD:
-                    TStandard find4 = standardRepository.find(cid);
-                    if (null == find4) {
-                        return RestResult.fail("未查询到标品：" + cid);
-                    }
-                    unit = find4.getUnit();
                     break;
                 default:
                     return RestResult.fail("商品类型异常：" + type);

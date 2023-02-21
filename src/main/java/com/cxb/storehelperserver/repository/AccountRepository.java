@@ -55,7 +55,11 @@ public class AccountRepository extends BaseRepository<TAccount> {
         return tAccount;
     }
 
-    public boolean insert(TAccount row) {
+    public boolean insert(String account, String password, int uid) {
+        TAccount row = new TAccount();
+        row.setAccount(account);
+        row.setPassword(password);
+        row.setUid(uid);
         if (accountMapper.insert(row) > 0) {
             setCache(row.getAccount(), row);
             return true;

@@ -103,13 +103,16 @@ public class UserRepository extends BaseRepository<TUser> {
         }
     }
 
-    public boolean insert(TUser row) {
+    public TUser insert(String account, String phone) {
+        TUser row = new TUser();
+        row.setName(account);
+        row.setPhone(phone);
         if (userMapper.insert(row) > 0) {
             setCache(row.getId(), row);
             delTotalCache(0);
-            return true;
+            return row;
         }
-        return false;
+        return null;
     }
 
     public boolean update(TUser row) {

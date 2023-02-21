@@ -63,19 +63,13 @@ public class AccountService {
         }
 
         // 生成用户
-        TUser user = new TUser();
-        user.setName(account);
-        user.setPhone(phone);
-        if (!userRepository.insert(user)) {
+        TUser user = userRepository.insert(account, phone);
+        if (null == user) {
             return RestResult.fail("注册用户失败");
         }
 
         // 生成账号
-        tAccount = new TAccount();
-        tAccount.setAccount(account);
-        tAccount.setPassword(password);
-        tAccount.setUid(user.getId());
-        if (!accountRepository.insert(tAccount)) {
+        if (!accountRepository.insert(account, password, user.getId())) {
             return RestResult.fail("注册账号失败");
         }
         return RestResult.ok();

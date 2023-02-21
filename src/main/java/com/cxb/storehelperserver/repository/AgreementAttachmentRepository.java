@@ -45,12 +45,17 @@ public class AgreementAttachmentRepository extends BaseRepository<TAgreementAtta
         return agreementAttachmentMapper.selectByExample(example);
     }
 
-    public boolean insert(TAgreementAttachment row) {
+    public TAgreementAttachment insert(int oid, int imagesrc, String path, String name) {
+        TAgreementAttachment row = new TAgreementAttachment();
+        row.setOid(oid);
+        row.setSrc(imagesrc);
+        row.setPath(path);
+        row.setName(name);
         if (agreementAttachmentMapper.insert(row) > 0) {
             setCache(row.getId(), row);
-            return true;
+            return row;
         }
-        return false;
+        return null;
     }
 
     public boolean update(TAgreementAttachment row) {

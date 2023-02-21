@@ -73,8 +73,11 @@ public class TypeDefine {
         PRODUCT_OUT_ORDER(6),   // 生产出库订单
         AGREEMENT_IN_ORDER(7),  // 履约入库订单
         AGREEMENT_OUT_ORDER(8), // 履约出库订单
-        LOSS_LOCAL_ORDER(9),    // 本地损耗订单
-        LOSS_CLOUD_ORDER(10);   // 云仓损耗订单
+        CLOUD_IN_ORDER(9),      // 云仓入库订单
+        CLOUD_OUT_ORDER(10),    // 云仓退货订单
+        LOSS_LOCAL_ORDER(11),   // 本地损耗订单
+        LOSS_CLOUD_ORDER(12),   // 云仓损耗订单
+        LOSS_PRODUCT_ORDER(13); // 生产损耗订单
 
         private int value = 0;
 
@@ -164,18 +167,19 @@ public class TypeDefine {
     // 财务记录类型
     public enum FinanceAction {
         FINANCE_PURCHASE_PAY(1),        // 采购进货
-        FINANCE_PURCHASE_PAY_SHIP(2),   // 采购进货物流
+        FINANCE_PURCHASE_FARE(2),       // 采购进货物流
         FINANCE_PURCHASE_RET(3),        // 采购退款
-        FINANCE_PURCHASE_RET_SHIP(4),   // 采购退款物流
+        FINANCE_PURCHASE_FARE2(4),      // 采购退款物流
 
-        FINANCE_STORAGE_CLOUD(10),      // 云仓仓储
+        FINANCE_STORAGE_LOCAL(10),      // 本地仓储
+        FINANCE_STORAGE_CLOUD(11),      // 云仓仓储
 
         FINANCE_PRODUCT_MAN(20),        // 人工费用
         FINANCE_PRODUCT_OUT(21),        // 外厂人工费用
         FINANCE_PRODUCT_WRAP(22),       // 包装费
 
-        FINANCE_AGREEMENT_SHIP(30),     // 履约发货物流
-        FINANCE_AGREEMENT_RET(31),      // 履约退款物流
+        FINANCE_AGREEMENT_FARE(30),     // 履约发货物流
+        FINANCE_AGREEMENT_FARE2(31),    // 履约退款物流
 
         FINANCE_MARKET_PAY(40),         // 销售平台打款
 
@@ -192,13 +196,15 @@ public class TypeDefine {
                 case 1:
                     return FINANCE_PURCHASE_PAY;
                 case 2:
-                    return FINANCE_PURCHASE_PAY_SHIP;
+                    return FINANCE_PURCHASE_FARE;
                 case 3:
                     return FINANCE_PURCHASE_RET;
                 case 4:
-                    return FINANCE_PURCHASE_RET_SHIP;
+                    return FINANCE_PURCHASE_FARE2;
 
                 case 10:
+                    return FINANCE_STORAGE_LOCAL;
+                case 11:
                     return FINANCE_STORAGE_CLOUD;
 
                 case 20:
@@ -209,9 +215,9 @@ public class TypeDefine {
                     return FINANCE_PRODUCT_WRAP;
 
                 case 30:
-                    return FINANCE_AGREEMENT_SHIP;
+                    return FINANCE_AGREEMENT_FARE;
                 case 31:
-                    return FINANCE_AGREEMENT_RET;
+                    return FINANCE_AGREEMENT_FARE2;
 
                 case 40:
                     return FINANCE_MARKET_PAY;

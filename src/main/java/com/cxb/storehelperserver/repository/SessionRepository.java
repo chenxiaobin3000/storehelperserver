@@ -58,7 +58,10 @@ public class SessionRepository extends BaseRepository<TSession> {
         return session.getUid();
     }
 
-    public boolean insert(TSession row) {
+    public boolean insert(int uid, String key) {
+        TSession row = new TSession();
+        row.setUid(uid);
+        row.setToken(key);
         if (sessionMapper.insert(row) > 0) {
             setCache(row.getToken(), row);
             setCache(row.getUid(), row);

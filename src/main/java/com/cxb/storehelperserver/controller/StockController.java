@@ -31,8 +31,8 @@ public class StockController {
     @Resource
     private DateUtil dateUtil;
 
-    @PostMapping("/getStockCommodity")
-    public RestResult getStockCommodity(@Validated @RequestBody GetStockCommodityValid req) {
+    @PostMapping("/getStockDay")
+    public RestResult getStockDay(@Validated @RequestBody GetStockDayValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
         Date date = null;
         try {
@@ -40,11 +40,11 @@ public class StockController {
         } catch (ParseException e) {
             return RestResult.fail("查询日期转换失败");
         }
-        return stockService.getStockCommodity(req.getId(), req.getSid(), date, req.getPage(), req.getLimit(), req.getSearch());
+        return stockService.getStockDay(req.getId(), req.getSid(), date, req.getPage(), req.getLimit(), req.getSearch());
     }
 
-    @PostMapping("/getStockHalfgood")
-    public RestResult getStockHalfgood(@Validated @RequestBody GetStockHalfgoodValid req) {
+    @PostMapping("/getStockWeek")
+    public RestResult getStockWeek(@Validated @RequestBody GetStockWeekValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
         Date date = null;
         try {
@@ -52,11 +52,11 @@ public class StockController {
         } catch (ParseException e) {
             return RestResult.fail("查询日期转换失败");
         }
-        return stockService.getStockHalfgood(req.getId(), req.getSid(), date, req.getPage(), req.getLimit(), req.getSearch());
+        return stockService.getStockWeek(req.getId(), req.getSid(), date, req.getPage(), req.getLimit(), req.getSearch());
     }
 
-    @PostMapping("/getStockOriginal")
-    public RestResult getStockOriginal(@Validated @RequestBody GetStockOriginalValid req) {
+    @PostMapping("/getCloudDay")
+    public RestResult getCloudDay(@Validated @RequestBody GetCloudDayValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
         Date date = null;
         try {
@@ -64,11 +64,12 @@ public class StockController {
         } catch (ParseException e) {
             return RestResult.fail("查询日期转换失败");
         }
-        return stockService.getStockOriginal(req.getId(), req.getSid(), date, req.getPage(), req.getLimit(), req.getSearch());
+        return null;
+        // return stockService.getCloudDay(req.getId(), req.getSid(), date, req.getPage(), req.getLimit(), req.getSearch());
     }
 
-    @PostMapping("/getStockStandard")
-    public RestResult getStockStandard(@Validated @RequestBody GetStockStandardValid req) {
+    @PostMapping("/getCloudWeek")
+    public RestResult getCloudWeek(@Validated @RequestBody GetCloudWeekValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
         Date date = null;
         try {
@@ -76,22 +77,11 @@ public class StockController {
         } catch (ParseException e) {
             return RestResult.fail("查询日期转换失败");
         }
-        return stockService.getStockStandard(req.getId(), req.getSid(), date, req.getPage(), req.getLimit(), req.getSearch());
+        return null;
+        // return stockService.getCloudWeek(req.getId(), req.getSid(), date, req.getPage(), req.getLimit(), req.getSearch());
     }
 
-    @PostMapping("/getStockDestroy")
-    public RestResult getStockDestroy(@Validated @RequestBody GetStockDestoryValid req) {
-        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
-        Date date = null;
-        try {
-            date = simpleDateFormat.parse(req.getDate() + " 00:00:00");
-        } catch (ParseException e) {
-            return RestResult.fail("查询日期转换失败");
-        }
-        return stockService.getStockDestroy(req.getId(), req.getSid(), date, req.getPage(), req.getLimit(), req.getSearch());
-    }
-
-    // TODO 财务，人工，包装，物流费，移除商品价格，商家列表配置销售平台,库存销量饼图
+    // TODO 财务，人工，包装，物流费，库存销量饼图，批次号系统生成，数据云盘，小程序选取优化，小程序获取本公司订单信息
     @PostMapping("/countStock")
     public RestResult countStock(@Validated @RequestBody CountStockValid req) {
         return stockService.countStock(req.getId(), req.getGid());

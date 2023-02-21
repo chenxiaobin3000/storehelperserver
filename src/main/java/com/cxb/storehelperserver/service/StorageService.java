@@ -2,6 +2,7 @@ package com.cxb.storehelperserver.service;
 
 import com.cxb.storehelperserver.model.*;
 import com.cxb.storehelperserver.repository.*;
+import com.cxb.storehelperserver.repository.model.MyOrderCommodity;
 import com.cxb.storehelperserver.util.DateUtil;
 import com.cxb.storehelperserver.util.RestResult;
 import com.cxb.storehelperserver.util.TypeDefine;
@@ -33,10 +34,19 @@ public class StorageService {
     private StorageOrderService storageOrderService;
 
     @Resource
+    private ReviewService reviewService;
+
+    @Resource
+    private FinanceService financeService;
+
+    @Resource
     private StockService stockService;
 
     @Resource
     private StorageRepository storageRepository;
+
+    @Resource
+    private PurchaseOrderRepository purchaseOrderRepository;
 
     @Resource
     private AgreementOrderRepository agreementOrderRepository;
@@ -57,15 +67,6 @@ public class StorageService {
     private UserRepository userRepository;
 
     @Resource
-    private UserOrderApplyRepository userOrderApplyRepository;
-
-    @Resource
-    private UserOrderReviewRepository userOrderReviewRepository;
-
-    @Resource
-    private UserOrderCompleteRepository userOrderCompleteRepository;
-
-    @Resource
     private UserGroupRepository userGroupRepository;
 
     @Resource
@@ -73,9 +74,6 @@ public class StorageService {
 
     @Resource
     private StandardRepository standardRepository;
-
-    @Resource
-    private OrderReviewerRepository orderReviewerRepository;
 
     @Resource
     private DateUtil dateUtil;
@@ -118,7 +116,7 @@ public class StorageService {
 
     public RestResult delStorage(int id, int gid, int sid) {
         // 权限校验，必须admin
-        if (!checkService.checkRolePermission(id, system_storagelist)) {
+        if (!checkService.checkRolePermission(id, storage_address)) {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
@@ -129,6 +127,9 @@ public class StorageService {
         }
 
         // 检验是否存在各种订单
+        if (purchaseOrderRepository.check(sid)) {
+            return RestResult.fail("仓库还存在采购订单");
+        }
         if (agreementOrderRepository.check(sid)) {
             return RestResult.fail("仓库还存在履约订单");
         }
@@ -136,7 +137,7 @@ public class StorageService {
             return RestResult.fail("仓库还存在生产订单");
         }
         if (storageOrderRepository.check(sid)) {
-            return RestResult.fail("仓库还存在库存订单");
+            return RestResult.fail("仓库还存在入库订单");
         }
 
         if (!storageRepository.delete(sid)) {
@@ -218,7 +219,7 @@ public class StorageService {
     }
 
     /**
-     * desc: 原料进货
+     * desc: 原料入库
      */
     public RestResult purchase(int id, TStorageOrder order, List<Integer> types, List<Integer> commoditys,
                                List<Integer> values, List<BigDecimal> prices, List<Integer> attrs) {
@@ -228,56 +229,30 @@ public class StorageService {
             return ret;
         }
 
-        // 生成进货单
+        // 生成入库单
         val comms = new ArrayList<TStorageCommodity>();
         ret = createStorageComms(order, types, commoditys, values, prices, comms);
         if (null != ret) {
             return ret;
         }
 
+        // 生成入库单批号
+        String batch = dateUtil.createBatch(String.valueOf(STORAGE_IN_ORDER.getValue()));
+        order.setBatch(batch);
         if (!storageOrderRepository.insert(order)) {
-            return RestResult.fail("生成进货订单失败");
+            return RestResult.fail("生成入库订单失败");
         }
-
-        // 插入订单商品和附件数据
         int oid = order.getId();
         String msg = storageOrderService.update(oid, comms, attrs);
         if (null != msg) {
             return RestResult.fail(msg);
         }
 
-        // 添加用户订单冗余信息
-        String batch = order.getBatch();
-        TUserOrderApply apply = new TUserOrderApply();
-        apply.setUid(id);
-        apply.setGid(order.getGid());
-        apply.setSid(order.getSid());
-        apply.setOtype(STORAGE_IN_ORDER.getValue());
-        apply.setOid(oid);
-        apply.setBatch(batch);
-        if (!userOrderApplyRepository.insert(apply)) {
-            return RestResult.fail("添加用户订单信息失败");
-        }
-
-        // 添加用户订单审核信息
-        TUserOrderReview review = new TUserOrderReview();
-        review.setGid(order.getGid());
-        review.setSid(order.getSid());
-        review.setOtype(STORAGE_IN_ORDER.getValue());
-        review.setOid(oid);
-        review.setBatch(batch);
-        for (Integer reviewer : reviews) {
-            review.setId(0);
-            review.setUid(reviewer);
-            if (!userOrderReviewRepository.insert(review)) {
-                return RestResult.fail("添加用户订单审核信息失败");
-            }
-        }
-        return RestResult.ok();
+        return reviewService.apply(id, order.getGid(), order.getSid(), STORAGE_IN_ORDER.getValue(), oid, batch, reviews);
     }
 
     /**
-     * desc: 原料进货修改
+     * desc: 原料入库修改
      */
     public RestResult setPurchase(int id, TStorageOrder order, List<Integer> types, List<Integer> commoditys,
                                   List<Integer> values, List<BigDecimal> prices, List<Integer> attrs) {
@@ -298,22 +273,13 @@ public class StorageService {
 
         // 更新仓库信息
         if (!storageOrder.getSid().equals(order.getSid())) {
-            val userOrderApply = userOrderApplyRepository.find(STORAGE_IN_ORDER.getValue(), order.getId());
-            userOrderApply.setSid(order.getSid());
-            if (!userOrderApplyRepository.update(userOrderApply)) {
-                return RestResult.fail("修改用户订单信息失败");
-            }
-
-            val userOrderReviews = userOrderReviewRepository.find(STORAGE_IN_ORDER.getValue(), order.getId());
-            for (TUserOrderReview review : userOrderReviews) {
-                review.setSid(order.getSid());
-                if (!userOrderReviewRepository.update(review)) {
-                    return RestResult.fail("修改用户订单审核信息失败");
-                }
+            ret = reviewService.update(STORAGE_IN_ORDER.getValue(), order.getId(), order.getSid());
+            if (null != ret) {
+                return ret;
             }
         }
 
-        // 生成进货单
+        // 生成入库单
         val comms = new ArrayList<TStorageCommodity>();
         ret = createStorageComms(order, types, commoditys, values, prices, comms);
         if (null != ret) {
@@ -321,12 +287,9 @@ public class StorageService {
         }
 
         if (!storageOrderRepository.update(order)) {
-            return RestResult.fail("生成进货订单失败");
+            return RestResult.fail("生成入库订单失败");
         }
-
-        // 插入订单商品和附件数据
-        int oid = order.getId();
-        String msg = storageOrderService.update(oid, comms, attrs);
+        String msg = storageOrderService.update(order.getId(), comms, attrs);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -339,16 +302,13 @@ public class StorageService {
             return RestResult.fail("未查询到要删除的订单");
         }
 
-        // 校验是否订单提交人，已经审核的订单，必须由审核人删除
+        // 校验是否订单提交人，已经审核的订单不能删除
         Integer review = order.getReview();
-        if (null == review) {
-            if (!order.getApply().equals(id)) {
-                return RestResult.fail("订单必须由申请人删除");
-            }
-        } else {
-            if (!review.equals(id)) {
-                return RestResult.fail("订单必须由审核人删除");
-            }
+        if (null != review) {
+            return RestResult.fail("已审核的订单不能删除");
+        }
+        if (!order.getApply().equals(id)) {
+            return RestResult.fail("订单必须由申请人删除");
         }
 
         // 删除生效日期以后的所有库存记录，删除日期是制单日期的前一天
@@ -364,40 +324,25 @@ public class StorageService {
         if (!storageAttachmentRepository.delete(oid)) {
             return RestResult.fail("删除关联商品附件失败");
         }
-
-        if (null == review) {
-            if (!userOrderApplyRepository.delete(STORAGE_IN_ORDER.getValue(), oid)) {
-                return RestResult.fail("删除订单申请人失败");
-            }
-            if (!userOrderReviewRepository.delete(STORAGE_IN_ORDER.getValue(), oid)) {
-                return RestResult.fail("删除订单审核人失败");
-            }
-        } else {
-            if (!userOrderCompleteRepository.delete(STORAGE_IN_ORDER.getValue(), oid)) {
-                return RestResult.fail("删除完成订单失败");
-            }
-        }
         if (!storageOrderRepository.delete(oid)) {
             return RestResult.fail("删除订单失败");
         }
-        return RestResult.ok();
+        return reviewService.delete(review, STORAGE_IN_ORDER.getValue(), oid);
     }
 
     public RestResult reviewPurchase(int id, int oid) {
-        // 校验审核人员信息
-        val reviews = userOrderReviewRepository.find(STORAGE_IN_ORDER.getValue(), oid);
-        boolean find = false;
-        for (TUserOrderReview review : reviews) {
-            if (review.getUid().equals(id)) {
-                find = true;
-                break;
-            }
+        // 获取公司信息
+        TUserGroup group = userGroupRepository.find(id);
+        if (null == group) {
+            return RestResult.fail("获取公司信息失败");
         }
-        if (!find) {
+
+        // 校验审核人员信息
+        if (!reviewService.checkReview(id, STORAGE_IN_ORDER.getValue(), oid)) {
             return RestResult.fail("您没有审核权限");
         }
 
-        // TODO 校验库存数量扣除后是否大于0
+        // TODO 校验采购单和入库数量
 
         // 添加审核信息
         TStorageOrder order = storageOrderRepository.find(oid);
@@ -410,27 +355,13 @@ public class StorageService {
             return RestResult.fail("审核用户订单信息失败");
         }
 
-        // 删除apply和review信息
-        if (!userOrderApplyRepository.delete(STORAGE_IN_ORDER.getValue(), oid)) {
-            return RestResult.fail("删除用户订单信息失败");
-        }
-        if (!userOrderReviewRepository.delete(STORAGE_IN_ORDER.getValue(), oid)) {
-            return RestResult.fail("添加用户订单审核信息失败");
+        if (!purchaseStorageRepository.insert(order.getRid(), order.getId())) {
+            return RestResult.fail("添加采购退货信息失败");
         }
 
-        // 插入complete信息
-        TUserOrderComplete complete = new TUserOrderComplete();
-        complete.setUid(id);
-        complete.setGid(order.getGid());
-        complete.setSid(order.getSid());
-        complete.setOtype(STORAGE_IN_ORDER.getValue());
-        complete.setOid(oid);
-        complete.setBatch(order.getBatch());
-        complete.setCdate(dateUtil.getStartTime(order.getApplyTime()));
-        if (!userOrderCompleteRepository.insert(complete)) {
-            return RestResult.fail("完成用户订单审核信息失败");
-        }
-        return RestResult.ok();
+        // TODO 添加库存
+        return reviewService.review(id, order.getGid(), order.getSid(),
+                STORAGE_IN_ORDER.getValue(), oid, order.getBatch(), order.getApplyTime());
     }
 
     public RestResult revokePurchase(int id, int oid) {
@@ -447,57 +378,25 @@ public class StorageService {
         }
 
         // 校验申请订单权限
-        if (!checkService.checkRolePermission(id, storage_getlist)) {
+        if (!checkService.checkRolePermission(id, storage_purchase)) {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
-        val orderReviewers = orderReviewerRepository.find(gid);
-        if (null == orderReviewers || orderReviewers.isEmpty()) {
-            return RestResult.fail("未设置订单审核人，请联系系统管理员");
-        }
-        val reviews = new ArrayList<Integer>();
-        for (TOrderReviewer orderReviewer : orderReviewers) {
-            if (orderReviewer.getPid().equals(mp_storage_in_review)) {
-                reviews.add(orderReviewer.getUid());
-            }
-        }
-
-        if (!userOrderCompleteRepository.delete(STORAGE_IN_ORDER.getValue(), oid)) {
-            return RestResult.fail("添加用户订单完成信息失败");
-        }
-
-        // 添加用户订单冗余信息
-        String batch = order.getBatch();
-        TUserOrderApply apply = new TUserOrderApply();
-        apply.setUid(id);
-        apply.setGid(order.getGid());
-        apply.setSid(order.getSid());
-        apply.setOtype(STORAGE_IN_ORDER.getValue());
-        apply.setOid(oid);
-        apply.setBatch(batch);
-        if (!userOrderApplyRepository.insert(apply)) {
-            return RestResult.fail("添加用户订单信息失败");
-        }
-
-        // 添加用户订单审核信息
-        TUserOrderReview review = new TUserOrderReview();
-        review.setGid(order.getGid());
-        review.setSid(order.getSid());
-        review.setOtype(STORAGE_IN_ORDER.getValue());
-        review.setOid(oid);
-        review.setBatch(batch);
-        for (Integer reviewer : reviews) {
-            review.setId(0);
-            review.setUid(reviewer);
-            if (!userOrderReviewRepository.insert(review)) {
-                return RestResult.fail("添加用户订单审核信息失败");
-            }
+        RestResult ret = reviewService.revoke(id, gid, order.getSid(), STORAGE_IN_ORDER.getValue(), oid, order.getBatch(), mp_storage_in_review);
+        if (null != ret) {
+            return ret;
         }
 
         // 撤销审核人信息
         if (!storageOrderRepository.setReviewNull(order.getId())) {
             return RestResult.fail("撤销订单审核信息失败");
         }
+
+        if (!purchaseStorageRepository.delete(order.getRid(), order.getId())) {
+            return RestResult.fail("添加采购退货信息失败");
+        }
+
+        // TODO 减少库存
         return RestResult.ok();
     }
 
@@ -512,16 +411,31 @@ public class StorageService {
             return ret;
         }
 
-        // 生成进货单
+        // 入库单未审核不能删除
+        int rid = order.getOid();
+        TPurchaseOrder purchase = purchaseOrderRepository.find(rid);
+        if (null == purchase) {
+            return RestResult.fail("未查询到采购单");
+        }
+        if (null == purchase.getReview()) {
+            return RestResult.fail("未审批的采购单请直接删除");
+        }
+
+        // 生成入库单
         val comms = new ArrayList<TStorageCommodity>();
         ret = createStorageComms(order, types, commoditys, values, prices, comms);
         if (null != ret) {
             return ret;
         }
 
+        // 生成入库单批号
+        String batch = dateUtil.createBatch(String.valueOf(STORAGE_OUT_ORDER.getValue()));
+        order.setBatch(batch);
         if (!storageOrderRepository.insert(order)) {
-            return RestResult.fail("生成进货订单失败");
+            return RestResult.fail("生成出库订单失败");
         }
+
+        // TODO 校验入库单商品数不能大于退货数
 
         // 插入订单商品和附件数据
         int oid = order.getId();
@@ -530,34 +444,7 @@ public class StorageService {
             return RestResult.fail(msg);
         }
 
-        // 添加用户订单冗余信息
-        String batch = order.getBatch();
-        TUserOrderApply apply = new TUserOrderApply();
-        apply.setUid(id);
-        apply.setGid(order.getGid());
-        apply.setSid(order.getSid());
-        apply.setOtype(STORAGE_OUT_ORDER.getValue());
-        apply.setOid(oid);
-        apply.setBatch(batch);
-        if (!userOrderApplyRepository.insert(apply)) {
-            return RestResult.fail("添加用户订单信息失败");
-        }
-
-        // 添加用户订单审核信息
-        TUserOrderReview review = new TUserOrderReview();
-        review.setGid(order.getGid());
-        review.setSid(order.getSid());
-        review.setOtype(STORAGE_OUT_ORDER.getValue());
-        review.setOid(oid);
-        review.setBatch(batch);
-        for (Integer reviewer : reviews) {
-            review.setId(0);
-            review.setUid(reviewer);
-            if (!userOrderReviewRepository.insert(review)) {
-                return RestResult.fail("添加用户订单审核信息失败");
-            }
-        }
-        return RestResult.ok();
+        return reviewService.apply(id, order.getGid(), order.getSid(), STORAGE_OUT_ORDER.getValue(), oid, batch, reviews);
     }
 
     /**
@@ -582,22 +469,13 @@ public class StorageService {
 
         // 更新仓库信息
         if (!storageOrder.getSid().equals(order.getSid())) {
-            val userOrderApply = userOrderApplyRepository.find(STORAGE_OUT_ORDER.getValue(), order.getId());
-            userOrderApply.setSid(order.getSid());
-            if (!userOrderApplyRepository.update(userOrderApply)) {
-                return RestResult.fail("修改用户订单信息失败");
-            }
-
-            val userOrderReviews = userOrderReviewRepository.find(STORAGE_OUT_ORDER.getValue(), order.getId());
-            for (TUserOrderReview review : userOrderReviews) {
-                review.setSid(order.getSid());
-                if (!userOrderReviewRepository.update(review)) {
-                    return RestResult.fail("修改用户订单审核信息失败");
-                }
+            ret = reviewService.update(STORAGE_OUT_ORDER.getValue(), order.getId(), order.getSid());
+            if (null != ret) {
+                return ret;
             }
         }
 
-        // 生成进货单
+        // 生成入库单
         val comms = new ArrayList<TStorageCommodity>();
         ret = createStorageComms(order, types, commoditys, values, prices, comms);
         if (null != ret) {
@@ -605,12 +483,13 @@ public class StorageService {
         }
 
         if (!storageOrderRepository.update(order)) {
-            return RestResult.fail("生成进货订单失败");
+            return RestResult.fail("生成入库订单失败");
         }
 
+        // TODO 校验入库单商品数不能大于退货数
+
         // 插入订单商品和附件数据
-        int oid = order.getId();
-        String msg = storageOrderService.update(oid, comms, attrs);
+        String msg = storageOrderService.update(order.getId(), comms, attrs);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -623,23 +502,14 @@ public class StorageService {
             return RestResult.fail("未查询到要删除的订单");
         }
 
-        // 校验是否订单提交人，已经审核的订单，必须由审核人删除
+        // 校验是否订单提交人，已经审核的订单不能删除
         Integer review = order.getReview();
-        if (null == review) {
-            if (!order.getApply().equals(id)) {
-                return RestResult.fail("订单必须由申请人删除");
-            }
-        } else {
-            if (!review.equals(id)) {
-                return RestResult.fail("订单必须由审核人删除");
-            }
+        if (null != review) {
+            return RestResult.fail("已审核的订单不能删除");
         }
-
-        // 删除生效日期以后的所有库存记录，删除日期是制单日期的前一天
-        Calendar calendar = new GregorianCalendar();
-        calendar.setTime(order.getApplyTime());
-        calendar.add(Calendar.DATE, -1);
-        stockService.delStock(order.getSid(), calendar.getTime());
+        if (!order.getApply().equals(id)) {
+            return RestResult.fail("订单必须由申请人删除");
+        }
 
         // 删除商品附件数据
         if (!storageCommodityRepository.delete(oid)) {
@@ -648,36 +518,21 @@ public class StorageService {
         if (!storageAttachmentRepository.delete(oid)) {
             return RestResult.fail("删除关联商品附件失败");
         }
-
-        if (null == review) {
-            if (!userOrderApplyRepository.delete(STORAGE_OUT_ORDER.getValue(), oid)) {
-                return RestResult.fail("删除订单申请人失败");
-            }
-            if (!userOrderReviewRepository.delete(STORAGE_OUT_ORDER.getValue(), oid)) {
-                return RestResult.fail("删除订单审核人失败");
-            }
-        } else {
-            if (!userOrderCompleteRepository.delete(STORAGE_OUT_ORDER.getValue(), oid)) {
-                return RestResult.fail("删除完成订单失败");
-            }
-        }
         if (!storageOrderRepository.delete(oid)) {
             return RestResult.fail("删除订单失败");
         }
-        return RestResult.ok();
+        return reviewService.delete(review, STORAGE_OUT_ORDER.getValue(), oid);
     }
 
     public RestResult reviewReturn(int id, int oid) {
-        // 校验审核人员信息
-        val reviews = userOrderReviewRepository.find(STORAGE_OUT_ORDER.getValue(), oid);
-        boolean find = false;
-        for (TUserOrderReview review : reviews) {
-            if (review.getUid().equals(id)) {
-                find = true;
-                break;
-            }
+        // 获取公司信息
+        TUserGroup group = userGroupRepository.find(id);
+        if (null == group) {
+            return RestResult.fail("获取公司信息失败");
         }
-        if (!find) {
+
+        // 校验审核人员信息
+        if (!reviewService.checkReview(id, STORAGE_OUT_ORDER.getValue(), oid)) {
             return RestResult.fail("您没有审核权限");
         }
 
@@ -692,26 +547,13 @@ public class StorageService {
             return RestResult.fail("审核用户订单信息失败");
         }
 
-        // 删除apply和review信息
-        if (!userOrderApplyRepository.delete(STORAGE_OUT_ORDER.getValue(), oid)) {
-            return RestResult.fail("删除用户订单信息失败");
+        if (!purchaseStorageRepository.insert(order.getRid(), order.getId())) {
+            return RestResult.fail("添加采购退货信息失败");
         }
-        if (!userOrderReviewRepository.delete(STORAGE_OUT_ORDER.getValue(), oid)) {
-            return RestResult.fail("添加用户订单审核信息失败");
-        }
-        // 插入complete信息
-        TUserOrderComplete complete = new TUserOrderComplete();
-        complete.setUid(id);
-        complete.setGid(order.getGid());
-        complete.setSid(order.getSid());
-        complete.setOtype(STORAGE_OUT_ORDER.getValue());
-        complete.setOid(oid);
-        complete.setBatch(order.getBatch());
-        complete.setCdate(dateUtil.getStartTime(order.getApplyTime()));
-        if (!userOrderCompleteRepository.insert(complete)) {
-            return RestResult.fail("完成用户订单审核信息失败");
-        }
-        return RestResult.ok();
+
+        // TODO 减少库存
+        return reviewService.review(id, order.getGid(), order.getSid(),
+                STORAGE_OUT_ORDER.getValue(), oid, order.getBatch(), order.getApplyTime());
     }
 
     public RestResult revokeReturn(int id, int oid) {
@@ -728,58 +570,29 @@ public class StorageService {
         }
 
         // 校验申请订单权限
-        if (!checkService.checkRolePermission(id, storage_getlist)) {
+        if (!checkService.checkRolePermission(id, storage_return)) {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
-        val orderReviewers = orderReviewerRepository.find(gid);
-        if (null == orderReviewers || orderReviewers.isEmpty()) {
-            return RestResult.fail("未设置订单审核人，请联系系统管理员");
-        }
-        val reviews = new ArrayList<Integer>();
-        for (TOrderReviewer orderReviewer : orderReviewers) {
-            if (orderReviewer.getPid().equals(mp_storage_out_review)) {
-                reviews.add(orderReviewer.getUid());
-            }
-        }
-
-        if (!userOrderCompleteRepository.delete(STORAGE_OUT_ORDER.getValue(), oid)) {
-            return RestResult.fail("添加用户订单完成信息失败");
-        }
-
-        // 添加用户订单冗余信息
-        String batch = order.getBatch();
-        TUserOrderApply apply = new TUserOrderApply();
-        apply.setUid(id);
-        apply.setGid(order.getGid());
-        apply.setSid(order.getSid());
-        apply.setOtype(STORAGE_OUT_ORDER.getValue());
-        apply.setOid(oid);
-        apply.setBatch(batch);
-        if (!userOrderApplyRepository.insert(apply)) {
-            return RestResult.fail("添加用户订单信息失败");
-        }
-
-        // 添加用户订单审核信息
-        TUserOrderReview review = new TUserOrderReview();
-        review.setGid(order.getGid());
-        review.setSid(order.getSid());
-        review.setOtype(STORAGE_OUT_ORDER.getValue());
-        review.setOid(oid);
-        review.setBatch(batch);
-        for (Integer reviewer : reviews) {
-            review.setId(0);
-            review.setUid(reviewer);
-            if (!userOrderReviewRepository.insert(review)) {
-                return RestResult.fail("添加用户订单审核信息失败");
-            }
+        RestResult ret = reviewService.revoke(id, gid, order.getSid(), STORAGE_OUT_ORDER.getValue(), oid, order.getBatch(), mp_storage_out_review);
+        if (null != ret) {
+            return ret;
         }
 
         // 撤销审核人信息
         if (!storageOrderRepository.setReviewNull(order.getId())) {
             return RestResult.fail("撤销订单审核信息失败");
         }
+
+        // TODO 删除
+        if (!purchaseStorageRepository.delete(order.getRid(), order.getId())) {
+            return RestResult.fail("添加采购退货信息失败");
+        }
         return RestResult.ok();
+    }
+
+    public List<MyOrderCommodity> getOrderCommodity(int id, int gid, int oid) {
+        return null;
     }
 
     private RestResult check(int id, TStorageOrder order, int applyPerm, int reviewPerm, List<Integer> reviews) {
@@ -791,53 +604,32 @@ public class StorageService {
         }
 
         // 校验申请订单权限
-        if (!checkService.checkRolePermissionMp(id, applyPerm)) {
-            return RestResult.fail("本账号没有相关的权限，请联系管理员");
-        }
-
-        // 验证审核人员信息
-        val orderReviewers = orderReviewerRepository.find(gid);
-        if (null == orderReviewers || orderReviewers.isEmpty()) {
-            return RestResult.fail("未设置订单审核人，请联系系统管理员");
-        }
-        for (TOrderReviewer orderReviewer : orderReviewers) {
-            if (orderReviewer.getPid().equals(reviewPerm)) {
-                reviews.add(orderReviewer.getUid());
-            }
-        }
-        if (reviews.isEmpty()) {
-            return RestResult.fail("未设置进货订单审核人，请联系系统管理员");
-        }
-        return null;
+        return reviewService.checkPerm(id, gid, applyPerm, reviewPerm, reviews);
     }
 
-    private RestResult createStorageComms(TStorageOrder order, List<Integer> types, List<Integer> commoditys,
+    private RestResult createStorageComms(List<Integer> types, List<Integer> commoditys,
                                           List<Integer> values, List<BigDecimal> prices, List<TStorageCommodity> list) {
-        // 生成进货单
+        // 生成入库单
         int size = commoditys.size();
         if (size != types.size() || size != values.size() || size != prices.size()) {
             return RestResult.fail("商品信息出错");
         }
-        int total = 0;
         for (int i = 0; i < size; i++) {
             // 获取商品单位信息
             TypeDefine.CommodityType type = TypeDefine.CommodityType.valueOf(types.get(i));
             int cid = commoditys.get(i);
-            int unit = 0;
             switch (type) {
                 case ORIGINAL:
-                    TOriginal find3 = originalRepository.find(cid);
-                    if (null == find3) {
+                    TOriginal original = originalRepository.find(cid);
+                    if (null == original) {
                         return RestResult.fail("未查询到原料：" + cid);
                     }
-                    unit = find3.getUnit();
                     break;
                 case STANDARD:
-                    TStandard find4 = standardRepository.find(cid);
-                    if (null == find4) {
+                    TStandard standard = standardRepository.find(cid);
+                    if (null == standard) {
                         return RestResult.fail("未查询到标品：" + cid);
                     }
-                    unit = find4.getUnit();
                     break;
                 default:
                     return RestResult.fail("商品类型异常：" + type);
@@ -847,13 +639,9 @@ public class StorageService {
             TStorageCommodity c = new TStorageCommodity();
             c.setCtype(type.getValue());
             c.setCid(cid);
-            c.setUnit(unit);
             c.setValue(values.get(i));
-            c.setPrice(prices.get(i));
             list.add(c);
-            total += values.get(i);
         }
-        order.setValue(total);
         return null;
     }
 }

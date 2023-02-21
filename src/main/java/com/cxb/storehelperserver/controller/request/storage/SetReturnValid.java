@@ -26,10 +26,6 @@ public class SetReturnValid implements IValid {
     @Min(value = 1, message = "订单编号错误")
     private int oid;
 
-    @NotEmpty(message = "请输入订单批次")
-    @Length(min = 2, max = 16, message = "订单批次格式错误")
-    private String batch;
-
     @Min(value = 1, message = "仓库账号错误")
     private int sid;
 

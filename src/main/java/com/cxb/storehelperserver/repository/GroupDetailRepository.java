@@ -38,21 +38,21 @@ public class GroupDetailRepository extends BaseRepository<TGroupDetail> {
         return groupDetail;
     }
 
-    public int total(int gid) {
+    public int total(int gid, int action) {
         int total = getTotalCache(gid);
         if (0 != total) {
             return total;
         }
         TGroupDetailExample example = new TGroupDetailExample();
-        example.or().andGidEqualTo(gid);
+        example.or().andGidEqualTo(gid).andActionEqualTo(action);
         total = (int) groupDetailMapper.countByExample(example);
         setTotalCache(gid, total);
         return total;
     }
 
-    public List<TGroupDetail> pagination(int gid, int page, int limit) {
+    public List<TGroupDetail> pagination(int gid, int page, int limit, int action) {
         TGroupDetailExample example = new TGroupDetailExample();
-        example.or().andGidEqualTo(gid);
+        example.or().andGidEqualTo(gid).andActionEqualTo(action);
         example.setOffset((page - 1) * limit);
         example.setLimit(limit);
         example.setOrderByClause("ctime desc");

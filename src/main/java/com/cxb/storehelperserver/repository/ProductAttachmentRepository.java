@@ -45,12 +45,17 @@ public class ProductAttachmentRepository extends BaseRepository<TProductAttachme
         return productAttachmentMapper.selectByExample(example);
     }
 
-    public boolean insert(TProductAttachment row) {
+    public TProductAttachment insert(int oid, int imagesrc, String path, String name) {
+        TProductAttachment row = new TProductAttachment();
+        row.setOid(0);
+        row.setSrc(imagesrc);
+        row.setPath(path);
+        row.setName(name);
         if (productAttachmentMapper.insert(row) > 0) {
             setCache(row.getId(), row);
-            return true;
+            return row;
         }
-        return false;
+        return null;
     }
 
     public boolean update(TProductAttachment row) {

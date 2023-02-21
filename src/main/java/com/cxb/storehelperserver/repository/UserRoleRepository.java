@@ -39,9 +39,12 @@ public class UserRoleRepository extends BaseRepository<TUserRole> {
         return userRole;
     }
 
-    public boolean insert(TUserRole row) {
+    public boolean insert(int uid, int rid) {
+        TUserRole row = new TUserRole();
+        row.setUid(uid);
+        row.setRid(rid);
         if (userRoleMapper.insert(row) > 0) {
-            setCache(row.getUid(), row);
+            setCache(uid, row);
             return true;
         }
         return false;

@@ -76,36 +76,24 @@ public class UploadService {
         switch (type) {
             case STORAGE_IN_ORDER:
             case STORAGE_OUT_ORDER:
-                TStorageAttachment storageAttachment = new TStorageAttachment();
-                storageAttachment.setOid(0);
-                storageAttachment.setSrc(imagesrc);
-                storageAttachment.setPath(path);
-                storageAttachment.setName(name);
-                if (!storageAttachmentRepository.insert(storageAttachment)) {
+                TStorageAttachment storageAttachment = storageAttachmentRepository.insert(0, imagesrc, path, name);
+                if (null == storageAttachment) {
                     return RestResult.fail("写入数据失败，请联系管理员");
                 }
                 data.put("id", storageAttachment.getId());
                 break;
             case PRODUCT_IN_ORDER:
             case PRODUCT_OUT_ORDER:
-                TProductAttachment productAttachment = new TProductAttachment();
-                productAttachment.setOid(0);
-                productAttachment.setSrc(imagesrc);
-                productAttachment.setPath(path);
-                productAttachment.setName(name);
-                if (!productAttachmentRepository.insert(productAttachment)) {
+                TProductAttachment productAttachment = productAttachmentRepository.insert(0, imagesrc, path, name);
+                if (null == productAttachment) {
                     return RestResult.fail("写入数据失败，请联系管理员");
                 }
                 data.put("id", productAttachment.getId());
                 break;
             case AGREEMENT_IN_ORDER:
             case AGREEMENT_OUT_ORDER:
-                TAgreementAttachment agreementAttachment = new TAgreementAttachment();
-                agreementAttachment.setOid(0);
-                agreementAttachment.setSrc(imagesrc);
-                agreementAttachment.setPath(path);
-                agreementAttachment.setName(name);
-                if (!agreementAttachmentRepository.insert(agreementAttachment)) {
+                TAgreementAttachment agreementAttachment = agreementAttachmentRepository.insert(0, imagesrc, path, name);
+                if (null == agreementAttachment) {
                     return RestResult.fail("写入数据失败，请联系管理员");
                 }
                 data.put("id", agreementAttachment.getId());

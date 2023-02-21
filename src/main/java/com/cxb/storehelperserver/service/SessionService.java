@@ -36,10 +36,7 @@ public class SessionService {
                 return key;
             }
         } else {
-            session = new TSession();
-            session.setUid(account.getUid());
-            session.setToken(key);
-            if (sessionRepository.insert(session)) {
+            if (sessionRepository.insert(account.getUid(), key)) {
                 return key;
             }
         }

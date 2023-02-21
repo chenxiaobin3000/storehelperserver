@@ -177,10 +177,7 @@ public class RoleService {
         // 已存在就修改，不存在就新增
         TUserRole role = userRoleRepository.find(uid);
         if (null == role) {
-            role = new TUserRole();
-            role.setUid(uid);
-            role.setRid(rid);
-            if (!userRoleRepository.insert(role)) {
+            if (!userRoleRepository.insert(uid, rid)) {
                 return RestResult.fail("关联角色失败");
             }
         } else {

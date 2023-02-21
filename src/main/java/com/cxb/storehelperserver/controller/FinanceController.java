@@ -26,6 +26,6 @@ public class FinanceController {
 
     @PostMapping("/getFinance")
     public RestResult getFinance(@Validated @RequestBody GetFinanceValid req) {
-        return financeService.getFinance(req.getId(), req.getPage(), req.getLimit(), req.getType(), req.getSearch());
+        return financeService.getFinance(req.getId(), req.getPage(), req.getLimit(), req.getAction());
     }
 }

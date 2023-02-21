@@ -56,9 +56,7 @@ public class StorageOrderService extends BaseService<HashMap> {
                 data.put("id", sc.getId());
                 data.put("cid", sc.getCid());
                 data.put("ctype", sc.getCtype());
-                data.put("unit", sc.getUnit());
                 data.put("value", sc.getValue());
-                data.put("price", sc.getPrice());
                 commoditys.add(data);
 
                 // 获取商品单位信息

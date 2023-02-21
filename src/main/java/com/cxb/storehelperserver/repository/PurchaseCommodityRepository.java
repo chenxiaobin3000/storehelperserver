@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -52,6 +53,10 @@ public class PurchaseCommodityRepository extends BaseRepository<List> {
 
     public List<MyOrderCommodity> findBySid(int sid, Date start, Date end) {
         return myPurchaseCommodityMapper.selectBySid(sid, start, end);
+    }
+
+    public BigDecimal count(int oid) {
+        return myPurchaseCommodityMapper.count(oid);
     }
 
     // 注意：数据被缓存在PurchaseCommodityService，所以不能直接调用该函数

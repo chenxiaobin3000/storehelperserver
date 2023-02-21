@@ -55,7 +55,7 @@ public class ReportService {
     private UserOrderCompleteRepository userOrderCompleteRepository;
 
     @Resource
-    private StockCommodityDayRepository stockCommodityDayRepository;
+    private StockDayRepository stockDayRepository;
 
     @Resource
     private StockHalfgoodDayRepository stockHalfgoodDayRepository;
@@ -123,7 +123,7 @@ public class ReportService {
 
         // 库存
         val cdata = new HashMap<Integer, Integer>();
-        val commodities = stockService.getAllStockCommodity(gid, 0, today, REPORT_DAILY);
+        val commodities = stockService.getAllStockDay(gid, 0, today, REPORT_DAILY);
         if (null != commodities && !commodities.isEmpty()) {
             for (MyStockCommodity c : commodities) {
                 cdata.merge(c.getSid(), c.getValue(), Integer::sum);
@@ -332,7 +332,7 @@ public class ReportService {
         List<MyStockReport> stocks = null;
         switch (type) {
             case COMMODITY:
-                stocks = stockCommodityDayRepository.findReport(gid, start, end);
+                stocks = stockDayRepository.findReport(gid, start, end);
                 break;
             case HALFGOOD:
                 stocks = stockHalfgoodDayRepository.findReport(gid, start, end);

@@ -62,10 +62,8 @@ public class GroupService {
             return RestResult.fail("本账号没有管理员权限");
         }
 
-        TUser user = new TUser();
-        user.setName(account);
-        user.setPhone(phone);
-        if (!userRepository.insert(user)) {
+        TUser user = userRepository.insert(account, phone);
+        if (null == user) {
             return RestResult.fail("新增用户信息失败");
         }
         int uid = user.getId();
@@ -95,25 +93,15 @@ public class GroupService {
             return RestResult.fail("添加角色权限失败");
         }
 
-        TUserRole userRole = new TUserRole();
-        userRole.setUid(uid);
-        userRole.setRid(rid);
-        if (!userRoleRepository.insert(userRole)) {
+        if (!userRoleRepository.insert(uid, rid)) {
             return RestResult.fail("新增用户角色信息失败");
         }
 
-        TUserGroup userGroup = new TUserGroup();
-        userGroup.setUid(uid);
-        userGroup.setGid(gid);
-        if (!userGroupRepository.insert(userGroup)) {
+        if (!userGroupRepository.insert(uid, gid)) {
             return RestResult.fail("新增用户公司信息失败");
         }
 
-        TAccount tAccount = new TAccount();
-        tAccount.setAccount(account);
-        tAccount.setPassword(defaultpwd);
-        tAccount.setUid(uid);
-        if (!accountRepository.insert(tAccount)) {
+        if (!accountRepository.insert(account, defaultpwd, uid)) {
             return RestResult.fail("新增账号信息失败");
         }
         return RestResult.ok();
@@ -215,10 +203,7 @@ public class GroupService {
         // 已存在就修改，不存在就新增
         group = userGroupRepository.find(uid);
         if (null == group) {
-            group = new TUserGroup();
-            group.setUid(uid);
-            group.setGid(gid);
-            if (!userGroupRepository.insert(group)) {
+            if (!userGroupRepository.insert(uid, gid)) {
                 return RestResult.fail("关联公司失败");
             }
         } else {

@@ -86,32 +86,20 @@ public class UserService {
             return RestResult.fail("未查询到角色信息");
         }
 
-        TUser user = new TUser();
-        user.setName(account);
-        user.setPhone(phone);
-        if (!userRepository.insert(user)) {
+        TUser user = userRepository.insert(account, phone);
+        if (null == user) {
             return RestResult.fail("新增用户信息失败");
         }
 
-        TUserGroup userGroup = new TUserGroup();
-        userGroup.setUid(user.getId());
-        userGroup.setGid(group.getGid());
-        if (!userGroupRepository.insert(userGroup)) {
+        if (!userGroupRepository.insert(user.getId(), group.getGid())) {
             return RestResult.fail("新增用户公司信息失败");
         }
 
-        TUserRole userRole = new TUserRole();
-        userRole.setUid(user.getId());
-        userRole.setRid(rid);
-        if (!userRoleRepository.insert(userRole)) {
+        if (!userRoleRepository.insert(user.getId(), rid)) {
             return RestResult.fail("新增用户角色信息失败");
         }
 
-        TAccount tAccount = new TAccount();
-        tAccount.setAccount(account);
-        tAccount.setPassword(defaultpwd);
-        tAccount.setUid(user.getId());
-        if (!accountRepository.insert(tAccount)) {
+        if (!accountRepository.insert(account, defaultpwd, user.getId())) {
             return RestResult.fail("新增账号信息失败");
         }
         return RestResult.ok();

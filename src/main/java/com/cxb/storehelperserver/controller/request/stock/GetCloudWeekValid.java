@@ -13,11 +13,11 @@ import javax.validation.constraints.NotEmpty;
  * date: 2023/1/24
  */
 @Data
-public class GetStockHalfgoodValid implements IValid {
+public class GetCloudWeekValid implements IValid {
     @Min(value = 1, message = "账号错误")
     private int id;
 
-    @Min(value = 1, message = "仓库账号错误")
+    @Min(value = 0, message = "仓库账号错误")
     private int sid;
 
     @NotEmpty(message = "请输入查询日期")

@@ -48,7 +48,10 @@ public class UserGroupRepository extends BaseRepository<TUserGroup> {
         return null != userGroupMapper.selectOneByExample(example);
     }
 
-    public boolean insert(TUserGroup row) {
+    public boolean insert(int uid, int gid) {
+        TUserGroup row = new TUserGroup();
+        row.setUid(uid);
+        row.setGid(gid);
         if (userGroupMapper.insert(row) > 0) {
             setCache(row.getUid(), row);
             return true;
