@@ -22,7 +22,7 @@ public class PurchaseAttachmentRepository extends BaseRepository<TPurchaseAttach
     private TPurchaseAttachmentMapper purchaseAttachmentMapper;
 
     public PurchaseAttachmentRepository() {
-        init("purchaseAtt::");
+        init("purAtt::");
     }
 
     public TPurchaseAttachment find(int id) {

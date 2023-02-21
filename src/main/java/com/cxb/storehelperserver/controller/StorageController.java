@@ -3,6 +3,7 @@ package com.cxb.storehelperserver.controller;
 import com.cxb.storehelperserver.controller.request.storage.*;
 import com.cxb.storehelperserver.model.TStorage;
 import com.cxb.storehelperserver.model.TStorageOrder;
+import com.cxb.storehelperserver.service.StorageMgrService;
 import com.cxb.storehelperserver.service.StorageService;
 import com.cxb.storehelperserver.util.DateUtil;
 import com.cxb.storehelperserver.util.RestResult;
@@ -30,6 +31,9 @@ import static com.cxb.storehelperserver.util.TypeDefine.OrderInOutType;
 @RequestMapping("/api/storage")
 public class StorageController {
     @Resource
+    private StorageMgrService storageMgrService;
+
+    @Resource
     private StorageService storageService;
 
     @Resource
@@ -43,7 +47,7 @@ public class StorageController {
         storage.setContact(req.getContact());
         storage.setName(req.getName());
         storage.setAddress(req.getAddress());
-        return storageService.addStorage(req.getId(), storage);
+        return storageMgrService.addStorage(req.getId(), storage);
     }
 
     @PostMapping("/setStorage")
@@ -55,22 +59,22 @@ public class StorageController {
         storage.setContact(req.getContact());
         storage.setName(req.getName());
         storage.setAddress(req.getAddress());
-        return storageService.setStorage(req.getId(), storage);
+        return storageMgrService.setStorage(req.getId(), storage);
     }
 
     @PostMapping("/delStorage")
     public RestResult delStorage(@Validated @RequestBody DelStorageValid req) {
-        return storageService.delStorage(req.getId(), req.getGid(), req.getSid());
+        return storageMgrService.delStorage(req.getId(), req.getGid(), req.getSid());
     }
 
     @PostMapping("/getGroupStorage")
     public RestResult getGroupStorage(@Validated @RequestBody GetGroupStorageValid req) {
-        return storageService.getGroupStorage(req.getId(), req.getPage(), req.getLimit(), req.getSearch());
+        return storageMgrService.getGroupStorage(req.getId(), req.getPage(), req.getLimit(), req.getSearch());
     }
 
     @PostMapping("/getGroupAllStorage")
     public RestResult getGroupAllStorage(@Validated @RequestBody GetGroupAllStorageValid req) {
-        return storageService.getGroupAllStorage(req.getId());
+        return storageMgrService.getGroupAllStorage(req.getId());
     }
 
     @PostMapping("/purchase")

@@ -28,7 +28,7 @@ public class PurchaseCommodityRepository extends BaseRepository<List> {
     private MyPurchaseCommodityMapper myPurchaseCommodityMapper;
 
     public PurchaseCommodityRepository() {
-        init("purchaseComm::");
+        init("purComm::");
     }
 
     public List<TPurchaseCommodity> find(int oid) {

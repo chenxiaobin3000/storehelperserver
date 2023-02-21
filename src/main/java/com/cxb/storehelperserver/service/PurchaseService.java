@@ -396,7 +396,7 @@ public class PurchaseService {
             return RestResult.fail("审核用户订单信息失败");
         }
 
-        if (!purchaseReturnRepository.insert(order.getRid(), order.getId())) {
+        if (!purchaseReturnRepository.insert(order.getId(), order.getRid())) {
             return RestResult.fail("添加采购退货信息失败");
         }
 

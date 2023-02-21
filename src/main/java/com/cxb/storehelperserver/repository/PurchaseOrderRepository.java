@@ -26,7 +26,7 @@ public class PurchaseOrderRepository extends BaseRepository<TPurchaseOrder> {
     private MyOrderMapper myOrderMapper;
 
     public PurchaseOrderRepository() {
-        init("purchaseOrder::");
+        init("purOrder::");
     }
 
     public TPurchaseOrder find(int id) {

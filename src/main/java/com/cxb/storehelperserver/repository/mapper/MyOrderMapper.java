@@ -13,8 +13,8 @@ public interface MyOrderMapper {
     @Update({"<script>update t_agreement_order set review = null, review_time = null where id = #{id}</script>"})
     int setAgreementReviewNull(int id);
 
-    @Update({"<script>update t_loss_order set review = null, review_time = null where id = #{id}</script>"})
-    int setLossReviewNull(int id);
+    @Update({"<script>update t_cloud_order set review = null, review_time = null where id = #{id}</script>"})
+    int setCloudReviewNull(int id);
 
     @Update({"<script>update t_product_order set review = null, review_time = null where id = #{id}</script>"})
     int setProductReviewNull(int id);

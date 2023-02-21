@@ -21,21 +21,21 @@ public class PurchaseReturnRepository extends BaseRepository<TPurchaseReturn> {
     private TPurchaseReturnMapper purchaseReturnMapper;
 
     public PurchaseReturnRepository() {
-        init("purRet::");
+        init("purReturn::");
     }
 
-    public TPurchaseReturn find(int rid) {
-        TPurchaseReturn purchaseReturn = getCache(rid, TPurchaseReturn.class);
+    public TPurchaseReturn find(int oid) {
+        TPurchaseReturn purchaseReturn = getCache(oid, TPurchaseReturn.class);
         if (null != purchaseReturn) {
             return purchaseReturn;
         }
 
         // 缓存没有就查询数据库
         TPurchaseReturnExample example = new TPurchaseReturnExample();
-        example.or().andRidEqualTo(rid);
+        example.or().andOidEqualTo(oid);
         purchaseReturn = purchaseReturnMapper.selectOneByExample(example);
         if (null != purchaseReturn) {
-            setCache(rid, purchaseReturn);
+            setCache(oid, purchaseReturn);
         }
         return purchaseReturn;
     }
@@ -52,12 +52,12 @@ public class PurchaseReturnRepository extends BaseRepository<TPurchaseReturn> {
         return null != purchaseReturnMapper.selectOneByExample(example);
     }
 
-    public boolean insert(int pid, int rid) {
+    public boolean insert(int oid, int pid) {
         TPurchaseReturn row = new TPurchaseReturn();
+        row.setOid(oid);
         row.setPid(pid);
-        row.setRid(rid);
         if (purchaseReturnMapper.insert(row) > 0) {
-            setCache(row.getRid(), row);
+            setCache(row.getOid(), row);
             return true;
         }
         return false;
@@ -65,7 +65,7 @@ public class PurchaseReturnRepository extends BaseRepository<TPurchaseReturn> {
 
     public boolean update(TPurchaseReturn row) {
         if (purchaseReturnMapper.updateByPrimaryKey(row) > 0) {
-            setCache(row.getRid(), row);
+            setCache(row.getOid(), row);
             return true;
         }
         return false;
@@ -76,7 +76,7 @@ public class PurchaseReturnRepository extends BaseRepository<TPurchaseReturn> {
         if (null == purchaseReturn) {
             return false;
         }
-        delCache(purchaseReturn.getRid());
+        delCache(purchaseReturn.getOid());
         return purchaseReturnMapper.deleteByPrimaryKey(id) > 0;
     }
 }

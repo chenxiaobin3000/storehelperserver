@@ -21,15 +21,15 @@ import java.util.List;
 @Slf4j
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class LossOrderService extends BaseService<HashMap> {
+public class CloudOrderService extends BaseService<HashMap> {
     @Resource
-    private LossOrderRepository lossOrderRepository;
+    private CloudOrderRepository cloudOrderRepository;
 
     @Resource
-    private LossCommodityRepository lossCommodityRepository;
+    private CloudCommodityRepository cloudCommodityRepository;
 
     @Resource
-    private LossAttachmentRepository lossAttachmentRepository;
+    private CloudAttachmentRepository cloudAttachmentRepository;
 
     @Resource
     private OriginalRepository originalRepository;
@@ -37,7 +37,7 @@ public class LossOrderService extends BaseService<HashMap> {
     @Resource
     private HalfgoodRepository halfgoodRepository;
 
-    public LossOrderService() {
+    public CloudOrderService() {
         init("lossServ::");
     }
 
@@ -49,9 +49,9 @@ public class LossOrderService extends BaseService<HashMap> {
 
         // 商品
         val commoditys = new ArrayList<HashMap<String, Object>>();
-        val lossCommodities = lossCommodityRepository.find(oid);
+        val lossCommodities = cloudCommodityRepository.find(oid);
         if (null != lossCommodities && !lossCommodities.isEmpty()) {
-            for (TLossCommodity sc : lossCommodities) {
+            for (TCloudCommodity sc : lossCommodities) {
                 val data = new HashMap<String, Object>();
                 data.put("id", sc.getId());
                 data.put("cid", sc.getCid());
@@ -88,26 +88,26 @@ public class LossOrderService extends BaseService<HashMap> {
         // 附件
         datas = new HashMap<>();
         datas.put("comms", commoditys);
-        datas.put("attrs", lossAttachmentRepository.findByOid(oid));
+        datas.put("attrs", cloudAttachmentRepository.findByOid(oid));
         setCache(oid, datas);
         return datas;
     }
 
-    public String update(int oid, List<TLossCommodity> comms, List<Integer> attrs) {
+    public String update(int oid, List<TCloudCommodity> comms, List<Integer> attrs) {
         delCache(oid);
-        for (TLossCommodity c : comms) {
+        for (TCloudCommodity c : comms) {
             c.setOid(oid);
         }
-        if (!lossCommodityRepository.update(comms, oid)) {
+        if (!cloudCommodityRepository.update(comms, oid)) {
             return "生成订单商品信息失败";
         }
 
         // 修改附件oid
         for (Integer attr : attrs) {
-            TLossAttachment lossAttachment = lossAttachmentRepository.find(attr);
+            TLossAttachment lossAttachment = cloudAttachmentRepository.find(attr);
             if (null != lossAttachment) {
                 lossAttachment.setOid(oid);
-                if (!lossAttachmentRepository.update(lossAttachment)) {
+                if (!cloudAttachmentRepository.update(lossAttachment)) {
                     return "添加订单附件失败";
                 }
             }

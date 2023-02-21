@@ -114,26 +114,6 @@ public class TypeDefine {
         }
     }
 
-    // 订单类型
-    public enum OrderInOutType {
-        IN_ORDER(false), // 进货入库订单
-        OUT_ORDER(true); // 进货出库订单
-
-        private boolean value = false;
-
-        private OrderInOutType(boolean v) {
-            this.value = v;
-        }
-
-        public static OrderInOutType valueOf(boolean v) {
-            return v ? OUT_ORDER : IN_ORDER;
-        }
-
-        public boolean getValue() {
-            return value;
-        }
-    }
-
     // 报表周期类型
     public enum ReportCycleType {
         REPORT_DAILY(1),    // 每日报表

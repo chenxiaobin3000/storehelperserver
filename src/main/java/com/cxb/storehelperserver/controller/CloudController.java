@@ -2,7 +2,7 @@ package com.cxb.storehelperserver.controller;
 
 import com.cxb.storehelperserver.controller.request.cloud.*;
 import com.cxb.storehelperserver.model.TCloud;
-import com.cxb.storehelperserver.service.CloudService;
+import com.cxb.storehelperserver.service.CloudMgrService;
 import com.cxb.storehelperserver.util.DateUtil;
 import com.cxb.storehelperserver.util.RestResult;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +24,7 @@ import javax.annotation.Resource;
 @RequestMapping("/api/cloud")
 public class CloudController {
     @Resource
-    private CloudService cloudService;
+    private CloudMgrService cloudMgrService;
 
     @Resource
     private DateUtil dateUtil;
@@ -37,7 +37,7 @@ public class CloudController {
         cloud.setContact(req.getContact());
         cloud.setName(req.getName());
         cloud.setAddress(req.getAddress());
-        return cloudService.addCloud(req.getId(), cloud);
+        return cloudMgrService.addCloud(req.getId(), cloud);
     }
 
     @PostMapping("/setCloud")
@@ -49,21 +49,21 @@ public class CloudController {
         cloud.setContact(req.getContact());
         cloud.setName(req.getName());
         cloud.setAddress(req.getAddress());
-        return cloudService.setCloud(req.getId(), cloud);
+        return cloudMgrService.setCloud(req.getId(), cloud);
     }
 
     @PostMapping("/delCloud")
     public RestResult delCloud(@Validated @RequestBody DelCloudValid req) {
-        return cloudService.delCloud(req.getId(), req.getGid(), req.getSid());
+        return cloudMgrService.delCloud(req.getId(), req.getGid(), req.getSid());
     }
 
     @PostMapping("/getGroupCloud")
     public RestResult getGroupCloud(@Validated @RequestBody GetGroupCloudValid req) {
-        return cloudService.getGroupCloud(req.getId(), req.getPage(), req.getLimit(), req.getSearch());
+        return cloudMgrService.getGroupCloud(req.getId(), req.getPage(), req.getLimit(), req.getSearch());
     }
 
     @PostMapping("/getGroupAllCloud")
     public RestResult getGroupAllCloud(@Validated @RequestBody GetGroupAllCloudValid req) {
-        return cloudService.getGroupAllCloud(req.getId());
+        return cloudMgrService.getGroupAllCloud(req.getId());
     }
 }
