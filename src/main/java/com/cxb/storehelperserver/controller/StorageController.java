@@ -19,7 +19,7 @@ import javax.annotation.Resource;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
-import static com.cxb.storehelperserver.util.TypeDefine.OrderInOutType;
+import static com.cxb.storehelperserver.util.TypeDefine.OrderType.*;
 
 /**
  * desc: 仓库接口
@@ -83,7 +83,7 @@ public class StorageController {
         TStorageOrder order = new TStorageOrder();
         order.setGid(req.getGid());
         order.setSid(req.getSid());
-        order.setOtype(OrderInOutType.IN_ORDER.getValue());
+        order.setOtype(STORAGE_PURCHASE_ORDER.getValue());
         order.setApply(req.getId());
         order.setOid(req.getPid());
         try {
@@ -91,7 +91,7 @@ public class StorageController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return storageService.purchase(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
+        return storageService.purchase(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/setPurchase")
@@ -100,13 +100,13 @@ public class StorageController {
         TStorageOrder order = new TStorageOrder();
         order.setId(req.getOid());
         order.setSid(req.getSid());
-        order.setApply(req.getId());
+        order.setOid(req.getPid());
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return storageService.setPurchase(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
+        return storageService.setPurchase(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/delPurchase")
@@ -124,13 +124,105 @@ public class StorageController {
         return storageService.revokePurchase(req.getId(), req.getOid());
     }
 
+    @PostMapping("/dispatch")
+    public RestResult dispatch(@Validated @RequestBody DispatchValid req) {
+        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
+        TStorageOrder order = new TStorageOrder();
+        order.setGid(req.getGid());
+        order.setSid(req.getSid());
+        order.setOtype(STORAGE_DISPATCH_ORDER.getValue());
+        order.setApply(req.getId());
+        order.setOid(0);
+        try {
+            order.setApplyTime(simpleDateFormat.parse(req.getDate()));
+        } catch (ParseException e) {
+            return RestResult.fail("订单制单日期转换失败");
+        }
+        return storageService.dispatch(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
+    }
+
+    @PostMapping("/setDispatch")
+    public RestResult setDispatch(@Validated @RequestBody SetDispatchValid req) {
+        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
+        TStorageOrder order = new TStorageOrder();
+        order.setId(req.getOid());
+        order.setSid(req.getSid());
+        try {
+            order.setApplyTime(simpleDateFormat.parse(req.getDate()));
+        } catch (ParseException e) {
+            return RestResult.fail("订单制单日期转换失败");
+        }
+        return storageService.setDispatch(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
+    }
+
+    @PostMapping("/delDispatch")
+    public RestResult delDispatch(@Validated @RequestBody DelDispatchValid req) {
+        return storageService.delDispatch(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/reviewDispatch")
+    public RestResult reviewDispatch(@Validated @RequestBody ReviewDispatchValid req) {
+        return storageService.reviewDispatch(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/revokeDispatch")
+    public RestResult revokeDispatch(@Validated @RequestBody RevokeDispatchValid req) {
+        return storageService.revokeDispatch(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/loss")
+    public RestResult loss(@Validated @RequestBody LossValid req) {
+        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
+        TStorageOrder order = new TStorageOrder();
+        order.setGid(req.getGid());
+        order.setSid(req.getSid());
+        order.setOtype(STORAGE_LOSS_ORDER.getValue());
+        order.setApply(req.getId());
+        order.setOid(0);
+        try {
+            order.setApplyTime(simpleDateFormat.parse(req.getDate()));
+        } catch (ParseException e) {
+            return RestResult.fail("订单制单日期转换失败");
+        }
+        return storageService.loss(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
+    }
+
+    @PostMapping("/setLoss")
+    public RestResult setLoss(@Validated @RequestBody SetLossValid req) {
+        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
+        TStorageOrder order = new TStorageOrder();
+        order.setId(req.getOid());
+        order.setSid(req.getSid());
+        try {
+            order.setApplyTime(simpleDateFormat.parse(req.getDate()));
+        } catch (ParseException e) {
+            return RestResult.fail("订单制单日期转换失败");
+        }
+        return storageService.setLoss(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
+    }
+
+    @PostMapping("/delLoss")
+    public RestResult delLoss(@Validated @RequestBody DelLossValid req) {
+        return storageService.delLoss(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/reviewLoss")
+    public RestResult reviewLoss(@Validated @RequestBody ReviewLossValid req) {
+        return storageService.reviewLoss(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/revokeLoss")
+    public RestResult revokeLoss(@Validated @RequestBody RevokeLossValid req) {
+        return storageService.revokeLoss(req.getId(), req.getOid());
+    }
+
     @PostMapping("/returnc")
     public RestResult returnc(@Validated @RequestBody ReturnValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
         TStorageOrder order = new TStorageOrder();
         order.setGid(req.getGid());
         order.setSid(req.getSid());
-        order.setOtype(OrderInOutType.OUT_ORDER.getValue());
+        order.setOtype(STORAGE_RETURN_ORDER.getValue());
         order.setApply(req.getId());
         order.setOid(req.getRid());
         try {
@@ -138,7 +230,7 @@ public class StorageController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return storageService.returnc(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
+        return storageService.returnc(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/setReturn")
@@ -152,7 +244,7 @@ public class StorageController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return storageService.setReturn(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
+        return storageService.setReturn(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/delReturn")

@@ -1,4 +1,4 @@
-package com.cxb.storehelperserver.controller.request.storage;
+package com.cxb.storehelperserver.controller.request.cloud;
 
 import com.cxb.storehelperserver.controller.request.IValid;
 import lombok.Data;
@@ -7,7 +7,6 @@ import org.hibernate.validator.constraints.Length;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
-import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -16,7 +15,7 @@ import java.util.List;
  * date: 2022/12/21
  */
 @Data
-public class SetPurchaseValid implements IValid {
+public class SetLossValid implements IValid {
     @Min(value = 1, message = "账号错误")
     private int id;
 

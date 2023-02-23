@@ -17,7 +17,7 @@ import java.util.List;
  */
 @Slf4j
 @Repository
-public class AgreementFareRepository extends BaseRepository<TAgreementFare> {
+public class AgreementFareRepository extends BaseRepository<List> {
     @Resource
     private TAgreementFareMapper agreementFareMapper;
 
@@ -25,20 +25,20 @@ public class AgreementFareRepository extends BaseRepository<TAgreementFare> {
         init("agreeFare::");
     }
 
-    public TAgreementFare find(int oid) {
-        TAgreementFare agreementFare = getCache(oid, TAgreementFare.class);
-        if (null != agreementFare) {
-            return agreementFare;
+    public List<TAgreementFare> find(int oid) {
+        List<TAgreementFare> agreementFares = getCache(oid, List.class);
+        if (null != agreementFares) {
+            return agreementFares;
         }
 
         // 缓存没有就查询数据库
         TAgreementFareExample example = new TAgreementFareExample();
         example.or().andOidEqualTo(oid);
-        agreementFare = agreementFareMapper.selectOneByExample(example);
-        if (null != agreementFare) {
-            setCache(oid, agreementFare);
+        agreementFares = agreementFareMapper.selectByExample(example);
+        if (null != agreementFares) {
+            setCache(oid, agreementFares);
         }
-        return agreementFare;
+        return agreementFares;
     }
 
     public boolean insert(int oid, BigDecimal fare) {
@@ -46,7 +46,7 @@ public class AgreementFareRepository extends BaseRepository<TAgreementFare> {
         row.setOid(oid);
         row.setFare(fare);
         if (agreementFareMapper.insert(row) > 0) {
-            setCache(row.getOid(), row);
+            delCache(row.getOid());
             return true;
         }
         return false;
@@ -54,7 +54,7 @@ public class AgreementFareRepository extends BaseRepository<TAgreementFare> {
 
     public boolean update(TAgreementFare row) {
         if (agreementFareMapper.updateByPrimaryKey(row) > 0) {
-            setCache(row.getOid(), row);
+            delCache(row.getOid());
             return true;
         }
         return false;

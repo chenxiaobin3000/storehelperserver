@@ -17,7 +17,7 @@ import java.util.List;
  */
 @Slf4j
 @Repository
-public class PurchaseFareRepository extends BaseRepository<TPurchaseFare> {
+public class PurchaseFareRepository extends BaseRepository<List> {
     @Resource
     private TPurchaseFareMapper purchaseFareMapper;
 
@@ -25,20 +25,20 @@ public class PurchaseFareRepository extends BaseRepository<TPurchaseFare> {
         init("purFare::");
     }
 
-    public TPurchaseFare find(int oid) {
-        TPurchaseFare purchaseFare = getCache(oid, TPurchaseFare.class);
-        if (null != purchaseFare) {
-            return purchaseFare;
+    public List<TPurchaseFare> find(int oid) {
+        List<TPurchaseFare> purchaseFares = getCache(oid, List.class);
+        if (null != purchaseFares) {
+            return purchaseFares;
         }
 
         // 缓存没有就查询数据库
         TPurchaseFareExample example = new TPurchaseFareExample();
         example.or().andOidEqualTo(oid);
-        purchaseFare = purchaseFareMapper.selectOneByExample(example);
-        if (null != purchaseFare) {
-            setCache(oid, purchaseFare);
+        purchaseFares = purchaseFareMapper.selectByExample(example);
+        if (null != purchaseFares) {
+            setCache(oid, purchaseFares);
         }
-        return purchaseFare;
+        return purchaseFares;
     }
 
     public boolean insert(int oid, BigDecimal fare) {
@@ -46,7 +46,7 @@ public class PurchaseFareRepository extends BaseRepository<TPurchaseFare> {
         row.setOid(oid);
         row.setFare(fare);
         if (purchaseFareMapper.insert(row) > 0) {
-            setCache(row.getOid(), row);
+            delCache(row.getOid());
             return true;
         }
         return false;
@@ -54,7 +54,7 @@ public class PurchaseFareRepository extends BaseRepository<TPurchaseFare> {
 
     public boolean update(TPurchaseFare row) {
         if (purchaseFareMapper.updateByPrimaryKey(row) > 0) {
-            setCache(row.getOid(), row);
+            delCache(row.getOid());
             return true;
         }
         return false;

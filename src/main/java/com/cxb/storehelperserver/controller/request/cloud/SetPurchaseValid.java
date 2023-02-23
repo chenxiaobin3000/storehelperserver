@@ -1,4 +1,4 @@
-package com.cxb.storehelperserver.controller.request.storage;
+package com.cxb.storehelperserver.controller.request.cloud;
 
 import com.cxb.storehelperserver.controller.request.IValid;
 import lombok.Data;
@@ -7,7 +7,6 @@ import org.hibernate.validator.constraints.Length;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
-import java.math.BigDecimal;
 import java.util.List;
 
 /**

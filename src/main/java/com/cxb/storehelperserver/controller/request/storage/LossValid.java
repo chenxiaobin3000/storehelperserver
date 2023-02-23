@@ -7,7 +7,6 @@ import org.hibernate.validator.constraints.Length;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
-import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -16,15 +15,12 @@ import java.util.List;
  * date: 2022/12/21
  */
 @Data
-public class SetPurchaseValid implements IValid {
+public class LossValid implements IValid {
     @Min(value = 1, message = "账号错误")
     private int id;
 
     @Min(value = 1, message = "公司账号错误")
     private int gid;
-
-    @Min(value = 1, message = "订单编号错误")
-    private int oid;
 
     @Min(value = 1, message = "仓库账号错误")
     private int sid;

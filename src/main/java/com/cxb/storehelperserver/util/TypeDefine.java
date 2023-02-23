@@ -6,26 +6,142 @@ package com.cxb.storehelperserver.util;
  * date: 2023/1/11
  */
 public class TypeDefine {
-    // 销售平台
-    public enum MarketType {
-        MARKET_PDD(1),      // 拼多多
-        MARKET_MEITUAN(2),  // 美团
-        MARKET_KUAILV(3);   // 快驴
+    // 订单类型
+    public enum OrderType {
+        PURCHASE_PURCHASE_ORDER(1),     // 采购进货订单
+        PURCHASE_RETURN_ORDER(2),       // 采购退货订单
+        STORAGE_PURCHASE_ORDER(3),      // 仓储入库订单
+        STORAGE_DISPATCH_ORDER(4),      // 仓储调度订单
+        STORAGE_LOSS_ORDER(5),          // 仓储损耗订单
+        STORAGE_RETURN_ORDER(6),        // 仓储退货订单
+        PRODUCT_PROCESS_ORDER(7),       // 生产入库订单
+        PRODUCT_COMPLETE_ORDER(8),      // 生产出库订单
+        PRODUCT_LOSS_ORDER(9),          // 生产损耗订单
+        AGREEMENT_SHIPPED_ORDER(10),    // 履约入库订单
+        AGREEMENT_RETURN_ORDER(11),     // 履约出库订单
+        CLOUD_PURCHASE_ORDER(12),       // 云仓入库订单
+        CLOUD_RETURN_ORDER(13),         // 云仓退货订单
+        CLOUD_SALE_ORDER(14),           // 云仓销售订单
+        CLOUD_LOSS_ORDER(15);           // 云仓损耗订单
 
         private int value = 0;
 
-        private MarketType(int v) {
+        private OrderType(int v) {
             this.value = v;
         }
 
-        public static MarketType valueOf(int v) {
+        public static OrderType valueOf(int v) {
             switch (v) {
                 case 1:
-                    return MARKET_PDD;
+                    return PURCHASE_PURCHASE_ORDER;
                 case 2:
-                    return MARKET_MEITUAN;
+                    return PURCHASE_RETURN_ORDER;
+                case 3:
+                    return STORAGE_PURCHASE_ORDER;
+                case 4:
+                    return STORAGE_DISPATCH_ORDER;
+                case 5:
+                    return STORAGE_LOSS_ORDER;
+                case 6:
+                    return STORAGE_RETURN_ORDER;
+                case 7:
+                    return PRODUCT_PROCESS_ORDER;
+                case 8:
+                    return PRODUCT_COMPLETE_ORDER;
+                case 9:
+                    return PRODUCT_LOSS_ORDER;
+                case 10:
+                    return AGREEMENT_SHIPPED_ORDER;
+                case 11:
+                    return AGREEMENT_RETURN_ORDER;
+                case 12:
+                    return CLOUD_PURCHASE_ORDER;
+                case 13:
+                    return CLOUD_RETURN_ORDER;
+                case 14:
+                    return CLOUD_SALE_ORDER;
             }
-            return MARKET_KUAILV;
+            return CLOUD_LOSS_ORDER;
+        }
+
+        public int getValue() {
+            return value;
+        }
+    }
+
+    // 财务记录类型
+    public enum FinanceAction {
+        FINANCE_PURCHASE_PAY(1),        // 采购进货
+        FINANCE_PURCHASE_FARE(2),       // 采购进货运费
+        FINANCE_PURCHASE_RET(3),        // 采购退货
+        FINANCE_PURCHASE_FARE2(4),      // 采购退货运费
+
+        FINANCE_STORAGE_MGR(10),        // 仓储管理费
+        FINANCE_STORAGE_FARE(11),       // 仓储调度运费
+        FINANCE_STORAGE_RET(12),        // 采购退货
+        FINANCE_STORAGE_FARE2(13),      // 采购退货运费
+
+        FINANCE_PRODUCT_WRAP(20),       // 包装费
+        FINANCE_PRODUCT_MAN(21),        // 人工费用
+        FINANCE_PRODUCT_OUT(22),        // 外厂费用
+
+        FINANCE_AGREEMENT_FARE(30),     // 履约发货物流
+        FINANCE_AGREEMENT_FARE2(31),    // 履约退款物流
+
+        FINANCE_CLOUD_RET(40),          // 云仓退货
+        FINANCE_CLOUD_FARE(41),         // 云仓退货运费
+
+        FINANCE_MARKET_SALE(50),        // 销售平台
+
+        FINANCE_GROUP_OTHER(60);        // 经营费用
+
+        private int value = 0;
+
+        private FinanceAction(int v) {
+            this.value = v;
+        }
+
+        public static FinanceAction valueOf(int v) {
+            switch (v) {
+                case 1:
+                    return FINANCE_PURCHASE_PAY;
+                case 2:
+                    return FINANCE_PURCHASE_FARE;
+                case 3:
+                    return FINANCE_PURCHASE_RET;
+                case 4:
+                    return FINANCE_PURCHASE_FARE2;
+
+                case 10:
+                    return FINANCE_STORAGE_MGR;
+                case 11:
+                    return FINANCE_STORAGE_FARE;
+                case 12:
+                    return FINANCE_STORAGE_RET;
+                case 13:
+                    return FINANCE_STORAGE_FARE2;
+
+                case 20:
+                    return FINANCE_PRODUCT_WRAP;
+                case 21:
+                    return FINANCE_PRODUCT_MAN;
+                case 22:
+                    return FINANCE_PRODUCT_OUT;
+
+                case 30:
+                    return FINANCE_AGREEMENT_FARE;
+                case 31:
+                    return FINANCE_AGREEMENT_FARE2;
+
+                case 40:
+                    return FINANCE_CLOUD_RET;
+                case 41:
+                    return FINANCE_CLOUD_FARE;
+
+                case 50:
+                    return FINANCE_MARKET_SALE;
+            }
+            return FINANCE_GROUP_OTHER;
         }
 
         public int getValue() {
@@ -63,57 +179,6 @@ public class TypeDefine {
         }
     }
 
-    // 订单类型
-    public enum OrderType {
-        PURCHASE_IN_ORDER(1),   // 采购进货订单
-        PURCHASE_OUT_ORDER(2),  // 采购退货订单
-        STORAGE_IN_ORDER(3),    // 进货入库订单
-        STORAGE_OUT_ORDER(4),   // 进货出库订单
-        PRODUCT_IN_ORDER(5),    // 生产入库订单
-        PRODUCT_OUT_ORDER(6),   // 生产出库订单
-        AGREEMENT_IN_ORDER(7),  // 履约入库订单
-        AGREEMENT_OUT_ORDER(8), // 履约出库订单
-        CLOUD_IN_ORDER(9),      // 云仓入库订单
-        CLOUD_OUT_ORDER(10),    // 云仓退货订单
-        LOSS_LOCAL_ORDER(11),   // 本地损耗订单
-        LOSS_CLOUD_ORDER(12),   // 云仓损耗订单
-        LOSS_PRODUCT_ORDER(13); // 生产损耗订单
-
-        private int value = 0;
-
-        private OrderType(int v) {
-            this.value = v;
-        }
-
-        public static OrderType valueOf(int v) {
-            switch (v) {
-                case 1:
-                    return PURCHASE_IN_ORDER;
-                case 2:
-                    return PURCHASE_OUT_ORDER;
-                case 3:
-                    return STORAGE_IN_ORDER;
-                case 4:
-                    return STORAGE_OUT_ORDER;
-                case 5:
-                    return PRODUCT_IN_ORDER;
-                case 6:
-                    return PRODUCT_OUT_ORDER;
-                case 7:
-                    return AGREEMENT_IN_ORDER;
-                case 8:
-                    return AGREEMENT_OUT_ORDER;
-                case 9:
-                    return LOSS_LOCAL_ORDER;
-            }
-            return LOSS_CLOUD_ORDER;
-        }
-
-        public int getValue() {
-            return value;
-        }
-    }
-
     // 报表周期类型
     public enum ReportCycleType {
         REPORT_DAILY(1),    // 每日报表
@@ -137,72 +202,6 @@ public class TypeDefine {
                     return REPORT_MONTH;
             }
             return REPORT_YEARLY;
-        }
-
-        public int getValue() {
-            return value;
-        }
-    }
-
-    // 财务记录类型
-    public enum FinanceAction {
-        FINANCE_PURCHASE_PAY(1),        // 采购进货
-        FINANCE_PURCHASE_FARE(2),       // 采购进货物流
-        FINANCE_PURCHASE_RET(3),        // 采购退款
-        FINANCE_PURCHASE_FARE2(4),      // 采购退款物流
-
-        FINANCE_STORAGE_LOCAL(10),      // 本地仓储
-        FINANCE_STORAGE_CLOUD(11),      // 云仓仓储
-
-        FINANCE_PRODUCT_MAN(20),        // 人工费用
-        FINANCE_PRODUCT_OUT(21),        // 外厂人工费用
-        FINANCE_PRODUCT_WRAP(22),       // 包装费
-
-        FINANCE_AGREEMENT_FARE(30),     // 履约发货物流
-        FINANCE_AGREEMENT_FARE2(31),    // 履约退款物流
-
-        FINANCE_MARKET_PAY(40),         // 销售平台打款
-
-        FINANCE_MANAGER_OTHER(50);      // 经营费用
-
-        private int value = 0;
-
-        private FinanceAction(int v) {
-            this.value = v;
-        }
-
-        public static FinanceAction valueOf(int v) {
-            switch (v) {
-                case 1:
-                    return FINANCE_PURCHASE_PAY;
-                case 2:
-                    return FINANCE_PURCHASE_FARE;
-                case 3:
-                    return FINANCE_PURCHASE_RET;
-                case 4:
-                    return FINANCE_PURCHASE_FARE2;
-
-                case 10:
-                    return FINANCE_STORAGE_LOCAL;
-                case 11:
-                    return FINANCE_STORAGE_CLOUD;
-
-                case 20:
-                    return FINANCE_PRODUCT_MAN;
-                case 21:
-                    return FINANCE_PRODUCT_OUT;
-                case 22:
-                    return FINANCE_PRODUCT_WRAP;
-
-                case 30:
-                    return FINANCE_AGREEMENT_FARE;
-                case 31:
-                    return FINANCE_AGREEMENT_FARE2;
-
-                case 40:
-                    return FINANCE_MARKET_PAY;
-            }
-            return FINANCE_MANAGER_OTHER;
         }
 
         public int getValue() {

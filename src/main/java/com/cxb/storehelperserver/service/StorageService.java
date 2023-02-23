@@ -16,7 +16,6 @@ import java.math.BigDecimal;
 import java.util.*;
 
 import static com.cxb.storehelperserver.util.Permission.*;
-import static com.cxb.storehelperserver.util.TypeDefine.OrderType.*;
 
 /**
  * desc: 仓库订单业务
@@ -67,16 +66,16 @@ public class StorageService {
      * desc: 原料入库
      */
     public RestResult purchase(int id, TStorageOrder order, List<Integer> types, List<Integer> commoditys,
-                               List<Integer> values, List<BigDecimal> prices, List<Integer> attrs) {
+                               List<Integer> values, List<Integer> attrs) {
         val reviews = new ArrayList<Integer>();
-        RestResult ret = check(id, order, mp_storage_in_apply, mp_storage_in_review, reviews);
+        RestResult ret = check(id, order, mp_storage_purchase_apply, mp_storage_purchase_review, reviews);
         if (null != ret) {
             return ret;
         }
 
         // 生成入库单
         val comms = new ArrayList<TStorageCommodity>();
-        ret = createStorageComms(order, types, commoditys, values, prices, comms);
+        ret = createStorageComms(order, types, commoditys, values, comms);
         if (null != ret) {
             return ret;
         }
@@ -268,7 +267,7 @@ public class StorageService {
 
         // 生成入库单
         val comms = new ArrayList<TStorageCommodity>();
-        ret = createStorageComms(order, types, commoditys, values, prices, comms);
+        ret = createReturnComms(order, types, commoditys, values, prices, comms);
         if (null != ret) {
             return ret;
         }
@@ -322,7 +321,7 @@ public class StorageService {
 
         // 生成入库单
         val comms = new ArrayList<TStorageCommodity>();
-        ret = createStorageComms(order, types, commoditys, values, prices, comms);
+        ret = createReturnComms(order, types, commoditys, values, prices, comms);
         if (null != ret) {
             return ret;
         }
@@ -452,7 +451,45 @@ public class StorageService {
         return reviewService.checkPerm(id, gid, applyPerm, reviewPerm, reviews);
     }
 
-    private RestResult createStorageComms(List<Integer> types, List<Integer> commoditys,
+    private RestResult createStorageComms(TStorageOrder order, List<Integer> types, List<Integer> commoditys,
+                                          List<Integer> values, List<TStorageCommodity> list) {
+        // 生成入库单
+        int size = commoditys.size();
+        if (size != types.size() || size != values.size() || size != prices.size()) {
+            return RestResult.fail("商品信息出错");
+        }
+        for (int i = 0; i < size; i++) {
+            // 获取商品单位信息
+            TypeDefine.CommodityType type = TypeDefine.CommodityType.valueOf(types.get(i));
+            int cid = commoditys.get(i);
+            switch (type) {
+                case ORIGINAL:
+                    TOriginal original = originalRepository.find(cid);
+                    if (null == original) {
+                        return RestResult.fail("未查询到原料：" + cid);
+                    }
+                    break;
+                case STANDARD:
+                    TStandard standard = standardRepository.find(cid);
+                    if (null == standard) {
+                        return RestResult.fail("未查询到标品：" + cid);
+                    }
+                    break;
+                default:
+                    return RestResult.fail("商品类型异常：" + type);
+            }
+
+            // 生成数据
+            TStorageCommodity c = new TStorageCommodity();
+            c.setCtype(type.getValue());
+            c.setCid(cid);
+            c.setValue(values.get(i));
+            list.add(c);
+        }
+        return null;
+    }
+
+    private RestResult createReturnComms(List<Integer> types, List<Integer> commoditys,
                                           List<Integer> values, List<BigDecimal> prices, List<TStorageCommodity> list) {
         // 生成入库单
         int size = commoditys.size();

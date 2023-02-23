@@ -71,12 +71,10 @@ public class PurchaseReturnRepository extends BaseRepository<TPurchaseReturn> {
         return false;
     }
 
-    public boolean delete(int id) {
-        TPurchaseReturn purchaseReturn = purchaseReturnMapper.selectByPrimaryKey(id);
-        if (null == purchaseReturn) {
-            return false;
-        }
-        delCache(purchaseReturn.getOid());
-        return purchaseReturnMapper.deleteByPrimaryKey(id) > 0;
+    public boolean delete(int oid, int pid) {
+        delCache(oid);
+        TPurchaseReturnExample example = new TPurchaseReturnExample();
+        example.or().andOidEqualTo(oid).andPidEqualTo(pid);
+        return purchaseReturnMapper.deleteByExample(example) > 0;
     }
 }

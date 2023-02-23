@@ -9,27 +9,37 @@ public class Permission {
     // 小程序
     static public final int mp_report = 10;
 
-    static public final int mp_purchase_in_apply = 11;
-    static public final int mp_purchase_out_apply = 12;
-    static public final int mp_storage_in_apply = 13;
-    static public final int mp_storage_out_apply = 14;
-    static public final int mp_product_out_apply = 15;
-    static public final int mp_product_in_apply = 16;
-    static public final int mp_agreement_out_apply = 17;
-    static public final int mp_agreement_in_apply = 18;
-    static public final int mp_loss_local_apply = 19;
-    static public final int mp_loss_cloud_apply = 20;
+    static public final int mp_purchase_purchase_apply = 11;
+    static public final int mp_purchase_return_apply = 12;
+    static public final int mp_storage_purchase_apply = 13;
+    static public final int mp_storage_dispatch_apply = 14;
+    static public final int mp_storage_loss_apply = 15;
+    static public final int mp_storage_return_apply = 16;
+    static public final int mp_product_process_apply = 17;
+    static public final int mp_product_complete_apply = 18;
+    static public final int mp_product_loss_apply = 19;
+    static public final int mp_agreement_shipped_apply = 20;
+    static public final int mp_agreement_return_apply = 21;
+    static public final int mp_cloud_purchase_apply = 22;
+    static public final int mp_cloud_return_apply = 23;
+    static public final int mp_cloud_sale_apply = 24;
+    static public final int mp_cloud_loss_apply = 25;
 
-    static public final int mp_purchase_in_review = 21;
-    static public final int mp_purchase_out_review = 22;
-    static public final int mp_storage_in_review = 23;
-    static public final int mp_storage_out_review = 24;
-    static public final int mp_product_out_review = 25;
-    static public final int mp_product_in_review = 26;
-    static public final int mp_agreement_out_review = 27;
-    static public final int mp_agreement_in_review = 28;
-    static public final int mp_loss_local_review = 29;
-    static public final int mp_loss_cloud_review = 30;
+    static public final int mp_purchase_purchase_review = 41;
+    static public final int mp_purchase_return_review = 42;
+    static public final int mp_storage_purchase_review = 43;
+    static public final int mp_storage_dispatch_review = 44;
+    static public final int mp_storage_loss_review = 45;
+    static public final int mp_storage_return_review = 46;
+    static public final int mp_product_process_review = 47;
+    static public final int mp_product_complete_review = 48;
+    static public final int mp_product_loss_review = 49;
+    static public final int mp_agreement_shipped_review = 50;
+    static public final int mp_agreement_return_review = 51;
+    static public final int mp_cloud_purchase_review = 52;
+    static public final int mp_cloud_return_review = 53;
+    static public final int mp_cloud_sale_review = 54;
+    static public final int mp_cloud_loss_review = 55;
 
     // 管理后台
     static public final int dashboard_report = 100;

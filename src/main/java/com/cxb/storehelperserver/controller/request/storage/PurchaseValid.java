@@ -43,8 +43,5 @@ public class PurchaseValid implements IValid {
     @Size(min = 1, message = "商品数量不能为空")
     private List<Integer> values;
 
-    @Size(min = 1, message = "商品价格不能为空")
-    private List<BigDecimal> prices;
-
     private List<Integer> attrs;
 }

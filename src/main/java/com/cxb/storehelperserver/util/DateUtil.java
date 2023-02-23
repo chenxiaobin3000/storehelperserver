@@ -31,7 +31,7 @@ public class DateUtil {
         return simpleDateFormat;
     }
 
-    public String createBatch(String pre) {
+    public String createBatch(int pre) {
         return pre + batchDateFormat.format(new Date());
     }
 

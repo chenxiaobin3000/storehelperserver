@@ -1,4 +1,4 @@
-package com.cxb.storehelperserver.controller.request.storage;
+package com.cxb.storehelperserver.controller.request.cloud;
 
 import com.cxb.storehelperserver.controller.request.IValid;
 import lombok.Data;
@@ -16,7 +16,7 @@ import java.util.List;
  * date: 2022/12/21
  */
 @Data
-public class SetPurchaseValid implements IValid {
+public class SetReturnValid implements IValid {
     @Min(value = 1, message = "账号错误")
     private int id;
 
@@ -28,9 +28,6 @@ public class SetPurchaseValid implements IValid {
 
     @Min(value = 1, message = "仓库账号错误")
     private int sid;
-
-    @Min(value = 1, message = "采购单号错误")
-    private int pid;
 
     @NotEmpty(message = "请输入订单制单日期")
     @Length(min = 19, max = 19, message = "订单制单日期格式错误")
@@ -44,6 +41,9 @@ public class SetPurchaseValid implements IValid {
 
     @Size(min = 1, message = "商品数量不能为空")
     private List<Integer> values;
+
+    @Size(min = 1, message = "商品价格不能为空")
+    private List<BigDecimal> prices;
 
     private List<Integer> attrs;
 }
