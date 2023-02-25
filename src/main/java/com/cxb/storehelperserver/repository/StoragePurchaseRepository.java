@@ -52,12 +52,12 @@ public class StoragePurchaseRepository extends BaseRepository<TStoragePurchase> 
         return null != storagePurchaseMapper.selectOneByExample(example);
     }
 
-    public boolean insert(int pid, int sid) {
+    public boolean insert(int sid, int pid) {
         TStoragePurchase row = new TStoragePurchase();
-        row.setPid(pid);
         row.setSid(sid);
+        row.setPid(pid);
         if (storagePurchaseMapper.insert(row) > 0) {
-            setCache(row.getSid(), row);
+            setCache(sid, row);
             return true;
         }
         return false;
@@ -71,12 +71,10 @@ public class StoragePurchaseRepository extends BaseRepository<TStoragePurchase> 
         return false;
     }
 
-    public boolean delete(int id) {
-        TStoragePurchase storagePurchase = storagePurchaseMapper.selectByPrimaryKey(id);
-        if (null == storagePurchase) {
-            return false;
-        }
-        delCache(storagePurchase.getSid());
-        return storagePurchaseMapper.deleteByPrimaryKey(id) > 0;
+    public boolean delete(int sid, int pid) {
+        delCache(sid);
+        TStoragePurchaseExample example = new TStoragePurchaseExample();
+        example.or().andSidEqualTo(sid).andPidEqualTo(pid);
+        return storagePurchaseMapper.deleteByExample(example) > 0;
     }
 }

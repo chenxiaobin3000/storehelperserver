@@ -5,13 +5,15 @@ import com.cxb.storehelperserver.model.TStock;
 import com.cxb.storehelperserver.model.TStockExample;
 import com.cxb.storehelperserver.repository.mapper.MyStockMapper;
 import com.cxb.storehelperserver.repository.model.MyStockCommodity;
-import com.cxb.storehelperserver.repository.model.MyStockReport;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
+
+import static com.cxb.storehelperserver.util.TypeDefine.CommodityType;
+import static com.cxb.storehelperserver.util.TypeDefine.CommodityType.*;
 
 /**
  * desc: 库存仓库
@@ -47,13 +49,13 @@ public class StockRepository extends BaseRepository<TStock> {
         return stock;
     }
 
-    public List<MyStockReport> findReport(int gid, int sid) {
-        return myStockMapper.selectReport(gid, sid);
-    }
-
-    public int total(int gid, int sid, String search) {
+    public int total(int gid, int sid, CommodityType type, String search) {
         if (null != search) {
-            return myStockMapper.count(gid, sid, "%" + search + "%");
+            switch (type) {
+                case COMMODITY:
+                    return myStockMapper.count_commodity(gid, sid, "%" + search + "%");
+            }
+            return 0;
         } else {
             int total = getTotalCache(joinKey(gid, sid));
             if (0 != total) {
@@ -67,12 +69,16 @@ public class StockRepository extends BaseRepository<TStock> {
         }
     }
 
-    public List<MyStockCommodity> pagination(int gid, int sid, int page, int limit, Date date, String search) {
+    public List<MyStockCommodity> pagination(int gid, int sid, int page, int limit, CommodityType type, Date date, String search) {
+        String key = null;
         if (null != search) {
-            return myStockMapper.pagination((page - 1) * limit, limit, gid, sid, "%" + search + "%");
-        } else {
-            return myStockMapper.pagination((page - 1) * limit, limit, gid, sid, null);
+            key = "%" + search + "%";
         }
+        switch (type) {
+            case COMMODITY:
+                return myStockMapper.pagination_commodity((page - 1) * limit, limit, gid, sid, key);
+        }
+        return null;
     }
 
     public boolean insert(TStock row) {

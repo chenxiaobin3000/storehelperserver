@@ -46,7 +46,7 @@ public class StorageFareRepository extends BaseRepository<List> {
         row.setOid(oid);
         row.setFare(fare);
         if (storageFareMapper.insert(row) > 0) {
-            delCache(row.getOid());
+            delCache(oid);
             return true;
         }
         return false;

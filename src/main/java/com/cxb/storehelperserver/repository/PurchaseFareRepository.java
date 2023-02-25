@@ -46,7 +46,7 @@ public class PurchaseFareRepository extends BaseRepository<List> {
         row.setOid(oid);
         row.setFare(fare);
         if (purchaseFareMapper.insert(row) > 0) {
-            delCache(row.getOid());
+            delCache(oid);
             return true;
         }
         return false;

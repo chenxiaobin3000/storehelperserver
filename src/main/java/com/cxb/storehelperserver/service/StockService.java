@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -20,6 +21,8 @@ import java.util.Map;
 
 import static com.cxb.storehelperserver.util.Permission.admin_grouplist;
 import static com.cxb.storehelperserver.util.TypeDefine.CommodityType;
+import static com.cxb.storehelperserver.util.TypeDefine.CommodityType.*;
+import static com.cxb.storehelperserver.util.TypeDefine.OrderType;
 import static com.cxb.storehelperserver.util.TypeDefine.ReportCycleType;
 import static com.cxb.storehelperserver.util.TypeDefine.ReportCycleType.*;
 
@@ -36,31 +39,22 @@ public class StockService {
     private CheckService checkService;
 
     @Resource
+    private StockRepository stockRepository;
+
+    @Resource
+    private StockDetailRepository stockDetailRepository;
+
+    @Resource
     private StockDayRepository stockDayRepository;
 
     @Resource
-    private StockHalfgoodDayRepository stockHalfgoodDayRepository;
-
-    @Resource
-    private StockOriginalDayRepository stockOriginalDayRepository;
-
-    @Resource
-    private StockStandardDayRepository stockStandardDayRepository;
-
-    @Resource
-    private StockDestroyDayRepository stockDestroyDayRepository;
-
-    @Resource
-    private AgreementCommodityRepository agreementCommodityRepository;
-
-    @Resource
-    private ProductCommodityRepository productCommodityRepository;
+    private StockWeekRepository stockWeekRepository;
 
     @Resource
     private StorageCommodityRepository storageCommodityRepository;
 
     @Resource
-    private UserOrderCompleteRepository userOrderCompleteRepository;
+    private PurchaseCommodityRepository purchaseCommodityRepository;
 
     @Resource
     private UserGroupRepository userGroupRepository;
@@ -78,6 +72,34 @@ public class StockService {
     private int stockspan;
 
     private static final Object lock = new Object();
+
+    public boolean addStock(int uid, boolean add, int sid, OrderType otype, int oid) {
+        switch (otype) {
+            case STORAGE_PURCHASE_ORDER:
+                val commodities = storageCommodityRepository.find(oid);
+                for (TStorageCommodity c : commodities) {
+                    val pc = purchaseCommodityRepository.findOne(oid, c.getCtype(), c.getCid());
+                    if (null == pc) {
+                        return false;
+                    }
+                    if (!addStockCommodity(uid, add, CommodityType.valueOf(c.getCtype()), c.getCid(), c.getValue(), pc.getPrice())) {
+                        return false;
+                    }
+                }
+        }
+        return true;
+    }
+
+    private boolean addStockCommodity(int uid, boolean add, int sid, CommodityType ctype, int cid, int value, BigDecimal price) {
+        switch (ctype) {
+            case COMMODITY:
+                // TODO 计算平均价
+                stockRepository.find(sid, cid);
+                break;
+            case HALFGOOD:
+                break;
+        }
+    }
 
     public RestResult getStockDay(int id, int sid, Date date, int page, int limit, String search) {
         RestResult ret = check(id, sid);

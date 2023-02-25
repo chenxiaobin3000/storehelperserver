@@ -57,7 +57,7 @@ public class PurchaseReturnRepository extends BaseRepository<TPurchaseReturn> {
         row.setOid(oid);
         row.setPid(pid);
         if (purchaseReturnMapper.insert(row) > 0) {
-            setCache(row.getOid(), row);
+            setCache(oid, row);
             return true;
         }
         return false;

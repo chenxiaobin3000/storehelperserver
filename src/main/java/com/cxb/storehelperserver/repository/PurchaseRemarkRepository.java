@@ -45,7 +45,7 @@ public class PurchaseRemarkRepository extends BaseRepository<TPurchaseRemark> {
         row.setOid(oid);
         row.setRemark(remark);
         if (purchaseRemarkMapper.insert(row) > 0) {
-            setCache(row.getOid(), row);
+            setCache(oid, row);
             return true;
         }
         return false;

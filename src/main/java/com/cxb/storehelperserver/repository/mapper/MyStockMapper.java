@@ -22,7 +22,16 @@ public interface MyStockMapper {
             "<if test='0 == gid'>t1.sid = #{sid}</if>",
             "<if test='null != search'>and t2.name like #{search}</if>",
             "</script>"})
-    int count(int gid, int sid, String search);
+    int count_commodity(int gid, int sid, String search);
+
+    @Select({"<script>",
+            "select count(t1.id) from t_stock t1",
+            "left join t_halfgood t2 on t1.cid = t2.id",
+            "where <if test='0 != gid'>t1.gid = #{gid}</if>",
+            "<if test='0 == gid'>t1.sid = #{sid}</if>",
+            "<if test='null != search'>and t2.name like #{search}</if>",
+            "</script>"})
+    int count_halfgood(int gid, int sid, String search);
 
     @Select({"<script>",
             "select t1.id, t1.gid, t1.sid, t1.unit, t1.value, t1.price,",
@@ -33,7 +42,7 @@ public interface MyStockMapper {
             "<if test='null != search'>and t2.name like #{search}</if>",
             "limit #{offset}, #{limit}",
             "</script>"})
-    List<MyStockCommodity> pagination(int offset, int limit, int gid, int sid, String search);
+    List<MyStockCommodity> pagination_commodity(int offset, int limit, int gid, int sid, String search);
 
     @Select({"<script>",
             "select sid as id, sum(value) as total from t_stock",

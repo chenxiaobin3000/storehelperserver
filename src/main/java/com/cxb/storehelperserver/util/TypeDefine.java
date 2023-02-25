@@ -10,19 +10,20 @@ public class TypeDefine {
     public enum OrderType {
         PURCHASE_PURCHASE_ORDER(1),     // 采购进货订单
         PURCHASE_RETURN_ORDER(2),       // 采购退货订单
-        STORAGE_PURCHASE_ORDER(3),      // 仓储入库订单
-        STORAGE_DISPATCH_ORDER(4),      // 仓储调度订单
-        STORAGE_LOSS_ORDER(5),          // 仓储损耗订单
-        STORAGE_RETURN_ORDER(6),        // 仓储退货订单
-        PRODUCT_PROCESS_ORDER(7),       // 生产入库订单
-        PRODUCT_COMPLETE_ORDER(8),      // 生产出库订单
-        PRODUCT_LOSS_ORDER(9),          // 生产损耗订单
-        AGREEMENT_SHIPPED_ORDER(10),    // 履约入库订单
-        AGREEMENT_RETURN_ORDER(11),     // 履约出库订单
-        CLOUD_PURCHASE_ORDER(12),       // 云仓入库订单
-        CLOUD_RETURN_ORDER(13),         // 云仓退货订单
-        CLOUD_SALE_ORDER(14),           // 云仓销售订单
-        CLOUD_LOSS_ORDER(15);           // 云仓损耗订单
+        STORAGE_PURCHASE_ORDER(3),      // 仓储采购入库订单
+        STORAGE_DISPATCH_ORDER(4),      // 仓储调度出库订单
+        STORAGE_PURCHASE2_ORDER(5),     // 仓储调度入库订单
+        STORAGE_LOSS_ORDER(6),          // 仓储损耗订单
+        STORAGE_RETURN_ORDER(7),        // 仓储退货订单
+        PRODUCT_PROCESS_ORDER(8),       // 生产入库订单
+        PRODUCT_COMPLETE_ORDER(9),      // 生产出库订单
+        PRODUCT_LOSS_ORDER(10),          // 生产损耗订单
+        AGREEMENT_SHIPPED_ORDER(11),    // 履约入库订单
+        AGREEMENT_RETURN_ORDER(12),     // 履约出库订单
+        CLOUD_PURCHASE_ORDER(13),       // 云仓入库订单
+        CLOUD_RETURN_ORDER(14),         // 云仓退货订单
+        CLOUD_SALE_ORDER(15),           // 云仓销售订单
+        CLOUD_LOSS_ORDER(16);           // 云仓损耗订单
 
         private int value = 0;
 
@@ -41,24 +42,26 @@ public class TypeDefine {
                 case 4:
                     return STORAGE_DISPATCH_ORDER;
                 case 5:
-                    return STORAGE_LOSS_ORDER;
+                    return STORAGE_PURCHASE2_ORDER;
                 case 6:
-                    return STORAGE_RETURN_ORDER;
+                    return STORAGE_LOSS_ORDER;
                 case 7:
-                    return PRODUCT_PROCESS_ORDER;
+                    return STORAGE_RETURN_ORDER;
                 case 8:
-                    return PRODUCT_COMPLETE_ORDER;
+                    return PRODUCT_PROCESS_ORDER;
                 case 9:
-                    return PRODUCT_LOSS_ORDER;
+                    return PRODUCT_COMPLETE_ORDER;
                 case 10:
-                    return AGREEMENT_SHIPPED_ORDER;
+                    return PRODUCT_LOSS_ORDER;
                 case 11:
-                    return AGREEMENT_RETURN_ORDER;
+                    return AGREEMENT_SHIPPED_ORDER;
                 case 12:
-                    return CLOUD_PURCHASE_ORDER;
+                    return AGREEMENT_RETURN_ORDER;
                 case 13:
-                    return CLOUD_RETURN_ORDER;
+                    return CLOUD_PURCHASE_ORDER;
                 case 14:
+                    return CLOUD_RETURN_ORDER;
+                case 15:
                     return CLOUD_SALE_ORDER;
             }
             return CLOUD_LOSS_ORDER;
