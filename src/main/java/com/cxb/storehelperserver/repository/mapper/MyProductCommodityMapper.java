@@ -17,16 +17,8 @@ public interface MyProductCommodityMapper {
     @Select({"<script>",
             "select t1.id, t1.oid, t1.cid, t1.ctype, t1.unit, t1.value, t1.price, t2.otype as io",
             "from t_product_commodity t1 left join t_product_order t2 on t1.oid = t2.id",
-            "where t2.gid = #{gid} and t2.apply_time <![CDATA[ >= ]]> #{start}",
-            "and t2.apply_time <![CDATA[ < ]]> #{end} and t2.review > 0",
+            "where <if test='0 != gid'>t2.gid = #{gid}</if><if test='0 == gid'>t2.sid = #{sid}</if>",
+            "and t2.apply_time <![CDATA[ >= ]]> #{start} and t2.apply_time <![CDATA[ < ]]> #{end} and t2.review > 0",
             "</script>"})
-    List<MyOrderCommodity> selectByGid(int gid, Date start, Date end);
-
-    @Select({"<script>",
-            "select t1.id, t1.oid, t1.cid, t1.ctype, t1.unit, t1.value, t1.price, t2.otype as io",
-            "from t_product_commodity t1 left join t_product_order t2 on t1.oid = t2.id",
-            "where t2.sid = #{sid} and t2.apply_time <![CDATA[ >= ]]> #{start}",
-            "and t2.apply_time <![CDATA[ < ]]> #{end} and t2.review > 0",
-            "</script>"})
-    List<MyOrderCommodity> selectBySid(int sid, Date start, Date end);
+    List<MyOrderCommodity> pagination(int gid, Date start, Date end);
 }

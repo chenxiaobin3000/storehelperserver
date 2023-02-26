@@ -34,7 +34,7 @@ public class ReportService {
     private CheckService checkService;
 
     @Resource
-    private StockService stockService;
+    private StorageStockService storageStockService;
 
     @Resource
     private MarketCommodityDetailRepository marketCommodityDetailRepository;
@@ -56,18 +56,6 @@ public class ReportService {
 
     @Resource
     private StockDayRepository stockDayRepository;
-
-    @Resource
-    private StockHalfgoodDayRepository stockHalfgoodDayRepository;
-
-    @Resource
-    private StockOriginalDayRepository stockOriginalDayRepository;
-
-    @Resource
-    private StockStandardDayRepository stockStandardDayRepository;
-
-    @Resource
-    private StockDestroyDayRepository stockDestroyDayRepository;
 
     @Resource
     private StorageRepository storageRepository;
@@ -123,35 +111,35 @@ public class ReportService {
 
         // 库存
         val cdata = new HashMap<Integer, Integer>();
-        val commodities = stockService.getAllStockDay(gid, 0, today, REPORT_DAILY);
+        val commodities = storageStockService.getAllStockDay(gid, 0, today, REPORT_DAILY);
         if (null != commodities && !commodities.isEmpty()) {
             for (MyStockCommodity c : commodities) {
                 cdata.merge(c.getSid(), c.getValue(), Integer::sum);
             }
         }
         val hdata = new HashMap<Integer, Integer>();
-        val halfgoods = stockService.getAllStockHalfgood(gid, 0, today, REPORT_DAILY);
+        val halfgoods = storageStockService.getAllStockHalfgood(gid, 0, today, REPORT_DAILY);
         if (null != halfgoods && !halfgoods.isEmpty()) {
             for (MyStockHalfgood c : halfgoods) {
                 hdata.merge(c.getSid(), c.getValue(), Integer::sum);
             }
         }
         val odata = new HashMap<Integer, Integer>();
-        val originals = stockService.getAllStockOriginal(gid, 0, today, REPORT_DAILY);
+        val originals = storageStockService.getAllStockOriginal(gid, 0, today, REPORT_DAILY);
         if (null != originals && !originals.isEmpty()) {
             for (MyStockOriginal c : originals) {
                 odata.merge(c.getSid(), c.getValue(), Integer::sum);
             }
         }
         val sdata = new HashMap<Integer, Integer>();
-        val standards = stockService.getAllStockStandard(gid, 0, today, REPORT_DAILY);
+        val standards = storageStockService.getAllStockStandard(gid, 0, today, REPORT_DAILY);
         if (null != standards && !standards.isEmpty()) {
             for (MyStockStandard c : standards) {
                 sdata.merge(c.getSid(), c.getValue(), Integer::sum);
             }
         }
         val ddata = new HashMap<Integer, Integer>();
-        val destroys = stockService.getAllStockDestroy(gid, 0, today, REPORT_DAILY);
+        val destroys = storageStockService.getAllStockDestroy(gid, 0, today, REPORT_DAILY);
         if (null != destroys && !destroys.isEmpty()) {
             for (MyStockDestroy c : destroys) {
                 ddata.merge(c.getSid(), c.getValue(), Integer::sum);

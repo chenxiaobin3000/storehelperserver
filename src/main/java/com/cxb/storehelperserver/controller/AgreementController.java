@@ -5,7 +5,6 @@ import com.cxb.storehelperserver.model.TAgreementOrder;
 import com.cxb.storehelperserver.service.AgreementService;
 import com.cxb.storehelperserver.util.DateUtil;
 import com.cxb.storehelperserver.util.RestResult;
-import com.cxb.storehelperserver.util.TypeDefine;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +15,9 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+
+import static com.cxb.storehelperserver.util.TypeDefine.OrderType.AGREEMENT_RETURN_ORDER;
+import static com.cxb.storehelperserver.util.TypeDefine.OrderType.AGREEMENT_SHIPPED_ORDER;
 
 /**
  * desc: 履约接口
@@ -37,16 +39,15 @@ public class AgreementController {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
         TAgreementOrder order = new TAgreementOrder();
         order.setGid(req.getGid());
-        order.setBatch(req.getBatch());
         order.setSid(req.getSid());
-        order.setOtype(TypeDefine.OrderInOutType.OUT_ORDER.getValue());
+        order.setOtype(AGREEMENT_SHIPPED_ORDER.getValue());
         order.setApply(req.getId());
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return agreementService.shipped(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
+        return agreementService.shipped(req.getId(), order, req.getFare(), req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
     }
 
     @PostMapping("/setShipped")
@@ -54,17 +55,13 @@ public class AgreementController {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
         TAgreementOrder order = new TAgreementOrder();
         order.setId(req.getOid());
-        order.setGid(req.getGid());
-        order.setBatch(req.getBatch());
         order.setSid(req.getSid());
-        order.setOtype(TypeDefine.OrderInOutType.OUT_ORDER.getValue());
-        order.setApply(req.getId());
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return agreementService.setShipped(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
+        return agreementService.setShipped(req.getId(), order, req.getFare(), req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
     }
 
     @PostMapping("/delShipped")
@@ -87,16 +84,16 @@ public class AgreementController {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
         TAgreementOrder order = new TAgreementOrder();
         order.setGid(req.getGid());
-        order.setBatch(req.getBatch());
         order.setSid(req.getSid());
-        order.setOtype(TypeDefine.OrderInOutType.IN_ORDER.getValue());
+        order.setOtype(AGREEMENT_RETURN_ORDER.getValue());
         order.setApply(req.getId());
+        order.setRid(req.getRid());
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return agreementService.returnc(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
+        return agreementService.returnc(req.getId(), order, req.getFare(), req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
     }
 
     @PostMapping("/setReturn")
@@ -104,17 +101,13 @@ public class AgreementController {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
         TAgreementOrder order = new TAgreementOrder();
         order.setId(req.getOid());
-        order.setGid(req.getGid());
-        order.setBatch(req.getBatch());
         order.setSid(req.getSid());
-        order.setOtype(TypeDefine.OrderInOutType.IN_ORDER.getValue());
-        order.setApply(req.getId());
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return agreementService.setReturn(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
+        return agreementService.setReturn(req.getId(), order, req.getFare(), req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
     }
 
     @PostMapping("/delReturn")

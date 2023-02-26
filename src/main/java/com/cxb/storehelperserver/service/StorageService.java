@@ -40,7 +40,7 @@ public class StorageService {
     private FinanceService financeService;
 
     @Resource
-    private StockService stockService;
+    private StorageStockService storageStockService;
 
     @Resource
     private StorageOrderRepository storageOrderRepository;
@@ -150,7 +150,7 @@ public class StorageService {
         if (!storageOrderRepository.update(order)) {
             return RestResult.fail("生成入库订单失败");
         }
-        String msg = storageOrderService.update(order.getId(), comms, attrs);
+        String msg = storageOrderService.update(oid, comms, attrs);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -215,8 +215,9 @@ public class StorageService {
         }
 
         // 增加库存
-        if (stockService.addStock(id, true, order.getSid(), TypeDefine.OrderType.valueOf(order.getOtype()), oid)) {
-            return RestResult.fail("生成库存信息失败");
+        String msg = storageStockService.addStock(id, true, order.getSid(), TypeDefine.OrderType.valueOf(order.getOtype()), oid, order.getOid());
+        if (null != msg) {
+            return RestResult.fail(msg);
         }
         return reviewService.review(id, order.getGid(), order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
     }
@@ -254,8 +255,9 @@ public class StorageService {
         }
 
         // 减少库存
-        if (stockService.addStock(id, false, order.getSid(), TypeDefine.OrderType.valueOf(order.getOtype()), oid)) {
-            return RestResult.fail("撤销库存信息失败");
+        msg = storageStockService.addStock(id, false, order.getSid(), TypeDefine.OrderType.valueOf(order.getOtype()), oid, order.getOid());
+        if (null != msg) {
+            return RestResult.fail(msg);
         }
         return RestResult.ok();
     }
@@ -338,7 +340,7 @@ public class StorageService {
         if (!storageOrderRepository.update(order)) {
             return RestResult.fail("生成调度订单失败");
         }
-        String msg = storageOrderService.update(order.getId(), comms, attrs);
+        String msg = storageOrderService.update(oid, comms, attrs);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -409,8 +411,9 @@ public class StorageService {
         }
 
         // 增加库存
-        if (stockService.addStock(id, false, order.getSid(), TypeDefine.OrderType.valueOf(order.getOtype()), oid)) {
-            return RestResult.fail("生成库存信息失败");
+        String msg = storageStockService.addStock(id, false, order.getSid(), TypeDefine.OrderType.valueOf(order.getOtype()), oid, order.getOid());
+        if (null != msg) {
+            return RestResult.fail(msg);
         }
         // 财务记录
         val fares = storageFareRepository.find(oid);
@@ -451,8 +454,9 @@ public class StorageService {
         }
 
         // 减少库存
-        if (stockService.addStock(id, true, order.getSid(), TypeDefine.OrderType.valueOf(order.getOtype()), oid)) {
-            return RestResult.fail("撤销库存信息失败");
+        msg = storageStockService.addStock(id, true, order.getSid(), TypeDefine.OrderType.valueOf(order.getOtype()), oid, order.getOid());
+        if (null != msg) {
+            return RestResult.fail(msg);
         }
         // 财务记录
         val fares = storageFareRepository.find(oid);
@@ -543,7 +547,7 @@ public class StorageService {
         if (!storageOrderRepository.update(order)) {
             return RestResult.fail("生成入库订单失败");
         }
-        String msg = storageOrderService.update(order.getId(), comms, attrs);
+        String msg = storageOrderService.update(oid, comms, attrs);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -608,8 +612,9 @@ public class StorageService {
         }
 
         // 增加库存
-        if (stockService.addStock(id, true, order.getSid(), TypeDefine.OrderType.valueOf(order.getOtype()), oid)) {
-            return RestResult.fail("生成库存信息失败");
+        String msg = storageStockService.addStock(id, true, order.getSid(), TypeDefine.OrderType.valueOf(order.getOtype()), oid, order.getOid());
+        if (null != msg) {
+            return RestResult.fail(msg);
         }
         return reviewService.review(id, order.getGid(), order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
     }
@@ -647,8 +652,9 @@ public class StorageService {
         }
 
         // 减少库存
-        if (stockService.addStock(id, false, order.getSid(), TypeDefine.OrderType.valueOf(order.getOtype()), oid)) {
-            return RestResult.fail("撤销库存信息失败");
+        msg = storageStockService.addStock(id, false, order.getSid(), TypeDefine.OrderType.valueOf(order.getOtype()), oid, order.getOid());
+        if (null != msg) {
+            return RestResult.fail(msg);
         }
         return RestResult.ok();
     }
@@ -722,7 +728,7 @@ public class StorageService {
         if (!storageOrderRepository.update(order)) {
             return RestResult.fail("生成入库订单失败");
         }
-        String msg = storageOrderService.update(order.getId(), comms, attrs);
+        String msg = storageOrderService.update(oid, comms, attrs);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -783,8 +789,9 @@ public class StorageService {
         }
 
         // 增加库存
-        if (stockService.addStock(id, true, order.getSid(), TypeDefine.OrderType.valueOf(order.getOtype()), oid)) {
-            return RestResult.fail("生成库存信息失败");
+        String msg = storageStockService.addStock(id, true, order.getSid(), TypeDefine.OrderType.valueOf(order.getOtype()), oid, order.getOid());
+        if (null != msg) {
+            return RestResult.fail(msg);
         }
         return reviewService.review(id, order.getGid(), order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
     }
@@ -803,7 +810,7 @@ public class StorageService {
         }
 
         // 校验申请订单权限
-        if (!checkService.checkRolePermission(id, storage_purchase)) {
+        if (!checkService.checkRolePermission(id, storage_loss)) {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
@@ -818,8 +825,9 @@ public class StorageService {
         }
 
         // 减少库存
-        if (stockService.addStock(id, false, order.getSid(), TypeDefine.OrderType.valueOf(order.getOtype()), oid)) {
-            return RestResult.fail("撤销库存信息失败");
+        msg = storageStockService.addStock(id, false, order.getSid(), TypeDefine.OrderType.valueOf(order.getOtype()), oid, order.getOid());
+        if (null != msg) {
+            return RestResult.fail(msg);
         }
         return RestResult.ok();
     }
@@ -827,7 +835,7 @@ public class StorageService {
     /**
      * desc: 仓储退货
      */
-    public RestResult returnc(int id, TStorageOrder order, BigDecimal fare, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<Integer> attrs) {
+    public RestResult returnc(int id, TStorageOrder order, BigDecimal fare, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<BigDecimal> prices, List<Integer> attrs) {
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_storage_return_apply, mp_storage_return_review, reviews);
         if (null != ret) {
@@ -844,7 +852,7 @@ public class StorageService {
             return RestResult.fail("入库单未审核通过，不能进行退货");
         }
 
-        // 生成入库单
+        // 生成退货单
         val comms = new ArrayList<TStorageCommodity>();
         ret = createReturnComms(order, order.getOid(), types, commoditys, values, comms);
         if (null != ret) {
@@ -877,7 +885,7 @@ public class StorageService {
     /**
      * desc: 仓储退货修改
      */
-    public RestResult setReturn(int id, TStorageOrder order, BigDecimal fare, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<Integer> attrs) {
+    public RestResult setReturn(int id, TStorageOrder order, BigDecimal fare, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<BigDecimal> prices, List<Integer> attrs) {
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_storage_return_apply, mp_storage_return_review, reviews);
         if (null != ret) {

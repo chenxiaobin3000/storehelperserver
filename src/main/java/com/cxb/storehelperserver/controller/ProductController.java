@@ -5,7 +5,6 @@ import com.cxb.storehelperserver.model.TProductOrder;
 import com.cxb.storehelperserver.service.ProductService;
 import com.cxb.storehelperserver.util.DateUtil;
 import com.cxb.storehelperserver.util.RestResult;
-import com.cxb.storehelperserver.util.TypeDefine;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+
+import static com.cxb.storehelperserver.util.TypeDefine.OrderType.*;
 
 /**
  * desc: 生产接口
@@ -37,16 +38,15 @@ public class ProductController {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
         TProductOrder order = new TProductOrder();
         order.setGid(req.getGid());
-        order.setBatch(req.getBatch());
         order.setSid(req.getSid());
-        order.setOtype(TypeDefine.OrderInOutType.OUT_ORDER.getValue());
+        order.setOtype(PRODUCT_PROCESS_ORDER.getValue());
         order.setApply(req.getId());
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return productService.process(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
+        return productService.process(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/setProcess")
@@ -55,16 +55,13 @@ public class ProductController {
         TProductOrder order = new TProductOrder();
         order.setId(req.getOid());
         order.setGid(req.getGid());
-        order.setBatch(req.getBatch());
         order.setSid(req.getSid());
-        order.setOtype(TypeDefine.OrderInOutType.OUT_ORDER.getValue());
-        order.setApply(req.getId());
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return productService.setProcess(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
+        return productService.setProcess(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/delProcess")
@@ -87,16 +84,16 @@ public class ProductController {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
         TProductOrder order = new TProductOrder();
         order.setGid(req.getGid());
-        order.setBatch(req.getBatch());
         order.setSid(req.getSid());
-        order.setOtype(TypeDefine.OrderInOutType.IN_ORDER.getValue());
+        order.setOtype(PRODUCT_COMPLETE_ORDER.getValue());
         order.setApply(req.getId());
+        // TODO 关联生产单
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return productService.complete(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
+        return productService.complete(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/setComplete")
@@ -105,16 +102,13 @@ public class ProductController {
         TProductOrder order = new TProductOrder();
         order.setId(req.getOid());
         order.setGid(req.getGid());
-        order.setBatch(req.getBatch());
         order.setSid(req.getSid());
-        order.setOtype(TypeDefine.OrderInOutType.IN_ORDER.getValue());
-        order.setApply(req.getId());
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return productService.setComplete(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
+        return productService.setComplete(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/delComplete")
@@ -130,5 +124,51 @@ public class ProductController {
     @PostMapping("/revokeComplete")
     public RestResult revokeComplete(@Validated @RequestBody RevokeCompleteValid req) {
         return productService.revokeComplete(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/loss")
+    public RestResult loss(@Validated @RequestBody LossValid req) {
+        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
+        TProductOrder order = new TProductOrder();
+        order.setGid(req.getGid());
+        order.setSid(req.getSid());
+        order.setOtype(PRODUCT_LOSS_ORDER.getValue());
+        order.setApply(req.getId());
+        try {
+            order.setApplyTime(simpleDateFormat.parse(req.getDate()));
+        } catch (ParseException e) {
+            return RestResult.fail("订单制单日期转换失败");
+        }
+        return productService.loss(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
+    }
+
+    @PostMapping("/setLoss")
+    public RestResult setLoss(@Validated @RequestBody SetLossValid req) {
+        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
+        TProductOrder order = new TProductOrder();
+        order.setId(req.getOid());
+        order.setGid(req.getGid());
+        order.setSid(req.getSid());
+        try {
+            order.setApplyTime(simpleDateFormat.parse(req.getDate()));
+        } catch (ParseException e) {
+            return RestResult.fail("订单制单日期转换失败");
+        }
+        return productService.setLoss(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
+    }
+
+    @PostMapping("/delLoss")
+    public RestResult delLoss(@Validated @RequestBody DelLossValid req) {
+        return productService.delLoss(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/reviewLoss")
+    public RestResult reviewLoss(@Validated @RequestBody ReviewLossValid req) {
+        return productService.reviewLoss(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/revokeLoss")
+    public RestResult revokeLoss(@Validated @RequestBody RevokeLossValid req) {
+        return productService.revokeLoss(req.getId(), req.getOid());
     }
 }

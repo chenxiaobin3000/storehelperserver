@@ -6,6 +6,7 @@ import com.cxb.storehelperserver.model.TStorageCommodityExample;
 import com.cxb.storehelperserver.repository.mapper.MyStorageCommodityMapper;
 import com.cxb.storehelperserver.repository.model.MyOrderCommodity;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.annotation.AccessType;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
@@ -30,6 +31,22 @@ public class StorageCommodityRepository extends BaseRepository<List> {
         init("storageComm::");
     }
 
+    public TStorageCommodity findOne(int oid, int ctype, int cid) {
+        List<TStorageCommodity> storageCommoditys = getCache(oid, List.class);
+        if (null != storageCommoditys) {
+            for (TStorageCommodity c : storageCommoditys) {
+                if (c.getCtype() == ctype && c.getCid() == cid) {
+                    return c;
+                }
+            }
+        }
+
+        // 缓存没有就查询数据库
+        TStorageCommodityExample example = new TStorageCommodityExample();
+        example.or().andOidEqualTo(oid).andCtypeEqualTo(ctype).andCidEqualTo(cid);
+        return storageCommodityMapper.selectOneByExample(example);
+    }
+
     public List<TStorageCommodity> find(int oid) {
         List<TStorageCommodity> storageCommoditys = getCache(oid, List.class);
         if (null != storageCommoditys) {
@@ -46,12 +63,8 @@ public class StorageCommodityRepository extends BaseRepository<List> {
         return storageCommoditys;
     }
 
-    public List<MyOrderCommodity> findByGid(int gid, Date start, Date end) {
-        return myStorageCommodityMapper.selectByGid(gid, start, end);
-    }
-
-    public List<MyOrderCommodity> findBySid(int sid, Date start, Date end) {
-        return myStorageCommodityMapper.selectBySid(sid, start, end);
+    public List<MyOrderCommodity> pagination(int sid, Date start, Date end) {
+        return myStorageCommodityMapper.pagination(sid, start, end);
     }
 
     // 注意：数据被缓存在StorageCommodityService，所以不能直接调用该函数

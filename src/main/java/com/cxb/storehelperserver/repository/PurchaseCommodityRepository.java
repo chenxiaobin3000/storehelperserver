@@ -63,16 +63,12 @@ public class PurchaseCommodityRepository extends BaseRepository<List> {
         return purchaseCommoditys;
     }
 
-    public List<MyOrderCommodity> findByGid(int gid, Date start, Date end) {
-        return myPurchaseCommodityMapper.selectByGid(gid, start, end);
-    }
-
-    public List<MyOrderCommodity> findBySid(int sid, Date start, Date end) {
-        return myPurchaseCommodityMapper.selectBySid(sid, start, end);
-    }
-
     public BigDecimal count(int oid) {
         return myPurchaseCommodityMapper.count(oid);
+    }
+
+    public List<MyOrderCommodity> pagination(int gid, int sid, Date start, Date end) {
+        return myPurchaseCommodityMapper.pagination(gid, sid, start, end);
     }
 
     // 注意：数据被缓存在PurchaseCommodityService，所以不能直接调用该函数

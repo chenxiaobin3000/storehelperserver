@@ -1,7 +1,7 @@
 package com.cxb.storehelperserver.controller;
 
 import com.cxb.storehelperserver.controller.request.stock.*;
-import com.cxb.storehelperserver.service.StockService;
+import com.cxb.storehelperserver.service.StorageStockService;
 import com.cxb.storehelperserver.util.DateUtil;
 import com.cxb.storehelperserver.util.RestResult;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +26,7 @@ import java.util.Date;
 @RequestMapping("/api/stock")
 public class StockController {
     @Resource
-    private StockService stockService;
+    private StorageStockService storageStockService;
 
     @Resource
     private DateUtil dateUtil;
@@ -40,7 +40,7 @@ public class StockController {
         } catch (ParseException e) {
             return RestResult.fail("查询日期转换失败");
         }
-        return stockService.getStockDay(req.getId(), req.getSid(), date, req.getPage(), req.getLimit(), req.getSearch());
+        return storageStockService.getStockDay(req.getId(), req.getSid(), date, req.getPage(), req.getLimit(), req.getSearch());
     }
 
     @PostMapping("/getStockWeek")
@@ -52,7 +52,7 @@ public class StockController {
         } catch (ParseException e) {
             return RestResult.fail("查询日期转换失败");
         }
-        return stockService.getStockWeek(req.getId(), req.getSid(), date, req.getPage(), req.getLimit(), req.getSearch());
+        return storageStockService.getStockWeek(req.getId(), req.getSid(), date, req.getPage(), req.getLimit(), req.getSearch());
     }
 
     @PostMapping("/getCloudDay")
@@ -81,9 +81,9 @@ public class StockController {
         // return stockService.getCloudWeek(req.getId(), req.getSid(), date, req.getPage(), req.getLimit(), req.getSearch());
     }
 
-    // TODO 财务，人工，包装，物流费，库存销量饼图，批次号系统生成，数据云盘，小程序选取优化，小程序获取本公司订单信息
+    // TODO 人工，包装，物流费，库存销量饼图，数据云盘，小程序选取优化，小程序获取本公司订单信息
     @PostMapping("/countStock")
     public RestResult countStock(@Validated @RequestBody CountStockValid req) {
-        return stockService.countStock(req.getId(), req.getGid());
+        return storageStockService.countStock(req.getId(), req.getGid());
     }
 }

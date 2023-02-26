@@ -354,7 +354,7 @@ public class PurchaseService {
         if (!purchaseOrderRepository.update(order)) {
             return RestResult.fail("生成退货订单失败");
         }
-        String msg = purchaseOrderService.update(order.getId(), comms, attrs);
+        String msg = purchaseOrderService.update(oid, comms, attrs);
         if (null != msg) {
             return RestResult.fail(msg);
         }

@@ -104,10 +104,10 @@ public class CloudOrderService extends BaseService<HashMap> {
 
         // 修改附件oid
         for (Integer attr : attrs) {
-            TLossAttachment lossAttachment = cloudAttachmentRepository.find(attr);
-            if (null != lossAttachment) {
-                lossAttachment.setOid(oid);
-                if (!cloudAttachmentRepository.update(lossAttachment)) {
+            TCloudAttachment cloudAttachment = cloudAttachmentRepository.find(attr);
+            if (null != cloudAttachment) {
+                cloudAttachment.setOid(oid);
+                if (!cloudAttachmentRepository.update(cloudAttachment)) {
                     return "添加订单附件失败";
                 }
             }

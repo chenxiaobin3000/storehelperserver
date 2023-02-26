@@ -7,6 +7,7 @@ import org.hibernate.validator.constraints.Length;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -30,6 +31,9 @@ public class SetDispatchValid implements IValid {
 
     @Min(value = 1, message = "采购单号错误")
     private int pid;
+
+    @Min(value = 1, message = "运费价格错误")
+    private BigDecimal fare;
 
     @NotEmpty(message = "请输入订单制单日期")
     @Length(min = 19, max = 19, message = "订单制单日期格式错误")

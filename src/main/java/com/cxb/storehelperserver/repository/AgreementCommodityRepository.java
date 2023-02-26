@@ -30,6 +30,22 @@ public class AgreementCommodityRepository extends BaseRepository<List> {
         init("agreeComm::");
     }
 
+    public TAgreementCommodity findOne(int oid, int ctype, int cid) {
+        List<TAgreementCommodity> agreementCommoditys = getCache(oid, List.class);
+        if (null != agreementCommoditys) {
+            for (TAgreementCommodity c : agreementCommoditys) {
+                if (c.getCtype() == ctype && c.getCid() == cid) {
+                    return c;
+                }
+            }
+        }
+
+        // 缓存没有就查询数据库
+        TAgreementCommodityExample example = new TAgreementCommodityExample();
+        example.or().andOidEqualTo(oid).andCtypeEqualTo(ctype).andCidEqualTo(cid);
+        return agreementCommodityMapper.selectOneByExample(example);
+    }
+
     public List<TAgreementCommodity> find(int oid) {
         List<TAgreementCommodity> agreementCommoditys = getCache(oid, List.class);
         if (null != agreementCommoditys) {
@@ -46,12 +62,8 @@ public class AgreementCommodityRepository extends BaseRepository<List> {
         return agreementCommoditys;
     }
 
-    public List<MyOrderCommodity> findByGid(int gid, Date start, Date end) {
-        return myAgreementCommodityMapper.selectByGid(gid, start, end);
-    }
-
-    public List<MyOrderCommodity> findBySid(int sid, Date start, Date end) {
-        return myAgreementCommodityMapper.selectBySid(sid, start, end);
+    public List<MyOrderCommodity> pagination(int gid, int sid, Date start, Date end) {
+        return myAgreementCommodityMapper.pagination(gid, sid, start, end);
     }
 
     // 注意：数据被缓存在AgreementCommodityService，所以不能直接调用该函数

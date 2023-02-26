@@ -2,7 +2,8 @@ package com.cxb.storehelperserver.service;
 
 import com.cxb.storehelperserver.model.*;
 import com.cxb.storehelperserver.repository.*;
-import com.cxb.storehelperserver.repository.model.*;
+import com.cxb.storehelperserver.repository.model.MyOrderCommodity;
+import com.cxb.storehelperserver.repository.model.MyStockCommodity;
 import com.cxb.storehelperserver.util.DateUtil;
 import com.cxb.storehelperserver.util.RestResult;
 import lombok.extern.slf4j.Slf4j;
@@ -21,46 +22,45 @@ import java.util.Map;
 
 import static com.cxb.storehelperserver.util.Permission.admin_grouplist;
 import static com.cxb.storehelperserver.util.TypeDefine.CommodityType;
-import static com.cxb.storehelperserver.util.TypeDefine.CommodityType.*;
 import static com.cxb.storehelperserver.util.TypeDefine.OrderType;
 import static com.cxb.storehelperserver.util.TypeDefine.ReportCycleType;
 import static com.cxb.storehelperserver.util.TypeDefine.ReportCycleType.*;
 
 /**
- * desc: 库存统计业务
+ * desc: 云仓库存统计业务
  * auth: cxb
  * date: 2023/1/13
  */
 @Slf4j
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class StockService {
+public class CloudStockService {
     @Resource
     private CheckService checkService;
 
     @Resource
-    private StockRepository stockRepository;
+    private CloudStockRepository cloudStockRepository;
 
     @Resource
-    private StockDetailRepository stockDetailRepository;
+    private CloudDetailRepository cloudDetailRepository;
 
     @Resource
-    private StockDayRepository stockDayRepository;
+    private CloudDayRepository cloudDayRepository;
 
     @Resource
-    private StockWeekRepository stockWeekRepository;
+    private CloudWeekRepository cloudWeekRepository;
 
     @Resource
-    private StorageCommodityRepository storageCommodityRepository;
+    private CloudCommodityRepository cloudCommodityRepository;
 
     @Resource
-    private PurchaseCommodityRepository purchaseCommodityRepository;
+    private UserOrderCompleteRepository userOrderCompleteRepository;
 
     @Resource
     private UserGroupRepository userGroupRepository;
 
     @Resource
-    private StorageRepository storageRepository;
+    private CloudRepository cloudRepository;
 
     @Resource
     private DateUtil dateUtil;
@@ -73,32 +73,35 @@ public class StockService {
 
     private static final Object lock = new Object();
 
-    public boolean addStock(int uid, boolean add, int sid, OrderType otype, int oid) {
+    public String addStock(int uid, boolean add, int sid, OrderType otype, int oid, int pid) {
         switch (otype) {
-            case STORAGE_PURCHASE_ORDER:
-                val commodities = storageCommodityRepository.find(oid);
-                for (TStorageCommodity c : commodities) {
-                    val pc = purchaseCommodityRepository.findOne(oid, c.getCtype(), c.getCid());
-                    if (null == pc) {
-                        return false;
-                    }
-                    if (!addStockCommodity(uid, add, CommodityType.valueOf(c.getCtype()), c.getCid(), c.getValue(), pc.getPrice())) {
-                        return false;
+            case CLOUD_PURCHASE_ORDER:
+            case CLOUD_RETURN_ORDER:
+            case CLOUD_SALE_ORDER:
+            case CLOUD_LOSS_ORDER: {
+                val commodities = cloudCommodityRepository.find(oid);
+                for (TCloudCommodity c : commodities) {
+                    val pc = cloudCommodityRepository.findOne(oid, c.getCtype(), c.getCid());
+                    if (null == pc || !addStockCommodity(uid, add, sid, CommodityType.valueOf(c.getCtype()), c.getCid(), c.getValue(), pc.getPrice())) {
+                        return "修改库存信息失败";
                     }
                 }
+                break;
+            }
         }
-        return true;
+        return null;
     }
 
     private boolean addStockCommodity(int uid, boolean add, int sid, CommodityType ctype, int cid, int value, BigDecimal price) {
         switch (ctype) {
             case COMMODITY:
                 // TODO 计算平均价
-                stockRepository.find(sid, cid);
+                // stockRepository.find(sid, cid);
                 break;
             case HALFGOOD:
                 break;
         }
+        return false;
     }
 
     public RestResult getStockDay(int id, int sid, Date date, int page, int limit, String search) {
@@ -107,43 +110,26 @@ public class StockService {
             return ret;
         }
 
-        // 仓库id为0就查找整个公司
-        val data = new HashMap<String, Object>();
-        if (0 == sid) {
-            // 获取公司信息
-            TUserGroup group = userGroupRepository.find(id);
-            if (null == group) {
-                return RestResult.fail("获取公司信息失败");
-            }
-
-            int total = stockDayRepository.totalByGid(group.getGid(), date, search);
-            if (0 == total) {
-                data.put("total", 0);
-                data.put("list", null);
-                return RestResult.ok(data);
-            }
-
-            val commodities = stockDayRepository.paginationByGid(group.getGid(), page, limit, date, search);
-            if (null == commodities) {
-                return RestResult.fail("获取商品信息失败");
-            }
-            data.put("total", total);
-            data.put("list", commodities);
-        } else {
-            int total = stockDayRepository.totalBySid(sid, date, search);
-            if (0 == total) {
-                data.put("total", 0);
-                data.put("list", null);
-                return RestResult.ok(data);
-            }
-
-            val commodities = stockDayRepository.paginationBySid(sid, page, limit, date, search);
-            if (null == commodities) {
-                return RestResult.fail("获取商品信息失败");
-            }
-            data.put("total", total);
-            data.put("list", commodities);
+        // 获取公司信息
+        TUserGroup group = userGroupRepository.find(id);
+        if (null == group) {
+            return RestResult.fail("获取公司信息失败");
         }
+
+        val data = new HashMap<String, Object>();
+        int total = cloudDayRepository.total(group.getGid(), sid, date, search);
+        if (0 == total) {
+            data.put("total", 0);
+            data.put("list", null);
+            return RestResult.ok(data);
+        }
+
+        val commodities = cloudDayRepository.pagination(group.getGid(), sid, page, limit, date, search);
+        if (null == commodities) {
+            return RestResult.fail("获取商品信息失败");
+        }
+        data.put("total", total);
+        data.put("list", commodities);
         return RestResult.ok(data);
     }
 
@@ -152,265 +138,9 @@ public class StockService {
     }
 
     public List<MyStockCommodity> getAllStockDay(int gid, int sid, Date date, ReportCycleType type) {
-        // 仓库id为0就查找整个公司
-        if (0 == sid) {
-            int total = stockDayRepository.totalByGid(gid, date, null);
-            if (total > 0) {
-                return stockDayRepository.paginationByGid(gid, 1, total, date, null);
-            }
-        } else {
-            int total = stockDayRepository.totalBySid(sid, date, null);
-            if (total > 0) {
-                return stockDayRepository.paginationBySid(sid, 1, total, date, null);
-            }
-        }
-        return null;
-    }
-
-    public RestResult getStockHalfgood(int id, int sid, Date date, int page, int limit, String search) {
-        RestResult ret = check(id, sid);
-        if (null != ret) {
-            return ret;
-        }
-
-        // 仓库id为0就查找整个公司
-        val data = new HashMap<String, Object>();
-        if (0 == sid) {
-            // 获取公司信息
-            TUserGroup group = userGroupRepository.find(id);
-            if (null == group) {
-                return RestResult.fail("获取公司信息失败");
-            }
-
-            int total = stockHalfgoodDayRepository.totalByGid(group.getGid(), date, search);
-            if (0 == total) {
-                data.put("total", 0);
-                data.put("list", null);
-                return RestResult.ok(data);
-            }
-
-            val commodities = stockHalfgoodDayRepository.paginationByGid(group.getGid(), page, limit, date, search);
-            if (null == commodities) {
-                return RestResult.fail("获取半成品信息失败");
-            }
-            data.put("total", total);
-            data.put("list", commodities);
-        } else {
-            int total = stockHalfgoodDayRepository.totalBySid(sid, date, search);
-            if (0 == total) {
-                data.put("total", 0);
-                data.put("list", null);
-                return RestResult.ok(data);
-            }
-
-            val commodities = stockHalfgoodDayRepository.paginationBySid(sid, page, limit, date, search);
-            if (null == commodities) {
-                return RestResult.fail("获取半成品信息失败");
-            }
-            data.put("total", total);
-            data.put("list", commodities);
-        }
-        return RestResult.ok(data);
-    }
-
-    public List<MyStockHalfgood> getAllStockHalfgood(int gid, int sid, Date date, ReportCycleType type) {
-        // 仓库id为0就查找整个公司
-        if (0 == sid) {
-            int total = stockHalfgoodDayRepository.totalByGid(gid, date, null);
-            if (total > 0) {
-                return stockHalfgoodDayRepository.paginationByGid(gid, 1, total, date, null);
-            }
-        } else {
-            int total = stockHalfgoodDayRepository.totalBySid(sid, date, null);
-            if (total > 0) {
-                return stockHalfgoodDayRepository.paginationBySid(sid, 1, total, date, null);
-            }
-        }
-        return null;
-    }
-
-    public RestResult getStockOriginal(int id, int sid, Date date, int page, int limit, String search) {
-        RestResult ret = check(id, sid);
-        if (null != ret) {
-            return ret;
-        }
-
-        // 仓库id为0就查找整个公司
-        val data = new HashMap<String, Object>();
-        if (0 == sid) {
-            // 获取公司信息
-            TUserGroup group = userGroupRepository.find(id);
-            if (null == group) {
-                return RestResult.fail("获取公司信息失败");
-            }
-
-            int total = stockOriginalDayRepository.totalByGid(group.getGid(), date, search);
-            if (0 == total) {
-                data.put("total", 0);
-                data.put("list", null);
-                return RestResult.ok(data);
-            }
-
-            val commodities = stockOriginalDayRepository.paginationByGid(group.getGid(), page, limit, date, search);
-            if (null == commodities) {
-                return RestResult.fail("获取原料信息失败");
-            }
-            data.put("total", total);
-            data.put("list", commodities);
-        } else {
-            int total = stockOriginalDayRepository.totalBySid(sid, date, search);
-            if (0 == total) {
-                data.put("total", 0);
-                data.put("list", null);
-                return RestResult.ok(data);
-            }
-
-            val commodities = stockOriginalDayRepository.paginationBySid(sid, page, limit, date, search);
-            if (null == commodities) {
-                return RestResult.fail("获取原料信息失败");
-            }
-            data.put("total", total);
-            data.put("list", commodities);
-        }
-        return RestResult.ok(data);
-    }
-
-    public List<MyStockOriginal> getAllStockOriginal(int gid, int sid, Date date, ReportCycleType type) {
-        // 仓库id为0就查找整个公司
-        if (0 == sid) {
-            int total = stockOriginalDayRepository.totalByGid(gid, date, null);
-            if (total > 0) {
-                return stockOriginalDayRepository.paginationByGid(gid, 1, total, date, null);
-            }
-        } else {
-            int total = stockOriginalDayRepository.totalBySid(sid, date, null);
-            if (total > 0) {
-                return stockOriginalDayRepository.paginationBySid(sid, 1, total, date, null);
-            }
-        }
-        return null;
-    }
-
-    public RestResult getStockStandard(int id, int sid, Date date, int page, int limit, String search) {
-        RestResult ret = check(id, sid);
-        if (null != ret) {
-            return ret;
-        }
-
-        // 仓库id为0就查找整个公司
-        val data = new HashMap<String, Object>();
-        if (0 == sid) {
-            // 获取公司信息
-            TUserGroup group = userGroupRepository.find(id);
-            if (null == group) {
-                return RestResult.fail("获取公司信息失败");
-            }
-
-            int total = stockStandardDayRepository.totalByGid(group.getGid(), date, search);
-            if (0 == total) {
-                data.put("total", 0);
-                data.put("list", null);
-                return RestResult.ok(data);
-            }
-
-            val commodities = stockStandardDayRepository.paginationByGid(group.getGid(), page, limit, date, search);
-            if (null == commodities) {
-                return RestResult.fail("获取标品信息失败");
-            }
-            data.put("total", total);
-            data.put("list", commodities);
-        } else {
-            int total = stockStandardDayRepository.totalBySid(sid, date, search);
-            if (0 == total) {
-                data.put("total", 0);
-                data.put("list", null);
-                return RestResult.ok(data);
-            }
-
-            val commodities = stockStandardDayRepository.paginationBySid(sid, page, limit, date, search);
-            if (null == commodities) {
-                return RestResult.fail("获取标品信息失败");
-            }
-            data.put("total", total);
-            data.put("list", commodities);
-        }
-        return RestResult.ok(data);
-    }
-
-    public List<MyStockStandard> getAllStockStandard(int gid, int sid, Date date, ReportCycleType type) {
-        // 仓库id为0就查找整个公司
-        if (0 == sid) {
-            int total = stockStandardDayRepository.totalByGid(gid, date, null);
-            if (total > 0) {
-                return stockStandardDayRepository.paginationByGid(gid, 1, total, date, null);
-            }
-        } else {
-            int total = stockStandardDayRepository.totalBySid(sid, date, null);
-            if (total > 0) {
-                return stockStandardDayRepository.paginationBySid(sid, 1, total, date, null);
-            }
-        }
-        return null;
-    }
-
-    public RestResult getStockDestroy(int id, int sid, Date date, int page, int limit, String search) {
-        RestResult ret = check(id, sid);
-        if (null != ret) {
-            return ret;
-        }
-
-        // 仓库id为0就查找整个公司
-        val data = new HashMap<String, Object>();
-        if (0 == sid) {
-            // 获取公司信息
-            TUserGroup group = userGroupRepository.find(id);
-            if (null == group) {
-                return RestResult.fail("获取公司信息失败");
-            }
-
-            int total = stockDestroyDayRepository.totalByGid(group.getGid(), date, search);
-            if (0 == total) {
-                data.put("total", 0);
-                data.put("list", null);
-                return RestResult.ok(data);
-            }
-
-            val commodities = stockDestroyDayRepository.paginationByGid(group.getGid(), page, limit, date, search);
-            if (null == commodities) {
-                return RestResult.fail("获取废料信息失败");
-            }
-            data.put("total", total);
-            data.put("list", commodities);
-        } else {
-            int total = stockDestroyDayRepository.totalBySid(sid, date, search);
-            if (0 == total) {
-                data.put("total", 0);
-                data.put("list", null);
-                return RestResult.ok(data);
-            }
-
-            val commodities = stockDestroyDayRepository.paginationBySid(sid, page, limit, date, search);
-            if (null == commodities) {
-                return RestResult.fail("获取废料信息失败");
-            }
-            data.put("total", total);
-            data.put("list", commodities);
-        }
-        return RestResult.ok(data);
-    }
-
-    public List<MyStockDestroy> getAllStockDestroy(int gid, int sid, Date date, ReportCycleType type) {
-        // 仓库id为0就查找整个公司
-        if (0 == sid) {
-            int total = stockDestroyDayRepository.totalByGid(gid, date, null);
-            if (total > 0) {
-                return stockDestroyDayRepository.paginationByGid(gid, 1, total, date, null);
-            }
-        } else {
-            int total = stockDestroyDayRepository.totalBySid(sid, date, null);
-            if (total > 0) {
-                return stockDestroyDayRepository.paginationBySid(sid, 1, total, date, null);
-            }
+        int total = cloudDayRepository.total(gid, sid, date, null);
+        if (total > 0) {
+            return cloudDayRepository.pagination(gid, sid, 1, total, date, null);
         }
         return null;
     }
@@ -429,9 +159,9 @@ public class StockService {
         if (!checkService.checkRolePermission(id, admin_grouplist)) {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
-
-        int total = storageRepository.total(gid, null);
-        val storages = storageRepository.pagination(gid, 1, total, null);
+/*
+        int total = cloudRepository.total(gid, null);
+        val storages = cloudRepository.pagination(gid, 1, total, null);
         SimpleDateFormat dateFormat = dateUtil.getDateFormat();
         synchronized (lock) {
             for (TStorage storage : storages) {
@@ -545,16 +275,12 @@ public class StockService {
                     log.error(e.getMessage());
                 }
             }
-        }
+        }*/
         return RestResult.ok();
     }
 
     public void delStock(int sid, Date date) {
-        stockDayRepository.delete(sid, date);
-        stockHalfgoodDayRepository.delete(sid, date);
-        stockOriginalDayRepository.delete(sid, date);
-        stockStandardDayRepository.delete(sid, date);
-        stockDestroyDayRepository.delete(sid, date);
+        cloudDayRepository.delete(sid, date);
     }
 
     private RestResult check(int id, int sid) {
@@ -564,11 +290,11 @@ public class StockService {
             return RestResult.fail("获取公司信息失败");
         }
 
-        TStorage storage = storageRepository.find(sid);
-        if (null == storage) {
-            return RestResult.fail("获取仓库信息失败");
+        TCloud cloud = cloudRepository.find(sid);
+        if (null == cloud) {
+            return RestResult.fail("获取云仓信息失败");
         }
-        if (!group.getGid().equals(storage.getGid())) {
+        if (!group.getGid().equals(cloud.getGid())) {
             return RestResult.fail("只能获取本公司信息");
         }
         return null;
@@ -579,7 +305,7 @@ public class StockService {
      */
     private Date getLastStock(int sid) {
         Date last = null;
-        TStockDay commodity = stockDayRepository.findLast(sid, 0);
+        TStockDay commodity = cloudDayRepository.findLast(sid, 0);
         if (null != commodity) {
             last = commodity.getCdate();
         }
@@ -593,54 +319,23 @@ public class StockService {
                 }
             }
         }
-        TStockOriginalDay original = stockOriginalDayRepository.findLast(sid, 0);
-        if (null != original) {
-            if (null == last) {
-                last = original.getCdate();
-            } else {
-                if (original.getCdate().after(last)) {
-                    last = original.getCdate();
-                }
-            }
-        }
-        TStockStandardDay standard = stockStandardDayRepository.findLast(sid, 0);
-        if (null != standard) {
-            if (null == last) {
-                last = standard.getCdate();
-            } else {
-                if (standard.getCdate().after(last)) {
-                    last = standard.getCdate();
-                }
-            }
-        }
-        TStockDestroyDay destroy = stockDestroyDayRepository.findLast(sid, 0);
-        if (null != destroy) {
-            if (null == last) {
-                last = destroy.getCdate();
-            } else {
-                if (destroy.getCdate().after(last)) {
-                    last = destroy.getCdate();
-                }
-            }
-        }
         return last;
     }
 
     /**
      * desc: 处理date当天已审核订单的商品
      */
-    private RestResult countStockOneDay(int gid, int sid, Date date, HashMap<Integer, TStockDay> comms,
-                                        HashMap<Integer, TStockHalfgoodDay> halfs, HashMap<Integer, TStockOriginalDay> oris,
-                                        HashMap<Integer, TStockStandardDay> stans, HashMap<Integer, TStockDestroyDay> dests) {
+    private RestResult countStockOneDay(int gid, int sid, Date date, HashMap<Integer, TStockDay> comms, HashMap<Integer, TStockDay> halfs,
+                                        HashMap<Integer, TStockDay> oris, HashMap<Integer, TStockDay> stans, HashMap<Integer, TStockDay> dests) {
         Date start = dateUtil.getStartTime(date);
         Date end = dateUtil.getEndTime(date);
-        val agreementCommodities = agreementCommodityRepository.findBySid(sid, start, end);
+        val agreementCommodities = agreementCommodityRepository.pagination(gid, sid, start, end);
         log.info("履约订单数:" + agreementCommodities.size());
         handleCommoditys(gid, sid, agreementCommodities, comms, halfs, oris, stans, dests);
-        val productOrderCommodities = productCommodityRepository.findBySid(sid, start, end);
+        val productOrderCommodities = productCommodityRepository.pagination(sid, start, end);
         log.info("生产订单数:" + productOrderCommodities.size());
         handleCommoditys(gid, sid, productOrderCommodities, comms, halfs, oris, stans, dests);
-        val storageOrderCommodities = storageCommodityRepository.findBySid(sid, start, end);
+        val storageOrderCommodities = storageCommodityRepository.pagination(sid, start, end);
         log.info("仓储订单数:" + storageOrderCommodities.size());
         handleCommoditys(gid, sid, storageOrderCommodities, comms, halfs, oris, stans, dests);
 
@@ -651,7 +346,7 @@ public class StockService {
             log.info("商品：" + commodity.getCid() + ", 数量:" + commodity.getValue() + ", 价格:" + commodity.getPrice());
             commodity.setId(0);
             commodity.setCdate(start);
-            if (!stockDayRepository.insert(commodity)) {
+            if (!cloudDayRepository.insert(commodity)) {
                 SimpleDateFormat simpleDateFormat = dateUtil.getSimpleDateFormat();
                 return RestResult.fail("添加商品" + simpleDateFormat.format(commodity.getCdate()) + "库存记录失败" + commodity.getCid());
             }
@@ -708,7 +403,7 @@ public class StockService {
                     TStockDay stockDay = comms.get(commodity.getCid());
                     if (null == stockDay) {
                         // 没数据就先尝试从库存获取
-                        stockDay = stockDayRepository.findLast(sid, commodity.getCid());
+                        stockDay = cloudDayRepository.findLast(sid, commodity.getCid());
                         if (null == stockDay) {
                             stockDay = new TStockDay();
                             stockDay.setValue(commodity.getValue());

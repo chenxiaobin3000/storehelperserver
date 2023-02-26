@@ -23,12 +23,11 @@ public class ShippedValid implements IValid {
     @Min(value = 1, message = "公司账号错误")
     private int gid;
 
-    @NotEmpty(message = "请输入订单批次")
-    @Length(min = 2, max = 16, message = "订单批次格式错误")
-    private String batch;
-
     @Min(value = 1, message = "仓库账号错误")
     private int sid;
+
+    @Min(value = 1, message = "运费价格错误")
+    private BigDecimal fare;
 
     @NotEmpty(message = "请输入订单制单日期")
     @Length(min = 19, max = 19, message = "订单制单日期格式错误")

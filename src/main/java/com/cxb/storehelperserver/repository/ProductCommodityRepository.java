@@ -30,6 +30,22 @@ public class ProductCommodityRepository extends BaseRepository<List> {
         init("productComm::");
     }
 
+    public TProductCommodity findOne(int oid, int ctype, int cid) {
+        List<TProductCommodity> productCommoditys = getCache(oid, List.class);
+        if (null != productCommoditys) {
+            for (TProductCommodity c : productCommoditys) {
+                if (c.getCtype() == ctype && c.getCid() == cid) {
+                    return c;
+                }
+            }
+        }
+
+        // 缓存没有就查询数据库
+        TProductCommodityExample example = new TProductCommodityExample();
+        example.or().andOidEqualTo(oid).andCtypeEqualTo(ctype).andCidEqualTo(cid);
+        return productCommodityMapper.selectOneByExample(example);
+    }
+
     public List<TProductCommodity> find(int oid) {
         List<TProductCommodity> productCommoditys = getCache(oid, List.class);
         if (null != productCommoditys) {
@@ -46,12 +62,8 @@ public class ProductCommodityRepository extends BaseRepository<List> {
         return productCommoditys;
     }
 
-    public List<MyOrderCommodity> findByGid(int gid, Date start, Date end) {
-        return myProductCommodityMapper.selectByGid(gid, start, end);
-    }
-
-    public List<MyOrderCommodity> findBySid(int sid, Date start, Date end) {
-        return myProductCommodityMapper.selectBySid(sid, start, end);
+    public List<MyOrderCommodity> pagination(int sid, Date start, Date end) {
+        return myProductCommodityMapper.pagination(sid, start, end);
     }
 
     // 注意：数据被缓存在ProductCommodityService，所以不能直接调用该函数
