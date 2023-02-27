@@ -84,7 +84,7 @@ public class StorageMgrService {
 
     public RestResult delStorage(int id, int gid, int sid) {
         // 权限校验，必须admin
-        if (!checkService.checkRolePermission(id, storage_address)) {
+        if (!checkService.checkRolePermission(id, stock_storageaddress)) {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 

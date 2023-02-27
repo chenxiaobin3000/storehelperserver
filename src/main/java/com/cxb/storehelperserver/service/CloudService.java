@@ -272,18 +272,18 @@ public class CloudService {
             return ret;
         }
 
-        // 生成入库单
+        // 生成损耗单
         val comms = new ArrayList<TCloudCommodity>();
         ret = createCloudComms(order, types, commoditys, values, comms);
         if (null != ret) {
             return ret;
         }
 
-        // 生成入库单批号
+        // 生成损耗单批号
         String batch = dateUtil.createBatch(order.getOtype());
         order.setBatch(batch);
         if (!cloudOrderRepository.insert(order)) {
-            return RestResult.fail("生成入库订单失败");
+            return RestResult.fail("生成损耗订单失败");
         }
         int oid = order.getId();
         String msg = cloudOrderService.update(oid, comms, attrs);
@@ -321,7 +321,7 @@ public class CloudService {
             }
         }
 
-        // 生成入库单
+        // 生成损耗单
         val comms = new ArrayList<TCloudCommodity>();
         ret = createCloudComms(order, types, commoditys, values, comms);
         if (null != ret) {
@@ -329,7 +329,7 @@ public class CloudService {
         }
 
         if (!cloudOrderRepository.update(order)) {
-            return RestResult.fail("生成入库订单失败");
+            return RestResult.fail("生成损耗订单失败");
         }
         String msg = cloudOrderService.update(oid, comms, attrs);
         if (null != msg) {

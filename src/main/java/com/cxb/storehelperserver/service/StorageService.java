@@ -669,18 +669,18 @@ public class StorageService {
             return ret;
         }
 
-        // 生成入库单
+        // 生成损耗单
         val comms = new ArrayList<TStorageCommodity>();
         ret = createStorageComms(order, types, commoditys, values, comms);
         if (null != ret) {
             return ret;
         }
 
-        // 生成入库单批号
+        // 生成损耗单批号
         String batch = dateUtil.createBatch(order.getOtype());
         order.setBatch(batch);
         if (!storageOrderRepository.insert(order)) {
-            return RestResult.fail("生成入库订单失败");
+            return RestResult.fail("生成损耗订单失败");
         }
         int oid = order.getId();
         String msg = storageOrderService.update(oid, comms, attrs);
@@ -718,7 +718,7 @@ public class StorageService {
             }
         }
 
-        // 生成入库单
+        // 生成损耗单
         val comms = new ArrayList<TStorageCommodity>();
         ret = createStorageComms(order, types, commoditys, values, comms);
         if (null != ret) {
@@ -726,7 +726,7 @@ public class StorageService {
         }
 
         if (!storageOrderRepository.update(order)) {
-            return RestResult.fail("生成入库订单失败");
+            return RestResult.fail("生成损耗订单失败");
         }
         String msg = storageOrderService.update(oid, comms, attrs);
         if (null != msg) {

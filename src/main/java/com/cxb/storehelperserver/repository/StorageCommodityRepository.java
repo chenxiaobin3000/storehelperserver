@@ -63,8 +63,8 @@ public class StorageCommodityRepository extends BaseRepository<List> {
         return storageCommoditys;
     }
 
-    public List<MyOrderCommodity> pagination(int sid, Date start, Date end) {
-        return myStorageCommodityMapper.pagination(sid, start, end);
+    public List<MyOrderCommodity> pagination(int gid, int sid, Date start, Date end) {
+        return myStorageCommodityMapper.pagination(gid, sid, start, end);
     }
 
     // 注意：数据被缓存在StorageCommodityService，所以不能直接调用该函数

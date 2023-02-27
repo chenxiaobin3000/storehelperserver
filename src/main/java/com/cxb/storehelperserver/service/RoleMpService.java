@@ -238,7 +238,7 @@ public class RoleMpService {
     }
 
     private boolean syncReviewPerm(int gid) {
-        val perms = userRoleMpRepository.getUserRoleMpPerms(gid, mp_storage_in_review, mp_agreement_in_review);
+        val perms = userRoleMpRepository.getUserRoleMpPerms(gid, mp_purchase_purchase_review, mp_cloud_loss_review);
         for (TOrderReviewer orderReviewer : perms) {
             orderReviewer.setId(0);
         }

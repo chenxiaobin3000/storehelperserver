@@ -26,7 +26,7 @@ import static com.cxb.storehelperserver.util.TypeDefine.OrderType.PURCHASE_RETUR
  */
 @Slf4j
 @RestController
-@RequestMapping("/api/storage")
+@RequestMapping("/api/purchase")
 public class PurchaseController {
     @Resource
     private PurchaseService purchaseService;

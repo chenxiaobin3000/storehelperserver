@@ -47,7 +47,7 @@ public class ProductAttachmentRepository extends BaseRepository<TProductAttachme
 
     public TProductAttachment insert(int oid, int imagesrc, String path, String name) {
         TProductAttachment row = new TProductAttachment();
-        row.setOid(0);
+        row.setOid(oid);
         row.setSrc(imagesrc);
         row.setPath(path);
         row.setName(name);

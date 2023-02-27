@@ -214,9 +214,9 @@ public class CommodityService {
             }
 
             // 关联来源
-            TOriginalCommodity originalCommodity = commodityOriginalRepository.find(gid, c.getId());
-            if (null != originalCommodity) {
-                TOriginal original = originalRepository.find(originalCommodity.getOid());
+            TCommodityOriginal commodityOriginal = commodityOriginalRepository.find(gid, c.getId());
+            if (null != commodityOriginal) {
+                TOriginal original = originalRepository.find(commodityOriginal.getOid());
                 if (null != original) {
                     tmp.put("oid", original.getId());
                     tmp.put("oname", original.getName());
@@ -273,9 +273,9 @@ public class CommodityService {
             }
 
             // 关联来源
-            TOriginalCommodity originalCommodity = commodityOriginalRepository.find(gid, c.getId());
-            if (null != originalCommodity) {
-                TOriginal original = originalRepository.find(originalCommodity.getOid());
+            TCommodityOriginal commodityOriginal = commodityOriginalRepository.find(gid, c.getId());
+            if (null != commodityOriginal) {
+                TOriginal original = originalRepository.find(commodityOriginal.getOid());
                 if (null != original) {
                     tmp.put("oid", original.getId());
                     tmp.put("oname", original.getName());
@@ -296,18 +296,18 @@ public class CommodityService {
             return RestResult.fail(msg);
         }
 
-        TOriginalCommodity originalCommodity = commodityOriginalRepository.find(gid, cid);
-        if (null == originalCommodity) {
-            originalCommodity = new TOriginalCommodity();
-            originalCommodity.setGid(gid);
-            originalCommodity.setOid(oid);
-            originalCommodity.setCid(cid);
-            if (!commodityOriginalRepository.insert(originalCommodity)) {
+        TCommodityOriginal commodityOriginal = commodityOriginalRepository.find(gid, cid);
+        if (null == commodityOriginal) {
+            commodityOriginal = new TCommodityOriginal();
+            commodityOriginal.setGid(gid);
+            commodityOriginal.setOid(oid);
+            commodityOriginal.setCid(cid);
+            if (!commodityOriginalRepository.insert(commodityOriginal)) {
                 return RestResult.fail("添加商品关联原料失败");
             }
         } else {
-            originalCommodity.setOid(oid);
-            if (!commodityOriginalRepository.update(originalCommodity)) {
+            commodityOriginal.setOid(oid);
+            if (!commodityOriginalRepository.update(commodityOriginal)) {
                 return RestResult.fail("修改商品关联原料失败");
             }
         }

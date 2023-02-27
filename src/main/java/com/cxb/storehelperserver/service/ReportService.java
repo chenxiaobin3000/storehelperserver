@@ -117,34 +117,6 @@ public class ReportService {
                 cdata.merge(c.getSid(), c.getValue(), Integer::sum);
             }
         }
-        val hdata = new HashMap<Integer, Integer>();
-        val halfgoods = storageStockService.getAllStockHalfgood(gid, 0, today, REPORT_DAILY);
-        if (null != halfgoods && !halfgoods.isEmpty()) {
-            for (MyStockHalfgood c : halfgoods) {
-                hdata.merge(c.getSid(), c.getValue(), Integer::sum);
-            }
-        }
-        val odata = new HashMap<Integer, Integer>();
-        val originals = storageStockService.getAllStockOriginal(gid, 0, today, REPORT_DAILY);
-        if (null != originals && !originals.isEmpty()) {
-            for (MyStockOriginal c : originals) {
-                odata.merge(c.getSid(), c.getValue(), Integer::sum);
-            }
-        }
-        val sdata = new HashMap<Integer, Integer>();
-        val standards = storageStockService.getAllStockStandard(gid, 0, today, REPORT_DAILY);
-        if (null != standards && !standards.isEmpty()) {
-            for (MyStockStandard c : standards) {
-                sdata.merge(c.getSid(), c.getValue(), Integer::sum);
-            }
-        }
-        val ddata = new HashMap<Integer, Integer>();
-        val destroys = storageStockService.getAllStockDestroy(gid, 0, today, REPORT_DAILY);
-        if (null != destroys && !destroys.isEmpty()) {
-            for (MyStockDestroy c : destroys) {
-                ddata.merge(c.getSid(), c.getValue(), Integer::sum);
-            }
-        }
 
         // 仓库信息
         val stocks = new ArrayList<>();
@@ -155,26 +127,6 @@ public class ReportService {
                 int sid = s.getId();
                 int sum = 0;
                 for (Map.Entry<Integer, Integer> entry : cdata.entrySet()) {
-                    if (entry.getKey().equals(sid)) {
-                        sum += entry.getValue();
-                    }
-                }
-                for (Map.Entry<Integer, Integer> entry : hdata.entrySet()) {
-                    if (entry.getKey().equals(sid)) {
-                        sum += entry.getValue();
-                    }
-                }
-                for (Map.Entry<Integer, Integer> entry : odata.entrySet()) {
-                    if (entry.getKey().equals(sid)) {
-                        sum += entry.getValue();
-                    }
-                }
-                for (Map.Entry<Integer, Integer> entry : sdata.entrySet()) {
-                    if (entry.getKey().equals(sid)) {
-                        sum += entry.getValue();
-                    }
-                }
-                for (Map.Entry<Integer, Integer> entry : ddata.entrySet()) {
                     if (entry.getKey().equals(sid)) {
                         sum += entry.getValue();
                     }
@@ -322,17 +274,7 @@ public class ReportService {
             case COMMODITY:
                 stocks = stockDayRepository.findReport(gid, start, end);
                 break;
-            case HALFGOOD:
-                stocks = stockHalfgoodDayRepository.findReport(gid, start, end);
-                break;
-            case ORIGINAL:
-                stocks = stockOriginalDayRepository.findReport(gid, start, end);
-                break;
-            case STANDARD:
-                stocks = stockStandardDayRepository.findReport(gid, start, end);
-                break;
             default:
-                stocks = stockDestroyDayRepository.findReport(gid, start, end);
                 break;
         }
         val list = new ArrayList<>();

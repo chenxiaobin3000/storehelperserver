@@ -47,7 +47,7 @@ public class StorageAttachmentRepository extends BaseRepository<TStorageAttachme
 
     public TStorageAttachment insert(int oid, int imagesrc, String path, String name) {
         TStorageAttachment row = new TStorageAttachment();
-        row.setOid(0);
+        row.setOid(oid);
         row.setSrc(imagesrc);
         row.setPath(path);
         row.setName(name);

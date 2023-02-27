@@ -214,9 +214,9 @@ public class HalfgoodService {
             }
 
             // 关联来源
-            TOriginalHalfgood originalHalfgood = halfgoodOriginalRepository.find(gid, c.getId());
-            if (null != originalHalfgood) {
-                TOriginal original = originalRepository.find(originalHalfgood.getOid());
+            THalfgoodOriginal halfgoodOriginal = halfgoodOriginalRepository.find(gid, c.getId());
+            if (null != halfgoodOriginal) {
+                TOriginal original = originalRepository.find(halfgoodOriginal.getOid());
                 if (null != original) {
                     tmp.put("oid", original.getId());
                     tmp.put("oname", original.getName());
@@ -273,9 +273,9 @@ public class HalfgoodService {
             }
 
             // 关联来源
-            TOriginalHalfgood originalHalfgood = halfgoodOriginalRepository.find(gid, c.getId());
-            if (null != originalHalfgood) {
-                TOriginal original = originalRepository.find(originalHalfgood.getOid());
+            THalfgoodOriginal halfgoodOriginal = halfgoodOriginalRepository.find(gid, c.getId());
+            if (null != halfgoodOriginal) {
+                TOriginal original = originalRepository.find(halfgoodOriginal.getOid());
                 if (null != original) {
                     tmp.put("oid", original.getId());
                     tmp.put("oname", original.getName());
@@ -296,18 +296,18 @@ public class HalfgoodService {
             return RestResult.fail(msg);
         }
 
-        TOriginalHalfgood originalHalfgood = halfgoodOriginalRepository.find(gid, hid);
-        if (null == originalHalfgood) {
-            originalHalfgood = new TOriginalHalfgood();
-            originalHalfgood.setGid(gid);
-            originalHalfgood.setOid(oid);
-            originalHalfgood.setHid(hid);
-            if (!halfgoodOriginalRepository.insert(originalHalfgood)) {
+        THalfgoodOriginal halfgoodOriginal = halfgoodOriginalRepository.find(gid, hid);
+        if (null == halfgoodOriginal) {
+            halfgoodOriginal = new THalfgoodOriginal();
+            halfgoodOriginal.setGid(gid);
+            halfgoodOriginal.setOid(oid);
+            halfgoodOriginal.setHid(hid);
+            if (!halfgoodOriginalRepository.insert(halfgoodOriginal)) {
                 return RestResult.fail("添加商品关联半成品失败");
             }
         } else {
-            originalHalfgood.setOid(oid);
-            if (!halfgoodOriginalRepository.update(originalHalfgood)) {
+            halfgoodOriginal.setOid(oid);
+            if (!halfgoodOriginalRepository.update(halfgoodOriginal)) {
                 return RestResult.fail("修改商品关联半成品失败");
             }
         }

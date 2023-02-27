@@ -45,12 +45,17 @@ public class CloudAttachmentRepository extends BaseRepository<TCloudAttachment> 
         return cloudAttachmentMapper.selectByExample(example);
     }
 
-    public boolean insert(TCloudAttachment row) {
+    public TCloudAttachment insert(int oid, int imagesrc, String path, String name) {
+        TCloudAttachment row = new TCloudAttachment();
+        row.setOid(oid);
+        row.setSrc(imagesrc);
+        row.setPath(path);
+        row.setName(name);
         if (cloudAttachmentMapper.insert(row) > 0) {
             setCache(row.getId(), row);
-            return true;
+            return row;
         }
-        return false;
+        return null;
     }
 
     public boolean update(TCloudAttachment row) {

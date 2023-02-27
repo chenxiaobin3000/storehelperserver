@@ -89,7 +89,7 @@ public class StorageStockService {
                 for (TStorageCommodity c : commodities) {
                     val pc = storageCommodityRepository.findOne(oid, c.getCtype(), c.getCid());
                     // TODO 用一个join 关联storage和purchase
-                    if (null == pc || !addStockCommodity(uid, add, sid, CommodityType.valueOf(c.getCtype()), c.getCid(), c.getValue(), pc.getPrice())) {
+                    if (null == pc || !addStockCommodity(uid, add, sid, CommodityType.valueOf(c.getCtype()), c.getCid(), c.getValue(), null)) {
                         return "修改库存信息失败";
                     }
                 }
@@ -101,7 +101,7 @@ public class StorageStockService {
                 val commodities = productCommodityRepository.find(oid);
                 for (TProductCommodity c : commodities) {
                     val pc = productCommodityRepository.findOne(oid, c.getCtype(), c.getCid());
-                    if (null == pc || !addStockCommodity(uid, add, sid, CommodityType.valueOf(c.getCtype()), c.getCid(), c.getValue(), pc.getPrice())) {
+                    if (null == pc || !addStockCommodity(uid, add, sid, CommodityType.valueOf(c.getCtype()), c.getCid(), c.getValue(), null)) {
                         return "修改库存信息失败";
                     }
                 }
@@ -279,7 +279,7 @@ public class StorageStockService {
      */
     private Date getLastStock(int sid) {
         Date last = null;
-        TStockDay commodity = stockDayRepository.findLast(sid, 0);
+        /*TStockDay commodity = stockDayRepository.findLast(sid, 0);
         if (null != commodity) {
             last = commodity.getCdate();
         }
@@ -292,7 +292,7 @@ public class StorageStockService {
                     last = halfgood.getCdate();
                 }
             }
-        }
+        }*/
         return last;
     }
 
@@ -303,7 +303,7 @@ public class StorageStockService {
                                         HashMap<Integer, TStockDay> oris, HashMap<Integer, TStockDay> stans, HashMap<Integer, TStockDay> dests) {
         Date start = dateUtil.getStartTime(date);
         Date end = dateUtil.getEndTime(date);
-        val agreementCommodities = agreementCommodityRepository.pagination(gid, sid, start, end);
+        /*val agreementCommodities = agreementCommodityRepository.pagination(gid, sid, start, end);
         log.info("履约订单数:" + agreementCommodities.size());
         handleCommoditys(gid, sid, agreementCommodities, comms, halfs, oris, stans, dests);
         val productOrderCommodities = productCommodityRepository.pagination(sid, start, end);
@@ -312,7 +312,7 @@ public class StorageStockService {
         val storageOrderCommodities = storageCommodityRepository.pagination(sid, start, end);
         log.info("仓储订单数:" + storageOrderCommodities.size());
         handleCommoditys(gid, sid, storageOrderCommodities, comms, halfs, oris, stans, dests);
-
+*/
         // 插入数量大于0的数据，所有数据按start时间算
         start = dateUtil.addOneDay(start, 1);
         for (Map.Entry<Integer, TStockDay> entry : comms.entrySet()) {
@@ -328,11 +328,9 @@ public class StorageStockService {
         return null;
     }
 
-    private void handleCommoditys(int gid, int sid, List<MyOrderCommodity> commodities, HashMap<Integer, TStockDay> comms,
-                                  HashMap<Integer, TStockHalfgoodDay> halfs, HashMap<Integer, TStockOriginalDay> oris,
-                                  HashMap<Integer, TStockStandardDay> stans, HashMap<Integer, TStockDestroyDay> dests) {
+    private void handleCommoditys(int gid, int sid, List<MyOrderCommodity> commodities, HashMap<Integer, TStockDay> comms) {
         for (MyOrderCommodity commodity : commodities) {
-            switch (CommodityType.valueOf(commodity.getCtype())) {
+            /*switch (CommodityType.valueOf(commodity.getCtype())) {
                 case COMMODITY: {
                     TStockDay stockDay = comms.get(commodity.getCid());
                     if (null == stockDay) {
@@ -457,7 +455,7 @@ public class StorageStockService {
                     stockStandard.setPrice(commodity.getPrice());
                     break;
                 }
-            }
+            }*/
         }
     }
 }

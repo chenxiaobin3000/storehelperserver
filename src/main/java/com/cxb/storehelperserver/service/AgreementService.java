@@ -486,7 +486,7 @@ public class AgreementService {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
-        RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), mp_purchase_return_review);
+        RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), mp_agreement_return_review);
         if (null != ret) {
             return ret;
         }

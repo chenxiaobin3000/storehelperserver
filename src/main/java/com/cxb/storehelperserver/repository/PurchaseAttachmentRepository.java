@@ -45,12 +45,17 @@ public class PurchaseAttachmentRepository extends BaseRepository<TPurchaseAttach
         return purchaseAttachmentMapper.selectByExample(example);
     }
 
-    public boolean insert(TPurchaseAttachment row) {
+    public TPurchaseAttachment insert(int oid, int imagesrc, String path, String name) {
+        TPurchaseAttachment row = new TPurchaseAttachment();
+        row.setOid(oid);
+        row.setSrc(imagesrc);
+        row.setPath(path);
+        row.setName(name);
         if (purchaseAttachmentMapper.insert(row) > 0) {
             setCache(row.getId(), row);
-            return true;
+            return row;
         }
-        return false;
+        return null;
     }
 
     public boolean update(TPurchaseAttachment row) {

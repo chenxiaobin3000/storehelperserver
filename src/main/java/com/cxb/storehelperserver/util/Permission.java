@@ -76,16 +76,12 @@ public class Permission {
     static public final int market_getlist = 502;
     static public final int market_commodity = 503;
     static public final int market_input = 504;
-    static public final int market_offline = 505;
 
     static public final int product = 600;
     static public final int product_report = 601;
     static public final int product_process = 602;
     static public final int product_complete = 603;
-
-    static public final int loss = 650;
-    static public final int loss_report = 651;
-    static public final int loss_getlist = 652;
+    static public final int product_loss = 604;
 
     static public final int report = 700;
     static public final int report_market = 701;
@@ -99,19 +95,26 @@ public class Permission {
 
     static public final int cloud = 750;
     static public final int cloud_report = 751;
-    static public final int cloud_getlist = 752;
-    static public final int cloud_input = 753;
-    static public final int cloud_address = 754;
+    static public final int cloud_purchase = 752;
+    static public final int cloud_sale = 753;
+    static public final int cloud_loss = 754;
+    static public final int cloud_return = 755;
 
     static public final int storage = 800;
     static public final int storage_report = 801;
     static public final int storage_purchase = 802;
-    static public final int storage_return = 803;
-    static public final int storage_address = 804;
+    static public final int storage_dispatch = 803;
+    static public final int storage_purchase2 = 804;
+    static public final int storage_loss = 805;
+    static public final int storage_return = 806;
 
     static public final int stock = 850;
-    static public final int stock_report = 851;
-    static public final int stock_getlist = 852;
+    static public final int stock_storage = 851;
+    static public final int stock_storagelist = 852;
+    static public final int stock_cloud = 853;
+    static public final int stock_cloudlist = 854;
+    static public final int stock_storageaddress = 805;
+    static public final int stock_cloudaddress = 856;
 
     static public final int supplier = 900;
     static public final int supplier_getlist = 901;

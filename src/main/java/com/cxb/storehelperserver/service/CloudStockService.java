@@ -305,7 +305,7 @@ public class CloudStockService {
      */
     private Date getLastStock(int sid) {
         Date last = null;
-        TStockDay commodity = cloudDayRepository.findLast(sid, 0);
+        /*TStockDay commodity = cloudDayRepository.findLast(sid, 0);
         if (null != commodity) {
             last = commodity.getCdate();
         }
@@ -318,7 +318,7 @@ public class CloudStockService {
                     last = halfgood.getCdate();
                 }
             }
-        }
+        }*/
         return last;
     }
 
@@ -329,7 +329,7 @@ public class CloudStockService {
                                         HashMap<Integer, TStockDay> oris, HashMap<Integer, TStockDay> stans, HashMap<Integer, TStockDay> dests) {
         Date start = dateUtil.getStartTime(date);
         Date end = dateUtil.getEndTime(date);
-        val agreementCommodities = agreementCommodityRepository.pagination(gid, sid, start, end);
+        /*val agreementCommodities = agreementCommodityRepository.pagination(gid, sid, start, end);
         log.info("履约订单数:" + agreementCommodities.size());
         handleCommoditys(gid, sid, agreementCommodities, comms, halfs, oris, stans, dests);
         val productOrderCommodities = productCommodityRepository.pagination(sid, start, end);
@@ -351,26 +351,6 @@ public class CloudStockService {
                 return RestResult.fail("添加商品" + simpleDateFormat.format(commodity.getCdate()) + "库存记录失败" + commodity.getCid());
             }
         }
-        for (Map.Entry<Integer, TStockHalfgoodDay> entry : halfs.entrySet()) {
-            TStockHalfgoodDay halfgood = entry.getValue();
-            log.info("半成品：" + halfgood.getHid() + ", 数量:" + halfgood.getValue() + ", 价格:" + halfgood.getPrice());
-            halfgood.setId(0);
-            halfgood.setCdate(start);
-            if (!stockHalfgoodDayRepository.insert(halfgood)) {
-                SimpleDateFormat simpleDateFormat = dateUtil.getSimpleDateFormat();
-                return RestResult.fail("添加半成品" + simpleDateFormat.format(halfgood.getCdate()) + "库存记录失败" + halfgood.getHid());
-            }
-        }
-        for (Map.Entry<Integer, TStockOriginalDay> entry : oris.entrySet()) {
-            TStockOriginalDay original = entry.getValue();
-            log.info("原料：" + original.getOid() + ", 数量:" + original.getValue() + ", 价格:" + original.getPrice());
-            original.setId(0);
-            original.setCdate(start);
-            if (!stockOriginalDayRepository.insert(original)) {
-                SimpleDateFormat simpleDateFormat = dateUtil.getSimpleDateFormat();
-                return RestResult.fail("添加原料" + simpleDateFormat.format(original.getCdate()) + "库存记录失败" + original.getOid());
-            }
-        }
         for (Map.Entry<Integer, TStockStandardDay> entry : stans.entrySet()) {
             TStockStandardDay standard = entry.getValue();
             log.info("标品：" + standard.getStid() + ", 数量:" + standard.getValue() + ", 价格:" + standard.getPrice());
@@ -380,25 +360,13 @@ public class CloudStockService {
                 SimpleDateFormat simpleDateFormat = dateUtil.getSimpleDateFormat();
                 return RestResult.fail("添加标品" + simpleDateFormat.format(standard.getCdate()) + "库存记录失败" + standard.getSid());
             }
-        }
-        for (Map.Entry<Integer, TStockDestroyDay> entry : dests.entrySet()) {
-            TStockDestroyDay destroy = entry.getValue();
-            log.info("废料：" + destroy.getDid() + ", 数量:" + destroy.getValue() + ", 价格:" + destroy.getPrice());
-            destroy.setId(0);
-            destroy.setCdate(start);
-            if (!stockDestroyDayRepository.insert(destroy)) {
-                SimpleDateFormat simpleDateFormat = dateUtil.getSimpleDateFormat();
-                return RestResult.fail("添加废料" + simpleDateFormat.format(destroy.getCdate()) + "库存记录失败" + destroy.getDid());
-            }
-        }
+        }*/
         return null;
     }
 
-    private void handleCommoditys(int gid, int sid, List<MyOrderCommodity> commodities, HashMap<Integer, TStockDay> comms,
-                                  HashMap<Integer, TStockHalfgoodDay> halfs, HashMap<Integer, TStockOriginalDay> oris,
-                                  HashMap<Integer, TStockStandardDay> stans, HashMap<Integer, TStockDestroyDay> dests) {
+    private void handleCommoditys(int gid, int sid, List<MyOrderCommodity> commodities, HashMap<Integer, TStockDay> comms) {
         for (MyOrderCommodity commodity : commodities) {
-            switch (CommodityType.valueOf(commodity.getCtype())) {
+            /*switch (CommodityType.valueOf(commodity.getCtype())) {
                 case COMMODITY: {
                     TStockDay stockDay = comms.get(commodity.getCid());
                     if (null == stockDay) {
@@ -523,7 +491,7 @@ public class CloudStockService {
                     stockStandard.setPrice(commodity.getPrice());
                     break;
                 }
-            }
+            }*/
         }
     }
 }
