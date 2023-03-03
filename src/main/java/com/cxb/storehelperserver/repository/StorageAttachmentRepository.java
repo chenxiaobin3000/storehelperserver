@@ -4,7 +4,6 @@ import com.cxb.storehelperserver.mapper.TStorageAttachmentMapper;
 import com.cxb.storehelperserver.model.TStorageAttachment;
 import com.cxb.storehelperserver.model.TStorageAttachmentExample;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
@@ -17,7 +16,7 @@ import java.util.List;
  */
 @Slf4j
 @Repository
-public class StorageAttachmentRepository extends BaseRepository<TStorageAttachment> {
+public class StorageAttachmentRepository extends BaseRepository<List> {
     @Resource
     private TStorageAttachmentMapper storageAttachmentMapper;
 
@@ -26,23 +25,23 @@ public class StorageAttachmentRepository extends BaseRepository<TStorageAttachme
     }
 
     public TStorageAttachment find(int id) {
-        TStorageAttachment storageAttachment = getCache(id, TStorageAttachment.class);
-        if (null != storageAttachment) {
-            return storageAttachment;
-        }
-
-        // 缓存没有就查询数据库
-        storageAttachment = storageAttachmentMapper.selectByPrimaryKey(id);
-        if (null != storageAttachment) {
-            setCache(id, storageAttachment);
-        }
-        return storageAttachment;
+        return storageAttachmentMapper.selectByPrimaryKey(id);
     }
 
     public List<TStorageAttachment> findByOid(int oid) {
+        List<TStorageAttachment> storageAttachments = getCache(oid, List.class);
+        if (null != storageAttachments) {
+            return storageAttachments;
+        }
+
+        // 缓存没有就查询数据库
         TStorageAttachmentExample example = new TStorageAttachmentExample();
         example.or().andOidEqualTo(oid);
-        return storageAttachmentMapper.selectByExample(example);
+        storageAttachments = storageAttachmentMapper.selectByExample(example);
+        if (null != storageAttachments) {
+            setCache(oid, storageAttachments);
+        }
+        return storageAttachments;
     }
 
     public TStorageAttachment insert(int oid, int imagesrc, String path, String name) {
@@ -52,7 +51,7 @@ public class StorageAttachmentRepository extends BaseRepository<TStorageAttachme
         row.setPath(path);
         row.setName(name);
         if (storageAttachmentMapper.insert(row) > 0) {
-            setCache(row.getId(), row);
+            delCache(oid);
             return row;
         }
         return null;
@@ -60,20 +59,21 @@ public class StorageAttachmentRepository extends BaseRepository<TStorageAttachme
 
     public boolean update(TStorageAttachment row) {
         if (storageAttachmentMapper.updateByPrimaryKey(row) > 0) {
-            setCache(row.getId(), row);
+            delCache(row.getOid());
             return true;
         }
         return false;
     }
 
-    public boolean delete(int oid) {
-        val attrs = findByOid(oid);
-        for (TStorageAttachment a : attrs) {
-            delCache(a.getId());
-            if (storageAttachmentMapper.deleteByPrimaryKey(a.getId()) <= 0) {
-                return false;
-            }
-        }
-        return true;
+    public boolean delete(int oid, int id) {
+        delCache(oid);
+        return storageAttachmentMapper.deleteByPrimaryKey(id) > 0;
+    }
+
+    public boolean deleteByOid(int oid) {
+        delCache(oid);
+        TStorageAttachmentExample example = new TStorageAttachmentExample();
+        example.or().andOidEqualTo(oid);
+        return storageAttachmentMapper.deleteByExample(example) > 0;
     }
 }

@@ -22,6 +22,9 @@ public class GetAgreementOrderValid implements IValid {
     @Min(value = 10, message = "页面数量错误")
     private int limit;
 
+    @Min(value = 1, message = "类型错误")
+    private int type;
+
     @Length(max = 16, message = "搜索内容不能大于16个字符")
     private String search;
 }

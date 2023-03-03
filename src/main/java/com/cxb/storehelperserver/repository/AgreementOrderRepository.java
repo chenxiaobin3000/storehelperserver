@@ -43,31 +43,24 @@ public class AgreementOrderRepository extends BaseRepository<TAgreementOrder> {
         return agreementOrder;
     }
 
-    public int total(int gid, String search) {
+    public int total(int gid, int type, String search) {
         // 包含搜索的不缓存
+        TAgreementOrderExample example = new TAgreementOrderExample();
         if (null != search) {
-            TAgreementOrderExample example = new TAgreementOrderExample();
-            example.or().andGidEqualTo(gid).andBatchLike("%" + search + "%");
+            example.or().andGidEqualTo(gid).andOtypeEqualTo(type).andBatchLike("%" + search + "%");
             return (int) agreementOrderMapper.countByExample(example);
         } else {
-            int total = getTotalCache(gid);
-            if (0 != total) {
-                return total;
-            }
-            TAgreementOrderExample example = new TAgreementOrderExample();
-            example.or().andGidEqualTo(gid);
-            total = (int) agreementOrderMapper.countByExample(example);
-            setTotalCache(gid, total);
-            return total;
+            example.or().andGidEqualTo(gid).andOtypeEqualTo(type);
+            return (int) agreementOrderMapper.countByExample(example);
         }
     }
 
-    public List<TAgreementOrder> pagination(int gid, int page, int limit, String search) {
+    public List<TAgreementOrder> pagination(int gid, int type, int page, int limit, String search) {
         TAgreementOrderExample example = new TAgreementOrderExample();
         if (null == search) {
-            example.or().andGidEqualTo(gid);
+            example.or().andGidEqualTo(gid).andOtypeEqualTo(type);
         } else {
-            example.or().andGidEqualTo(gid).andBatchLike("%" + search + "%");
+            example.or().andGidEqualTo(gid).andOtypeEqualTo(type).andBatchLike("%" + search + "%");
         }
         example.setOffset((page - 1) * limit);
         example.setLimit(limit);

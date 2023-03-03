@@ -102,13 +102,34 @@ public class CloudOrderService extends BaseService<HashMap> {
             return "生成订单商品信息失败";
         }
 
-        // 修改附件oid
+        // 删除多余附件
+        val cloudAttachments = cloudAttachmentRepository.findByOid(oid);
+        if (null != cloudAttachments) {
+            for (TCloudAttachment attr : cloudAttachments) {
+                boolean find = false;
+                for (Integer aid : attrs) {
+                    if (attr.getId().equals(aid)) {
+                        find = true;
+                        break;
+                    }
+                }
+                if (!find) {
+                    if (!cloudAttachmentRepository.delete(oid, attr.getId())) {
+                        return "删除订单附件失败";
+                    }
+                }
+            }
+        }
+
+        // 添加新附件
         for (Integer attr : attrs) {
             TCloudAttachment cloudAttachment = cloudAttachmentRepository.find(attr);
             if (null != cloudAttachment) {
-                cloudAttachment.setOid(oid);
-                if (!cloudAttachmentRepository.update(cloudAttachment)) {
-                    return "添加订单附件失败";
+                if (null == cloudAttachment.getOid()) {
+                    cloudAttachment.setOid(oid);
+                    if (!cloudAttachmentRepository.update(cloudAttachment)) {
+                        return "添加订单附件失败";
+                    }
                 }
             }
         }

@@ -20,12 +20,6 @@ public class ReturnValid implements IValid {
     @Min(value = 1, message = "账号错误")
     private int id;
 
-    @Min(value = 1, message = "公司账号错误")
-    private int gid;
-
-    @Min(value = 1, message = "仓库账号错误")
-    private int sid;
-
     @Min(value = 1, message = "退货单号错误")
     private int rid;
 
@@ -44,6 +38,9 @@ public class ReturnValid implements IValid {
 
     @Size(min = 1, message = "商品数量不能为空")
     private List<Integer> values;
+
+    @Size(min = 1, message = "商品价格不能为空")
+    private List<BigDecimal> prices;
 
     private List<Integer> attrs;
 }

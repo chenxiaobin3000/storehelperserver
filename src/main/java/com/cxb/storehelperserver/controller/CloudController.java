@@ -172,8 +172,6 @@ public class CloudController {
     public RestResult returnc(@Validated @RequestBody ReturnValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
         TCloudOrder order = new TCloudOrder();
-        order.setGid(req.getGid());
-        order.setSid(req.getSid());
         order.setOtype(CLOUD_RETURN_ORDER.getValue());
         order.setApply(req.getId());
         order.setOid(req.getRid());
@@ -190,7 +188,6 @@ public class CloudController {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
         TCloudOrder order = new TCloudOrder();
         order.setId(req.getOid());
-        order.setSid(req.getSid());
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));
         } catch (ParseException e) {

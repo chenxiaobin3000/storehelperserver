@@ -12,19 +12,13 @@ import javax.validation.constraints.Min;
  * date: 2023/1/24
  */
 @Data
-public class GetProductOrderValid implements IValid {
+public class GetOrderValid implements IValid {
     @Min(value = 1, message = "账号错误")
     private int id;
-
-    @Min(value = 1, message = "页面编号错误")
-    private int page;
-
-    @Min(value = 10, message = "页面数量错误")
-    private int limit;
 
     @Min(value = 1, message = "类型错误")
     private int type;
 
-    @Length(max = 16, message = "搜索内容不能大于16个字符")
-    private String search;
+    @Min(value = 1, message = "订单编号错误")
+    private int oid;
 }

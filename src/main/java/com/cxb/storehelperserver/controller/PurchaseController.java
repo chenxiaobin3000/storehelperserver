@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import static com.cxb.storehelperserver.util.TypeDefine.OrderType.PURCHASE_PURCHASE_ORDER;
 import static com.cxb.storehelperserver.util.TypeDefine.OrderType.PURCHASE_RETURN_ORDER;
@@ -42,6 +43,7 @@ public class PurchaseController {
         order.setSid(req.getSid());
         order.setOtype(PURCHASE_PURCHASE_ORDER.getValue());
         order.setApply(req.getId());
+        order.setComplete(new Byte("0"));
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));
         } catch (ParseException e) {
@@ -53,15 +55,13 @@ public class PurchaseController {
     @PostMapping("/setPurchase")
     public RestResult setPurchase(@Validated @RequestBody SetPurchaseValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
-        TPurchaseOrder order = new TPurchaseOrder();
-        order.setId(req.getOid());
-        order.setSid(req.getSid());
+        Date applyTime = null;
         try {
-            order.setApplyTime(simpleDateFormat.parse(req.getDate()));
+            applyTime = simpleDateFormat.parse(req.getDate());
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return purchaseService.setPurchase(req.getId(), order, req.getFare(), req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
+        return purchaseService.setPurchase(req.getId(), req.getOid(), req.getSid(), applyTime, req.getFare(), req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
     }
 
     @PostMapping("/delPurchase")
@@ -83,17 +83,16 @@ public class PurchaseController {
     public RestResult returnc(@Validated @RequestBody ReturnValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
         TPurchaseOrder order = new TPurchaseOrder();
-        order.setGid(req.getGid());
-        order.setSid(req.getSid());
         order.setOtype(PURCHASE_RETURN_ORDER.getValue());
         order.setApply(req.getId());
         order.setRid(req.getRid());
+        order.setComplete(new Byte("0"));
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return purchaseService.returnc(req.getId(), order, req.getFare(), req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
+        return purchaseService.returnc(req.getId(), order, req.getFare(), req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
     }
 
     @PostMapping("/setReturn")
@@ -101,13 +100,12 @@ public class PurchaseController {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
         TPurchaseOrder order = new TPurchaseOrder();
         order.setId(req.getOid());
-        order.setSid(req.getSid());
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return purchaseService.setReturn(req.getId(), order, req.getFare(), req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
+        return purchaseService.setReturn(req.getId(), order, req.getFare(), req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
     }
 
     @PostMapping("/delReturn")

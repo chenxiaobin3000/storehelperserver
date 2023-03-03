@@ -4,7 +4,6 @@ import com.cxb.storehelperserver.mapper.TCloudAttachmentMapper;
 import com.cxb.storehelperserver.model.TCloudAttachment;
 import com.cxb.storehelperserver.model.TCloudAttachmentExample;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
@@ -17,7 +16,7 @@ import java.util.List;
  */
 @Slf4j
 @Repository
-public class CloudAttachmentRepository extends BaseRepository<TCloudAttachment> {
+public class CloudAttachmentRepository extends BaseRepository<List> {
     @Resource
     private TCloudAttachmentMapper cloudAttachmentMapper;
 
@@ -26,23 +25,23 @@ public class CloudAttachmentRepository extends BaseRepository<TCloudAttachment> 
     }
 
     public TCloudAttachment find(int id) {
-        TCloudAttachment cloudAttachment = getCache(id, TCloudAttachment.class);
-        if (null != cloudAttachment) {
-            return cloudAttachment;
-        }
-
-        // 缓存没有就查询数据库
-        cloudAttachment = cloudAttachmentMapper.selectByPrimaryKey(id);
-        if (null != cloudAttachment) {
-            setCache(id, cloudAttachment);
-        }
-        return cloudAttachment;
+        return cloudAttachmentMapper.selectByPrimaryKey(id);
     }
 
     public List<TCloudAttachment> findByOid(int oid) {
+        List<TCloudAttachment> cloudAttachments = getCache(oid, List.class);
+        if (null != cloudAttachments) {
+            return cloudAttachments;
+        }
+
+        // 缓存没有就查询数据库
         TCloudAttachmentExample example = new TCloudAttachmentExample();
         example.or().andOidEqualTo(oid);
-        return cloudAttachmentMapper.selectByExample(example);
+        cloudAttachments = cloudAttachmentMapper.selectByExample(example);
+        if (null != cloudAttachments) {
+            setCache(oid, cloudAttachments);
+        }
+        return cloudAttachments;
     }
 
     public TCloudAttachment insert(int oid, int imagesrc, String path, String name) {
@@ -52,7 +51,7 @@ public class CloudAttachmentRepository extends BaseRepository<TCloudAttachment> 
         row.setPath(path);
         row.setName(name);
         if (cloudAttachmentMapper.insert(row) > 0) {
-            setCache(row.getId(), row);
+            delCache(oid);
             return row;
         }
         return null;
@@ -60,20 +59,21 @@ public class CloudAttachmentRepository extends BaseRepository<TCloudAttachment> 
 
     public boolean update(TCloudAttachment row) {
         if (cloudAttachmentMapper.updateByPrimaryKey(row) > 0) {
-            setCache(row.getId(), row);
+            delCache(row.getOid());
             return true;
         }
         return false;
     }
 
-    public boolean delete(int oid) {
-        val attrs = findByOid(oid);
-        for (TCloudAttachment a : attrs) {
-            delCache(a.getId());
-            if (cloudAttachmentMapper.deleteByPrimaryKey(a.getId()) <= 0) {
-                return false;
-            }
-        }
-        return true;
+    public boolean delete(int oid, int id) {
+        delCache(oid);
+        return cloudAttachmentMapper.deleteByPrimaryKey(id) > 0;
+    }
+
+    public boolean deleteByOid(int oid) {
+        delCache(oid);
+        TCloudAttachmentExample example = new TCloudAttachmentExample();
+        example.or().andOidEqualTo(oid);
+        return cloudAttachmentMapper.deleteByExample(example) > 0;
     }
 }

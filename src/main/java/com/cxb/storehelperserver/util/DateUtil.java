@@ -32,7 +32,11 @@ public class DateUtil {
     }
 
     public String createBatch(int pre) {
-        return pre + batchDateFormat.format(new Date());
+        if (pre < 10) {
+            return "0" + pre + batchDateFormat.format(new Date());
+        } else {
+            return pre + batchDateFormat.format(new Date());
+        }
     }
 
     /**

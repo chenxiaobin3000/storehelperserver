@@ -4,7 +4,6 @@ import com.cxb.storehelperserver.mapper.TProductAttachmentMapper;
 import com.cxb.storehelperserver.model.TProductAttachment;
 import com.cxb.storehelperserver.model.TProductAttachmentExample;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
@@ -17,7 +16,7 @@ import java.util.List;
  */
 @Slf4j
 @Repository
-public class ProductAttachmentRepository extends BaseRepository<TProductAttachment> {
+public class ProductAttachmentRepository extends BaseRepository<List> {
     @Resource
     private TProductAttachmentMapper productAttachmentMapper;
 
@@ -26,23 +25,23 @@ public class ProductAttachmentRepository extends BaseRepository<TProductAttachme
     }
 
     public TProductAttachment find(int id) {
-        TProductAttachment productAttachment = getCache(id, TProductAttachment.class);
-        if (null != productAttachment) {
-            return productAttachment;
-        }
-
-        // 缓存没有就查询数据库
-        productAttachment = productAttachmentMapper.selectByPrimaryKey(id);
-        if (null != productAttachment) {
-            setCache(id, productAttachment);
-        }
-        return productAttachment;
+        return productAttachmentMapper.selectByPrimaryKey(id);
     }
 
     public List<TProductAttachment> findByOid(int oid) {
+        List<TProductAttachment> productAttachments = getCache(oid, List.class);
+        if (null != productAttachments) {
+            return productAttachments;
+        }
+
+        // 缓存没有就查询数据库
         TProductAttachmentExample example = new TProductAttachmentExample();
         example.or().andOidEqualTo(oid);
-        return productAttachmentMapper.selectByExample(example);
+        productAttachments = productAttachmentMapper.selectByExample(example);
+        if (null != productAttachments) {
+            setCache(oid, productAttachments);
+        }
+        return productAttachments;
     }
 
     public TProductAttachment insert(int oid, int imagesrc, String path, String name) {
@@ -52,7 +51,7 @@ public class ProductAttachmentRepository extends BaseRepository<TProductAttachme
         row.setPath(path);
         row.setName(name);
         if (productAttachmentMapper.insert(row) > 0) {
-            setCache(row.getId(), row);
+            delCache(oid);
             return row;
         }
         return null;
@@ -60,20 +59,21 @@ public class ProductAttachmentRepository extends BaseRepository<TProductAttachme
 
     public boolean update(TProductAttachment row) {
         if (productAttachmentMapper.updateByPrimaryKey(row) > 0) {
-            setCache(row.getId(), row);
+            delCache(row.getOid());
             return true;
         }
         return false;
     }
 
-    public boolean delete(int oid) {
-        val attrs = findByOid(oid);
-        for (TProductAttachment a : attrs) {
-            delCache(a.getId());
-            if (productAttachmentMapper.deleteByPrimaryKey(a.getId()) <= 0) {
-                return false;
-            }
-        }
-        return true;
+    public boolean delete(int oid, int id) {
+        delCache(oid);
+        return productAttachmentMapper.deleteByPrimaryKey(id) > 0;
+    }
+
+    public boolean deleteByOid(int oid) {
+        delCache(oid);
+        TProductAttachmentExample example = new TProductAttachmentExample();
+        example.or().andOidEqualTo(oid);
+        return productAttachmentMapper.deleteByExample(example) > 0;
     }
 }

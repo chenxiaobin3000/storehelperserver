@@ -43,31 +43,24 @@ public class StorageOrderRepository extends BaseRepository<TStorageOrder> {
         return storageOrder;
     }
 
-    public int total(int gid, String search) {
+    public int total(int gid, int type, String search) {
         // 包含搜索的不缓存
+        TStorageOrderExample example = new TStorageOrderExample();
         if (null != search) {
-            TStorageOrderExample example = new TStorageOrderExample();
-            example.or().andGidEqualTo(gid).andBatchLike("%" + search + "%");
+            example.or().andGidEqualTo(gid).andOtypeEqualTo(type).andBatchLike("%" + search + "%");
             return (int) storageOrderMapper.countByExample(example);
         } else {
-            int total = getTotalCache(gid);
-            if (0 != total) {
-                return total;
-            }
-            TStorageOrderExample example = new TStorageOrderExample();
-            example.or().andGidEqualTo(gid);
-            total = (int) storageOrderMapper.countByExample(example);
-            setTotalCache(gid, total);
-            return total;
+            example.or().andGidEqualTo(gid).andOtypeEqualTo(type);
+            return (int) storageOrderMapper.countByExample(example);
         }
     }
 
-    public List<TStorageOrder> pagination(int gid, int page, int limit, String search) {
+    public List<TStorageOrder> pagination(int gid, int type, int page, int limit, String search) {
         TStorageOrderExample example = new TStorageOrderExample();
         if (null == search) {
-            example.or().andGidEqualTo(gid);
+            example.or().andGidEqualTo(gid).andOtypeEqualTo(type);
         } else {
-            example.or().andGidEqualTo(gid).andBatchLike("%" + search + "%");
+            example.or().andGidEqualTo(gid).andOtypeEqualTo(type).andBatchLike("%" + search + "%");
         }
         example.setOffset((page - 1) * limit);
         example.setLimit(limit);

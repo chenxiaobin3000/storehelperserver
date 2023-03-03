@@ -43,31 +43,24 @@ public class CloudOrderRepository extends BaseRepository<TCloudOrder> {
         return cloudOrder;
     }
 
-    public int total(int gid, String search) {
+    public int total(int gid, int type, String search) {
         // 包含搜索的不缓存
+        TCloudOrderExample example = new TCloudOrderExample();
         if (null != search) {
-            TCloudOrderExample example = new TCloudOrderExample();
-            example.or().andGidEqualTo(gid).andBatchLike("%" + search + "%");
+            example.or().andGidEqualTo(gid).andOtypeEqualTo(type).andBatchLike("%" + search + "%");
             return (int) cloudOrderMapper.countByExample(example);
         } else {
-            int total = getTotalCache(gid);
-            if (0 != total) {
-                return total;
-            }
-            TCloudOrderExample example = new TCloudOrderExample();
-            example.or().andGidEqualTo(gid);
-            total = (int) cloudOrderMapper.countByExample(example);
-            setTotalCache(gid, total);
-            return total;
+            example.or().andGidEqualTo(gid).andOtypeEqualTo(type);
+            return (int) cloudOrderMapper.countByExample(example);
         }
     }
 
-    public List<TCloudOrder> pagination(int gid, int page, int limit, String search) {
+    public List<TCloudOrder> pagination(int gid, int type, int page, int limit, String search) {
         TCloudOrderExample example = new TCloudOrderExample();
         if (null == search) {
-            example.or().andGidEqualTo(gid);
+            example.or().andGidEqualTo(gid).andOtypeEqualTo(type);
         } else {
-            example.or().andGidEqualTo(gid).andBatchLike("%" + search + "%");
+            example.or().andGidEqualTo(gid).andOtypeEqualTo(type).andBatchLike("%" + search + "%");
         }
         example.setOffset((page - 1) * limit);
         example.setLimit(limit);

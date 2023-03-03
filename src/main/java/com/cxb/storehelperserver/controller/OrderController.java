@@ -26,17 +26,27 @@ public class OrderController {
 
     @PostMapping("/getAgreementOrder")
     public RestResult getAgreementOrder(@Validated @RequestBody GetAgreementOrderValid req) {
-        return orderService.getAgreementOrder(req.getId(), req.getPage(), req.getLimit(), req.getSearch());
+        return orderService.getAgreementOrder(req.getId(), req.getType(), req.getPage(), req.getLimit(), req.getSearch());
+    }
+
+    @PostMapping("/getCloudOrder")
+    public RestResult getCloudOrder(@Validated @RequestBody GetCloudOrderValid req) {
+        return orderService.getCloudOrder(req.getId(), req.getType(), req.getPage(), req.getLimit(), req.getSearch());
     }
 
     @PostMapping("/getProductOrder")
     public RestResult getProductOrder(@Validated @RequestBody GetProductOrderValid req) {
-        return orderService.getProductOrder(req.getId(), req.getPage(), req.getLimit(), req.getSearch());
+        return orderService.getProductOrder(req.getId(), req.getType(), req.getPage(), req.getLimit(), req.getSearch());
+    }
+
+    @PostMapping("/getPurchaseOrder")
+    public RestResult getPurchaseOrder(@Validated @RequestBody GetPurchaseOrderValid req) {
+        return orderService.getPurchaseOrder(req.getId(), req.getType(), req.getPage(), req.getLimit(), req.getSearch());
     }
 
     @PostMapping("/getStorageOrder")
     public RestResult getStorageOrder(@Validated @RequestBody GetStorageOrderValid req) {
-        return orderService.getStorageOrder(req.getId(), req.getPage(), req.getLimit(), req.getSearch());
+        return orderService.getStorageOrder(req.getId(), req.getType(), req.getPage(), req.getLimit(), req.getSearch());
     }
 
     @PostMapping("/getMyWait")
@@ -52,5 +62,10 @@ public class OrderController {
     @PostMapping("/getMyComplete")
     public RestResult getMyComplete(@Validated @RequestBody GetMyCompleteValid req) {
         return orderService.getMyComplete(req.getId(), req.getPage(), req.getLimit(), req.getSearch());
+    }
+
+    @PostMapping("/getOrder")
+    public RestResult getOrder(@Validated @RequestBody GetOrderValid req) {
+        return orderService.getOrder(req.getId(), req.getType(), req.getOid());
     }
 }

@@ -43,31 +43,24 @@ public class ProductOrderRepository extends BaseRepository<TProductOrder> {
         return productOrder;
     }
 
-    public int total(int gid, String search) {
+    public int total(int gid, int type, String search) {
         // 包含搜索的不缓存
+        TProductOrderExample example = new TProductOrderExample();
         if (null != search) {
-            TProductOrderExample example = new TProductOrderExample();
-            example.or().andGidEqualTo(gid).andBatchLike("%" + search + "%");
+            example.or().andGidEqualTo(gid).andOtypeEqualTo(type).andBatchLike("%" + search + "%");
             return (int) productOrderMapper.countByExample(example);
         } else {
-            int total = getTotalCache(gid);
-            if (0 != total) {
-                return total;
-            }
-            TProductOrderExample example = new TProductOrderExample();
-            example.or().andGidEqualTo(gid);
-            total = (int) productOrderMapper.countByExample(example);
-            setTotalCache(gid, total);
-            return total;
+            example.or().andGidEqualTo(gid).andOtypeEqualTo(type);
+            return (int) productOrderMapper.countByExample(example);
         }
     }
 
-    public List<TProductOrder> pagination(int gid, int page, int limit, String search) {
+    public List<TProductOrder> pagination(int gid, int type, int page, int limit, String search) {
         TProductOrderExample example = new TProductOrderExample();
         if (null == search) {
-            example.or().andGidEqualTo(gid);
+            example.or().andGidEqualTo(gid).andOtypeEqualTo(type);
         } else {
-            example.or().andGidEqualTo(gid).andBatchLike("%" + search + "%");
+            example.or().andGidEqualTo(gid).andOtypeEqualTo(type).andBatchLike("%" + search + "%");
         }
         example.setOffset((page - 1) * limit);
         example.setLimit(limit);

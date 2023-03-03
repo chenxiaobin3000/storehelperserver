@@ -265,8 +265,6 @@ public class StorageController {
     public RestResult returnc(@Validated @RequestBody ReturnValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
         TStorageOrder order = new TStorageOrder();
-        order.setGid(req.getGid());
-        order.setSid(req.getSid());
         order.setOtype(STORAGE_RETURN_ORDER.getValue());
         order.setApply(req.getId());
         order.setOid(req.getRid());
@@ -283,7 +281,6 @@ public class StorageController {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
         TStorageOrder order = new TStorageOrder();
         order.setId(req.getOid());
-        order.setSid(req.getSid());
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));
         } catch (ParseException e) {

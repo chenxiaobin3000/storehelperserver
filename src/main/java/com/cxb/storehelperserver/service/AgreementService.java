@@ -58,6 +58,9 @@ public class AgreementService {
     private AgreementReturnRepository agreementReturnRepository;
 
     @Resource
+    private PurchaseOrderRepository purchaseOrderRepository;
+
+    @Resource
     private UserGroupRepository userGroupRepository;
 
     @Resource
@@ -101,7 +104,7 @@ public class AgreementService {
 
         // TODO 扣库存
         // 运费
-        if (fare.compareTo(BigDecimal.ZERO) > 0) {
+        if (null != fare && fare.compareTo(BigDecimal.ZERO) > 0) {
             if (!agreementFareRepository.insert(oid, fare)) {
                 return RestResult.fail("添加发货物流费用失败");
             }
@@ -154,7 +157,7 @@ public class AgreementService {
         }
 
         // 运费
-        if (fare.compareTo(BigDecimal.ZERO) > 0) {
+        if (null != fare && fare.compareTo(BigDecimal.ZERO) > 0) {
             agreementFareRepository.delete(oid);
             if (!agreementFareRepository.insert(oid, fare)) {
                 return RestResult.fail("添加发货物流费用失败");
@@ -182,7 +185,7 @@ public class AgreementService {
         if (!agreementCommodityRepository.delete(oid)) {
             return RestResult.fail("删除关联商品失败");
         }
-        if (!agreementAttachmentRepository.delete(oid)) {
+        if (!agreementAttachmentRepository.deleteByOid(oid)) {
             return RestResult.fail("删除关联商品附件失败");
         }
         if (!agreementOrderRepository.delete(oid)) {
@@ -230,7 +233,7 @@ public class AgreementService {
         if (null != msg) {
             return RestResult.fail(msg);
         }
-        return reviewService.review(id, order.getGid(), order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
+        return reviewService.review(order.getApply(), id, order.getGid(), order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
     }
 
     public RestResult revokeShipped(int id, int oid) {
@@ -282,23 +285,25 @@ public class AgreementService {
      */
     public RestResult returnc(int id, TAgreementOrder order, BigDecimal fare, List<Integer> types, List<Integer> commoditys,
                               List<Integer> values, List<BigDecimal> prices, List<Integer> attrs) {
-        val reviews = new ArrayList<Integer>();
-        RestResult ret = check(id, order, mp_agreement_return_apply, mp_agreement_return_review, reviews);
-        if (null != ret) {
-            return ret;
-        }
-
         // 发货单未审核，已入库都不能退货
         int rid = order.getRid();
-        TAgreementOrder purchase = agreementOrderRepository.find(rid);
-        if (null == purchase) {
+        TPurchaseOrder purchaseOrder = purchaseOrderRepository.find(rid);
+        if (null == purchaseOrder) {
             return RestResult.fail("未查询到履约单");
         }
-        if (null == purchase.getReview()) {
+        if (null == purchaseOrder.getReview()) {
             return RestResult.fail("履约单未审核通过，不能进行入库");
         }
         if (agreementReturnRepository.checkByAid(rid)) {
             return RestResult.fail("履约商品已入库，请使用云仓退货单");
+        }
+
+        order.setGid(purchaseOrder.getGid());
+        order.setSid(purchaseOrder.getSid());
+        val reviews = new ArrayList<Integer>();
+        RestResult ret = check(id, order, mp_agreement_return_apply, mp_agreement_return_review, reviews);
+        if (null != ret) {
+            return ret;
         }
 
         // 生成退货单
@@ -323,7 +328,7 @@ public class AgreementService {
         }
 
         // 运费
-        if (fare.compareTo(BigDecimal.ZERO) > 0) {
+        if (null != fare && fare.compareTo(BigDecimal.ZERO) > 0) {
             if (!agreementFareRepository.insert(oid, fare)) {
                 return RestResult.fail("添加退货物流费用失败");
             }
@@ -336,12 +341,6 @@ public class AgreementService {
      */
     public RestResult setReturn(int id, TAgreementOrder order, BigDecimal fare, List<Integer> types, List<Integer> commoditys,
                                 List<Integer> values, List<BigDecimal> prices, List<Integer> attrs) {
-        val reviews = new ArrayList<Integer>();
-        RestResult ret = check(id, order, mp_agreement_return_apply, mp_agreement_return_review, reviews);
-        if (null != ret) {
-            return ret;
-        }
-
         // 已经审核的订单不能修改
         int oid = order.getId();
         TAgreementOrder agreementOrder = agreementOrderRepository.find(oid);
@@ -352,12 +351,11 @@ public class AgreementService {
             return RestResult.fail("已审核的订单不能修改");
         }
 
-        // 更新仓库信息
-        if (!agreementOrder.getSid().equals(order.getSid())) {
-            ret = reviewService.update(order.getOtype(), oid, order.getSid());
-            if (null != ret) {
-                return ret;
-            }
+        order.setGid(agreementOrder.getGid());
+        val reviews = new ArrayList<Integer>();
+        RestResult ret = check(id, order, mp_agreement_return_apply, mp_agreement_return_review, reviews);
+        if (null != ret) {
+            return ret;
         }
 
         // 生成退货单
@@ -377,7 +375,7 @@ public class AgreementService {
         }
 
         // 运费
-        if (fare.compareTo(BigDecimal.ZERO) > 0) {
+        if (null != fare && fare.compareTo(BigDecimal.ZERO) > 0) {
             agreementFareRepository.delete(oid);
             if (!agreementFareRepository.insert(oid, fare)) {
                 return RestResult.fail("添加退货物流费用失败");
@@ -405,7 +403,7 @@ public class AgreementService {
         if (!agreementCommodityRepository.delete(oid)) {
             return RestResult.fail("删除关联商品失败");
         }
-        if (!agreementAttachmentRepository.delete(oid)) {
+        if (!agreementAttachmentRepository.deleteByOid(oid)) {
             return RestResult.fail("删除关联商品附件失败");
         }
         if (!agreementOrderRepository.delete(oid)) {
@@ -465,7 +463,7 @@ public class AgreementService {
                 return RestResult.fail("添加运费记录失败");
             }
         }
-        return reviewService.review(id, order.getGid(), order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
+        return reviewService.review(order.getApply(), id, order.getGid(), order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
     }
 
     public RestResult revokeReturn(int id, int oid) {

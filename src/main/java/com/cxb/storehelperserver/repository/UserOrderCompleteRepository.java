@@ -80,27 +80,12 @@ public class UserOrderCompleteRepository extends BaseRepository<TUserOrderComple
                 STORAGE_RETURN_ORDER.getValue(), new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
     }
 
-    public int total(int uid, String search) {
-        TUserOrderCompleteExample example = new TUserOrderCompleteExample();
-        if (null != search) {
-            example.or().andUidEqualTo(uid).andBatchLike("%" + search + "%");
-        } else {
-            example.or().andUidEqualTo(uid);
-        }
-        return (int) userOrderCompleteMapper.countByExample(example);
+    public int total(int aid, int cid, String search) {
+        return myUserOrderCompleteMapper.count(aid, cid, search);
     }
 
-    public List<TUserOrderComplete> pagination(int uid, int page, int limit, String search) {
-        TUserOrderCompleteExample example = new TUserOrderCompleteExample();
-        if (null != search) {
-            example.or().andUidEqualTo(uid).andBatchLike("%" + search + "%");
-        } else {
-            example.or().andUidEqualTo(uid);
-        }
-        example.setOffset((page - 1) * limit);
-        example.setLimit(limit);
-        example.setOrderByClause("ctime desc");
-        return userOrderCompleteMapper.selectByExample(example);
+    public List<TUserOrderComplete> pagination(int aid, int cid, int page, int limit, String search) {
+        return myUserOrderCompleteMapper.pagination((page - 1) * limit, limit, aid, cid, search);
     }
 
     public boolean insert(TUserOrderComplete row) {

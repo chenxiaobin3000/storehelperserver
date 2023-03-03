@@ -1,9 +1,6 @@
 package com.cxb.storehelperserver.service;
 
-import com.cxb.storehelperserver.model.TOriginal;
-import com.cxb.storehelperserver.model.TStandard;
-import com.cxb.storehelperserver.model.TPurchaseAttachment;
-import com.cxb.storehelperserver.model.TPurchaseCommodity;
+import com.cxb.storehelperserver.model.*;
 import com.cxb.storehelperserver.repository.*;
 import com.cxb.storehelperserver.util.TypeDefine;
 import lombok.extern.slf4j.Slf4j;
@@ -105,13 +102,34 @@ public class PurchaseOrderService extends BaseService<HashMap> {
             return "生成订单商品信息失败";
         }
 
-        // 修改附件oid
+        // 删除多余附件
+        val purchaseAttachments = purchaseAttachmentRepository.findByOid(oid);
+        if (null != purchaseAttachments) {
+            for (TPurchaseAttachment attr : purchaseAttachments) {
+                boolean find = false;
+                for (Integer aid : attrs) {
+                    if (attr.getId().equals(aid)) {
+                        find = true;
+                        break;
+                    }
+                }
+                if (!find) {
+                    if (!purchaseAttachmentRepository.delete(oid, attr.getId())) {
+                        return "删除订单附件失败";
+                    }
+                }
+            }
+        }
+
+        // 添加新附件
         for (Integer attr : attrs) {
             TPurchaseAttachment purchaseAttachment = purchaseAttachmentRepository.find(attr);
             if (null != purchaseAttachment) {
-                purchaseAttachment.setOid(oid);
-                if (!purchaseAttachmentRepository.update(purchaseAttachment)) {
-                    return "添加订单附件失败";
+                if (null == purchaseAttachment.getOid()) {
+                    purchaseAttachment.setOid(oid);
+                    if (!purchaseAttachmentRepository.update(purchaseAttachment)) {
+                        return "添加订单附件失败";
+                    }
                 }
             }
         }

@@ -110,7 +110,8 @@ public class ReviewService {
         return find;
     }
 
-    public RestResult review(int id, int gid, int sid, int otype, int oid, String batch, Date applyTime) {
+    // aid是申请人id， cid是审核人id
+    public RestResult review(int aid, int cid, int gid, int sid, int otype, int oid, String batch, Date applyTime) {
         // 删除apply和review信息
         if (!userOrderApplyRepository.delete(otype, oid)) {
             return RestResult.fail("删除用户订单信息失败");
@@ -121,7 +122,8 @@ public class ReviewService {
 
         // 插入complete信息
         TUserOrderComplete complete = new TUserOrderComplete();
-        complete.setUid(id);
+        complete.setAid(aid);
+        complete.setCid(cid);
         complete.setGid(gid);
         complete.setSid(sid);
         complete.setOtype(otype);

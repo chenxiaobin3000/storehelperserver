@@ -83,8 +83,6 @@ public class AgreementController {
     public RestResult returnc(@Validated @RequestBody ReturnValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
         TAgreementOrder order = new TAgreementOrder();
-        order.setGid(req.getGid());
-        order.setSid(req.getSid());
         order.setOtype(AGREEMENT_RETURN_ORDER.getValue());
         order.setApply(req.getId());
         order.setRid(req.getRid());
@@ -101,7 +99,6 @@ public class AgreementController {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
         TAgreementOrder order = new TAgreementOrder();
         order.setId(req.getOid());
-        order.setSid(req.getSid());
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));
         } catch (ParseException e) {

@@ -176,7 +176,7 @@ public class StorageService {
         if (!storageCommodityRepository.delete(oid)) {
             return RestResult.fail("删除关联商品失败");
         }
-        if (!storageAttachmentRepository.delete(oid)) {
+        if (!storageAttachmentRepository.deleteByOid(oid)) {
             return RestResult.fail("删除关联商品附件失败");
         }
         if (!storageOrderRepository.delete(oid)) {
@@ -219,7 +219,7 @@ public class StorageService {
         if (null != msg) {
             return RestResult.fail(msg);
         }
-        return reviewService.review(id, order.getGid(), order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
+        return reviewService.review(order.getApply(), id, order.getGid(), order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
     }
 
     public RestResult revokePurchase(int id, int oid) {
@@ -294,7 +294,7 @@ public class StorageService {
         }
 
         // 运费
-        if (fare.compareTo(BigDecimal.ZERO) > 0) {
+        if (null != fare && fare.compareTo(BigDecimal.ZERO) > 0) {
             if (!storageFareRepository.insert(oid, fare)) {
                 return RestResult.fail("添加调度物流费用失败");
             }
@@ -346,7 +346,7 @@ public class StorageService {
         }
 
         // 运费
-        if (fare.compareTo(BigDecimal.ZERO) > 0) {
+        if (null != fare && fare.compareTo(BigDecimal.ZERO) > 0) {
             storageFareRepository.delete(oid);
             if (!storageFareRepository.insert(oid, fare)) {
                 return RestResult.fail("添加调度物流费用失败");
@@ -374,7 +374,7 @@ public class StorageService {
         if (!storageCommodityRepository.delete(oid)) {
             return RestResult.fail("删除关联商品失败");
         }
-        if (!storageAttachmentRepository.delete(oid)) {
+        if (!storageAttachmentRepository.deleteByOid(oid)) {
             return RestResult.fail("删除关联商品附件失败");
         }
         if (!storageOrderRepository.delete(oid)) {
@@ -422,7 +422,7 @@ public class StorageService {
                 return RestResult.fail("添加运费记录失败");
             }
         }
-        return reviewService.review(id, order.getGid(), order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
+        return reviewService.review(order.getApply(), id, order.getGid(), order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
     }
 
     public RestResult revokeDispatch(int id, int oid) {
@@ -573,7 +573,7 @@ public class StorageService {
         if (!storageCommodityRepository.delete(oid)) {
             return RestResult.fail("删除关联商品失败");
         }
-        if (!storageAttachmentRepository.delete(oid)) {
+        if (!storageAttachmentRepository.deleteByOid(oid)) {
             return RestResult.fail("删除关联商品附件失败");
         }
         if (!storageOrderRepository.delete(oid)) {
@@ -616,7 +616,7 @@ public class StorageService {
         if (null != msg) {
             return RestResult.fail(msg);
         }
-        return reviewService.review(id, order.getGid(), order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
+        return reviewService.review(order.getApply(), id, order.getGid(), order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
     }
 
     public RestResult revokePurchase2(int id, int oid) {
@@ -754,7 +754,7 @@ public class StorageService {
         if (!storageCommodityRepository.delete(oid)) {
             return RestResult.fail("删除关联商品失败");
         }
-        if (!storageAttachmentRepository.delete(oid)) {
+        if (!storageAttachmentRepository.deleteByOid(oid)) {
             return RestResult.fail("删除关联商品附件失败");
         }
         if (!storageOrderRepository.delete(oid)) {
@@ -793,7 +793,7 @@ public class StorageService {
         if (null != msg) {
             return RestResult.fail(msg);
         }
-        return reviewService.review(id, order.getGid(), order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
+        return reviewService.review(order.getApply(), id, order.getGid(), order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
     }
 
     public RestResult revokeLoss(int id, int oid) {
@@ -836,20 +836,22 @@ public class StorageService {
      * desc: 仓储退货
      */
     public RestResult returnc(int id, TStorageOrder order, BigDecimal fare, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<BigDecimal> prices, List<Integer> attrs) {
+        // 入库单未审核不能退货
+        int rid = order.getOid();
+        TPurchaseOrder purchaseOrder = purchaseOrderRepository.find(rid);
+        if (null == purchaseOrder) {
+            return RestResult.fail("未查询到采购单");
+        }
+        if (null == purchaseOrder.getReview()) {
+            return RestResult.fail("入库单未审核通过，不能进行退货");
+        }
+
+        order.setGid(purchaseOrder.getGid());
+        order.setSid(purchaseOrder.getSid());
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_storage_return_apply, mp_storage_return_review, reviews);
         if (null != ret) {
             return ret;
-        }
-
-        // 入库单未审核不能退货
-        int rid = order.getOid();
-        TStorageOrder storageOrder = storageOrderRepository.find(rid);
-        if (null == storageOrder) {
-            return RestResult.fail("未查询到采购单");
-        }
-        if (null == storageOrder.getReview()) {
-            return RestResult.fail("入库单未审核通过，不能进行退货");
         }
 
         // 生成退货单
@@ -874,7 +876,7 @@ public class StorageService {
         }
 
         // 运费
-        if (fare.compareTo(BigDecimal.ZERO) > 0) {
+        if (null != fare && fare.compareTo(BigDecimal.ZERO) > 0) {
             if (!storageFareRepository.insert(oid, fare)) {
                 return RestResult.fail("添加退货物流费用失败");
             }
@@ -886,12 +888,6 @@ public class StorageService {
      * desc: 仓储退货修改
      */
     public RestResult setReturn(int id, TStorageOrder order, BigDecimal fare, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<BigDecimal> prices, List<Integer> attrs) {
-        val reviews = new ArrayList<Integer>();
-        RestResult ret = check(id, order, mp_storage_return_apply, mp_storage_return_review, reviews);
-        if (null != ret) {
-            return ret;
-        }
-
         // 已经审核的订单不能修改
         int oid = order.getId();
         TStorageOrder storageOrder = storageOrderRepository.find(oid);
@@ -902,12 +898,11 @@ public class StorageService {
             return RestResult.fail("已审核的订单不能修改");
         }
 
-        // 更新仓库信息
-        if (!storageOrder.getSid().equals(order.getSid())) {
-            ret = reviewService.update(order.getOtype(), oid, order.getSid());
-            if (null != ret) {
-                return ret;
-            }
+        order.setGid(storageOrder.getGid());
+        val reviews = new ArrayList<Integer>();
+        RestResult ret = check(id, order, mp_storage_return_apply, mp_storage_return_review, reviews);
+        if (null != ret) {
+            return ret;
         }
 
         // 生成退货单
@@ -927,7 +922,7 @@ public class StorageService {
         }
 
         // 运费
-        if (fare.compareTo(BigDecimal.ZERO) > 0) {
+        if (null != fare && fare.compareTo(BigDecimal.ZERO) > 0) {
             storageFareRepository.delete(oid);
             if (!storageFareRepository.insert(oid, fare)) {
                 return RestResult.fail("添加退货物流费用失败");
@@ -955,7 +950,7 @@ public class StorageService {
         if (!storageCommodityRepository.delete(oid)) {
             return RestResult.fail("删除关联商品失败");
         }
-        if (!storageAttachmentRepository.delete(oid)) {
+        if (!storageAttachmentRepository.deleteByOid(oid)) {
             return RestResult.fail("删除关联商品附件失败");
         }
         if (!storageOrderRepository.delete(oid)) {
@@ -1017,7 +1012,7 @@ public class StorageService {
                 return RestResult.fail("添加运费记录失败");
             }
         }
-        return reviewService.review(id, order.getGid(), order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
+        return reviewService.review(order.getApply(), id, order.getGid(), order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
     }
 
     public RestResult revokeReturn(int id, int oid) {

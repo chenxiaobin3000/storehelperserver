@@ -176,7 +176,7 @@ public class CloudService {
         if (!cloudCommodityRepository.delete(oid)) {
             return RestResult.fail("删除关联商品失败");
         }
-        if (!cloudAttachmentRepository.delete(oid)) {
+        if (!cloudAttachmentRepository.deleteByOid(oid)) {
             return RestResult.fail("删除关联商品附件失败");
         }
         if (!cloudOrderRepository.delete(oid)) {
@@ -219,7 +219,7 @@ public class CloudService {
         if (null != msg) {
             return RestResult.fail(msg);
         }
-        return reviewService.review(id, order.getGid(), order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
+        return reviewService.review(order.getApply(), id, order.getGid(), order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
     }
 
     public RestResult revokePurchase(int id, int oid) {
@@ -357,7 +357,7 @@ public class CloudService {
         if (!cloudCommodityRepository.delete(oid)) {
             return RestResult.fail("删除关联商品失败");
         }
-        if (!cloudAttachmentRepository.delete(oid)) {
+        if (!cloudAttachmentRepository.deleteByOid(oid)) {
             return RestResult.fail("删除关联商品附件失败");
         }
         if (!cloudOrderRepository.delete(oid)) {
@@ -396,7 +396,7 @@ public class CloudService {
         if (null != msg) {
             return RestResult.fail(msg);
         }
-        return reviewService.review(id, order.getGid(), order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
+        return reviewService.review(order.getApply(), id, order.getGid(), order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
     }
 
     public RestResult revokeLoss(int id, int oid) {
@@ -439,20 +439,22 @@ public class CloudService {
      * desc: 云仓退货
      */
     public RestResult returnc(int id, TCloudOrder order, BigDecimal fare, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<BigDecimal> prices, List<Integer> attrs) {
+        // 入库单未审核不能退货
+        int rid = order.getOid();
+        TPurchaseOrder purchaseOrder = purchaseOrderRepository.find(rid);
+        if (null == purchaseOrder) {
+            return RestResult.fail("未查询到采购单");
+        }
+        if (null == purchaseOrder.getReview()) {
+            return RestResult.fail("入库单未审核通过，不能进行退货");
+        }
+
+        order.setGid(purchaseOrder.getGid());
+        order.setSid(purchaseOrder.getSid());
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_cloud_return_apply, mp_cloud_return_review, reviews);
         if (null != ret) {
             return ret;
-        }
-
-        // 入库单未审核不能退货
-        int rid = order.getOid();
-        TCloudOrder cloudOrder = cloudOrderRepository.find(rid);
-        if (null == cloudOrder) {
-            return RestResult.fail("未查询到采购单");
-        }
-        if (null == cloudOrder.getReview()) {
-            return RestResult.fail("入库单未审核通过，不能进行退货");
         }
 
         // 生成退货单
@@ -477,7 +479,7 @@ public class CloudService {
         }
 
         // 运费
-        if (fare.compareTo(BigDecimal.ZERO) > 0) {
+        if (null != fare && fare.compareTo(BigDecimal.ZERO) > 0) {
             if (!cloudFareRepository.insert(oid, fare)) {
                 return RestResult.fail("添加退货物流费用失败");
             }
@@ -489,12 +491,6 @@ public class CloudService {
      * desc: 云仓退货修改
      */
     public RestResult setReturn(int id, TCloudOrder order, BigDecimal fare, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<BigDecimal> prices, List<Integer> attrs) {
-        val reviews = new ArrayList<Integer>();
-        RestResult ret = check(id, order, mp_cloud_return_apply, mp_cloud_return_review, reviews);
-        if (null != ret) {
-            return ret;
-        }
-
         // 已经审核的订单不能修改
         int oid = order.getId();
         TCloudOrder cloudOrder = cloudOrderRepository.find(oid);
@@ -505,12 +501,11 @@ public class CloudService {
             return RestResult.fail("已审核的订单不能修改");
         }
 
-        // 更新仓库信息
-        if (!cloudOrder.getSid().equals(order.getSid())) {
-            ret = reviewService.update(order.getOtype(), oid, order.getSid());
-            if (null != ret) {
-                return ret;
-            }
+        order.setGid(cloudOrder.getGid());
+        val reviews = new ArrayList<Integer>();
+        RestResult ret = check(id, order, mp_cloud_return_apply, mp_cloud_return_review, reviews);
+        if (null != ret) {
+            return ret;
         }
 
         // 生成退货单
@@ -530,7 +525,7 @@ public class CloudService {
         }
 
         // 运费
-        if (fare.compareTo(BigDecimal.ZERO) > 0) {
+        if (null != fare && fare.compareTo(BigDecimal.ZERO) > 0) {
             cloudFareRepository.delete(oid);
             if (!cloudFareRepository.insert(oid, fare)) {
                 return RestResult.fail("添加退货物流费用失败");
@@ -558,7 +553,7 @@ public class CloudService {
         if (!cloudCommodityRepository.delete(oid)) {
             return RestResult.fail("删除关联商品失败");
         }
-        if (!cloudAttachmentRepository.delete(oid)) {
+        if (!cloudAttachmentRepository.deleteByOid(oid)) {
             return RestResult.fail("删除关联商品附件失败");
         }
         if (!cloudOrderRepository.delete(oid)) {
@@ -620,7 +615,7 @@ public class CloudService {
                 return RestResult.fail("添加运费记录失败");
             }
         }
-        return reviewService.review(id, order.getGid(), order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
+        return reviewService.review(order.getApply(), id, order.getGid(), order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
     }
 
     public RestResult revokeReturn(int id, int oid) {

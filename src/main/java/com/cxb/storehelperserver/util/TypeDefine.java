@@ -15,8 +15,8 @@ public class TypeDefine {
         STORAGE_PURCHASE2_ORDER(5),     // 仓储调度入库订单
         STORAGE_LOSS_ORDER(6),          // 仓储损耗订单
         STORAGE_RETURN_ORDER(7),        // 仓储退货订单
-        PRODUCT_PROCESS_ORDER(8),       // 生产入库订单
-        PRODUCT_COMPLETE_ORDER(9),      // 生产出库订单
+        PRODUCT_PROCESS_ORDER(8),       // 生产开始订单
+        PRODUCT_COMPLETE_ORDER(9),      // 生产完成订单
         PRODUCT_LOSS_ORDER(10),         // 生产损耗订单
         AGREEMENT_SHIPPED_ORDER(11),    // 履约入库订单
         AGREEMENT_RETURN_ORDER(12),     // 履约出库订单

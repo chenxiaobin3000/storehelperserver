@@ -165,7 +165,7 @@ public class ProductService {
         if (!productCommodityRepository.delete(oid)) {
             return RestResult.fail("删除关联商品失败");
         }
-        if (!productAttachmentRepository.delete(oid)) {
+        if (!productAttachmentRepository.deleteByOid(oid)) {
             return RestResult.fail("删除关联商品附件失败");
         }
         if (!productOrderRepository.delete(oid)) {
@@ -204,7 +204,7 @@ public class ProductService {
         if (null != msg) {
             return RestResult.fail(msg);
         }
-        return reviewService.review(id, order.getGid(), order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
+        return reviewService.review(order.getApply(), id, order.getGid(), order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
     }
 
     public RestResult revokeProcess(int id, int oid) {
@@ -338,7 +338,7 @@ public class ProductService {
         if (!productCommodityRepository.delete(oid)) {
             return RestResult.fail("删除关联商品失败");
         }
-        if (!productAttachmentRepository.delete(oid)) {
+        if (!productAttachmentRepository.deleteByOid(oid)) {
             return RestResult.fail("删除关联商品附件失败");
         }
         if (!productOrderRepository.delete(oid)) {
@@ -377,7 +377,7 @@ public class ProductService {
         if (null != msg) {
             return RestResult.fail(msg);
         }
-        return reviewService.review(id, order.getGid(), order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
+        return reviewService.review(order.getApply(), id, order.getGid(), order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
     }
 
     public RestResult revokeComplete(int id, int oid) {
@@ -511,7 +511,7 @@ public class ProductService {
         if (!productCommodityRepository.delete(oid)) {
             return RestResult.fail("删除关联商品失败");
         }
-        if (!productAttachmentRepository.delete(oid)) {
+        if (!productAttachmentRepository.deleteByOid(oid)) {
             return RestResult.fail("删除关联商品附件失败");
         }
         if (!productOrderRepository.delete(oid)) {
@@ -550,7 +550,7 @@ public class ProductService {
         if (null != msg) {
             return RestResult.fail(msg);
         }
-        return reviewService.review(id, order.getGid(), order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
+        return reviewService.review(order.getApply(), id, order.getGid(), order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
     }
 
     public RestResult revokeLoss(int id, int oid) {

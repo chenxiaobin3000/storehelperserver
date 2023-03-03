@@ -1,5 +1,6 @@
 package com.cxb.storehelperserver.repository.mapper;
 
+import com.cxb.storehelperserver.model.TUserOrderComplete;
 import com.cxb.storehelperserver.repository.model.MyUserOrderComplete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -14,6 +15,19 @@ import java.util.List;
  */
 @Mapper
 public interface MyUserOrderCompleteMapper {
+    @Select({"<script>",
+            "select count(id) from t_user_order_complete where (aid = #{aid} or cid = #{cid})",
+            "<if test='null != search'>and batch like %#{search}%</if>",
+            "</script>"})
+    int count(int aid, int cid, String search);
+
+    @Select({"<script>",
+            "select aid, cid, gid, sid, otype, oid, batch, cdate, ctime from t_user_order_complete",
+            "where (aid = #{aid} or cid = #{cid}) <if test='null != search'>and batch like %#{search}%</if>",
+            "order by ctime desc limit #{offset}, #{limit}",
+            "</script>"})
+    List<TUserOrderComplete> pagination(int offset, int limit, int aid, int cid, String search);
+
     @Select({"<script>",
             "select count(t1.id) as cnum, sum(t2.value) as ctotal, t1.otype, t1.cdate",
             "from t_user_order_complete t1 left join t_agreement_commodity t2 on t1.oid = t2.oid",
