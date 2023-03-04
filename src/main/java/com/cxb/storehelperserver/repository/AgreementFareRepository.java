@@ -3,11 +3,13 @@ package com.cxb.storehelperserver.repository;
 import com.cxb.storehelperserver.mapper.TAgreementFareMapper;
 import com.cxb.storehelperserver.model.TAgreementFare;
 import com.cxb.storehelperserver.model.TAgreementFareExample;
+import com.cxb.storehelperserver.repository.mapper.MyFareMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -21,11 +23,18 @@ public class AgreementFareRepository extends BaseRepository<List> {
     @Resource
     private TAgreementFareMapper agreementFareMapper;
 
+    @Resource
+    private MyFareMapper myFareMapper;
+
     public AgreementFareRepository() {
         init("agreeFare::");
     }
 
-    public List<TAgreementFare> find(int oid) {
+    public TAgreementFare find(int id) {
+        return agreementFareMapper.selectByPrimaryKey(id);
+    }
+
+    public List<TAgreementFare> findByOid(int oid) {
         List<TAgreementFare> agreementFares = getCache(oid, List.class);
         if (null != agreementFares) {
             return agreementFares;
@@ -41,12 +50,13 @@ public class AgreementFareRepository extends BaseRepository<List> {
         return agreementFares;
     }
 
-    public boolean insert(int oid, BigDecimal fare) {
+    public boolean insert(int oid, BigDecimal fare, Date cdate) {
         TAgreementFare row = new TAgreementFare();
         row.setOid(oid);
         row.setFare(fare);
+        row.setCdate(cdate);
         if (agreementFareMapper.insert(row) > 0) {
-            delCache(row.getOid());
+            delCache(oid);
             return true;
         }
         return false;
@@ -67,5 +77,10 @@ public class AgreementFareRepository extends BaseRepository<List> {
         }
         delCache(agreementFare.getOid());
         return agreementFareMapper.deleteByPrimaryKey(id) > 0;
+    }
+
+    public boolean setReviewNull(int oid) {
+        delCache(oid);
+        return myFareMapper.setAgreementFareReviewNull(oid) > 0;
     }
 }

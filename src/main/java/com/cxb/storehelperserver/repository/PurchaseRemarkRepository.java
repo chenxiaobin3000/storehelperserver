@@ -7,16 +7,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 
 /**
- * desc: 采购退货关联仓库
+ * desc: 采购备注关联仓库
  * auth: cxb
  * date: 2023/1/21
  */
 @Slf4j
 @Repository
-public class PurchaseRemarkRepository extends BaseRepository<TPurchaseRemark> {
+public class PurchaseRemarkRepository extends BaseRepository<List> {
     @Resource
     private TPurchaseRemarkMapper purchaseRemarkMapper;
 
@@ -24,28 +25,33 @@ public class PurchaseRemarkRepository extends BaseRepository<TPurchaseRemark> {
         init("purRemark::");
     }
 
-    public TPurchaseRemark find(int oid) {
-        TPurchaseRemark purchaseRemark = getCache(oid, TPurchaseRemark.class);
-        if (null != purchaseRemark) {
-            return purchaseRemark;
+    public TPurchaseRemark find(int id) {
+        return purchaseRemarkMapper.selectByPrimaryKey(id);
+    }
+
+    public List<TPurchaseRemark> findByOid(int oid) {
+        List<TPurchaseRemark> purchaseRemarks = getCache(oid, List.class);
+        if (null != purchaseRemarks) {
+            return purchaseRemarks;
         }
 
         // 缓存没有就查询数据库
         TPurchaseRemarkExample example = new TPurchaseRemarkExample();
         example.or().andOidEqualTo(oid);
-        purchaseRemark = purchaseRemarkMapper.selectOneByExample(example);
-        if (null != purchaseRemark) {
-            setCache(oid, purchaseRemark);
+        purchaseRemarks = purchaseRemarkMapper.selectByExample(example);
+        if (null != purchaseRemarks) {
+            setCache(oid, purchaseRemarks);
         }
-        return purchaseRemark;
+        return purchaseRemarks;
     }
 
-    public boolean insert(int oid, String remark) {
+    public boolean insert(int oid, String remark, Date cdate) {
         TPurchaseRemark row = new TPurchaseRemark();
         row.setOid(oid);
         row.setRemark(remark);
+        row.setCdate(cdate);
         if (purchaseRemarkMapper.insert(row) > 0) {
-            setCache(oid, row);
+            delCache(oid);
             return true;
         }
         return false;
@@ -53,7 +59,7 @@ public class PurchaseRemarkRepository extends BaseRepository<TPurchaseRemark> {
 
     public boolean update(TPurchaseRemark row) {
         if (purchaseRemarkMapper.updateByPrimaryKey(row) > 0) {
-            setCache(row.getOid(), row);
+            delCache(row.getOid());
             return true;
         }
         return false;

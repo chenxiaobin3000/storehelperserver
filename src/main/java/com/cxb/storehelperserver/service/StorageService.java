@@ -295,7 +295,7 @@ public class StorageService {
 
         // 运费
         if (null != fare && fare.compareTo(BigDecimal.ZERO) > 0) {
-            if (!storageFareRepository.insert(oid, fare)) {
+            if (!storageFareRepository.insert(oid, fare, new Date())) {
                 return RestResult.fail("添加调度物流费用失败");
             }
         }
@@ -348,7 +348,7 @@ public class StorageService {
         // 运费
         if (null != fare && fare.compareTo(BigDecimal.ZERO) > 0) {
             storageFareRepository.delete(oid);
-            if (!storageFareRepository.insert(oid, fare)) {
+            if (!storageFareRepository.insert(oid, fare, new Date())) {
                 return RestResult.fail("添加调度物流费用失败");
             }
         }
@@ -416,7 +416,7 @@ public class StorageService {
             return RestResult.fail(msg);
         }
         // 财务记录
-        val fares = storageFareRepository.find(oid);
+        val fares = storageFareRepository.findByOid(oid);
         for (TStorageFare fare : fares) {
             if (!financeService.insertRecord(id, group.getGid(), FINANCE_STORAGE_FARE, order.getId(), fare.getFare().negate())) {
                 return RestResult.fail("添加运费记录失败");
@@ -459,7 +459,7 @@ public class StorageService {
             return RestResult.fail(msg);
         }
         // 财务记录
-        val fares = storageFareRepository.find(oid);
+        val fares = storageFareRepository.findByOid(oid);
         for (TStorageFare fare : fares) {
             if (!financeService.insertRecord(id, gid, FINANCE_STORAGE_FARE, order.getId(), fare.getFare())) {
                 return RestResult.fail("添加运费记录失败");
@@ -877,7 +877,7 @@ public class StorageService {
 
         // 运费
         if (null != fare && fare.compareTo(BigDecimal.ZERO) > 0) {
-            if (!storageFareRepository.insert(oid, fare)) {
+            if (!storageFareRepository.insert(oid, fare, new Date())) {
                 return RestResult.fail("添加退货物流费用失败");
             }
         }
@@ -924,7 +924,7 @@ public class StorageService {
         // 运费
         if (null != fare && fare.compareTo(BigDecimal.ZERO) > 0) {
             storageFareRepository.delete(oid);
-            if (!storageFareRepository.insert(oid, fare)) {
+            if (!storageFareRepository.insert(oid, fare, new Date())) {
                 return RestResult.fail("添加退货物流费用失败");
             }
         }
@@ -1006,7 +1006,7 @@ public class StorageService {
         if (!financeService.insertRecord(id, group.getGid(), FINANCE_STORAGE_RET, order.getId(), order.getPrice())) {
             return RestResult.fail("添加财务记录失败");
         }
-        val fares = storageFareRepository.find(oid);
+        val fares = storageFareRepository.findByOid(oid);
         for (TStorageFare fare : fares) {
             if (!financeService.insertRecord(id, group.getGid(), FINANCE_STORAGE_FARE2, order.getId(), fare.getFare().negate())) {
                 return RestResult.fail("添加运费记录失败");
@@ -1055,7 +1055,7 @@ public class StorageService {
         if (!financeService.insertRecord(id, gid, FINANCE_STORAGE_RET, order.getId(), money.negate())) {
             return RestResult.fail("添加财务记录失败");
         }
-        val fares = storageFareRepository.find(oid);
+        val fares = storageFareRepository.findByOid(oid);
         for (TStorageFare fare : fares) {
             if (!financeService.insertRecord(id, gid, FINANCE_STORAGE_FARE2, order.getId(), fare.getFare())) {
                 return RestResult.fail("添加运费记录失败");

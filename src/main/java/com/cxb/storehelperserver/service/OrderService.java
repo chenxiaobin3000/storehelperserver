@@ -6,7 +6,6 @@ import com.cxb.storehelperserver.util.DateUtil;
 import com.cxb.storehelperserver.util.RestResult;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.springframework.data.redis.connection.SortParameters;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,7 +14,6 @@ import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Objects;
 
 import static com.cxb.storehelperserver.util.TypeDefine.OrderType;
 
@@ -109,6 +107,9 @@ public class OrderService {
                 if (null != datas) {
                     ret.put("comms", datas.get("comms"));
                     ret.put("attrs", datas.get("attrs"));
+                    ret.put("fares", datas.get("fares"));
+                    ret.put("total", datas.get("total"));
+                    ret.put("remarks", datas.get("remarks"));
                 }
                 list2.add(ret);
             }
@@ -147,6 +148,9 @@ public class OrderService {
                 if (null != datas) {
                     ret.put("comms", datas.get("comms"));
                     ret.put("attrs", datas.get("attrs"));
+                    ret.put("fares", datas.get("fares"));
+                    ret.put("total", datas.get("total"));
+                    ret.put("remarks", datas.get("remarks"));
                 }
                 list2.add(ret);
             }
@@ -185,6 +189,8 @@ public class OrderService {
                 if (null != datas) {
                     ret.put("comms", datas.get("comms"));
                     ret.put("attrs", datas.get("attrs"));
+                    ret.put("fares", datas.get("fares"));
+                    ret.put("remarks", datas.get("remarks"));
                 }
                 list2.add(ret);
             }
@@ -223,6 +229,9 @@ public class OrderService {
                 if (null != datas) {
                     ret.put("comms", datas.get("comms"));
                     ret.put("attrs", datas.get("attrs"));
+                    ret.put("fares", datas.get("fares"));
+                    ret.put("total", datas.get("total"));
+                    ret.put("remarks", datas.get("remarks"));
                 }
                 list2.add(ret);
             }
@@ -261,6 +270,9 @@ public class OrderService {
                 if (null != datas) {
                     ret.put("comms", datas.get("comms"));
                     ret.put("attrs", datas.get("attrs"));
+                    ret.put("fares", datas.get("fares"));
+                    ret.put("total", datas.get("total"));
+                    ret.put("remarks", datas.get("remarks"));
                 }
                 list2.add(ret);
             }
@@ -297,6 +309,9 @@ public class OrderService {
                         if (null != datas) {
                             ret.put("comms", datas.get("comms"));
                             ret.put("attrs", datas.get("attrs"));
+                            ret.put("fares", datas.get("fares"));
+                            ret.put("total", datas.get("total"));
+                            ret.put("remarks", datas.get("remarks"));
                         }
                         list2.add(ret);
                         break;
@@ -311,6 +326,9 @@ public class OrderService {
                         if (null != datas) {
                             ret.put("comms", datas.get("comms"));
                             ret.put("attrs", datas.get("attrs"));
+                            ret.put("fares", datas.get("fares"));
+                            ret.put("total", datas.get("total"));
+                            ret.put("remarks", datas.get("remarks"));
                         }
                         list2.add(ret);
                         break;
@@ -325,6 +343,8 @@ public class OrderService {
                         if (null != datas) {
                             ret.put("comms", datas.get("comms"));
                             ret.put("attrs", datas.get("attrs"));
+                            ret.put("fares", datas.get("fares"));
+                            ret.put("remarks", datas.get("remarks"));
                         }
                         list2.add(ret);
                         break;
@@ -338,6 +358,9 @@ public class OrderService {
                         if (null != datas) {
                             ret.put("comms", datas.get("comms"));
                             ret.put("attrs", datas.get("attrs"));
+                            ret.put("fares", datas.get("fares"));
+                            ret.put("total", datas.get("total"));
+                            ret.put("remarks", datas.get("remarks"));
                         }
                         list2.add(ret);
                         break;
@@ -353,6 +376,9 @@ public class OrderService {
                         if (null != datas) {
                             ret.put("comms", datas.get("comms"));
                             ret.put("attrs", datas.get("attrs"));
+                            ret.put("fares", datas.get("fares"));
+                            ret.put("total", datas.get("total"));
+                            ret.put("remarks", datas.get("remarks"));
                         }
                         list2.add(ret);
                         break;
@@ -394,6 +420,9 @@ public class OrderService {
                         if (null != datas) {
                             ret.put("comms", datas.get("comms"));
                             ret.put("attrs", datas.get("attrs"));
+                            ret.put("fares", datas.get("fares"));
+                            ret.put("total", datas.get("total"));
+                            ret.put("remarks", datas.get("remarks"));
                         }
                         list2.add(ret);
                         break;
@@ -408,6 +437,9 @@ public class OrderService {
                         if (null != datas) {
                             ret.put("comms", datas.get("comms"));
                             ret.put("attrs", datas.get("attrs"));
+                            ret.put("fares", datas.get("fares"));
+                            ret.put("total", datas.get("total"));
+                            ret.put("remarks", datas.get("remarks"));
                         }
                         list2.add(ret);
                         break;
@@ -422,6 +454,8 @@ public class OrderService {
                         if (null != datas) {
                             ret.put("comms", datas.get("comms"));
                             ret.put("attrs", datas.get("attrs"));
+                            ret.put("fares", datas.get("fares"));
+                            ret.put("remarks", datas.get("remarks"));
                         }
                         list2.add(ret);
                         break;
@@ -435,6 +469,9 @@ public class OrderService {
                         if (null != datas) {
                             ret.put("comms", datas.get("comms"));
                             ret.put("attrs", datas.get("attrs"));
+                            ret.put("fares", datas.get("fares"));
+                            ret.put("total", datas.get("total"));
+                            ret.put("remarks", datas.get("remarks"));
                         }
                         list2.add(ret);
                         break;
@@ -450,6 +487,9 @@ public class OrderService {
                         if (null != datas) {
                             ret.put("comms", datas.get("comms"));
                             ret.put("attrs", datas.get("attrs"));
+                            ret.put("fares", datas.get("fares"));
+                            ret.put("total", datas.get("total"));
+                            ret.put("remarks", datas.get("remarks"));
                         }
                         list2.add(ret);
                         break;
@@ -492,6 +532,9 @@ public class OrderService {
                         if (null != datas) {
                             ret.put("comms", datas.get("comms"));
                             ret.put("attrs", datas.get("attrs"));
+                            ret.put("fares", datas.get("fares"));
+                            ret.put("total", datas.get("total"));
+                            ret.put("remarks", datas.get("remarks"));
                         }
                         list2.add(ret);
                         break;
@@ -506,6 +549,9 @@ public class OrderService {
                         if (null != datas) {
                             ret.put("comms", datas.get("comms"));
                             ret.put("attrs", datas.get("attrs"));
+                            ret.put("fares", datas.get("fares"));
+                            ret.put("total", datas.get("total"));
+                            ret.put("remarks", datas.get("remarks"));
                         }
                         list2.add(ret);
                         break;
@@ -520,6 +566,8 @@ public class OrderService {
                         if (null != datas) {
                             ret.put("comms", datas.get("comms"));
                             ret.put("attrs", datas.get("attrs"));
+                            ret.put("fares", datas.get("fares"));
+                            ret.put("remarks", datas.get("remarks"));
                         }
                         list2.add(ret);
                         break;
@@ -533,6 +581,9 @@ public class OrderService {
                         if (null != datas) {
                             ret.put("comms", datas.get("comms"));
                             ret.put("attrs", datas.get("attrs"));
+                            ret.put("fares", datas.get("fares"));
+                            ret.put("total", datas.get("total"));
+                            ret.put("remarks", datas.get("remarks"));
                         }
                         list2.add(ret);
                         break;
@@ -548,6 +599,9 @@ public class OrderService {
                         if (null != datas) {
                             ret.put("comms", datas.get("comms"));
                             ret.put("attrs", datas.get("attrs"));
+                            ret.put("fares", datas.get("fares"));
+                            ret.put("total", datas.get("total"));
+                            ret.put("remarks", datas.get("remarks"));
                         }
                         list2.add(ret);
                         break;

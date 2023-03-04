@@ -105,7 +105,7 @@ public class AgreementService {
         // TODO 扣库存
         // 运费
         if (null != fare && fare.compareTo(BigDecimal.ZERO) > 0) {
-            if (!agreementFareRepository.insert(oid, fare)) {
+            if (!agreementFareRepository.insert(oid, fare, new Date())) {
                 return RestResult.fail("添加发货物流费用失败");
             }
         }
@@ -159,7 +159,7 @@ public class AgreementService {
         // 运费
         if (null != fare && fare.compareTo(BigDecimal.ZERO) > 0) {
             agreementFareRepository.delete(oid);
-            if (!agreementFareRepository.insert(oid, fare)) {
+            if (!agreementFareRepository.insert(oid, fare, new Date())) {
                 return RestResult.fail("添加发货物流费用失败");
             }
         }
@@ -221,7 +221,7 @@ public class AgreementService {
         }
 
         // 财务记录
-        val fares = agreementFareRepository.find(oid);
+        val fares = agreementFareRepository.findByOid(oid);
         for (TAgreementFare fare : fares) {
             if (!financeService.insertRecord(id, group.getGid(), FINANCE_AGREEMENT_FARE, order.getId(), fare.getFare().negate())) {
                 return RestResult.fail("添加运费记录失败");
@@ -265,7 +265,7 @@ public class AgreementService {
         }
 
         // 财务记录
-        val fares = agreementFareRepository.find(oid);
+        val fares = agreementFareRepository.findByOid(oid);
         for (TAgreementFare fare : fares) {
             if (!financeService.insertRecord(id, gid, FINANCE_AGREEMENT_FARE, order.getId(), fare.getFare())) {
                 return RestResult.fail("添加运费记录失败");
@@ -329,7 +329,7 @@ public class AgreementService {
 
         // 运费
         if (null != fare && fare.compareTo(BigDecimal.ZERO) > 0) {
-            if (!agreementFareRepository.insert(oid, fare)) {
+            if (!agreementFareRepository.insert(oid, fare, new Date())) {
                 return RestResult.fail("添加退货物流费用失败");
             }
         }
@@ -377,7 +377,7 @@ public class AgreementService {
         // 运费
         if (null != fare && fare.compareTo(BigDecimal.ZERO) > 0) {
             agreementFareRepository.delete(oid);
-            if (!agreementFareRepository.insert(oid, fare)) {
+            if (!agreementFareRepository.insert(oid, fare, new Date())) {
                 return RestResult.fail("添加退货物流费用失败");
             }
         }
@@ -457,7 +457,7 @@ public class AgreementService {
         // TODO 增加库存
 
         // 财务记录
-        val fares = agreementFareRepository.find(oid);
+        val fares = agreementFareRepository.findByOid(oid);
         for (TAgreementFare fare : fares) {
             if (!financeService.insertRecord(id, group.getGid(), FINANCE_AGREEMENT_FARE2, order.getId(), fare.getFare().negate())) {
                 return RestResult.fail("添加运费记录失败");
@@ -502,7 +502,7 @@ public class AgreementService {
         // TODO 减少库存
 
         // 财务记录
-        val fares = agreementFareRepository.find(oid);
+        val fares = agreementFareRepository.findByOid(oid);
         for (TAgreementFare fare : fares) {
             if (!financeService.insertRecord(id, gid, FINANCE_PURCHASE_FARE2, order.getId(), fare.getFare())) {
                 return RestResult.fail("添加运费记录失败");

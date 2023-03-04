@@ -2,6 +2,7 @@ package com.cxb.storehelperserver.service;
 
 import com.cxb.storehelperserver.model.*;
 import com.cxb.storehelperserver.repository.*;
+import com.cxb.storehelperserver.util.DateUtil;
 import com.cxb.storehelperserver.util.TypeDefine;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -9,6 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,10 +35,19 @@ public class CloudOrderService extends BaseService<HashMap> {
     private CloudAttachmentRepository cloudAttachmentRepository;
 
     @Resource
+    private CloudFareRepository cloudFareRepository;
+
+    @Resource
+    private CloudRemarkRepository cloudRemarkRepository;
+
+    @Resource
     private OriginalRepository originalRepository;
 
     @Resource
     private HalfgoodRepository halfgoodRepository;
+
+    @Resource
+    private DateUtil dateUtil;
 
     public CloudOrderService() {
         init("lossServ::");
@@ -48,6 +60,7 @@ public class CloudOrderService extends BaseService<HashMap> {
         }
 
         // 商品
+        SimpleDateFormat dateFormat = dateUtil.getDateFormat();
         val commoditys = new ArrayList<HashMap<String, Object>>();
         val lossCommodities = cloudCommodityRepository.find(oid);
         if (null != lossCommodities && !lossCommodities.isEmpty()) {
@@ -89,6 +102,37 @@ public class CloudOrderService extends BaseService<HashMap> {
         datas = new HashMap<>();
         datas.put("comms", commoditys);
         datas.put("attrs", cloudAttachmentRepository.findByOid(oid));
+
+        // 运费
+        val fares = cloudFareRepository.findByOid(oid);
+        if (null != fares && !fares.isEmpty()) {
+            val tmps = new ArrayList<HashMap<String, Object>>();
+            val tmp = new HashMap<String, Object>();
+            BigDecimal total = new BigDecimal(0);
+            for (TCloudFare fare : fares) {
+                total = total.add(fare.getFare());
+                tmp.put("id", fare.getId());
+                tmp.put("fare", fare.getFare());
+                tmp.put("cdate", dateFormat.format(fare.getCdate()));
+                tmps.add(tmp);
+            }
+            datas.put("total", total);
+            datas.put("fares", tmps);
+        }
+
+        // 备注
+        val remarks = cloudRemarkRepository.findByOid(oid);
+        if (null != remarks && !remarks.isEmpty()) {
+            val tmps = new ArrayList<HashMap<String, Object>>();
+            val tmp = new HashMap<String, Object>();
+            for (TCloudRemark remark : remarks) {
+                tmp.put("id", remark.getId());
+                tmp.put("remark", remark.getRemark());
+                tmp.put("cdate", dateFormat.format(remark.getCdate()));
+                tmps.add(tmp);
+            }
+            datas.put("remarks", tmps);
+        }
         setCache(oid, datas);
         return datas;
     }
@@ -134,5 +178,9 @@ public class CloudOrderService extends BaseService<HashMap> {
             }
         }
         return null;
+    }
+
+    public void clean(int oid) {
+        delCache(oid);
     }
 }

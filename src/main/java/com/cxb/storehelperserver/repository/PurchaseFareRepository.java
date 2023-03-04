@@ -3,11 +3,13 @@ package com.cxb.storehelperserver.repository;
 import com.cxb.storehelperserver.mapper.TPurchaseFareMapper;
 import com.cxb.storehelperserver.model.TPurchaseFare;
 import com.cxb.storehelperserver.model.TPurchaseFareExample;
+import com.cxb.storehelperserver.repository.mapper.MyFareMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -21,11 +23,18 @@ public class PurchaseFareRepository extends BaseRepository<List> {
     @Resource
     private TPurchaseFareMapper purchaseFareMapper;
 
+    @Resource
+    private MyFareMapper myFareMapper;
+
     public PurchaseFareRepository() {
         init("purFare::");
     }
 
-    public List<TPurchaseFare> find(int oid) {
+    public TPurchaseFare find(int id) {
+        return purchaseFareMapper.selectByPrimaryKey(id);
+    }
+
+    public List<TPurchaseFare> findByOid(int oid) {
         List<TPurchaseFare> purchaseFares = getCache(oid, List.class);
         if (null != purchaseFares) {
             return purchaseFares;
@@ -41,10 +50,11 @@ public class PurchaseFareRepository extends BaseRepository<List> {
         return purchaseFares;
     }
 
-    public boolean insert(int oid, BigDecimal fare) {
+    public boolean insert(int oid, BigDecimal fare, Date cdate) {
         TPurchaseFare row = new TPurchaseFare();
         row.setOid(oid);
         row.setFare(fare);
+        row.setCdate(cdate);
         if (purchaseFareMapper.insert(row) > 0) {
             delCache(oid);
             return true;
@@ -67,5 +77,10 @@ public class PurchaseFareRepository extends BaseRepository<List> {
         }
         delCache(purchaseFare.getOid());
         return purchaseFareMapper.deleteByPrimaryKey(id) > 0;
+    }
+
+    public boolean setReviewNull(int oid) {
+        delCache(oid);
+        return myFareMapper.setPurchaseFareReviewNull(oid) > 0;
     }
 }

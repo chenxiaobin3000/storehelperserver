@@ -49,7 +49,7 @@ public class PurchaseController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return purchaseService.purchase(req.getId(), order, req.getFare(), req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
+        return purchaseService.purchase(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
     }
 
     @PostMapping("/setPurchase")
@@ -61,7 +61,7 @@ public class PurchaseController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return purchaseService.setPurchase(req.getId(), req.getOid(), req.getSid(), applyTime, req.getFare(), req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
+        return purchaseService.setPurchase(req.getId(), req.getOid(), req.getSid(), applyTime, req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
     }
 
     @PostMapping("/delPurchase")
@@ -77,6 +77,16 @@ public class PurchaseController {
     @PostMapping("/revokePurchase")
     public RestResult revokePurchase(@Validated @RequestBody RevokePurchaseValid req) {
         return purchaseService.revokePurchase(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/addPurchaseInfo")
+    public RestResult addPurchaseInfo(@Validated @RequestBody AddPurchaseInfoValid req) {
+        return purchaseService.addPurchaseInfo(req.getId(), req.getOid(), req.getFare(), req.getRemark());
+    }
+
+    @PostMapping("/delPurchaseInfo")
+    public RestResult delPurchaseInfo(@Validated @RequestBody DelPurchaseInfoValid req) {
+        return purchaseService.delPurchaseInfo(req.getId(), req.getOid(), req.getFid(), req.getRid());
     }
 
     @PostMapping("/returnc")
@@ -121,5 +131,15 @@ public class PurchaseController {
     @PostMapping("/revokeReturn")
     public RestResult revokeReturn(@Validated @RequestBody RevokeReturnValid req) {
         return purchaseService.revokeReturn(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/addReturnInfo")
+    public RestResult addReturnInfo(@Validated @RequestBody AddPurchaseInfoValid req) {
+        return purchaseService.addReturnInfo(req.getId(), req.getOid(), req.getFare(), req.getRemark());
+    }
+
+    @PostMapping("/delReturnInfo")
+    public RestResult delReturnInfo(@Validated @RequestBody DelPurchaseInfoValid req) {
+        return purchaseService.delReturnInfo(req.getId(), req.getOid(), req.getFid(), req.getRid());
     }
 }

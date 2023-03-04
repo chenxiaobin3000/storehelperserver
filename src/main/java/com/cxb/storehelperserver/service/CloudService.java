@@ -480,7 +480,7 @@ public class CloudService {
 
         // 运费
         if (null != fare && fare.compareTo(BigDecimal.ZERO) > 0) {
-            if (!cloudFareRepository.insert(oid, fare)) {
+            if (!cloudFareRepository.insert(oid, fare, new Date())) {
                 return RestResult.fail("添加退货物流费用失败");
             }
         }
@@ -527,7 +527,7 @@ public class CloudService {
         // 运费
         if (null != fare && fare.compareTo(BigDecimal.ZERO) > 0) {
             cloudFareRepository.delete(oid);
-            if (!cloudFareRepository.insert(oid, fare)) {
+            if (!cloudFareRepository.insert(oid, fare, new Date())) {
                 return RestResult.fail("添加退货物流费用失败");
             }
         }
@@ -609,7 +609,7 @@ public class CloudService {
         if (!financeService.insertRecord(id, group.getGid(), FINANCE_STORAGE_RET, order.getId(), order.getPrice())) {
             return RestResult.fail("添加财务记录失败");
         }
-        val fares = cloudFareRepository.find(oid);
+        val fares = cloudFareRepository.findByOid(oid);
         for (TCloudFare fare : fares) {
             if (!financeService.insertRecord(id, group.getGid(), FINANCE_STORAGE_FARE2, order.getId(), fare.getFare().negate())) {
                 return RestResult.fail("添加运费记录失败");
@@ -658,7 +658,7 @@ public class CloudService {
         if (!financeService.insertRecord(id, gid, FINANCE_STORAGE_RET, order.getId(), money.negate())) {
             return RestResult.fail("添加财务记录失败");
         }
-        val fares = cloudFareRepository.find(oid);
+        val fares = cloudFareRepository.findByOid(oid);
         for (TCloudFare fare : fares) {
             if (!financeService.insertRecord(id, gid, FINANCE_STORAGE_FARE2, order.getId(), fare.getFare())) {
                 return RestResult.fail("添加运费记录失败");

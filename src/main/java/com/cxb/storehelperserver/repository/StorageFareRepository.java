@@ -3,11 +3,13 @@ package com.cxb.storehelperserver.repository;
 import com.cxb.storehelperserver.mapper.TStorageFareMapper;
 import com.cxb.storehelperserver.model.TStorageFare;
 import com.cxb.storehelperserver.model.TStorageFareExample;
+import com.cxb.storehelperserver.repository.mapper.MyFareMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -21,11 +23,18 @@ public class StorageFareRepository extends BaseRepository<List> {
     @Resource
     private TStorageFareMapper storageFareMapper;
 
+    @Resource
+    private MyFareMapper myFareMapper;
+
     public StorageFareRepository() {
         init("storageFare::");
     }
 
-    public List<TStorageFare> find(int oid) {
+    public TStorageFare find(int id) {
+        return storageFareMapper.selectByPrimaryKey(id);
+    }
+
+    public List<TStorageFare> findByOid(int oid) {
         List<TStorageFare> storageFares = getCache(oid, List.class);
         if (null != storageFares) {
             return storageFares;
@@ -41,10 +50,11 @@ public class StorageFareRepository extends BaseRepository<List> {
         return storageFares;
     }
 
-    public boolean insert(int oid, BigDecimal fare) {
+    public boolean insert(int oid, BigDecimal fare, Date cdate) {
         TStorageFare row = new TStorageFare();
         row.setOid(oid);
         row.setFare(fare);
+        row.setCdate(cdate);
         if (storageFareMapper.insert(row) > 0) {
             delCache(oid);
             return true;
@@ -67,5 +77,10 @@ public class StorageFareRepository extends BaseRepository<List> {
         }
         delCache(storageFare.getOid());
         return storageFareMapper.deleteByPrimaryKey(id) > 0;
+    }
+
+    public boolean setReviewNull(int oid) {
+        delCache(oid);
+        return myFareMapper.setStorageFareReviewNull(oid) > 0;
     }
 }

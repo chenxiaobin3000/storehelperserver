@@ -123,8 +123,6 @@ public class Permission {
     static public final int stock_storagelist = 852;
     static public final int stock_cloud = 853;
     static public final int stock_cloudlist = 854;
-    static public final int stock_storageaddress = 805;
-    static public final int stock_cloudaddress = 856;
 
     static public final int supplier = 900;
     static public final int supplier_getlist = 901;
@@ -138,8 +136,10 @@ public class Permission {
     static public final int system = 1100;
     static public final int system_alarm = 1101;
     static public final int system_groupinfo = 1102;
-    static public final int system_rolelist = 1103;
-    static public final int system_mprolelist = 1104;
+    static public final int system_storageaddress = 1103;
+    static public final int system_cloudaddress = 1104;
+    static public final int system_rolelist = 1105;
+    static public final int system_mprolelist = 1106;
 
     static public final int admin = 8888;
     static public final int admin_changegroup = 8889;
