@@ -227,6 +227,9 @@ public class CloudService {
         if (null == order) {
             return RestResult.fail("未查询到要撤销的订单");
         }
+        if (null == order.getReview()) {
+            return RestResult.fail("未审核的订单不能撤销");
+        }
 
         // 验证公司
         int gid = order.getGid();
@@ -240,7 +243,7 @@ public class CloudService {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
-        RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), mp_cloud_purchase_review);
+        RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApply(), mp_cloud_purchase_review);
         if (null != ret) {
             return ret;
         }
@@ -404,6 +407,9 @@ public class CloudService {
         if (null == order) {
             return RestResult.fail("未查询到要撤销的订单");
         }
+        if (null == order.getReview()) {
+            return RestResult.fail("未审核的订单不能撤销");
+        }
 
         // 验证公司
         int gid = order.getGid();
@@ -417,7 +423,7 @@ public class CloudService {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
-        RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), mp_cloud_loss_review);
+        RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApply(), mp_cloud_loss_review);
         if (null != ret) {
             return ret;
         }
@@ -623,6 +629,9 @@ public class CloudService {
         if (null == order) {
             return RestResult.fail("未查询到要撤销的订单");
         }
+        if (null == order.getReview()) {
+            return RestResult.fail("未审核的订单不能撤销");
+        }
 
         // 验证公司
         int gid = order.getGid();
@@ -636,7 +645,7 @@ public class CloudService {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
-        RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), mp_cloud_return_review);
+        RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApply(), mp_cloud_return_review);
         if (null != ret) {
             return ret;
         }

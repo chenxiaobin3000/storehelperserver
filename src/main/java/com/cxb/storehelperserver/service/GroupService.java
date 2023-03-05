@@ -149,6 +149,33 @@ public class GroupService {
         return RestResult.ok();
     }
 
+    public RestResult getGroup(int id, int gid) {
+        TUserGroup userGroup = userGroupRepository.find(id);
+        if (null == userGroup) {
+            return RestResult.fail("未查询到关联的公司");
+        }
+        TGroup group = groupRepository.find(userGroup.getGid());
+        if (null == group) {
+            return RestResult.fail("未查询到关联公司的信息");
+        }
+        if (!group.getId().equals(gid)) {
+            return RestResult.fail("操作仅限本公司员工");
+        }
+        val data = new HashMap<String, Object>();
+        data.put("name", group.getName());
+        data.put("area", String.valueOf(group.getArea()));
+        data.put("address", group.getAddress());
+        data.put("money", group.getMoney());
+
+        TUser user = userRepository.find(group.getContact());
+        if (null == user) {
+            data.put("contact", group.getContact());
+        } else {
+            data.put("contact", user.getName());
+        }
+        return RestResult.ok(data);
+    }
+
     public RestResult getGroupList(int id, int page, int limit, String search) {
         // 权限校验，必须admin
         if (!checkService.checkRolePermission(id, admin_grouplist)) {

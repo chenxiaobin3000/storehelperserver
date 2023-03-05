@@ -136,7 +136,7 @@ public class ReviewService {
         return RestResult.ok();
     }
 
-    public RestResult revoke(int id, int gid, int sid, int otype, int oid, String batch, int perm) {
+    public RestResult revoke(int id, int gid, int sid, int otype, int oid, String batch, int aid,  int perm) {
         val orderReviewers = orderReviewerRepository.find(gid);
         if (null == orderReviewers || orderReviewers.isEmpty()) {
             return RestResult.fail("未设置订单审核人，请联系系统管理员");
@@ -154,7 +154,7 @@ public class ReviewService {
 
         // 添加用户订单冗余信息
         TUserOrderApply apply = new TUserOrderApply();
-        apply.setUid(id);
+        apply.setUid(aid);
         apply.setGid(gid);
         apply.setSid(sid);
         apply.setOtype(otype);

@@ -107,9 +107,9 @@ public class AgreementOrderService extends BaseService<HashMap> {
         val fares = agreementFareRepository.findByOid(oid);
         if (null != fares && !fares.isEmpty()) {
             val tmps = new ArrayList<HashMap<String, Object>>();
-            val tmp = new HashMap<String, Object>();
             BigDecimal total = new BigDecimal(0);
             for (TAgreementFare fare : fares) {
+                val tmp = new HashMap<String, Object>();
                 total = total.add(fare.getFare());
                 tmp.put("id", fare.getId());
                 tmp.put("fare", fare.getFare());
@@ -124,8 +124,8 @@ public class AgreementOrderService extends BaseService<HashMap> {
         val remarks = agreementRemarkRepository.findByOid(oid);
         if (null != remarks && !remarks.isEmpty()) {
             val tmps = new ArrayList<HashMap<String, Object>>();
-            val tmp = new HashMap<String, Object>();
             for (TAgreementRemark remark : remarks) {
+                val tmp = new HashMap<String, Object>();
                 tmp.put("id", remark.getId());
                 tmp.put("remark", remark.getRemark());
                 tmp.put("cdate", dateFormat.format(remark.getCdate()));

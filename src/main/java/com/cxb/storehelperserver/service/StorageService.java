@@ -227,6 +227,9 @@ public class StorageService {
         if (null == order) {
             return RestResult.fail("未查询到要撤销的订单");
         }
+        if (null == order.getReview()) {
+            return RestResult.fail("未审核的订单不能撤销");
+        }
 
         // 验证公司
         int gid = order.getGid();
@@ -240,7 +243,7 @@ public class StorageService {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
-        RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), mp_storage_purchase_review);
+        RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApply(), mp_storage_purchase_review);
         if (null != ret) {
             return ret;
         }
@@ -430,6 +433,9 @@ public class StorageService {
         if (null == order) {
             return RestResult.fail("未查询到要撤销的订单");
         }
+        if (null == order.getReview()) {
+            return RestResult.fail("未审核的订单不能撤销");
+        }
 
         // 验证公司
         int gid = order.getGid();
@@ -443,7 +449,7 @@ public class StorageService {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
-        RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), mp_storage_dispatch_review);
+        RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApply(), mp_storage_dispatch_review);
         if (null != ret) {
             return ret;
         }
@@ -624,6 +630,9 @@ public class StorageService {
         if (null == order) {
             return RestResult.fail("未查询到要撤销的订单");
         }
+        if (null == order.getReview()) {
+            return RestResult.fail("未审核的订单不能撤销");
+        }
 
         // 验证公司
         int gid = order.getGid();
@@ -637,7 +646,7 @@ public class StorageService {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
-        RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), mp_storage_purchase2_review);
+        RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApply(), mp_storage_purchase2_review);
         if (null != ret) {
             return ret;
         }
@@ -801,6 +810,9 @@ public class StorageService {
         if (null == order) {
             return RestResult.fail("未查询到要撤销的订单");
         }
+        if (null == order.getReview()) {
+            return RestResult.fail("未审核的订单不能撤销");
+        }
 
         // 验证公司
         int gid = order.getGid();
@@ -814,7 +826,7 @@ public class StorageService {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
-        RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), mp_storage_loss_review);
+        RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApply(), mp_storage_loss_review);
         if (null != ret) {
             return ret;
         }
@@ -1020,6 +1032,9 @@ public class StorageService {
         if (null == order) {
             return RestResult.fail("未查询到要撤销的订单");
         }
+        if (null == order.getReview()) {
+            return RestResult.fail("未审核的订单不能撤销");
+        }
 
         // 验证公司
         int gid = order.getGid();
@@ -1033,7 +1048,7 @@ public class StorageService {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
-        RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), mp_storage_return_review);
+        RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApply(), mp_storage_return_review);
         if (null != ret) {
             return ret;
         }

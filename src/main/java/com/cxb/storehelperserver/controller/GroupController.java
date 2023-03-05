@@ -49,6 +49,11 @@ public class GroupController {
         return groupService.delGroup(req.getId(), req.getGid());
     }
 
+    @PostMapping("/getGroup")
+    public RestResult getGroup(@Validated @RequestBody GetGroupValid req) {
+        return groupService.getGroup(req.getId(), req.getGid());
+    }
+
     @PostMapping("/getGroupList")
     public RestResult getGroupList(@Validated @RequestBody GetGroupListValid req) {
         return groupService.getGroupList(req.getId(), req.getPage(), req.getLimit(), req.getSearch());

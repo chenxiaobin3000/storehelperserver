@@ -111,8 +111,8 @@ public class ProductOrderService extends BaseService<HashMap> {
         val remarks = productRemarkRepository.findByOid(oid);
         if (null != remarks && !remarks.isEmpty()) {
             val tmps = new ArrayList<HashMap<String, Object>>();
-            val tmp = new HashMap<String, Object>();
             for (TProductRemark remark : remarks) {
+                val tmp = new HashMap<String, Object>();
                 tmp.put("id", remark.getId());
                 tmp.put("remark", remark.getRemark());
                 tmp.put("cdate", dateFormat.format(remark.getCdate()));

@@ -105,9 +105,9 @@ public class StorageOrderService extends BaseService<HashMap> {
         val fares = storageFareRepository.findByOid(oid);
         if (null != fares && !fares.isEmpty()) {
             val tmps = new ArrayList<HashMap<String, Object>>();
-            val tmp = new HashMap<String, Object>();
             BigDecimal total = new BigDecimal(0);
             for (TStorageFare fare : fares) {
+                val tmp = new HashMap<String, Object>();
                 total = total.add(fare.getFare());
                 tmp.put("id", fare.getId());
                 tmp.put("fare", fare.getFare());
@@ -122,8 +122,8 @@ public class StorageOrderService extends BaseService<HashMap> {
         val remarks = storageRemarkRepository.findByOid(oid);
         if (null != remarks && !remarks.isEmpty()) {
             val tmps = new ArrayList<HashMap<String, Object>>();
-            val tmp = new HashMap<String, Object>();
             for (TStorageRemark remark : remarks) {
+                val tmp = new HashMap<String, Object>();
                 tmp.put("id", remark.getId());
                 tmp.put("remark", remark.getRemark());
                 tmp.put("cdate", dateFormat.format(remark.getCdate()));
