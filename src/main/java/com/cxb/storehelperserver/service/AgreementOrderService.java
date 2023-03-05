@@ -169,7 +169,7 @@ public class AgreementOrderService extends BaseService<HashMap> {
         for (Integer attr : attrs) {
             TAgreementAttachment agreementAttachment = agreementAttachmentRepository.find(attr);
             if (null != agreementAttachment) {
-                if (null == agreementAttachment.getOid()) {
+                if (null == agreementAttachment.getOid() || 0 == agreementAttachment.getOid()) {
                     agreementAttachment.setOid(oid);
                     if (!agreementAttachmentRepository.update(agreementAttachment)) {
                         return "添加订单附件失败";

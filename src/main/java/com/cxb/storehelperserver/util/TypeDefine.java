@@ -152,6 +152,33 @@ public class TypeDefine {
         }
     }
 
+    // 审核类型
+    public enum ReviewType {
+        REVIEW_ALL(1),  // 全部
+        REVIEW_HAS(2),  // 已审核
+        REVIEW_NOT(3);  // 未审核
+
+        private int value = 0;
+
+        private ReviewType(int v) {
+            this.value = v;
+        }
+
+        public static ReviewType valueOf(int v) {
+            switch (v) {
+                case 1:
+                    return REVIEW_ALL;
+                case 2:
+                    return REVIEW_HAS;
+            }
+            return REVIEW_NOT;
+        }
+
+        public int getValue() {
+            return value;
+        }
+    }
+
     // 商品类型
     public enum CommodityType {
         COMMODITY(1),   // 商品

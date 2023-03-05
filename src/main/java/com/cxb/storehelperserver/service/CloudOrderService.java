@@ -169,7 +169,7 @@ public class CloudOrderService extends BaseService<HashMap> {
         for (Integer attr : attrs) {
             TCloudAttachment cloudAttachment = cloudAttachmentRepository.find(attr);
             if (null != cloudAttachment) {
-                if (null == cloudAttachment.getOid()) {
+                if (null == cloudAttachment.getOid() || 0 == cloudAttachment.getOid()) {
                     cloudAttachment.setOid(oid);
                     if (!cloudAttachmentRepository.update(cloudAttachment)) {
                         return "添加订单附件失败";

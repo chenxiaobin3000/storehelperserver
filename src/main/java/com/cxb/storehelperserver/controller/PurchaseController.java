@@ -108,14 +108,13 @@ public class PurchaseController {
     @PostMapping("/setReturn")
     public RestResult setReturn(@Validated @RequestBody SetReturnValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
-        TPurchaseOrder order = new TPurchaseOrder();
-        order.setId(req.getOid());
+        Date applyTime = null;
         try {
-            order.setApplyTime(simpleDateFormat.parse(req.getDate()));
+            applyTime = simpleDateFormat.parse(req.getDate());
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return purchaseService.setReturn(req.getId(), order, req.getFare(), req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
+        return purchaseService.setReturn(req.getId(), req.getOid(), applyTime, req.getFare(), req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
     }
 
     @PostMapping("/delReturn")

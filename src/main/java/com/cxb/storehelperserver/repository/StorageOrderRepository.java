@@ -11,6 +11,8 @@ import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
 
+import static com.cxb.storehelperserver.util.TypeDefine.ReviewType;
+
 /**
  * desc: 进货出入库订单仓库
  * auth: cxb
@@ -43,24 +45,43 @@ public class StorageOrderRepository extends BaseRepository<TStorageOrder> {
         return storageOrder;
     }
 
-    public int total(int gid, int type, String search) {
+    public int total(int gid, int type, ReviewType review, String search) {
         // 包含搜索的不缓存
         TStorageOrderExample example = new TStorageOrderExample();
+        TStorageOrderExample.Criteria criteria = example.createCriteria();
+        criteria.andGidEqualTo(gid).andOtypeEqualTo(type);
         if (null != search) {
-            example.or().andGidEqualTo(gid).andOtypeEqualTo(type).andBatchLike("%" + search + "%");
-            return (int) storageOrderMapper.countByExample(example);
-        } else {
-            example.or().andGidEqualTo(gid).andOtypeEqualTo(type);
-            return (int) storageOrderMapper.countByExample(example);
+            criteria.andBatchLike("%" + search + "%");
         }
+        switch (review) {
+            case REVIEW_HAS:
+                criteria.andReviewIsNotNull();
+                break;
+            case REVIEW_NOT:
+                criteria.andReviewIsNull();
+                break;
+            default:
+                break;
+        }
+        return (int) storageOrderMapper.countByExample(example);
     }
 
-    public List<TStorageOrder> pagination(int gid, int type, int page, int limit, String search) {
+    public List<TStorageOrder> pagination(int gid, int type, int page, int limit, ReviewType review, String search) {
         TStorageOrderExample example = new TStorageOrderExample();
-        if (null == search) {
-            example.or().andGidEqualTo(gid).andOtypeEqualTo(type);
-        } else {
-            example.or().andGidEqualTo(gid).andOtypeEqualTo(type).andBatchLike("%" + search + "%");
+        TStorageOrderExample.Criteria criteria = example.createCriteria();
+        criteria.andGidEqualTo(gid).andOtypeEqualTo(type);
+        if (null != search) {
+            criteria.andBatchLike("%" + search + "%");
+        }
+        switch (review) {
+            case REVIEW_HAS:
+                criteria.andReviewIsNotNull();
+                break;
+            case REVIEW_NOT:
+                criteria.andReviewIsNull();
+                break;
+            default:
+                break;
         }
         example.setOffset((page - 1) * limit);
         example.setLimit(limit);

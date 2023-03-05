@@ -156,7 +156,7 @@ public class ProductOrderService extends BaseService<HashMap> {
         for (Integer attr : attrs) {
             TProductAttachment productAttachment = productAttachmentRepository.find(attr);
             if (null != productAttachment) {
-                if (null == productAttachment.getOid()) {
+                if (null == productAttachment.getOid() || 0 == productAttachment.getOid()) {
                     productAttachment.setOid(oid);
                     if (!productAttachmentRepository.update(productAttachment)) {
                         return "添加订单附件失败";

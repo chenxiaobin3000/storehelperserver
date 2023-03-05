@@ -169,7 +169,7 @@ public class PurchaseOrderService extends BaseService<HashMap> {
         for (Integer attr : attrs) {
             TPurchaseAttachment purchaseAttachment = purchaseAttachmentRepository.find(attr);
             if (null != purchaseAttachment) {
-                if (null == purchaseAttachment.getOid()) {
+                if (null == purchaseAttachment.getOid() || 0 == purchaseAttachment.getOid()) {
                     purchaseAttachment.setOid(oid);
                     if (!purchaseAttachmentRepository.update(purchaseAttachment)) {
                         return "添加订单附件失败";

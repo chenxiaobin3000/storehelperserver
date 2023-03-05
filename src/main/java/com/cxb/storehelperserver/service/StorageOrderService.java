@@ -167,7 +167,7 @@ public class StorageOrderService extends BaseService<HashMap> {
         for (Integer attr : attrs) {
             TStorageAttachment storageAttachment = storageAttachmentRepository.find(attr);
             if (null != storageAttachment) {
-                if (null == storageAttachment.getOid()) {
+                if (null == storageAttachment.getOid() || 0 == storageAttachment.getOid()) {
                     storageAttachment.setOid(oid);
                     if (!storageAttachmentRepository.update(storageAttachment)) {
                         return "添加订单附件失败";
