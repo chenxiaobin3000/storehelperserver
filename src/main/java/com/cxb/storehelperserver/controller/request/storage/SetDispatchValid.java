@@ -20,20 +20,11 @@ public class SetDispatchValid implements IValid {
     @Min(value = 1, message = "账号错误")
     private int id;
 
-    @Min(value = 1, message = "公司账号错误")
-    private int gid;
-
     @Min(value = 1, message = "订单编号错误")
     private int oid;
 
     @Min(value = 1, message = "仓库账号错误")
     private int sid;
-
-    @Min(value = 1, message = "采购单号错误")
-    private int pid;
-
-    @Min(value = 1, message = "运费价格错误")
-    private BigDecimal fare;
 
     @NotEmpty(message = "请输入订单制单日期")
     @Length(min = 19, max = 19, message = "订单制单日期格式错误")

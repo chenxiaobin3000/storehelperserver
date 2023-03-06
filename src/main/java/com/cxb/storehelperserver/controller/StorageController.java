@@ -18,6 +18,7 @@ import javax.annotation.Resource;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import static com.cxb.storehelperserver.util.TypeDefine.OrderType.*;
 
@@ -81,8 +82,6 @@ public class StorageController {
     public RestResult purchase(@Validated @RequestBody PurchaseValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
         TStorageOrder order = new TStorageOrder();
-        order.setGid(req.getGid());
-        order.setSid(req.getSid());
         order.setOtype(STORAGE_PURCHASE_ORDER.getValue());
         order.setApply(req.getId());
         order.setOid(req.getPid());
@@ -97,15 +96,13 @@ public class StorageController {
     @PostMapping("/setPurchase")
     public RestResult setPurchase(@Validated @RequestBody SetPurchaseValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
-        TStorageOrder order = new TStorageOrder();
-        order.setId(req.getOid());
-        order.setSid(req.getSid());
+        Date applyTime = null;
         try {
-            order.setApplyTime(simpleDateFormat.parse(req.getDate()));
+            applyTime = simpleDateFormat.parse(req.getDate());
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return storageService.setPurchase(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
+        return storageService.setPurchase(req.getId(), req.getOid(), applyTime, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/delPurchase")
@@ -123,6 +120,16 @@ public class StorageController {
         return storageService.revokePurchase(req.getId(), req.getOid());
     }
 
+    @PostMapping("/addPurchaseInfo")
+    public RestResult addPurchaseInfo(@Validated @RequestBody AddPurchaseInfoValid req) {
+        return storageService.addPurchaseInfo(req.getId(), req.getOid(), req.getRemark());
+    }
+
+    @PostMapping("/delPurchaseInfo")
+    public RestResult delPurchaseInfo(@Validated @RequestBody DelPurchaseInfoValid req) {
+        return storageService.delPurchaseInfo(req.getId(), req.getOid(), req.getRid());
+    }
+
     @PostMapping("/dispatch")
     public RestResult dispatch(@Validated @RequestBody DispatchValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
@@ -137,21 +144,19 @@ public class StorageController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return storageService.dispatch(req.getId(), order, req.getFare(), req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
+        return storageService.dispatch(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/setDispatch")
     public RestResult setDispatch(@Validated @RequestBody SetDispatchValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
-        TStorageOrder order = new TStorageOrder();
-        order.setId(req.getOid());
-        order.setSid(req.getSid());
+        Date applyTime = null;
         try {
-            order.setApplyTime(simpleDateFormat.parse(req.getDate()));
+            applyTime = simpleDateFormat.parse(req.getDate());
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return storageService.setDispatch(req.getId(), order, req.getFare(), req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
+        return storageService.setDispatch(req.getId(), req.getOid(), req.getSid(), applyTime, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/delDispatch")
@@ -169,15 +174,24 @@ public class StorageController {
         return storageService.revokeDispatch(req.getId(), req.getOid());
     }
 
+    @PostMapping("/addDispatchInfo")
+    public RestResult addDispatchInfo(@Validated @RequestBody AddDispatchInfoValid req) {
+        return storageService.addDispatchInfo(req.getId(), req.getOid(), req.getFare(), req.getRemark());
+    }
+
+    @PostMapping("/delDispatchInfo")
+    public RestResult delDispatchInfo(@Validated @RequestBody DelDispatchInfoValid req) {
+        return storageService.delDispatchInfo(req.getId(), req.getOid(), req.getFid(), req.getRid());
+    }
+
     @PostMapping("/purchase2")
-    public RestResult purchase2(@Validated @RequestBody PurchaseValid req) {
+    public RestResult purchase2(@Validated @RequestBody Purchase2Valid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
         TStorageOrder order = new TStorageOrder();
-        order.setGid(req.getGid());
         order.setSid(req.getSid());
-        order.setOtype(STORAGE_PURCHASE_ORDER.getValue());
+        order.setOtype(STORAGE_PURCHASE2_ORDER.getValue());
         order.setApply(req.getId());
-        order.setOid(req.getPid());
+        order.setOid(req.getDid());
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));
         } catch (ParseException e) {
@@ -187,17 +201,15 @@ public class StorageController {
     }
 
     @PostMapping("/setPurchase2")
-    public RestResult setPurchase2(@Validated @RequestBody SetPurchaseValid req) {
+    public RestResult setPurchase2(@Validated @RequestBody SetPurchase2Valid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
-        TStorageOrder order = new TStorageOrder();
-        order.setId(req.getOid());
-        order.setSid(req.getSid());
+        Date applyTime = null;
         try {
-            order.setApplyTime(simpleDateFormat.parse(req.getDate()));
+            applyTime = simpleDateFormat.parse(req.getDate());
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return storageService.setPurchase2(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
+        return storageService.setPurchase2(req.getId(), req.getOid(), req.getSid(), applyTime, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/delPurchase2")
@@ -213,6 +225,16 @@ public class StorageController {
     @PostMapping("/revokePurchase2")
     public RestResult revokePurchase2(@Validated @RequestBody RevokePurchaseValid req) {
         return storageService.revokePurchase2(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/addDispatch2Info")
+    public RestResult addDispatch2Info(@Validated @RequestBody AddDispatchInfoValid req) {
+        return storageService.addDispatch2Info(req.getId(), req.getOid(), req.getFare(), req.getRemark());
+    }
+
+    @PostMapping("/delDispatch2Info")
+    public RestResult delDispatch2Info(@Validated @RequestBody DelDispatchInfoValid req) {
+        return storageService.delDispatch2Info(req.getId(), req.getOid(), req.getFid(), req.getRid());
     }
 
     @PostMapping("/loss")
@@ -235,15 +257,13 @@ public class StorageController {
     @PostMapping("/setLoss")
     public RestResult setLoss(@Validated @RequestBody SetLossValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
-        TStorageOrder order = new TStorageOrder();
-        order.setId(req.getOid());
-        order.setSid(req.getSid());
+        Date applyTime = null;
         try {
-            order.setApplyTime(simpleDateFormat.parse(req.getDate()));
+            applyTime = simpleDateFormat.parse(req.getDate());
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return storageService.setLoss(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
+        return storageService.setLoss(req.getId(), req.getOid(), req.getSid(), applyTime, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/delLoss")
@@ -261,6 +281,16 @@ public class StorageController {
         return storageService.revokeLoss(req.getId(), req.getOid());
     }
 
+    @PostMapping("/addLossInfo")
+    public RestResult addLossInfo(@Validated @RequestBody AddPurchaseInfoValid req) {
+        return storageService.addLossInfo(req.getId(), req.getOid(), req.getRemark());
+    }
+
+    @PostMapping("/delLossInfo")
+    public RestResult delLossInfo(@Validated @RequestBody DelPurchaseInfoValid req) {
+        return storageService.delLossInfo(req.getId(), req.getOid(), req.getRid());
+    }
+
     @PostMapping("/returnc")
     public RestResult returnc(@Validated @RequestBody ReturnValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
@@ -273,20 +303,19 @@ public class StorageController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return storageService.returnc(req.getId(), order, req.getFare(), req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
+        return storageService.returnc(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
     }
 
     @PostMapping("/setReturn")
     public RestResult setReturn(@Validated @RequestBody SetReturnValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
-        TStorageOrder order = new TStorageOrder();
-        order.setId(req.getOid());
+        Date applyTime = null;
         try {
-            order.setApplyTime(simpleDateFormat.parse(req.getDate()));
+            applyTime = simpleDateFormat.parse(req.getDate());
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return storageService.setReturn(req.getId(), order, req.getFare(), req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
+        return storageService.setReturn(req.getId(), req.getOid(), applyTime, req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
     }
 
     @PostMapping("/delReturn")
@@ -302,5 +331,15 @@ public class StorageController {
     @PostMapping("/revokeReturn")
     public RestResult revokeReturn(@Validated @RequestBody RevokeReturnValid req) {
         return storageService.revokeReturn(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/addReturnInfo")
+    public RestResult addReturnInfo(@Validated @RequestBody AddDispatchInfoValid req) {
+        return storageService.addReturnInfo(req.getId(), req.getOid(), req.getFare(), req.getRemark());
+    }
+
+    @PostMapping("/delReturnInfo")
+    public RestResult delReturnInfo(@Validated @RequestBody DelDispatchInfoValid req) {
+        return storageService.delReturnInfo(req.getId(), req.getOid(), req.getFid(), req.getRid());
     }
 }

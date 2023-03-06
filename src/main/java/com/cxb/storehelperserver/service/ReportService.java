@@ -149,7 +149,7 @@ public class ReportService {
         }
 
         SimpleDateFormat dateFormat = dateUtil.getSimpleDateFormat();
-        Date end = dateUtil.getEndTime(new Date());
+        Date end = dateUtil.getStartTime(dateUtil.addOneDay(new Date(), 1));
         Date start = dateUtil.addOneDay(end, -7);
         List<MyMarketReport> list = null;
         if (COMMODITY.getValue() == type) {
@@ -192,9 +192,34 @@ public class ReportService {
         }
 
         SimpleDateFormat dateFormat = dateUtil.getSimpleDateFormat();
-        Date end = dateUtil.getEndTime(new Date());
+        Date end = dateUtil.getStartTime(dateUtil.addOneDay(new Date(), 1));
         Date start = dateUtil.addOneDay(end, -7);
         val orders = userOrderCompleteRepository.findByAgreement(gid, sid, start, end);
+        val list = new ArrayList<>();
+        for (MyUserOrderComplete order : orders) {
+            val tmp = new HashMap<String, Object>();
+            tmp.put("num", order.getCnum());
+            tmp.put("total", order.getCtotal());
+            tmp.put("type", order.getOtype());
+            tmp.put("date", dateFormat.format(order.getCdate()));
+            list.add(tmp);
+        }
+        val data = new HashMap<String, Object>();
+        data.put("list", list);
+        return RestResult.ok(data);
+    }
+
+    public RestResult getCloudReport(int id, int gid, int sid, ReportCycleType cycle) {
+        // 验证公司
+        String msg = checkService.checkGroup(id, gid);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+
+        SimpleDateFormat dateFormat = dateUtil.getSimpleDateFormat();
+        Date end = dateUtil.getStartTime(dateUtil.addOneDay(new Date(), 1));
+        Date start = dateUtil.addOneDay(end, -7);
+        val orders = userOrderCompleteRepository.findByCloud(gid, sid, start, end);
         val list = new ArrayList<>();
         for (MyUserOrderComplete order : orders) {
             val tmp = new HashMap<String, Object>();
@@ -217,9 +242,34 @@ public class ReportService {
         }
 
         SimpleDateFormat dateFormat = dateUtil.getSimpleDateFormat();
-        Date end = dateUtil.getEndTime(new Date());
+        Date end = dateUtil.getStartTime(dateUtil.addOneDay(new Date(), 1));
         Date start = dateUtil.addOneDay(end, -7);
         val orders = userOrderCompleteRepository.findByProduct(gid, sid, start, end);
+        val list = new ArrayList<>();
+        for (MyUserOrderComplete order : orders) {
+            val tmp = new HashMap<String, Object>();
+            tmp.put("num", order.getCnum());
+            tmp.put("total", order.getCtotal());
+            tmp.put("type", order.getOtype());
+            tmp.put("date", dateFormat.format(order.getCdate()));
+            list.add(tmp);
+        }
+        val data = new HashMap<String, Object>();
+        data.put("list", list);
+        return RestResult.ok(data);
+    }
+
+    public RestResult getPurchaseReport(int id, int gid, int sid, ReportCycleType cycle) {
+        // 验证公司
+        String msg = checkService.checkGroup(id, gid);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+
+        SimpleDateFormat dateFormat = dateUtil.getSimpleDateFormat();
+        Date end = dateUtil.getStartTime(dateUtil.addOneDay(new Date(), 1));
+        Date start = dateUtil.addOneDay(end, -7);
+        val orders = userOrderCompleteRepository.findByPurchase(gid, sid, start, end);
         val list = new ArrayList<>();
         for (MyUserOrderComplete order : orders) {
             val tmp = new HashMap<String, Object>();
@@ -242,7 +292,7 @@ public class ReportService {
         }
 
         SimpleDateFormat dateFormat = dateUtil.getSimpleDateFormat();
-        Date end = dateUtil.getEndTime(new Date());
+        Date end = dateUtil.getStartTime(dateUtil.addOneDay(new Date(), 1));
         Date start = dateUtil.addOneDay(end, -7);
         val orders = userOrderCompleteRepository.findByStorage(gid, sid, start, end);
         val list = new ArrayList<>();
@@ -267,7 +317,7 @@ public class ReportService {
         }
 
         SimpleDateFormat dateFormat = dateUtil.getSimpleDateFormat();
-        Date end = dateUtil.getEndTime(new Date());
+        Date end = dateUtil.getStartTime(dateUtil.addOneDay(new Date(), 1));
         Date start = dateUtil.addOneDay(end, -7);
         List<MyStockReport> stocks = null;
         switch (type) {

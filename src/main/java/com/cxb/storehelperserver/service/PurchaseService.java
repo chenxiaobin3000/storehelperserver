@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 import java.util.*;
 
 import static com.cxb.storehelperserver.util.Permission.*;
+import static com.cxb.storehelperserver.util.Permission.purchase;
 import static com.cxb.storehelperserver.util.TypeDefine.CommodityType;
 import static com.cxb.storehelperserver.util.TypeDefine.FinanceAction.*;
 
@@ -167,11 +168,9 @@ public class PurchaseService {
         }
 
         // 删除商品附件数据
+        purchaseAttachmentRepository.deleteByOid(oid);
         if (!purchaseCommodityRepository.delete(oid)) {
             return RestResult.fail("删除关联商品失败");
-        }
-        if (!purchaseAttachmentRepository.deleteByOid(oid)) {
-            return RestResult.fail("删除关联商品附件失败");
         }
         if (!purchaseOrderRepository.delete(oid)) {
             return RestResult.fail("删除订单失败");
@@ -295,14 +294,14 @@ public class PurchaseService {
         // 运费
         if (null != fare && fare.compareTo(BigDecimal.ZERO) > 0) {
             if (!purchaseFareRepository.insert(oid, fare, new Date())) {
-                return RestResult.fail("添加采购物流费用失败");
+                return RestResult.fail("添加物流费用失败");
             }
         }
 
         // 备注
         if (null != remark && remark.length() > 0) {
             if (!purchaseRemarkRepository.insert(oid, remark, new Date())) {
-                return RestResult.fail("添加采购物流备注失败");
+                return RestResult.fail("添加备注失败");
             }
         }
         return RestResult.ok();
@@ -358,7 +357,7 @@ public class PurchaseService {
     /**
      * desc: 原料退货
      */
-    public RestResult returnc(int id, TPurchaseOrder order, BigDecimal fare, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<BigDecimal> prices, List<Integer> attrs) {
+    public RestResult returnc(int id, TPurchaseOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<BigDecimal> prices, List<Integer> attrs) {
         // 采购单未审核，已入库都不能退货
         int rid = order.getRid();
         TPurchaseOrder purchaseOrder = purchaseOrderRepository.find(rid);
@@ -404,7 +403,7 @@ public class PurchaseService {
     /**
      * desc: 原料退货修改
      */
-    public RestResult setReturn(int id, int oid, Date applyTime, BigDecimal fare, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<BigDecimal> prices, List<Integer> attrs) {
+    public RestResult setReturn(int id, int oid, Date applyTime, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<BigDecimal> prices, List<Integer> attrs) {
         // 已经审核的订单不能修改
         TPurchaseOrder order = purchaseOrderRepository.find(oid);
         if (null == order) {
@@ -457,11 +456,9 @@ public class PurchaseService {
         }
 
         // 删除商品附件数据
+        purchaseAttachmentRepository.deleteByOid(oid);
         if (!purchaseCommodityRepository.delete(oid)) {
             return RestResult.fail("删除关联商品失败");
-        }
-        if (!purchaseAttachmentRepository.deleteByOid(oid)) {
-            return RestResult.fail("删除关联商品附件失败");
         }
         if (!purchaseOrderRepository.delete(oid)) {
             return RestResult.fail("删除订单失败");
@@ -486,18 +483,26 @@ public class PurchaseService {
             return RestResult.fail("您没有审核权限");
         }
 
-        // TODO 校验所有退货单中的每一个商品总数，不能大于采购单中商品数量，申请时只校验单个单据，这里校验所有
-
-        // 修改对应进货单数据
+        // 校验退货订单总价格和总量不能超出采购单
         TPurchaseOrder purchase = purchaseOrderRepository.find(order.getRid());
         if (null == purchase) {
             return RestResult.fail("未查询到对应的进货单");
         }
-        purchase.setCurUnit(purchase.getCurUnit() - order.getUnit());
-        purchase.setCurPrice(purchase.getCurPrice().subtract(order.getPrice()));
+        int unit = purchase.getCurUnit() - order.getUnit();
+        if (unit < 0) {
+            return RestResult.fail("退货商品总量不能超出采购订单总量");
+        }
+        BigDecimal price = purchase.getCurPrice().subtract(order.getPrice());
+        if (price.compareTo(BigDecimal.ZERO) < 0) {
+            return RestResult.fail("退货商品总价不能超出采购订单总价");
+        }
+        purchase.setCurUnit(unit);
+        purchase.setCurPrice(price);
         if (!purchaseOrderRepository.update(purchase)) {
             return RestResult.fail("修改进货单数据失败");
         }
+
+        // TODO 采购数量为0时，标记采购完成
 
         // 添加审核信息
         Date reviewTime = new Date();
@@ -513,7 +518,7 @@ public class PurchaseService {
         }
 
         // 财务记录
-        if (!financeService.insertRecord(id, group.getGid(), FINANCE_PURCHASE_RET, order.getId(), order.getPrice())) {
+        if (!financeService.insertRecord(id, gid, FINANCE_PURCHASE_RET, order.getId(), order.getPrice())) {
             return RestResult.fail("添加财务记录失败");
         }
         val fares = purchaseFareRepository.findByOid(oid);
@@ -615,7 +620,7 @@ public class PurchaseService {
         // 生成采购单
         int size = commoditys.size();
         if (size != types.size() || size != values.size() || size != prices.size()) {
-            return RestResult.fail("商品信息出错");
+            return RestResult.fail("商品信息异常");
         }
         int total = 0;
         BigDecimal price = new BigDecimal(0);
@@ -644,16 +649,17 @@ public class PurchaseService {
             }
 
             // 生成数据
+            int value = values.get(i);
             TPurchaseCommodity c = new TPurchaseCommodity();
             c.setCtype(type.getValue());
             c.setCid(cid);
             c.setUnit(unit);
-            c.setValue(values.get(i));
+            c.setValue(value);
             c.setPrice(prices.get(i));
             list.add(c);
 
-            total = total + unit * values.get(i);
-            price = price.add(prices.get(i));
+            total = total + unit * value;
+            price = price.add(prices.get(i).multiply(new BigDecimal(value)));
         }
         order.setUnit(total);
         order.setPrice(price);
@@ -666,9 +672,12 @@ public class PurchaseService {
         // 生成退货单
         int size = commoditys.size();
         if (size != types.size() || size != values.size() || size != prices.size()) {
-            return RestResult.fail("商品信息出错");
+            return RestResult.fail("商品信息异常");
         }
         val purchaseCommodities = purchaseCommodityRepository.find(rid);
+        if (null == purchaseCommodities || purchaseCommodities.isEmpty()) {
+            return RestResult.fail("未查询到采购商品信息");
+        }
         int total = 0;
         BigDecimal price = new BigDecimal(0);
         for (int i = 0; i < size; i++) {
@@ -680,21 +689,22 @@ public class PurchaseService {
                 if (pc.getCtype() == ctype && pc.getCid() == cid) {
                     find = true;
                     // 生成数据
+                    int value = values.get(i);
+                    // 校验商品退货数不能大于采购单
+                    if (value > pc.getValue()) {
+                        return RestResult.fail("退货商品数量不能大于采购数量, 商品id:" + cid + ", 类型:" + ctype);
+                    }
+
                     TPurchaseCommodity c = new TPurchaseCommodity();
                     c.setCtype(ctype);
                     c.setCid(cid);
                     c.setUnit(pc.getUnit());
-                    c.setValue(values.get(i));
+                    c.setValue(value);
                     c.setPrice(prices.get(i));
                     list.add(c);
 
-                    // 校验商品退货数不能大于采购单
-                    if (values.get(i) > pc.getValue()) {
-                        return RestResult.fail("退货商品数量不能大于采购数量, 商品id:" + cid + ", 类型:" + ctype);
-                    }
-
-                    total = total + pc.getUnit() * values.get(i);
-                    price = price.add(prices.get(i));
+                    total = total + pc.getUnit() * value;
+                    price = price.add(prices.get(i).multiply(new BigDecimal(value)));
                     break;
                 }
             }

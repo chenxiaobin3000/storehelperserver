@@ -614,7 +614,7 @@ public class ProductService {
         // 生成进货单
         int size = commoditys.size();
         if (size != types.size() || size != values.size()) {
-            return RestResult.fail("商品信息出错");
+            return RestResult.fail("商品信息异常");
         }
         int total = 0;
         BigDecimal price = new BigDecimal(0);

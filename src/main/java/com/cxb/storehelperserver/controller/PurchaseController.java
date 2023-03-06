@@ -102,7 +102,7 @@ public class PurchaseController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return purchaseService.returnc(req.getId(), order, req.getFare(), req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
+        return purchaseService.returnc(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
     }
 
     @PostMapping("/setReturn")
@@ -114,7 +114,7 @@ public class PurchaseController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return purchaseService.setReturn(req.getId(), req.getOid(), applyTime, req.getFare(), req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
+        return purchaseService.setReturn(req.getId(), req.getOid(), applyTime, req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
     }
 
     @PostMapping("/delReturn")

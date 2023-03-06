@@ -697,7 +697,7 @@ public class CloudService {
         // 生成入库单
         int size = commoditys.size();
         if (size != types.size() || size != values.size()) {
-            return RestResult.fail("商品信息出错");
+            return RestResult.fail("商品信息异常");
         }
         val purchaseCommodities = purchaseCommodityRepository.find(pid);
         int total = 0;
@@ -743,7 +743,7 @@ public class CloudService {
         // 生成入库单
         int size = commoditys.size();
         if (size != types.size() || size != values.size()) {
-            return RestResult.fail("商品信息出错");
+            return RestResult.fail("商品信息异常");
         }
         for (int i = 0; i < size; i++) {
             // 获取商品单位信息
@@ -778,7 +778,7 @@ public class CloudService {
         // 生成退货单
         int size = commoditys.size();
         if (size != types.size() || size != values.size()) {
-            return RestResult.fail("商品信息出错");
+            return RestResult.fail("商品信息异常");
         }
         val purchaseCommodities = purchaseCommodityRepository.find(rid);
         int total = 0;

@@ -61,7 +61,7 @@ public class UserOrderCompleteRepository extends BaseRepository<TUserOrderComple
     }
 
     public List<MyUserOrderComplete> findByCloud(int gid, int sid, Date start, Date end) {
-        return myUserOrderCompleteMapper.selectByAgreement(gid, sid, CLOUD_PURCHASE_ORDER.getValue(),
+        return myUserOrderCompleteMapper.selectByCloud(gid, sid, CLOUD_PURCHASE_ORDER.getValue(),
                 CLOUD_LOSS_ORDER.getValue(), new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
     }
 
@@ -71,7 +71,7 @@ public class UserOrderCompleteRepository extends BaseRepository<TUserOrderComple
     }
 
     public List<MyUserOrderComplete> findByPurchase(int gid, int sid, Date start, Date end) {
-        return myUserOrderCompleteMapper.selectByProduct(gid, sid, PURCHASE_PURCHASE_ORDER.getValue(),
+        return myUserOrderCompleteMapper.selectByPurchase(gid, sid, PURCHASE_PURCHASE_ORDER.getValue(),
                 PURCHASE_RETURN_ORDER.getValue(), new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
     }
 
