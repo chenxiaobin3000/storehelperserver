@@ -319,7 +319,9 @@ public class OrderService {
                     }
                     case STORAGE_PURCHASE_ORDER:
                     case STORAGE_DISPATCH_ORDER:
-                    case STORAGE_PURCHASE2_ORDER: {
+                    case STORAGE_PURCHASE2_ORDER:
+                    case STORAGE_LOSS_ORDER:
+                    case STORAGE_RETURN_ORDER: {
                         TStorageOrder o = storageOrderRepository.find(oa.getOid());
                         val ret = createOrder(oa.getOtype(), o.getId(), o.getBatch(), o.getSid(), o.getOid(), o.getUnit(), o.getCurUnit(), o.getPrice(), o.getCurPrice(),
                                 o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(), null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));
@@ -430,7 +432,9 @@ public class OrderService {
                     }
                     case STORAGE_PURCHASE_ORDER:
                     case STORAGE_DISPATCH_ORDER:
-                    case STORAGE_PURCHASE2_ORDER: {
+                    case STORAGE_PURCHASE2_ORDER:
+                    case STORAGE_LOSS_ORDER:
+                    case STORAGE_RETURN_ORDER: {
                         TStorageOrder o = storageOrderRepository.find(or.getOid());
                         val ret = createOrder(or.getOtype(), o.getId(), o.getBatch(), o.getSid(), o.getOid(), o.getUnit(), o.getCurUnit(), o.getPrice(), o.getCurPrice(),
                                 o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(), null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));
@@ -542,7 +546,9 @@ public class OrderService {
                     }
                     case STORAGE_PURCHASE_ORDER:
                     case STORAGE_DISPATCH_ORDER:
-                    case STORAGE_PURCHASE2_ORDER: {
+                    case STORAGE_PURCHASE2_ORDER:
+                    case STORAGE_LOSS_ORDER:
+                    case STORAGE_RETURN_ORDER: {
                         TStorageOrder o = storageOrderRepository.find(oc.getOid());
                         val ret = createOrder(oc.getOtype(), o.getId(), o.getBatch(), o.getSid(), o.getOid(), o.getUnit(), o.getCurUnit(), o.getPrice(), o.getCurPrice(),
                                 o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(), null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));

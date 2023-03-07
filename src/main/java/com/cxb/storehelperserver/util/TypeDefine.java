@@ -18,8 +18,8 @@ public class TypeDefine {
         PRODUCT_PROCESS_ORDER(8),       // 生产开始订单
         PRODUCT_COMPLETE_ORDER(9),      // 生产完成订单
         PRODUCT_LOSS_ORDER(10),         // 生产损耗订单
-        AGREEMENT_SHIPPED_ORDER(11),    // 履约入库订单
-        AGREEMENT_RETURN_ORDER(12),     // 履约出库订单
+        AGREEMENT_SHIPPED_ORDER(11),    // 履约发货订单
+        AGREEMENT_RETURN_ORDER(12),     // 履约退货订单
         CLOUD_PURCHASE_ORDER(13),       // 云仓入库订单
         CLOUD_RETURN_ORDER(14),         // 云仓退货订单
         CLOUD_SALE_ORDER(15),           // 云仓销售订单

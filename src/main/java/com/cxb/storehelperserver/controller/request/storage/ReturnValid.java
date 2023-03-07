@@ -20,7 +20,7 @@ public class ReturnValid implements IValid {
     @Min(value = 1, message = "账号错误")
     private int id;
 
-    @Min(value = 1, message = "退货单号错误")
+    @Min(value = 1, message = "采购单号错误")
     private int rid;
 
     @NotEmpty(message = "请输入订单制单日期")

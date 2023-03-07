@@ -24,7 +24,7 @@ public interface MyMarketCommodityMapper {
     List<MyMarketCommodity> select(int offset, int limit, int gid, int mid, String search);
 
     @Select({"<script>",
-            "select t2.id, t1.cid, t1.name as mname, t2.value, t2.price as mprice, t3.code, t3.name, t3.price",
+            "select t2.id, t1.cid, t1.name as mname, t2.value, t2.price as mprice, t3.code, t3.name, 0 as price",
             "from t_market_commodity t1 left join (select id, cid, value, price from t_market_commodity_detail",
             "where gid = #{gid} and mid = #{mid} and cdate = #{date}) as t2 on t1.cid = t2.cid left join t_commodity t3",
             "on t1.cid = t3.id where t1.gid = #{gid} and t1.mid= #{mid} order by t1.ctime desc",
