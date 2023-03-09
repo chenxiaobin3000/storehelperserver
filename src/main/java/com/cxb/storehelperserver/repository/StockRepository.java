@@ -9,11 +9,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
-import java.util.Date;
 import java.util.List;
 
 import static com.cxb.storehelperserver.util.TypeDefine.CommodityType;
-import static com.cxb.storehelperserver.util.TypeDefine.CommodityType.*;
 
 /**
  * desc: 库存仓库
@@ -41,7 +39,7 @@ public class StockRepository extends BaseRepository<TStock> {
 
         // 缓存没有就查询数据库
         TStockExample example = new TStockExample();
-        example.or().andSidEqualTo(sid).andCidEqualTo(cid);
+        example.or().andSidEqualTo(sid).andCtypeEqualTo(ctype).andCidEqualTo(cid);
         stock = stockMapper.selectOneByExample(example);
         if (null != stock) {
             setCache(joinKey(sid, ctype, cid), stock);
@@ -76,7 +74,7 @@ public class StockRepository extends BaseRepository<TStock> {
         }
     }
 
-    public List<MyStockCommodity> pagination(int gid, int sid, int page, int limit, CommodityType type, Date date, String search) {
+    public List<MyStockCommodity> pagination(int gid, int sid, int page, int limit, CommodityType type, String search) {
         String key = null;
         if (null != search) {
             key = "%" + search + "%";

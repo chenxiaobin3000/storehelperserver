@@ -219,6 +219,7 @@ public class StorageService {
         if (!purchaseOrderRepository.update(purchase)) {
             return RestResult.fail("修改进货单数据失败");
         }
+        // TODO 修改采购单完成状态
 
         // TODO 采购数量为0时，标记采购完成
 
@@ -275,12 +276,12 @@ public class StorageService {
         }
 
         // 撤销审核人信息
-        if (!storageOrderRepository.setReviewNull(order.getId())) {
+        if (!storageOrderRepository.setReviewNull(oid)) {
             return RestResult.fail("撤销订单审核信息失败");
         }
 
         // 删除关联
-        if (!storagePurchaseRepository.delete(order.getId(), order.getOid())) {
+        if (!storagePurchaseRepository.delete(oid, order.getOid())) {
             return RestResult.fail("撤销采购入库信息失败");
         }
 
@@ -522,7 +523,7 @@ public class StorageService {
         }
 
         // 撤销审核人信息
-        if (!storageOrderRepository.setReviewNull(order.getId())) {
+        if (!storageOrderRepository.setReviewNull(oid)) {
             return RestResult.fail("撤销订单审核信息失败");
         }
 
@@ -820,12 +821,12 @@ public class StorageService {
         }
 
         // 撤销审核人信息
-        if (!storageOrderRepository.setReviewNull(order.getId())) {
+        if (!storageOrderRepository.setReviewNull(oid)) {
             return RestResult.fail("撤销订单审核信息失败");
         }
 
         // 删除关联
-        if (!storageDispatchRepository.delete(order.getId(), order.getOid())) {
+        if (!storageDispatchRepository.delete(oid, order.getOid())) {
             return RestResult.fail("撤销调度入库信息失败");
         }
 
@@ -968,8 +969,6 @@ public class StorageService {
             return RestResult.fail("您没有审核权限");
         }
 
-        // TODO 校验所有入库单中的每一个商品总数，不能大于采购单中商品数量，申请时只校验单个单据，这里校验所有
-
         // 添加审核信息
         Date reviewTime = new Date();
         order.setReview(id);
@@ -1013,7 +1012,7 @@ public class StorageService {
         }
 
         // 撤销审核人信息
-        if (!storageOrderRepository.setReviewNull(order.getId())) {
+        if (!storageOrderRepository.setReviewNull(oid)) {
             return RestResult.fail("撤销订单审核信息失败");
         }
 
@@ -1199,7 +1198,7 @@ public class StorageService {
         // TODO 减少库存
 
         // 财务记录
-        if (!financeService.insertRecord(id, gid, FINANCE_STORAGE_RET, order.getId(), order.getPrice())) {
+        if (!financeService.insertRecord(id, gid, FINANCE_STORAGE_RET, oid, order.getPrice())) {
             return RestResult.fail("添加财务记录失败");
         }
         val fares = storageFareRepository.findByOid(oid);
@@ -1247,7 +1246,7 @@ public class StorageService {
         }
 
         // 撤销审核人信息
-        if (!storageOrderRepository.setReviewNull(order.getId())) {
+        if (!storageOrderRepository.setReviewNull(oid)) {
             return RestResult.fail("撤销订单审核信息失败");
         }
 
@@ -1260,7 +1259,7 @@ public class StorageService {
 
         // 财务记录
         BigDecimal money = purchaseCommodityRepository.count(oid);
-        if (!financeService.insertRecord(id, gid, FINANCE_STORAGE_RET, order.getId(), money.negate())) {
+        if (!financeService.insertRecord(id, gid, FINANCE_STORAGE_RET, oid, money.negate())) {
             return RestResult.fail("添加财务记录失败");
         }
         val fares = storageFareRepository.findByOid(oid);

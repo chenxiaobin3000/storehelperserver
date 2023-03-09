@@ -138,7 +138,6 @@ public class StorageController {
         order.setSid(req.getSid());
         order.setOtype(STORAGE_DISPATCH_ORDER.getValue());
         order.setApply(req.getId());
-        order.setOid(0);
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));
         } catch (ParseException e) {
@@ -245,7 +244,6 @@ public class StorageController {
         order.setSid(req.getSid());
         order.setOtype(STORAGE_LOSS_ORDER.getValue());
         order.setApply(req.getId());
-        order.setOid(0);
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));
         } catch (ParseException e) {

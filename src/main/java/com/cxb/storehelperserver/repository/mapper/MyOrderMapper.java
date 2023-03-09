@@ -22,6 +22,9 @@ public interface MyOrderMapper {
     @Update({"<script>update t_purchase_order set review = null, review_time = null where id = #{id}</script>"})
     int setPurchaseReviewNull(int id);
 
+    @Update({"<script>update t_sale_order set review = null, review_time = null where id = #{id}</script>"})
+    int setSaleReviewNull(int id);
+
     @Update({"<script>update t_storage_order set review = null, review_time = null where id = #{id}</script>"})
     int setStorageReviewNull(int id);
 }

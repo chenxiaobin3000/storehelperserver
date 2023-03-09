@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import static com.cxb.storehelperserver.util.TypeDefine.OrderType.*;
 
@@ -80,8 +81,6 @@ public class CloudController {
     public RestResult purchase(@Validated @RequestBody PurchaseValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
         TCloudOrder order = new TCloudOrder();
-        order.setGid(req.getGid());
-        order.setSid(req.getSid());
         order.setOtype(CLOUD_PURCHASE_ORDER.getValue());
         order.setApply(req.getId());
         order.setOid(req.getPid());
@@ -96,15 +95,13 @@ public class CloudController {
     @PostMapping("/setPurchase")
     public RestResult setPurchase(@Validated @RequestBody SetPurchaseValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
-        TCloudOrder order = new TCloudOrder();
-        order.setId(req.getOid());
-        order.setSid(req.getSid());
+        Date applyTime = null;
         try {
-            order.setApplyTime(simpleDateFormat.parse(req.getDate()));
+            applyTime = simpleDateFormat.parse(req.getDate());
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return cloudService.setPurchase(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
+        return cloudService.setPurchase(req.getId(), req.getOid(), applyTime, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/delPurchase")
@@ -130,7 +127,6 @@ public class CloudController {
         order.setSid(req.getSid());
         order.setOtype(CLOUD_LOSS_ORDER.getValue());
         order.setApply(req.getId());
-        order.setOid(0);
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));
         } catch (ParseException e) {
@@ -142,15 +138,13 @@ public class CloudController {
     @PostMapping("/setLoss")
     public RestResult setLoss(@Validated @RequestBody SetLossValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
-        TCloudOrder order = new TCloudOrder();
-        order.setId(req.getOid());
-        order.setSid(req.getSid());
+        Date applyTime = null;
         try {
-            order.setApplyTime(simpleDateFormat.parse(req.getDate()));
+            applyTime = simpleDateFormat.parse(req.getDate());
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return cloudService.setLoss(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
+        return cloudService.setLoss(req.getId(), req.getOid(), req.getSid(), applyTime, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/delLoss")
@@ -209,5 +203,48 @@ public class CloudController {
     @PostMapping("/revokeReturn")
     public RestResult revokeReturn(@Validated @RequestBody RevokeReturnValid req) {
         return cloudService.revokeReturn(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/backc")
+    public RestResult backc(@Validated @RequestBody BackValid req) {
+        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
+        TCloudOrder order = new TCloudOrder();
+        order.setOtype(CLOUD_RETURN_ORDER.getValue());
+        order.setApply(req.getId());
+        order.setOid(req.getRid());
+        try {
+            order.setApplyTime(simpleDateFormat.parse(req.getDate()));
+        } catch (ParseException e) {
+            return RestResult.fail("订单制单日期转换失败");
+        }
+        return cloudService.backc(req.getId(), order, req.getFare(), req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
+    }
+
+    @PostMapping("/setBack")
+    public RestResult setBack(@Validated @RequestBody SetBackValid req) {
+        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
+        TCloudOrder order = new TCloudOrder();
+        order.setId(req.getOid());
+        try {
+            order.setApplyTime(simpleDateFormat.parse(req.getDate()));
+        } catch (ParseException e) {
+            return RestResult.fail("订单制单日期转换失败");
+        }
+        return cloudService.setBack(req.getId(), order, req.getFare(), req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
+    }
+
+    @PostMapping("/delBack")
+    public RestResult delBack(@Validated @RequestBody DelBackValid req) {
+        return cloudService.delBack(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/reviewBack")
+    public RestResult reviewBack(@Validated @RequestBody ReviewBackValid req) {
+        return cloudService.reviewBack(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/revokeBack")
+    public RestResult revokeBack(@Validated @RequestBody RevokeBackValid req) {
+        return cloudService.revokeBack(req.getId(), req.getOid());
     }
 }

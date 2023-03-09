@@ -94,11 +94,4 @@ public interface MyStockMapper {
             "limit #{offset}, #{limit}",
             "</script>"})
     List<MyStockCommodity> pagination_standard(int offset, int limit, int gid, int sid, String search);
-
-    @Select({"<script>",
-            "select sid as id, sum(value) as total from t_stock",
-            "<if test='0 == sid'>where gid = #{gid} group by sid</if>",
-            "<if test='0 != sid'>where t1.sid = #{sid}</if>",
-            "</script>"})
-    List<MyStockReport> selectReport(int gid, int sid);
 }

@@ -204,7 +204,7 @@ public class PurchaseService {
         }
 
         // 财务记录
-        if (!financeService.insertRecord(id, gid, FINANCE_PURCHASE_PAY, order.getId(), order.getPrice().negate())) {
+        if (!financeService.insertRecord(id, gid, FINANCE_PURCHASE_PAY, oid, order.getPrice().negate())) {
             return RestResult.fail("添加财务记录失败");
         }
         val fares = purchaseFareRepository.findByOid(oid);
@@ -252,12 +252,12 @@ public class PurchaseService {
         }
 
         // 撤销审核人信息
-        if (!purchaseOrderRepository.setReviewNull(order.getId())) {
+        if (!purchaseOrderRepository.setReviewNull(oid)) {
             return RestResult.fail("撤销订单审核信息失败");
         }
 
         // 财务记录
-        if (!financeService.insertRecord(id, gid, FINANCE_PURCHASE_PAY, order.getId(), order.getPrice())) {
+        if (!financeService.insertRecord(id, gid, FINANCE_PURCHASE_PAY, oid, order.getPrice())) {
             return RestResult.fail("添加财务记录失败");
         }
         val fares = purchaseFareRepository.findByOid(oid);
@@ -513,12 +513,12 @@ public class PurchaseService {
         }
 
         // 添加关联
-        if (!purchaseReturnRepository.insert(order.getId(), order.getRid())) {
+        if (!purchaseReturnRepository.insert(oid, order.getRid())) {
             return RestResult.fail("添加采购退货信息失败");
         }
 
         // 财务记录
-        if (!financeService.insertRecord(id, gid, FINANCE_PURCHASE_RET, order.getId(), order.getPrice())) {
+        if (!financeService.insertRecord(id, gid, FINANCE_PURCHASE_RET, oid, order.getPrice())) {
             return RestResult.fail("添加财务记录失败");
         }
         val fares = purchaseFareRepository.findByOid(oid);
@@ -566,18 +566,18 @@ public class PurchaseService {
         }
 
         // 撤销审核人信息
-        if (!purchaseOrderRepository.setReviewNull(order.getId())) {
+        if (!purchaseOrderRepository.setReviewNull(oid)) {
             return RestResult.fail("撤销订单审核信息失败");
         }
 
         // 删除关联
-        if (!purchaseReturnRepository.delete(order.getId(), order.getRid())) {
+        if (!purchaseReturnRepository.delete(oid, order.getRid())) {
             return RestResult.fail("删除采购退货信息失败");
         }
 
         // 财务记录
         BigDecimal money = purchaseCommodityRepository.count(oid);
-        if (!financeService.insertRecord(id, gid, FINANCE_PURCHASE_RET, order.getId(), money.negate())) {
+        if (!financeService.insertRecord(id, gid, FINANCE_PURCHASE_RET, oid, money.negate())) {
             return RestResult.fail("添加财务记录失败");
         }
         val fares = purchaseFareRepository.findByOid(oid);

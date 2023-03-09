@@ -10,20 +10,22 @@ public class TypeDefine {
     public enum OrderType {
         PURCHASE_PURCHASE_ORDER(1),     // 采购进货订单
         PURCHASE_RETURN_ORDER(2),       // 采购退货订单
-        STORAGE_PURCHASE_ORDER(3),      // 仓储采购入库订单
-        STORAGE_DISPATCH_ORDER(4),      // 仓储调度出库订单
-        STORAGE_PURCHASE2_ORDER(5),     // 仓储调度入库订单
-        STORAGE_LOSS_ORDER(6),          // 仓储损耗订单
-        STORAGE_RETURN_ORDER(7),        // 仓储退货订单
-        PRODUCT_PROCESS_ORDER(8),       // 生产开始订单
-        PRODUCT_COMPLETE_ORDER(9),      // 生产完成订单
-        PRODUCT_LOSS_ORDER(10),         // 生产损耗订单
-        AGREEMENT_SHIPPED_ORDER(11),    // 履约发货订单
-        AGREEMENT_RETURN_ORDER(12),     // 履约退货订单
-        CLOUD_PURCHASE_ORDER(13),       // 云仓入库订单
-        CLOUD_RETURN_ORDER(14),         // 云仓退货订单
-        CLOUD_SALE_ORDER(15),           // 云仓销售订单
-        CLOUD_LOSS_ORDER(16);           // 云仓损耗订单
+        STORAGE_PURCHASE_ORDER(10),     // 仓储采购入库订单
+        STORAGE_DISPATCH_ORDER(11),     // 仓储调度出库订单
+        STORAGE_PURCHASE2_ORDER(12),    // 仓储调度入库订单
+        STORAGE_LOSS_ORDER(13),         // 仓储损耗订单
+        STORAGE_RETURN_ORDER(14),       // 仓储退货订单
+        PRODUCT_PROCESS_ORDER(20),      // 生产开始订单
+        PRODUCT_COMPLETE_ORDER(21),     // 生产完成订单
+        PRODUCT_LOSS_ORDER(22),         // 生产损耗订单
+        AGREEMENT_SHIPPED_ORDER(30),    // 履约发货订单
+        AGREEMENT_RETURN_ORDER(31),     // 履约退货订单
+        CLOUD_PURCHASE_ORDER(40),       // 云仓采购入库订单
+        CLOUD_RETURN_ORDER(41),         // 云仓退仓库订单
+        CLOUD_LOSS_ORDER(42),           // 云仓损耗订单
+        CLOUD_BACK_ORDER(43),           // 云仓退采购订单
+        CLOUD_AGREEMENT_ORDER(44),      // 云仓履约入库订单
+        SALE_RETURN_ORDER(50);          // 销售退货订单
 
         private int value = 0;
 
@@ -62,9 +64,9 @@ public class TypeDefine {
                 case 14:
                     return CLOUD_RETURN_ORDER;
                 case 15:
-                    return CLOUD_SALE_ORDER;
+                    return CLOUD_LOSS_ORDER;
             }
-            return CLOUD_LOSS_ORDER;
+            return SALE_RETURN_ORDER;
         }
 
         public int getValue() {

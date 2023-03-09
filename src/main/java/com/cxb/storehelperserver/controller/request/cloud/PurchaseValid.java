@@ -19,12 +19,6 @@ public class PurchaseValid implements IValid {
     @Min(value = 1, message = "账号错误")
     private int id;
 
-    @Min(value = 1, message = "公司账号错误")
-    private int gid;
-
-    @Min(value = 1, message = "仓库账号错误")
-    private int sid;
-
     @Min(value = 1, message = "采购单号错误")
     private int pid;
 
