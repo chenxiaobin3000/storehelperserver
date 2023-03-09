@@ -216,7 +216,7 @@ public class PurchaseService {
                     if (!purchaseFareRepository.update(fare)) {
                         return RestResult.fail("更新运费信息失败");
                     }
-                    if (!financeService.insertRecord(id, gid, FINANCE_PURCHASE_FARE, order.getId(), fare.getFare().negate())) {
+                    if (!financeService.insertRecord(id, gid, FINANCE_PURCHASE_FARE, oid, fare.getFare().negate())) {
                         return RestResult.fail("添加运费记录失败");
                     }
                 }
@@ -264,7 +264,7 @@ public class PurchaseService {
         if (null != fares && !fares.isEmpty()) {
             for (TPurchaseFare fare : fares) {
                 if (null != fare.getReview()) {
-                    if (!financeService.insertRecord(id, gid, FINANCE_PURCHASE_FARE, order.getId(), fare.getFare())) {
+                    if (!financeService.insertRecord(id, gid, FINANCE_PURCHASE_FARE, oid, fare.getFare())) {
                         return RestResult.fail("添加运费记录失败");
                     }
                 }
@@ -530,7 +530,7 @@ public class PurchaseService {
                     if (!purchaseFareRepository.update(fare)) {
                         return RestResult.fail("更新运费信息失败");
                     }
-                    if (!financeService.insertRecord(id, gid, FINANCE_PURCHASE_FARE2, order.getId(), fare.getFare().negate())) {
+                    if (!financeService.insertRecord(id, gid, FINANCE_PURCHASE_FARE2, oid, fare.getFare().negate())) {
                         return RestResult.fail("添加运费记录失败");
                     }
                 }
@@ -584,7 +584,7 @@ public class PurchaseService {
         if (null != fares && !fares.isEmpty()) {
             for (TPurchaseFare fare : fares) {
                 if (null != fare.getReview()) {
-                    if (!financeService.insertRecord(id, gid, FINANCE_PURCHASE_FARE2, order.getId(), fare.getFare())) {
+                    if (!financeService.insertRecord(id, gid, FINANCE_PURCHASE_FARE2, oid, fare.getFare())) {
                         return RestResult.fail("添加运费记录失败");
                     }
                 }

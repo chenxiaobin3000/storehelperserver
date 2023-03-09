@@ -40,22 +40,22 @@ public class CloudAgreementRepository extends BaseRepository<TCloudAgreement> {
         return cloudAgreement;
     }
 
-    public List<TCloudAgreement> findByPid(int pid) {
+    public List<TCloudAgreement> findByAid(int aid) {
         TCloudAgreementExample example = new TCloudAgreementExample();
-        example.or().andPidEqualTo(pid);
+        example.or().andAidEqualTo(aid);
         return cloudAgreementMapper.selectByExample(example);
     }
 
-    public boolean checkByPid(int pid) {
+    public boolean checkByAid(int aid) {
         TCloudAgreementExample example = new TCloudAgreementExample();
-        example.or().andPidEqualTo(pid);
+        example.or().andAidEqualTo(aid);
         return null != cloudAgreementMapper.selectOneByExample(example);
     }
 
-    public boolean insert(int cid, int pid) {
+    public boolean insert(int cid, int aid) {
         TCloudAgreement row = new TCloudAgreement();
         row.setCid(cid);
-        row.setPid(pid);
+        row.setAid(aid);
         if (cloudAgreementMapper.insert(row) > 0) {
             setCache(cid, row);
             return true;
@@ -71,10 +71,10 @@ public class CloudAgreementRepository extends BaseRepository<TCloudAgreement> {
         return false;
     }
 
-    public boolean delete(int cid, int pid) {
+    public boolean delete(int cid, int aid) {
         delCache(cid);
         TCloudAgreementExample example = new TCloudAgreementExample();
-        example.or().andCidEqualTo(cid).andPidEqualTo(pid);
+        example.or().andCidEqualTo(cid).andAidEqualTo(aid);
         return cloudAgreementMapper.deleteByExample(example) > 0;
     }
 }

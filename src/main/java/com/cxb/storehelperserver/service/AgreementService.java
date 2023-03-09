@@ -241,7 +241,7 @@ public class AgreementService {
         }
 
         // 撤销审核人信息
-        if (!agreementOrderRepository.setReviewNull(order.getId())) {
+        if (!agreementOrderRepository.setReviewNull(oid)) {
             return RestResult.fail("撤销订单审核信息失败");
         }
 
@@ -358,7 +358,7 @@ public class AgreementService {
 
         // 生成退货单
         val comms = new ArrayList<TAgreementCommodity>();
-        ret = createAgreementComms(order, types, commoditys, values, prices, comms);
+        ret = createReturnComms(order, order.getRid(), types, commoditys, values, comms);
         if (null != ret) {
             return ret;
         }
@@ -369,19 +369,10 @@ public class AgreementService {
         if (!agreementOrderRepository.insert(order)) {
             return RestResult.fail("生成退货订单失败");
         }
-
-        // 插入订单商品和附件数据
         int oid = order.getId();
         String msg = agreementOrderService.update(oid, comms, attrs);
         if (null != msg) {
             return RestResult.fail(msg);
-        }
-
-        // 运费
-        if (null != fare && fare.compareTo(BigDecimal.ZERO) > 0) {
-            if (!agreementFareRepository.insert(oid, fare, new Date())) {
-                return RestResult.fail("添加退货物流费用失败");
-            }
         }
         return reviewService.apply(id, order.getGid(), order.getSid(), order.getOtype(), oid, batch, reviews);
     }
@@ -389,18 +380,20 @@ public class AgreementService {
     /**
      * desc: 履约退货修改
      */
-    public RestResult setReturn(int id, TAgreementOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<Integer> attrs) {
+    public RestResult setReturn(int id, int oid, Date applyTime, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<Integer> attrs) {
         // 已经审核的订单不能修改
-        int oid = order.getId();
-        TAgreementOrder agreementOrder = agreementOrderRepository.find(oid);
-        if (null == agreementOrder) {
+        TAgreementOrder order = agreementOrderRepository.find(oid);
+        if (null == order) {
             return RestResult.fail("未查询到要删除的订单");
         }
-        if (null != agreementOrder.getReview()) {
+        if (null != order.getReview()) {
             return RestResult.fail("已审核的订单不能修改");
         }
+        if (!order.getApply().equals(id)) {
+            return RestResult.fail("只能修改自己的订单");
+        }
 
-        order.setGid(agreementOrder.getGid());
+        order.setApplyTime(applyTime);
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_agreement_return_apply, mp_agreement_return_review, reviews);
         if (null != ret) {
@@ -409,7 +402,7 @@ public class AgreementService {
 
         // 生成退货单
         val comms = new ArrayList<TAgreementCommodity>();
-        ret = createAgreementComms(order, types, commoditys, values, prices, comms);
+        ret = createReturnComms(order, order.getRid(), types, commoditys, values, comms);
         if (null != ret) {
             return ret;
         }
@@ -421,14 +414,6 @@ public class AgreementService {
         String msg = agreementOrderService.update(oid, comms, attrs);
         if (null != msg) {
             return RestResult.fail(msg);
-        }
-
-        // 运费
-        if (null != fare && fare.compareTo(BigDecimal.ZERO) > 0) {
-            agreementFareRepository.delete(oid);
-            if (!agreementFareRepository.insert(oid, fare, new Date())) {
-                return RestResult.fail("添加退货物流费用失败");
-            }
         }
         return RestResult.ok();
     }
@@ -449,16 +434,13 @@ public class AgreementService {
         }
 
         // 删除商品附件数据
+        agreementAttachmentRepository.deleteByOid(oid);
         if (!agreementCommodityRepository.delete(oid)) {
             return RestResult.fail("删除关联商品失败");
-        }
-        if (!agreementAttachmentRepository.deleteByOid(oid)) {
-            return RestResult.fail("删除关联商品附件失败");
         }
         if (!agreementOrderRepository.delete(oid)) {
             return RestResult.fail("删除订单失败");
         }
-        // TODO 删运费
         return reviewService.delete(review, order.getOtype(), oid);
     }
 
@@ -468,6 +450,7 @@ public class AgreementService {
         if (null == group) {
             return RestResult.fail("获取公司信息失败");
         }
+        int gid = group.getGid();
 
         // 校验审核人员信息
         TAgreementOrder order = agreementOrderRepository.find(oid);
@@ -478,39 +461,44 @@ public class AgreementService {
             return RestResult.fail("您没有审核权限");
         }
 
-        // TODO 校验所有退货单中的每一个商品总数，不能大于采购单中商品数量，申请时只校验单个单据，这里校验所有
-
-        // 修改对应进货单数据
+        // 校验退货订单总价格和总量不能超出采购单
         TAgreementOrder agreement = agreementOrderRepository.find(order.getRid());
         if (null == agreement) {
-            return RestResult.fail("未查询到对应的履约单");
+            return RestResult.fail("未查询到对应的发货单");
         }
-        agreement.setCurUnit(agreement.getCurUnit() - order.getUnit());
-        agreement.setCurPrice(agreement.getCurPrice().subtract(order.getPrice()));
+        int unit = agreement.getCurUnit() - order.getUnit();
+        if (unit < 0) {
+            return RestResult.fail("退货商品总量不能超出发货订单总量");
+        }
+        BigDecimal price = agreement.getCurPrice().subtract(order.getPrice());
+        if (price.compareTo(BigDecimal.ZERO) < 0) {
+            return RestResult.fail("退货商品总价不能超出发货订单总价");
+        }
+        agreement.setCurUnit(unit);
+        agreement.setCurPrice(price);
         if (!agreementOrderRepository.update(agreement)) {
-            return RestResult.fail("修改履约单数据失败");
+            return RestResult.fail("修改发货单数据失败");
         }
 
+        // TODO 采购数量为0时，标记采购完成
+
         // 添加审核信息
+        Date reviewTime = new Date();
         order.setReview(id);
-        order.setReviewTime(new Date());
+        order.setReviewTime(reviewTime);
         if (!agreementOrderRepository.update(order)) {
             return RestResult.fail("审核用户订单信息失败");
         }
 
         // 添加关联
-        if (!agreementReturnRepository.insert(order.getId(), order.getRid())) {
+        if (!agreementReturnRepository.insert(oid, order.getRid())) {
             return RestResult.fail("添加履约退货信息失败");
         }
 
-        // TODO 增加库存
-
-        // 财务记录
-        val fares = agreementFareRepository.findByOid(oid);
-        for (TAgreementFare fare : fares) {
-            if (!financeService.insertRecord(id, group.getGid(), FINANCE_AGREEMENT_FARE2, order.getId(), fare.getFare().negate())) {
-                return RestResult.fail("添加运费记录失败");
-            }
+        // 增加库存
+        String msg = storageStockService.handleAgreementStock(order, true);
+        if (null != msg) {
+            return RestResult.fail(msg);
         }
         return reviewService.review(order.getApply(), id, order.getGid(), order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
     }
@@ -542,23 +530,19 @@ public class AgreementService {
         }
 
         // 撤销审核人信息
-        if (!agreementOrderRepository.setReviewNull(order.getId())) {
+        if (!agreementOrderRepository.setReviewNull(oid)) {
             return RestResult.fail("撤销订单审核信息失败");
         }
 
         // 删除关联
-        if (!agreementReturnRepository.delete(order.getId(), order.getRid())) {
+        if (!agreementReturnRepository.delete(oid, order.getRid())) {
             return RestResult.fail("删除采购退货信息失败");
         }
 
-        // TODO 减少库存
-
-        // 财务记录
-        val fares = agreementFareRepository.findByOid(oid);
-        for (TAgreementFare fare : fares) {
-            if (!financeService.insertRecord(id, gid, FINANCE_PURCHASE_FARE2, order.getId(), fare.getFare())) {
-                return RestResult.fail("添加运费记录失败");
-            }
+        // 减少库存
+        msg = storageStockService.handleAgreementStock(order, false);
+        if (null != msg) {
+            return RestResult.fail(msg);
         }
         return RestResult.ok();
     }
@@ -615,6 +599,57 @@ public class AgreementService {
 
             total = total + value;
             price = price.add(stock.getPrice().multiply(new BigDecimal(value)));
+        }
+        order.setUnit(total);
+        order.setPrice(price);
+        order.setCurUnit(total);
+        order.setCurPrice(price);
+        return null;
+    }
+
+    private RestResult createReturnComms(TAgreementOrder order, int aid, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<TAgreementCommodity> list) {
+        // 生成发货单
+        int size = commoditys.size();
+        if (size != types.size() || size != values.size()) {
+            return RestResult.fail("商品信息异常");
+        }
+        val agreementCommodities = agreementCommodityRepository.find(aid);
+        if (null == agreementCommodities || agreementCommodities.isEmpty()) {
+            return RestResult.fail("未查询到履约商品信息");
+        }
+        int total = 0;
+        BigDecimal price = new BigDecimal(0);
+        for (int i = 0; i < size; i++) {
+            // 获取商品单位信息
+            int ctype = types.get(i);
+            int cid = commoditys.get(i);
+            int value = values.get(i);
+            boolean find = false;
+            for (TAgreementCommodity ac : agreementCommodities) {
+                if (ac.getCtype() == ctype && ac.getCid() == cid) {
+                    find = true;
+
+                    // 生成数据
+                    TAgreementCommodity c = new TAgreementCommodity();
+                    c.setCtype(ctype);
+                    c.setCid(cid);
+                    c.setValue(value);
+                    c.setPrice(ac.getPrice());
+                    list.add(c);
+
+                    // 校验商品退货数不能大于发货单
+                    if (value > ac.getValue()) {
+                        return RestResult.fail("退货商品数量不能大于发货数量, 商品id:" + cid + ", 类型:" + ctype);
+                    }
+
+                    total = total + value;
+                    price = price.add(ac.getPrice().multiply(new BigDecimal(value)));
+                    break;
+                }
+            }
+            if (!find) {
+                return RestResult.fail("未查询到商品id:" + cid + ", 类型:" + ctype);
+            }
         }
         order.setUnit(total);
         order.setPrice(price);

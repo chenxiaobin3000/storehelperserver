@@ -42,10 +42,13 @@ public class CloudStockService {
     private AgreementCommodityRepository agreementCommodityRepository;
 
     @Resource
+    private CloudCommodityRepository cloudCommodityRepository;
+
+    @Resource
     private PurchaseCommodityRepository purchaseCommodityRepository;
 
     @Resource
-    private CloudCommodityRepository cloudCommodityRepository;
+    private SaleCommodityRepository saleCommodityRepository;
 
     @Resource
     private DateUtil dateUtil;
@@ -118,7 +121,7 @@ public class CloudStockService {
         return null;
     }
 
-    // 根据损耗单修改库存
+    // 根据损耗单/退采购/退仓库修改库存
     public String handleLossStock(TCloudOrder order, boolean add) {
         val cloudCommodities = cloudCommodityRepository.find(order.getId());
         if (null == cloudCommodities || cloudCommodities.isEmpty()) {
@@ -144,6 +147,46 @@ public class CloudStockService {
                 stock.setPrice(allPrice.divide(new BigDecimal(value), 2, RoundingMode.DOWN));
             } else {
                 int value = stock.getValue() - cloudCommodity.getValue();
+                if (value < 0) {
+                    TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                    return "库存商品数量不足:" + ctype + ",商品:" + cid;
+                }
+                stock.setValue(value);
+            }
+            if (!cloudStockRepository.update(stock)) {
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                return "添加库存信息失败";
+            }
+        }
+        return null;
+    }
+
+    // 根据销售售后单修改库存
+    public String handleSaleStock(TSaleOrder order, boolean add) {
+        val saleCommodities = saleCommodityRepository.find(order.getId());
+        if (null == saleCommodities || saleCommodities.isEmpty()) {
+            return "未查询到调度商品信息";
+        }
+        int sid = order.getSid();
+        for (TSaleCommodity saleCommodity : saleCommodities) {
+            int ctype = saleCommodity.getCtype();
+            int cid = saleCommodity.getCid();
+            TCloudStock stock = cloudStockRepository.find(sid, ctype, cid);
+            if (null == stock) {
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                return "未查询到库存类型:" + ctype + ",商品:" + cid;
+            }
+            if (add) {
+                // 重新计算库存价格
+                int newValue = saleCommodity.getValue(); // 入库单总重量
+                BigDecimal newPrice = saleCommodity.getPrice().multiply(new BigDecimal(newValue)); // 入库单总价
+                BigDecimal oldPrice = stock.getPrice().multiply(new BigDecimal(stock.getValue())); // 库存总价
+                BigDecimal allPrice = newPrice.add(oldPrice);
+                int value = stock.getValue() + newValue;
+                stock.setValue(value);
+                stock.setPrice(allPrice.divide(new BigDecimal(value), 2, RoundingMode.DOWN));
+            } else {
+                int value = stock.getValue() - saleCommodity.getValue();
                 if (value < 0) {
                     TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                     return "库存商品数量不足:" + ctype + ",商品:" + cid;

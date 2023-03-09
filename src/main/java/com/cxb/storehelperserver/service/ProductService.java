@@ -237,7 +237,7 @@ public class ProductService {
         }
 
         // 撤销审核人信息
-        if (!productOrderRepository.setReviewNull(order.getId())) {
+        if (!productOrderRepository.setReviewNull(oid)) {
             return RestResult.fail("撤销订单审核信息失败");
         }
 
@@ -494,7 +494,7 @@ public class ProductService {
         }
 
         // 减少库存
-        msg = storageStockService.addStock(id, false, order.getSid(), TypeDefine.OrderType.valueOf(order.getOtype()), oid, 0);
+        msg = storageStockService.handleProductStock(order, false);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -674,7 +674,7 @@ public class ProductService {
         }
 
         // 撤销审核人信息
-        if (!productOrderRepository.setReviewNull(order.getId())) {
+        if (!productOrderRepository.setReviewNull(oid)) {
             return RestResult.fail("撤销订单审核信息失败");
         }
 

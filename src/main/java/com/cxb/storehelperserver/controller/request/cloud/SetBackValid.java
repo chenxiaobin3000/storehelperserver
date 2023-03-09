@@ -16,12 +16,15 @@ import java.util.List;
  * date: 2022/12/21
  */
 @Data
-public class SetReturnValid implements IValid {
+public class SetBackValid implements IValid {
     @Min(value = 1, message = "账号错误")
     private int id;
 
     @Min(value = 1, message = "订单编号错误")
     private int oid;
+
+    @Min(value = 1, message = "运费价格错误")
+    private BigDecimal fare;
 
     @NotEmpty(message = "请输入订单制单日期")
     @Length(min = 19, max = 19, message = "订单制单日期格式错误")
@@ -35,9 +38,6 @@ public class SetReturnValid implements IValid {
 
     @Size(min = 1, message = "商品数量不能为空")
     private List<Integer> values;
-
-    @Size(min = 1, message = "商品价格不能为空")
-    private List<BigDecimal> prices;
 
     private List<Integer> attrs;
 }

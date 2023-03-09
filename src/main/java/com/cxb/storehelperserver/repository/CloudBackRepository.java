@@ -40,22 +40,22 @@ public class CloudBackRepository extends BaseRepository<TCloudBack> {
         return cloudBack;
     }
 
-    public List<TCloudBack> findByPid(int pid) {
+    public List<TCloudBack> findByAid(int aid) {
         TCloudBackExample example = new TCloudBackExample();
-        example.or().andPidEqualTo(pid);
+        example.or().andAidEqualTo(aid);
         return cloudBackMapper.selectByExample(example);
     }
 
-    public boolean checkByPid(int pid) {
+    public boolean checkByAid(int aid) {
         TCloudBackExample example = new TCloudBackExample();
-        example.or().andPidEqualTo(pid);
+        example.or().andAidEqualTo(aid);
         return null != cloudBackMapper.selectOneByExample(example);
     }
 
-    public boolean insert(int oid, int pid) {
+    public boolean insert(int oid, int aid) {
         TCloudBack row = new TCloudBack();
         row.setOid(oid);
-        row.setPid(pid);
+        row.setAid(aid);
         if (cloudBackMapper.insert(row) > 0) {
             setCache(row.getOid(), row);
             return true;

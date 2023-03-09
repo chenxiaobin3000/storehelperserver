@@ -119,6 +119,68 @@ public class CloudController {
         return cloudService.revokePurchase(req.getId(), req.getOid());
     }
 
+    @PostMapping("/addPurchaseInfo")
+    public RestResult addPurchaseInfo(@Validated @RequestBody AddPurchaseInfoValid req) {
+        return cloudService.addPurchaseInfo(req.getId(), req.getOid(), req.getRemark());
+    }
+
+    @PostMapping("/delPurchaseInfo")
+    public RestResult delPurchaseInfo(@Validated @RequestBody DelPurchaseInfoValid req) {
+        return cloudService.delPurchaseInfo(req.getId(), req.getOid(), req.getRid());
+    }
+
+    @PostMapping("/agreement")
+    public RestResult agreement(@Validated @RequestBody PurchaseValid req) {
+        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
+        TCloudOrder order = new TCloudOrder();
+        order.setOtype(CLOUD_AGREEMENT_ORDER.getValue());
+        order.setApply(req.getId());
+        order.setOid(req.getPid());
+        try {
+            order.setApplyTime(simpleDateFormat.parse(req.getDate()));
+        } catch (ParseException e) {
+            return RestResult.fail("订单制单日期转换失败");
+        }
+        return cloudService.agreement(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
+    }
+
+    @PostMapping("/setAgreement")
+    public RestResult setAgreement(@Validated @RequestBody SetPurchaseValid req) {
+        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
+        Date applyTime = null;
+        try {
+            applyTime = simpleDateFormat.parse(req.getDate());
+        } catch (ParseException e) {
+            return RestResult.fail("订单制单日期转换失败");
+        }
+        return cloudService.setAgreement(req.getId(), req.getOid(), applyTime, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
+    }
+
+    @PostMapping("/delAgreement")
+    public RestResult delAgreement(@Validated @RequestBody DelPurchaseValid req) {
+        return cloudService.delAgreement(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/reviewAgreement")
+    public RestResult reviewAgreement(@Validated @RequestBody ReviewPurchaseValid req) {
+        return cloudService.reviewAgreement(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/revokeAgreement")
+    public RestResult revokeAgreement(@Validated @RequestBody RevokePurchaseValid req) {
+        return cloudService.revokeAgreement(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/addAgreementInfo")
+    public RestResult addAgreementInfo(@Validated @RequestBody AddPurchaseInfoValid req) {
+        return cloudService.addAgreementInfo(req.getId(), req.getOid(), req.getRemark());
+    }
+
+    @PostMapping("/delAgreementInfo")
+    public RestResult delAgreementInfo(@Validated @RequestBody DelPurchaseInfoValid req) {
+        return cloudService.delAgreementInfo(req.getId(), req.getOid(), req.getRid());
+    }
+
     @PostMapping("/loss")
     public RestResult loss(@Validated @RequestBody LossValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
@@ -162,6 +224,16 @@ public class CloudController {
         return cloudService.revokeLoss(req.getId(), req.getOid());
     }
 
+    @PostMapping("/addLossInfo")
+    public RestResult addLossInfo(@Validated @RequestBody AddPurchaseInfoValid req) {
+        return cloudService.addLossInfo(req.getId(), req.getOid(), req.getRemark());
+    }
+
+    @PostMapping("/delLossInfo")
+    public RestResult delLossInfo(@Validated @RequestBody DelPurchaseInfoValid req) {
+        return cloudService.delLossInfo(req.getId(), req.getOid(), req.getRid());
+    }
+
     @PostMapping("/returnc")
     public RestResult returnc(@Validated @RequestBody ReturnValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
@@ -174,20 +246,19 @@ public class CloudController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return cloudService.returnc(req.getId(), order, req.getFare(), req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
+        return cloudService.returnc(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
     }
 
     @PostMapping("/setReturn")
     public RestResult setReturn(@Validated @RequestBody SetReturnValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
-        TCloudOrder order = new TCloudOrder();
-        order.setId(req.getOid());
+        Date applyTime = null;
         try {
-            order.setApplyTime(simpleDateFormat.parse(req.getDate()));
+            applyTime = simpleDateFormat.parse(req.getDate());
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return cloudService.setReturn(req.getId(), order, req.getFare(), req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
+        return cloudService.setReturn(req.getId(), req.getOid(), applyTime, req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
     }
 
     @PostMapping("/delReturn")
@@ -205,11 +276,21 @@ public class CloudController {
         return cloudService.revokeReturn(req.getId(), req.getOid());
     }
 
+    @PostMapping("/addReturnInfo")
+    public RestResult addReturnInfo(@Validated @RequestBody AddReturnInfoValid req) {
+        return cloudService.addReturnInfo(req.getId(), req.getOid(), req.getFare(), req.getRemark());
+    }
+
+    @PostMapping("/delReturnInfo")
+    public RestResult delReturnInfo(@Validated @RequestBody DelReturnInfoValid req) {
+        return cloudService.delReturnInfo(req.getId(), req.getOid(), req.getFid(), req.getRid());
+    }
+
     @PostMapping("/backc")
     public RestResult backc(@Validated @RequestBody BackValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
         TCloudOrder order = new TCloudOrder();
-        order.setOtype(CLOUD_RETURN_ORDER.getValue());
+        order.setOtype(CLOUD_BACK_ORDER.getValue());
         order.setApply(req.getId());
         order.setOid(req.getRid());
         try {
@@ -217,20 +298,19 @@ public class CloudController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return cloudService.backc(req.getId(), order, req.getFare(), req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
+        return cloudService.backc(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/setBack")
     public RestResult setBack(@Validated @RequestBody SetBackValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
-        TCloudOrder order = new TCloudOrder();
-        order.setId(req.getOid());
+        Date applyTime = null;
         try {
-            order.setApplyTime(simpleDateFormat.parse(req.getDate()));
+            applyTime = simpleDateFormat.parse(req.getDate());
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return cloudService.setBack(req.getId(), order, req.getFare(), req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
+        return cloudService.setBack(req.getId(), req.getOid(), applyTime, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/delBack")
@@ -246,5 +326,15 @@ public class CloudController {
     @PostMapping("/revokeBack")
     public RestResult revokeBack(@Validated @RequestBody RevokeBackValid req) {
         return cloudService.revokeBack(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/addBackInfo")
+    public RestResult addBackInfo(@Validated @RequestBody AddReturnInfoValid req) {
+        return cloudService.addBackInfo(req.getId(), req.getOid(), req.getFare(), req.getRemark());
+    }
+
+    @PostMapping("/delBackInfo")
+    public RestResult delBackInfo(@Validated @RequestBody DelReturnInfoValid req) {
+        return cloudService.delBackInfo(req.getId(), req.getOid(), req.getFid(), req.getRid());
     }
 }

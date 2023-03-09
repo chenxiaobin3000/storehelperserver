@@ -92,6 +92,7 @@ public class Permission {
     static public final int market_getlist = 502;
     static public final int market_commodity = 503;
     static public final int market_input = 504;
+    static public final int market_salereturn = 505;
 
     static public final int product = 600;
     static public final int product_report = 601;
@@ -112,9 +113,10 @@ public class Permission {
     static public final int cloud = 750;
     static public final int cloud_report = 751;
     static public final int cloud_purchase = 752;
-    static public final int cloud_sale = 753;
+    static public final int cloud_agreement = 753;
     static public final int cloud_loss = 754;
     static public final int cloud_return = 755;
+    static public final int cloud_back = 756;
 
     static public final int storage = 800;
     static public final int storage_report = 801;

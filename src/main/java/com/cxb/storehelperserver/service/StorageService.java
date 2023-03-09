@@ -487,7 +487,7 @@ public class StorageService {
                     if (!storageFareRepository.update(fare)) {
                         return RestResult.fail("更新运费信息失败");
                     }
-                    if (!financeService.insertRecord(id, gid, FINANCE_STORAGE_FARE, order.getId(), fare.getFare().negate())) {
+                    if (!financeService.insertRecord(id, gid, FINANCE_STORAGE_FARE, oid, fare.getFare().negate())) {
                         return RestResult.fail("添加运费记录失败");
                     }
                 }
@@ -537,7 +537,7 @@ public class StorageService {
         if (null != fares && !fares.isEmpty()) {
             for (TStorageFare fare : fares) {
                 if (null != fare.getReview()) {
-                    if (!financeService.insertRecord(id, gid, FINANCE_PURCHASE_FARE, order.getId(), fare.getFare())) {
+                    if (!financeService.insertRecord(id, gid, FINANCE_PURCHASE_FARE, oid, fare.getFare())) {
                         return RestResult.fail("添加运费记录失败");
                     }
                 }
@@ -1195,7 +1195,11 @@ public class StorageService {
             return RestResult.fail("添加采购退货信息失败");
         }
 
-        // TODO 减少库存
+        // 减少库存
+        String msg = storageStockService.handleStorageStock(order, false);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
 
         // 财务记录
         if (!financeService.insertRecord(id, gid, FINANCE_STORAGE_RET, oid, order.getPrice())) {
@@ -1210,7 +1214,7 @@ public class StorageService {
                     if (!storageFareRepository.update(fare)) {
                         return RestResult.fail("更新运费信息失败");
                     }
-                    if (!financeService.insertRecord(id, gid, FINANCE_STORAGE_FARE2, order.getId(), fare.getFare().negate())) {
+                    if (!financeService.insertRecord(id, gid, FINANCE_STORAGE_FARE2, oid, fare.getFare().negate())) {
                         return RestResult.fail("添加运费记录失败");
                     }
                 }
@@ -1240,6 +1244,8 @@ public class StorageService {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
+        // TODO 还原扣除的采购单数量
+
         RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApply(), mp_storage_return_review);
         if (null != ret) {
             return ret;
@@ -1255,7 +1261,11 @@ public class StorageService {
             return RestResult.fail("添加采购退货信息失败");
         }
 
-        // TODO 增加库存
+        // 增加库存
+        msg = storageStockService.handleStorageStock(order, true);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
 
         // 财务记录
         BigDecimal money = purchaseCommodityRepository.count(oid);
@@ -1266,7 +1276,7 @@ public class StorageService {
         if (null != fares && !fares.isEmpty()) {
             for (TStorageFare fare : fares) {
                 if (null != fare.getReview()) {
-                    if (!financeService.insertRecord(id, gid, FINANCE_PURCHASE_FARE2, order.getId(), fare.getFare())) {
+                    if (!financeService.insertRecord(id, gid, FINANCE_PURCHASE_FARE2, oid, fare.getFare())) {
                         return RestResult.fail("添加运费记录失败");
                     }
                 }
@@ -1438,8 +1448,7 @@ public class StorageService {
         return null;
     }
 
-    private RestResult createReturnComms(TStorageOrder order, int rid, List<Integer> types, List<Integer> commoditys,
-                                         List<Integer> values, List<BigDecimal> prices, List<TStorageCommodity> list) {
+    private RestResult createReturnComms(TStorageOrder order, int rid, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<BigDecimal> prices, List<TStorageCommodity> list) {
         // 生成退货单
         int size = commoditys.size();
         if (size != types.size() || size != values.size() || size != prices.size()) {

@@ -93,8 +93,10 @@ public class TypeDefine {
         FINANCE_AGREEMENT_FARE(30),     // 履约发货物流
         FINANCE_AGREEMENT_FARE2(31),    // 履约退款物流
 
-        FINANCE_CLOUD_RET(40),          // 云仓退货
-        FINANCE_CLOUD_FARE(41),         // 云仓退货运费
+        FINANCE_CLOUD_RET(40),          // 云仓退采购
+        FINANCE_CLOUD_FARE(41),         // 云仓退采购运费
+        FINANCE_CLOUD_BACK(42),         // 云仓退仓库
+        FINANCE_CLOUD_FARE2(43),        // 云仓退仓库运费
 
         FINANCE_MARKET_SALE(50),        // 销售平台
 
