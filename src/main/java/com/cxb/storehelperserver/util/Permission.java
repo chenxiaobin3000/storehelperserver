@@ -18,6 +18,7 @@ public class Permission {
     static public final int mp_storage_purchase2_apply = 18;
     static public final int mp_storage_loss_apply = 19;
     static public final int mp_storage_return_apply = 20;
+    static public final int mp_storage_agreement_apply = 21;
     static public final int mp_product_apply = 25;
     static public final int mp_product_process_apply = 26;
     static public final int mp_product_complete_apply = 27;
@@ -43,6 +44,7 @@ public class Permission {
     static public final int mp_storage_purchase2_review = 58;
     static public final int mp_storage_loss_review = 59;
     static public final int mp_storage_return_review = 60;
+    static public final int mp_storage_agreement_review = 61;
     static public final int mp_product_review = 65;
     static public final int mp_product_process_review = 66;
     static public final int mp_product_complete_review = 67;
@@ -125,6 +127,7 @@ public class Permission {
     static public final int storage_purchase2 = 804;
     static public final int storage_loss = 805;
     static public final int storage_return = 806;
+    static public final int storage_agreement = 807;
 
     static public final int stock = 850;
     static public final int stock_storage = 851;

@@ -226,14 +226,67 @@ public class StorageController {
         return storageService.revokePurchase2(req.getId(), req.getOid());
     }
 
-    @PostMapping("/addDispatch2Info")
-    public RestResult addDispatch2Info(@Validated @RequestBody AddDispatchInfoValid req) {
-        return storageService.addDispatch2Info(req.getId(), req.getOid(), req.getFare(), req.getRemark());
+    @PostMapping("/addPurchase2Info")
+    public RestResult addPurchase2Info(@Validated @RequestBody AddPurchaseInfoValid req) {
+        return storageService.addPurchase2Info(req.getId(), req.getOid(), req.getRemark());
     }
 
-    @PostMapping("/delDispatch2Info")
-    public RestResult delDispatch2Info(@Validated @RequestBody DelDispatchInfoValid req) {
-        return storageService.delDispatch2Info(req.getId(), req.getOid(), req.getFid(), req.getRid());
+    @PostMapping("/delPurchase2Info")
+    public RestResult delPurchase2Info(@Validated @RequestBody DelPurchaseInfoValid req) {
+        return storageService.delPurchase2Info(req.getId(), req.getOid(), req.getRid());
+    }
+
+    @PostMapping("/agreement")
+    public RestResult agreement(@Validated @RequestBody AgreementValid req) {
+        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
+        TStorageOrder order = new TStorageOrder();
+        order.setSid(req.getSid());
+        order.setOtype(STORAGE_AGREEMENT_ORDER.getValue());
+        order.setApply(req.getId());
+        order.setOid(req.getAid());
+        try {
+            order.setApplyTime(simpleDateFormat.parse(req.getDate()));
+        } catch (ParseException e) {
+            return RestResult.fail("订单制单日期转换失败");
+        }
+        return storageService.agreement(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
+    }
+
+    @PostMapping("/setAgreement")
+    public RestResult setAgreement(@Validated @RequestBody SetAgreementValid req) {
+        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
+        Date applyTime = null;
+        try {
+            applyTime = simpleDateFormat.parse(req.getDate());
+        } catch (ParseException e) {
+            return RestResult.fail("订单制单日期转换失败");
+        }
+        return storageService.setAgreement(req.getId(), req.getOid(), req.getSid(), applyTime, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
+    }
+
+    @PostMapping("/delAgreement")
+    public RestResult delAgreement(@Validated @RequestBody DelPurchaseValid req) {
+        return storageService.delAgreement(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/reviewAgreement")
+    public RestResult reviewAgreement(@Validated @RequestBody ReviewPurchaseValid req) {
+        return storageService.reviewAgreement(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/revokeAgreement")
+    public RestResult revokeAgreement(@Validated @RequestBody RevokePurchaseValid req) {
+        return storageService.revokeAgreement(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/addAgreementInfo")
+    public RestResult addAgreementInfo(@Validated @RequestBody AddPurchaseInfoValid req) {
+        return storageService.addAgreementInfo(req.getId(), req.getOid(), req.getRemark());
+    }
+
+    @PostMapping("/delAgreementInfo")
+    public RestResult delAgreementInfo(@Validated @RequestBody DelPurchaseInfoValid req) {
+        return storageService.delAgreementInfo(req.getId(), req.getOid(), req.getRid());
     }
 
     @PostMapping("/loss")

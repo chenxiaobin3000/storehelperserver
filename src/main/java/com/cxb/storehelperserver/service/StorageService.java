@@ -58,6 +58,9 @@ public class StorageService {
     private StorageDispatchRepository storageDispatchRepository;
 
     @Resource
+    private StorageAgreementRepository storageAgreementRepository;
+
+    @Resource
     private StorageFareRepository storageFareRepository;
 
     @Resource
@@ -65,6 +68,12 @@ public class StorageService {
 
     @Resource
     private StorageReturnRepository storageReturnRepository;
+
+    @Resource
+    private AgreementOrderRepository agreementOrderRepository;
+
+    @Resource
+    private AgreementCommodityRepository agreementCommodityRepository;
 
     @Resource
     private PurchaseOrderRepository purchaseOrderRepository;
@@ -602,16 +611,13 @@ public class StorageService {
                 if (!fare.getReview().equals(id)) {
                     return RestResult.fail("要删除已审核信息，请联系审核人");
                 }
-                if (!storageFareRepository.delete(fid)) {
-                    return RestResult.fail("删除运费信息失败");
-                }
             } else {
                 if (!order.getApply().equals(id)) {
                     return RestResult.fail("只能由申请人删除信息");
                 }
-                if (!storageFareRepository.delete(fid)) {
-                    return RestResult.fail("删除运费信息失败");
-                }
+            }
+            if (!storageFareRepository.delete(fid)) {
+                return RestResult.fail("删除运费信息失败");
             }
         }
 
@@ -838,12 +844,231 @@ public class StorageService {
         return RestResult.ok();
     }
 
-    public RestResult addDispatch2Info(int id, int oid, BigDecimal fare, String remark) {
-        return addDispatchInfo(id, oid, fare, remark);
+    public RestResult addPurchase2Info(int id, int oid, String remark) {
+        return addPurchaseInfo(id, oid, remark);
     }
 
-    public RestResult delDispatch2Info(int id, int oid, int fid, int rid) {
-        return delDispatch2Info(id, oid, fid, rid);
+    public RestResult delPurchase2Info(int id, int oid, int rid) {
+        return delPurchaseInfo(id, oid, rid);
+    }
+
+    /**
+     * desc: 仓储履约入库
+     */
+    public RestResult agreement(int id, TStorageOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<Integer> attrs) {
+        // 调度单未审核不能入库
+        int did = order.getOid();
+        TAgreementOrder dispatch = agreementOrderRepository.find(did);
+        if (null == dispatch) {
+            return RestResult.fail("未查询到履约单");
+        }
+        if (null == dispatch.getReview()) {
+            return RestResult.fail("履约单未审核通过，不能进行入库");
+        }
+
+        order.setGid(dispatch.getGid());
+        val reviews = new ArrayList<Integer>();
+        RestResult ret = check(id, order, mp_storage_agreement_apply, mp_storage_agreement_review, reviews);
+        if (null != ret) {
+            return ret;
+        }
+
+        // 生成入库单
+        val comms = new ArrayList<TStorageCommodity>();
+        ret = createAgreementComms(order, did, types, commoditys, values, comms);
+        if (null != ret) {
+            return ret;
+        }
+
+        // 生成入库单批号
+        String batch = dateUtil.createBatch(order.getOtype());
+        order.setBatch(batch);
+        if (!storageOrderRepository.insert(order)) {
+            return RestResult.fail("生成入库订单失败");
+        }
+        int oid = order.getId();
+        String msg = storageOrderService.update(oid, comms, attrs);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+        return reviewService.apply(id, order.getGid(), order.getSid(), order.getOtype(), oid, batch, reviews);
+    }
+
+    /**
+     * desc: 仓储履约入库修改
+     */
+    public RestResult setAgreement(int id, int oid, int sid, Date applyTime, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<Integer> attrs) {
+        // 已经审核的订单不能修改
+        TStorageOrder order = storageOrderRepository.find(oid);
+        if (null == order) {
+            return RestResult.fail("未查询到要修改的订单");
+        }
+        if (null != order.getReview()) {
+            return RestResult.fail("已审核的订单不能修改");
+        }
+        if (!order.getApply().equals(id)) {
+            return RestResult.fail("只能修改自己的订单");
+        }
+
+        val reviews = new ArrayList<Integer>();
+        RestResult ret = check(id, order, mp_storage_agreement_apply, mp_storage_agreement_review, reviews);
+        if (null != ret) {
+            return ret;
+        }
+
+        // 更新仓库信息
+        if (!order.getSid().equals(sid)) {
+            ret = reviewService.update(order.getOtype(), oid, sid);
+            if (null != ret) {
+                return ret;
+            }
+        }
+
+        // 生成入库单
+        val comms = new ArrayList<TStorageCommodity>();
+        ret = createAgreementComms(order, order.getOid(), types, commoditys, values, comms);
+        if (null != ret) {
+            return ret;
+        }
+
+        if (!storageOrderRepository.update(order)) {
+            return RestResult.fail("生成入库订单失败");
+        }
+        String msg = storageOrderService.update(oid, comms, attrs);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+        return RestResult.ok();
+    }
+
+    public RestResult delAgreement(int id, int oid) {
+        TStorageOrder order = storageOrderRepository.find(oid);
+        if (null == order) {
+            return RestResult.fail("未查询到要删除的订单");
+        }
+
+        // 校验是否订单提交人，已经审核的订单不能删除
+        Integer review = order.getReview();
+        if (null != review) {
+            return RestResult.fail("已审核的订单不能删除");
+        }
+        if (!order.getApply().equals(id)) {
+            return RestResult.fail("订单必须由申请人删除");
+        }
+
+        // 删除商品附件数据
+        storageAttachmentRepository.deleteByOid(oid);
+        if (!storageCommodityRepository.delete(oid)) {
+            return RestResult.fail("删除关联商品失败");
+        }
+        if (!storageOrderRepository.delete(oid)) {
+            return RestResult.fail("删除订单失败");
+        }
+        return reviewService.delete(review, order.getOtype(), oid);
+    }
+
+    public RestResult reviewAgreement(int id, int oid) {
+        // 获取公司信息
+        TUserGroup group = userGroupRepository.find(id);
+        if (null == group) {
+            return RestResult.fail("获取公司信息失败");
+        }
+        int gid = group.getGid();
+
+        // 校验审核人员信息
+        TStorageOrder order = storageOrderRepository.find(oid);
+        if (null == order) {
+            return RestResult.fail("未查询到要审核的订单");
+        }
+        if (!reviewService.checkReview(id, order.getOtype(), oid)) {
+            return RestResult.fail("您没有审核权限");
+        }
+
+        // 校验退货订单总价格和总量不能超出履约单
+        TAgreementOrder agreement = agreementOrderRepository.find(order.getOid());
+        if (null == agreement) {
+            return RestResult.fail("未查询到对应的履约单");
+        }
+        int unit = agreement.getCurUnit() - order.getUnit();
+        if (unit < 0) {
+            return RestResult.fail("入库商品总量不能超出履约订单总量");
+        }
+        agreement.setCurUnit(unit);
+        if (!agreementOrderRepository.update(agreement)) {
+            return RestResult.fail("修改履约单数据失败");
+        }
+
+        // 添加审核信息
+        Date reviewTime = new Date();
+        order.setReview(id);
+        order.setReviewTime(reviewTime);
+        if (!storageOrderRepository.update(order)) {
+            return RestResult.fail("审核用户订单信息失败");
+        }
+
+        // 添加关联
+        if (!storageAgreementRepository.insert(oid, order.getOid())) {
+            return RestResult.fail("添加履约入库信息失败");
+        }
+
+        // 增加库存
+        String msg = storageStockService.handleStorageStock(order, true);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+        return reviewService.review(order.getApply(), id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
+    }
+
+    public RestResult revokeAgreement(int id, int oid) {
+        TStorageOrder order = storageOrderRepository.find(oid);
+        if (null == order) {
+            return RestResult.fail("未查询到要撤销的订单");
+        }
+        if (null == order.getReview()) {
+            return RestResult.fail("未审核的订单不能撤销");
+        }
+
+        // 验证公司
+        int gid = order.getGid();
+        String msg = checkService.checkGroup(id, gid);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+
+        // 校验申请订单权限
+        if (!checkService.checkRolePermission(id, storage_agreement)) {
+            return RestResult.fail("本账号没有相关的权限，请联系管理员");
+        }
+
+        RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApply(), mp_storage_agreement_review);
+        if (null != ret) {
+            return ret;
+        }
+
+        // 撤销审核人信息
+        if (!storageOrderRepository.setReviewNull(oid)) {
+            return RestResult.fail("撤销订单审核信息失败");
+        }
+
+        // 删除关联
+        if (!storageDispatchRepository.delete(oid, order.getOid())) {
+            return RestResult.fail("撤销调度入库信息失败");
+        }
+
+        // 减少库存
+        msg = storageStockService.handleStorageStock(order, false);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+        return RestResult.ok();
+    }
+
+    public RestResult addAgreementInfo(int id, int oid, String remark) {
+        return addPurchaseInfo(id, oid, remark);
+    }
+
+    public RestResult delAgreementInfo(int id, int oid, int rid) {
+        return delPurchaseInfo(id, oid, rid);
     }
 
     /**
@@ -1434,6 +1659,56 @@ public class StorageService {
 
                     total = total + value;
                     price = price.add(sc.getPrice().multiply(new BigDecimal(value)));
+                    break;
+                }
+            }
+            if (!find) {
+                return RestResult.fail("未查询到商品id:" + cid + ", 类型:" + ctype);
+            }
+        }
+        order.setUnit(total);
+        order.setPrice(price);
+        order.setCurUnit(total);
+        order.setCurPrice(price);
+        return null;
+    }
+
+    private RestResult createAgreementComms(TStorageOrder order, int aid, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<TStorageCommodity> list) {
+        // 生成入库单
+        int size = commoditys.size();
+        if (size != types.size() || size != values.size()) {
+            return RestResult.fail("商品信息异常");
+        }
+        val agreementCommodities = agreementCommodityRepository.find(aid);
+        if (null == agreementCommodities || agreementCommodities.isEmpty()) {
+            return RestResult.fail("未查询到履约商品信息");
+        }
+        int total = 0;
+        BigDecimal price = new BigDecimal(0);
+        for (int i = 0; i < size; i++) {
+            // 获取商品单位信息
+            boolean find = false;
+            int ctype = types.get(i);
+            int cid = commoditys.get(i);
+            for (TAgreementCommodity ac : agreementCommodities) {
+                if (ac.getCtype() == ctype && ac.getCid() == cid) {
+                    find = true;
+                    // 生成数据
+                    int value = values.get(i);
+                    TStorageCommodity c = new TStorageCommodity();
+                    c.setCtype(ctype);
+                    c.setCid(cid);
+                    c.setValue(value);
+                    c.setPrice(ac.getPrice());
+                    list.add(c);
+
+                    // 校验商品入库数不能大于调度单
+                    if (value > ac.getValue()) {
+                        return RestResult.fail("入库商品数量不能大于履约数量, 商品id:" + cid + ", 类型:" + ctype);
+                    }
+
+                    total = total + value;
+                    price = price.add(ac.getPrice().multiply(new BigDecimal(value)));
                     break;
                 }
             }

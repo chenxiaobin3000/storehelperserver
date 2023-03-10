@@ -42,9 +42,6 @@ public class CloudService {
     private CloudStockService cloudStockService;
 
     @Resource
-    private StorageStockService storageStockService;
-
-    @Resource
     private CloudOrderRepository cloudOrderRepository;
 
     @Resource
@@ -1062,16 +1059,13 @@ public class CloudService {
                 if (!fare.getReview().equals(id)) {
                     return RestResult.fail("要删除已审核信息，请联系审核人");
                 }
-                if (!cloudFareRepository.delete(fid)) {
-                    return RestResult.fail("删除运费信息失败");
-                }
             } else {
                 if (!order.getApply().equals(id)) {
                     return RestResult.fail("只能由申请人删除信息");
                 }
-                if (!cloudFareRepository.delete(fid)) {
-                    return RestResult.fail("删除运费信息失败");
-                }
+            }
+            if (!cloudFareRepository.delete(fid)) {
+                return RestResult.fail("删除运费信息失败");
             }
         }
 
@@ -1255,11 +1249,6 @@ public class CloudService {
         if (null != msg) {
             return RestResult.fail(msg);
         }
-        // 增加库存
-        msg = storageStockService.handleStorageStock(order, true);
-        if (null != msg) {
-            return RestResult.fail(msg);
-        }
 
         // 财务记录
         if (!financeService.insertRecord(id, group.getGid(), FINANCE_CLOUD_BACK, oid, order.getPrice())) {
@@ -1323,11 +1312,6 @@ public class CloudService {
 
         // 增加库存
         msg = cloudStockService.handleLossStock(order, true);
-        if (null != msg) {
-            return RestResult.fail(msg);
-        }
-        // 减少库存
-        msg = storageStockService.handleStorageStock(order, false);
         if (null != msg) {
             return RestResult.fail(msg);
         }

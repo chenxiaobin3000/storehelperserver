@@ -26,6 +26,6 @@ public class ScheduledTasks {
     private void scheduledStock() {
         log.info("scheduled stock");
         storageStockService.countStock(1, 2);
-        cloudStockService.countStock(1, 2);
+        //cloudStockServicee.countStock(1, 2);
     }
 }

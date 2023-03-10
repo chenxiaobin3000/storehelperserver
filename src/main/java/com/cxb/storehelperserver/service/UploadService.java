@@ -44,6 +44,9 @@ public class UploadService {
     private CloudAttachmentRepository cloudAttachmentRepository;
 
     @Resource
+    private SaleAttachmentRepository saleAttachmentRepository;
+
+    @Resource
     private DateUtil dateUtil;
 
     @Value("${store-app.config.uploadpath}")
@@ -91,6 +94,7 @@ public class UploadService {
             case STORAGE_PURCHASE2_ORDER:
             case STORAGE_LOSS_ORDER:
             case STORAGE_RETURN_ORDER:
+            case STORAGE_AGREEMENT_ORDER:
                 TStorageAttachment storageAttachment = storageAttachmentRepository.insert(0, imagesrc, path, name);
                 if (null == storageAttachment) {
                     return RestResult.fail("写入数据失败，请联系管理员");
@@ -116,13 +120,21 @@ public class UploadService {
                 break;
             case CLOUD_PURCHASE_ORDER:
             case CLOUD_RETURN_ORDER:
-            case CLOUD_SALE_ORDER:
             case CLOUD_LOSS_ORDER:
+            case CLOUD_BACK_ORDER:
+            case CLOUD_AGREEMENT_ORDER:
                 TCloudAttachment cloudAttachment = cloudAttachmentRepository.insert(0, imagesrc, path, name);
                 if (null == cloudAttachment) {
                     return RestResult.fail("写入数据失败，请联系管理员");
                 }
                 data.put("id", cloudAttachment.getId());
+                break;
+            case SALE_RETURN_ORDER:
+                TSaleAttachment saleAttachment = saleAttachmentRepository.insert(0, imagesrc, path, name);
+                if (null == saleAttachment) {
+                    return RestResult.fail("写入数据失败，请联系管理员");
+                }
+                data.put("id", saleAttachment.getId());
                 break;
             default:
                 return RestResult.fail("数据类型错误");

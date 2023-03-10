@@ -306,16 +306,13 @@ public class AgreementService {
                 if (!fare.getReview().equals(id)) {
                     return RestResult.fail("要删除已审核信息，请联系审核人");
                 }
-                if (!agreementFareRepository.delete(fid)) {
-                    return RestResult.fail("删除运费信息失败");
-                }
             } else {
                 if (!order.getApply().equals(id)) {
                     return RestResult.fail("只能由申请人删除信息");
                 }
-                if (!agreementFareRepository.delete(fid)) {
-                    return RestResult.fail("删除运费信息失败");
-                }
+            }
+            if (!agreementFareRepository.delete(fid)) {
+                return RestResult.fail("删除运费信息失败");
             }
         }
 
