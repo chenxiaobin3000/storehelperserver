@@ -14,7 +14,7 @@ public class TypeDefine {
         STORAGE_DISPATCH_ORDER(11),     // 仓储调度出库订单
         STORAGE_PURCHASE2_ORDER(12),    // 仓储调度入库订单
         STORAGE_LOSS_ORDER(13),         // 仓储损耗订单
-        STORAGE_RETURN_ORDER(14),       // 仓储退货订单
+        STORAGE_RETURN_ORDER(14),       // 仓储采购退货订单
         STORAGE_AGREEMENT_ORDER(15),    // 仓储履约入库订单
         PRODUCT_PROCESS_ORDER(20),      // 生产开始订单
         PRODUCT_COMPLETE_ORDER(21),     // 生产完成订单
@@ -22,9 +22,9 @@ public class TypeDefine {
         AGREEMENT_SHIPPED_ORDER(30),    // 履约发货订单
         AGREEMENT_RETURN_ORDER(31),     // 履约退货订单
         CLOUD_PURCHASE_ORDER(40),       // 云仓采购入库订单
-        CLOUD_RETURN_ORDER(41),         // 云仓退仓库订单
+        CLOUD_RETURN_ORDER(41),         // 云仓采购退货订单
         CLOUD_LOSS_ORDER(42),           // 云仓损耗订单
-        CLOUD_BACK_ORDER(43),           // 云仓退采购订单
+        CLOUD_BACK_ORDER(43),           // 云仓履约退货订单
         CLOUD_AGREEMENT_ORDER(44),      // 云仓履约入库订单
         SALE_RETURN_ORDER(50);          // 销售退货订单
 
