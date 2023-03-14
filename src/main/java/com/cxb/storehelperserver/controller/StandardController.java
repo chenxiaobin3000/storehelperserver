@@ -32,7 +32,6 @@ public class StandardController {
         standard.setCode(req.getCode());
         standard.setName(req.getName());
         standard.setCid(req.getCid());
-        standard.setUnit(req.getUnit());
         standard.setRemark(req.getRemark());
         return standardService.addStandard(req.getId(), standard, req.getAttrs());
     }
@@ -45,7 +44,6 @@ public class StandardController {
         standard.setCode(req.getCode());
         standard.setName(req.getName());
         standard.setCid(req.getCid());
-        standard.setUnit(req.getUnit());
         standard.setRemark(req.getRemark());
         return standardService.setStandard(req.getId(), standard, req.getAttrs());
     }

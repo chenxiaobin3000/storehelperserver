@@ -15,7 +15,6 @@ import java.util.List;
  */
 @Mapper
 public interface MyPurchaseCommodityMapper {
-    // TODO 没有调用
     @Select({"<script>",
             "select t1.id, t1.oid, t1.cid, t1.ctype, t1.unit, t1.value, t1.price, t2.otype as io",
             "from t_purchase_commodity t1 left join t_purchase_order t2 on t1.oid = t2.id",

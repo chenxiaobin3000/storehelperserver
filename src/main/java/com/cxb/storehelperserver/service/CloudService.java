@@ -16,6 +16,7 @@ import java.util.*;
 
 import static com.cxb.storehelperserver.util.Permission.*;
 import static com.cxb.storehelperserver.util.TypeDefine.FinanceAction.*;
+import static com.cxb.storehelperserver.util.TypeDefine.OrderType.PURCHASE_PURCHASE_ORDER;
 
 /**
  * desc: 损耗业务
@@ -98,6 +99,9 @@ public class CloudService {
         TPurchaseOrder purchaseOrder = purchaseOrderRepository.find(rid);
         if (null == purchaseOrder) {
             return RestResult.fail("未查询到采购单");
+        }
+        if (!purchaseOrder.getOtype().equals(PURCHASE_PURCHASE_ORDER.getValue())) {
+            return RestResult.fail("进货单据类型异常");
         }
         if (null == purchaseOrder.getReview()) {
             return RestResult.fail("采购单未审核通过，不能进行入库");
@@ -356,6 +360,9 @@ public class CloudService {
         TAgreementOrder agreementOrder = agreementOrderRepository.find(rid);
         if (null == agreementOrder) {
             return RestResult.fail("未查询到发货单");
+        }
+        if (!agreementOrder.getOtype().equals(PURCHASE_PURCHASE_ORDER.getValue())) {
+            return RestResult.fail("进货单据类型异常");
         }
         if (null == agreementOrder.getReview()) {
             return RestResult.fail("发货单未审核通过，不能进行入库");
@@ -760,6 +767,9 @@ public class CloudService {
         if (null == purchaseOrder) {
             return RestResult.fail("未查询到采购单");
         }
+        if (!purchaseOrder.getOtype().equals(PURCHASE_PURCHASE_ORDER.getValue())) {
+            return RestResult.fail("进货单据类型异常");
+        }
         if (null == purchaseOrder.getReview()) {
             return RestResult.fail("采购单未审核通过，不能进行退货");
         }
@@ -892,13 +902,14 @@ public class CloudService {
         if (price.compareTo(BigDecimal.ZERO) < 0) {
             return RestResult.fail("退货商品总价不能超出采购订单总价");
         }
+        if (0 == unit) {
+            purchase.setComplete(new Byte("1"));
+        }
         purchase.setCurUnit(unit);
         purchase.setCurPrice(price);
         if (!purchaseOrderRepository.update(purchase)) {
             return RestResult.fail("修改进货单数据失败");
         }
-
-        // TODO 采购数量为0时，标记采购完成
 
         // 添加审核信息
         Date reviewTime = new Date();
@@ -1090,6 +1101,9 @@ public class CloudService {
         TAgreementOrder agreementOrder = agreementOrderRepository.find(rid);
         if (null == agreementOrder) {
             return RestResult.fail("未查询到履约单");
+        }
+        if (!agreementOrder.getOtype().equals(PURCHASE_PURCHASE_ORDER.getValue())) {
+            return RestResult.fail("进货单据类型异常");
         }
         if (null == agreementOrder.getReview()) {
             return RestResult.fail("履约单未审核通过，不能进行退货");
@@ -1391,8 +1405,8 @@ public class CloudService {
                         return RestResult.fail("入库商品数量不能大于采购数量, 商品id:" + cid + ", 类型:" + ctype);
                     }
 
-                    total = total + pc.getUnit() * value;
-                    price = price.add(pc.getPrice().multiply(new BigDecimal(value)));
+                    total = total + pc.getNorm() * value;
+                    price = price.add(pc.getPrice().multiply(new BigDecimal(pc.getNorm() * value)));
                     break;
                 }
             }
@@ -1441,8 +1455,8 @@ public class CloudService {
                         return RestResult.fail("入库商品数量不能大于发货数量, 商品id:" + cid + ", 类型:" + ctype);
                     }
 
-                    total = total + ac.getUnit() * value;
-                    price = price.add(ac.getPrice().multiply(new BigDecimal(value)));
+                    total = total + ac.getNorm() * value;
+                    price = price.add(ac.getPrice().multiply(new BigDecimal(ac.getNorm() * value)));
                     break;
                 }
             }
@@ -1531,8 +1545,8 @@ public class CloudService {
                     c.setPrice(prices.get(i));
                     list.add(c);
 
-                    total = total + pc.getUnit() * value;
-                    price = price.add(prices.get(i).multiply(new BigDecimal(value)));
+                    total = total + pc.getNorm() * value;
+                    price = price.add(prices.get(i).multiply(new BigDecimal(pc.getNorm() * value)));
                     break;
                 }
             }
@@ -1581,8 +1595,8 @@ public class CloudService {
                     c.setPrice(ac.getPrice());
                     list.add(c);
 
-                    total = total + ac.getUnit() * value;
-                    price = price.add(ac.getPrice().multiply(new BigDecimal(value)));
+                    total = total + ac.getNorm() * value;
+                    price = price.add(ac.getPrice().multiply(new BigDecimal(ac.getNorm() *value)));
                     break;
                 }
             }

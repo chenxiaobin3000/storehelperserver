@@ -190,7 +190,7 @@ public class ReviewService {
         // 验证审核人员信息
         val orderReviewers = orderReviewerRepository.find(gid);
         if (null == orderReviewers || orderReviewers.isEmpty()) {
-            return RestResult.fail("未设置订单审核人，请联系系统管理员");
+            return RestResult.fail("获取订单审核人信息失败，请联系系统管理员");
         }
         for (TOrderReviewer orderReviewer : orderReviewers) {
             if (orderReviewer.getPid().equals(reviewPerm)) {
@@ -198,7 +198,7 @@ public class ReviewService {
             }
         }
         if (reviews.isEmpty()) {
-            return RestResult.fail("未设置采购订单审核人，请联系系统管理员");
+            return RestResult.fail("未设置订单审核人，请联系系统管理员");
         }
         return null;
     }

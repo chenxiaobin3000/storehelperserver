@@ -4,6 +4,7 @@ import com.cxb.storehelperserver.repository.model.MyOrderCommodity;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -21,4 +22,7 @@ public interface MyStorageCommodityMapper {
             "and t2.apply_time <![CDATA[ >= ]]> #{start} and t2.apply_time <![CDATA[ < ]]> #{end} and t2.review > 0",
             "</script>"})
     List<MyOrderCommodity> pagination(int gid, int sid, Date start, Date end);
+
+    @Select({"<script>select sum(value*price) as total from t_storage_commodity where oid = #{oid} group by oid</script>"})
+    BigDecimal count(int oid);
 }

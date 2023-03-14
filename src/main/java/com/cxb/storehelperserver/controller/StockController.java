@@ -31,6 +31,11 @@ public class StockController {
     @Resource
     private DateUtil dateUtil;
 
+    @PostMapping("/getStockList")
+    public RestResult getStockList(@Validated @RequestBody GetStockListValid req) {
+        return storageStockService.getStockList(req.getId(), req.getSid(), req.getCtype(), req.getPage(), req.getLimit(), req.getSearch());
+    }
+
     @PostMapping("/getStockDay")
     public RestResult getStockDay(@Validated @RequestBody GetStockDayValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
@@ -40,7 +45,7 @@ public class StockController {
         } catch (ParseException e) {
             return RestResult.fail("查询日期转换失败");
         }
-        return storageStockService.getStockDay(req.getId(), req.getSid(), date, req.getPage(), req.getLimit(), req.getSearch());
+        return storageStockService.getStockDay(req.getId(), req.getSid(), req.getCtype(), date, req.getPage(), req.getLimit(), req.getSearch());
     }
 
     @PostMapping("/getStockWeek")
@@ -52,7 +57,7 @@ public class StockController {
         } catch (ParseException e) {
             return RestResult.fail("查询日期转换失败");
         }
-        return storageStockService.getStockWeek(req.getId(), req.getSid(), date, req.getPage(), req.getLimit(), req.getSearch());
+        return storageStockService.getStockWeek(req.getId(), req.getSid(), req.getCtype(), date, req.getPage(), req.getLimit(), req.getSearch());
     }
 
     @PostMapping("/getCloudDay")
@@ -65,7 +70,7 @@ public class StockController {
             return RestResult.fail("查询日期转换失败");
         }
         return null;
-        // return stockService.getCloudDay(req.getId(), req.getSid(), date, req.getPage(), req.getLimit(), req.getSearch());
+        // return stockService.getCloudDay(req.getId(), req.getSid(), req.getCtype(), date, req.getPage(), req.getLimit(), req.getSearch());
     }
 
     @PostMapping("/getCloudWeek")
@@ -78,10 +83,9 @@ public class StockController {
             return RestResult.fail("查询日期转换失败");
         }
         return null;
-        // return stockService.getCloudWeek(req.getId(), req.getSid(), date, req.getPage(), req.getLimit(), req.getSearch());
+        // return stockService.getCloudWeek(req.getId(), req.getSid(), req.getCtype(), date, req.getPage(), req.getLimit(), req.getSearch());
     }
 
-    // TODO 人工，包装，物流费，库存销量饼图，数据云盘，小程序选取优化，小程序获取本公司订单信息
     @PostMapping("/countStock")
     public RestResult countStock(@Validated @RequestBody CountStockValid req) {
         return storageStockService.countStock(req.getId(), req.getGid());

@@ -16,6 +16,7 @@ import java.util.*;
 
 import static com.cxb.storehelperserver.util.Permission.*;
 import static com.cxb.storehelperserver.util.TypeDefine.CommodityType;
+import static com.cxb.storehelperserver.util.TypeDefine.OrderType.PURCHASE_PURCHASE_ORDER;
 
 /**
  * desc: 生产业务
@@ -306,6 +307,9 @@ public class ProductService {
         TProductOrder process = productOrderRepository.find(pid);
         if (null == process) {
             return RestResult.fail("未查询到生产单");
+        }
+        if (!process.getOtype().equals(PURCHASE_PURCHASE_ORDER.getValue())) {
+            return RestResult.fail("进货单据类型异常");
         }
         if (null == process.getReview()) {
             return RestResult.fail("生产单未审核通过，不能进行入库");

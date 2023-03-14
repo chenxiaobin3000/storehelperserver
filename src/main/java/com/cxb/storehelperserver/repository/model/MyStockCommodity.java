@@ -12,8 +12,6 @@ public class MyStockCommodity {
 
     private Integer sid;
 
-    private Integer unit;
-
     private Integer value;
 
     private Integer total;

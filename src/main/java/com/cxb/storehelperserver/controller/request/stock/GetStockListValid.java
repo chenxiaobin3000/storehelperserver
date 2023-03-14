@@ -13,7 +13,7 @@ import javax.validation.constraints.NotEmpty;
  * date: 2023/1/24
  */
 @Data
-public class GetCloudDayValid implements IValid {
+public class GetStockListValid implements IValid {
     @Min(value = 1, message = "账号错误")
     private int id;
 
@@ -22,10 +22,6 @@ public class GetCloudDayValid implements IValid {
 
     @Min(value = 0, message = "商品类型错误")
     private int ctype;
-
-    @NotEmpty(message = "请输入查询日期")
-    @Length(min = 10, max = 10, message = "查询日期格式错误")
-    private String date;
 
     @Min(value = 1, message = "页面编号错误")
     private int page;

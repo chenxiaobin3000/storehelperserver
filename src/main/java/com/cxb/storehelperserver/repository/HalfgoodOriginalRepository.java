@@ -23,25 +23,25 @@ public class HalfgoodOriginalRepository extends BaseRepository<THalfgoodOriginal
         init("halfOri::");
     }
 
-    public THalfgoodOriginal find(int gid, int hid) {
-        THalfgoodOriginal halfgoodOriginal = getCache(joinKey(gid, hid), THalfgoodOriginal.class);
+    public THalfgoodOriginal find(int hid) {
+        THalfgoodOriginal halfgoodOriginal = getCache(hid, THalfgoodOriginal.class);
         if (null != halfgoodOriginal) {
             return halfgoodOriginal;
         }
 
         // 缓存没有就查询数据库
         THalfgoodOriginalExample example = new THalfgoodOriginalExample();
-        example.or().andGidEqualTo(gid).andHidEqualTo(hid);
+        example.or().andHidEqualTo(hid);
         halfgoodOriginal = halfgoodOriginalMapper.selectOneByExample(example);
         if (null != halfgoodOriginal) {
-            setCache(joinKey(gid, hid), halfgoodOriginal);
+            setCache(hid, halfgoodOriginal);
         }
         return halfgoodOriginal;
     }
 
     public boolean insert(THalfgoodOriginal row) {
         if (halfgoodOriginalMapper.insert(row) > 0) {
-            setCache(joinKey(row.getGid(), row.getHid()), row);
+            setCache(row.getHid(), row);
             return true;
         }
         return false;
@@ -49,7 +49,7 @@ public class HalfgoodOriginalRepository extends BaseRepository<THalfgoodOriginal
 
     public boolean update(THalfgoodOriginal row) {
         if (halfgoodOriginalMapper.updateByPrimaryKey(row) > 0) {
-            setCache(joinKey(row.getGid(), row.getHid()), row);
+            setCache(row.getHid(), row);
             return true;
         }
         return false;
@@ -58,7 +58,7 @@ public class HalfgoodOriginalRepository extends BaseRepository<THalfgoodOriginal
     public boolean delete(int gid, int hid) {
         delCache(joinKey(gid, hid));
         THalfgoodOriginalExample example = new THalfgoodOriginalExample();
-        example.or().andGidEqualTo(gid).andHidEqualTo(hid);
+        example.or().andHidEqualTo(hid);
         return halfgoodOriginalMapper.deleteByExample(example) > 0;
     }
 }

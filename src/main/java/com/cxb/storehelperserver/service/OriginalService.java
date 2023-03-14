@@ -149,7 +149,6 @@ public class OriginalService {
         data.put("code", original.getCode());
         data.put("name", original.getName());
         data.put("cid", original.getCid());
-        data.put("unit", original.getUnit());
         data.put("remark", original.getRemark());
         List<TOriginalAttr> attrs = originalAttrRepository.find(original.getId());
         if (null != attrs && !attrs.isEmpty()) {
@@ -189,7 +188,6 @@ public class OriginalService {
             tmp.put("code", c.getCode());
             tmp.put("name", c.getName());
             tmp.put("cid", c.getCid());
-            tmp.put("unit", c.getUnit());
             tmp.put("remark", c.getRemark());
             datas.add(tmp);
 
@@ -237,7 +235,6 @@ public class OriginalService {
             tmp.put("code", c.getCode());
             tmp.put("name", c.getName());
             tmp.put("cid", c.getCid());
-            tmp.put("unit", c.getUnit());
             tmp.put("remark", c.getRemark());
             datas.add(tmp);
 

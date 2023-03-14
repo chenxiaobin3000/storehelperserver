@@ -79,6 +79,9 @@ public class OrderService {
     private StorageRepository storageRepository;
 
     @Resource
+    private CloudRepository cloudRepository;
+
+    @Resource
     private UserRepository userRepository;
 
     @Resource
@@ -209,14 +212,14 @@ public class OrderService {
         return RestResult.ok(data);
     }
 
-    public RestResult getPurchaseOrder(int id, int type, int page, int limit, ReviewType review, String search) {
+    public RestResult getPurchaseOrder(int id, int type, int page, int limit, ReviewType review, Byte complete, String search) {
         // 获取公司信息
         TUserGroup group = userGroupRepository.find(id);
         if (null == group) {
             return RestResult.fail("获取公司信息失败");
         }
 
-        int total = purchaseOrderRepository.total(group.getGid(), type, review, search);
+        int total = purchaseOrderRepository.total(group.getGid(), type, review, complete, search);
         if (0 == total) {
             val data = new HashMap<String, Object>();
             data.put("total", 0);
@@ -227,7 +230,7 @@ public class OrderService {
         // 查询联系人
         SimpleDateFormat dateFormat = dateUtil.getDateFormat();
         val list2 = new ArrayList<>();
-        val list = purchaseOrderRepository.pagination(group.getGid(), type, page, limit, review, search);
+        val list = purchaseOrderRepository.pagination(group.getGid(), type, page, limit, review, complete, search);
         if (null != list && !list.isEmpty()) {
             for (TPurchaseOrder o : list) {
                 val ret = createOrder(o.getOtype(), o.getId(), o.getBatch(), o.getSid(), o.getRid(), o.getUnit(), o.getCurUnit(), o.getPrice(), o.getCurPrice(),
@@ -308,7 +311,9 @@ public class OrderService {
             for (TUserOrderApply oa : list) {
                 switch (OrderType.valueOf(oa.getOtype())) {
                     case PURCHASE_PURCHASE_ORDER:
-                    case PURCHASE_RETURN_ORDER: {
+                    case PURCHASE_RETURN_ORDER:
+                    case PURCHASE_PURCHASE2_ORDER:
+                    case PURCHASE_RETURN2_ORDER: {
                         TPurchaseOrder o = purchaseOrderRepository.find(oa.getOid());
                         val ret = createOrder(oa.getOtype(), o.getId(), o.getBatch(), o.getSid(), o.getRid(), o.getUnit(), o.getCurUnit(), o.getPrice(), o.getCurPrice(),
                                 o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(), null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));
@@ -438,7 +443,9 @@ public class OrderService {
             for (TUserOrderReview or : list) {
                 switch (OrderType.valueOf(or.getOtype())) {
                     case PURCHASE_PURCHASE_ORDER:
-                    case PURCHASE_RETURN_ORDER: {
+                    case PURCHASE_RETURN_ORDER:
+                    case PURCHASE_PURCHASE2_ORDER:
+                    case PURCHASE_RETURN2_ORDER: {
                         TPurchaseOrder o = purchaseOrderRepository.find(or.getOid());
                         val ret = createOrder(or.getOtype(), o.getId(), o.getBatch(), o.getSid(), o.getRid(), o.getUnit(), o.getCurUnit(), o.getPrice(), o.getCurPrice(),
                                 o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(), null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));
@@ -569,7 +576,9 @@ public class OrderService {
             for (TUserOrderComplete oc : list) {
                 switch (OrderType.valueOf(oc.getOtype())) {
                     case PURCHASE_PURCHASE_ORDER:
-                    case PURCHASE_RETURN_ORDER: {
+                    case PURCHASE_RETURN_ORDER:
+                    case PURCHASE_PURCHASE2_ORDER:
+                    case PURCHASE_RETURN2_ORDER: {
                         TPurchaseOrder o = purchaseOrderRepository.find(oc.getOid());
                         val ret = createOrder(oc.getOtype(), o.getId(), o.getBatch(), o.getSid(), o.getRid(), o.getUnit(), o.getCurUnit(), o.getPrice(), o.getCurPrice(),
                                 o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(), null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));
@@ -692,6 +701,8 @@ public class OrderService {
         switch (OrderType.valueOf(type)) {
             case PURCHASE_PURCHASE_ORDER:
             case PURCHASE_RETURN_ORDER:
+            case PURCHASE_PURCHASE2_ORDER:
+            case PURCHASE_RETURN2_ORDER:
                 val purchaseOrder = purchaseOrderRepository.find(oid);
                 if (null != purchaseOrder && purchaseOrder.getGid().equals(group.getGid())) {
                     return RestResult.ok(purchaseOrder);
@@ -757,10 +768,27 @@ public class OrderService {
         ret.put("curPrice", curPrice);
         ret.put("rid", rid);
 
-        TStorage s = storageRepository.find(sid);
-        if (null != s) {
-            ret.put("sid", s.getId());
-            ret.put("sname", s.getName());
+        boolean isStorage = true;
+        switch (OrderType.valueOf(type)) {
+            case PURCHASE_PURCHASE2_ORDER:
+            case PURCHASE_RETURN2_ORDER:
+                isStorage = false;
+                break;
+            default:
+                break;
+        }
+        if (isStorage) {
+            TStorage s = storageRepository.find(sid);
+            if (null != s) {
+                ret.put("sid", s.getId());
+                ret.put("sname", s.getName());
+            }
+        } else {
+            TCloud c = cloudRepository.find(sid);
+            if (null != c) {
+                ret.put("sid", c.getId());
+                ret.put("sname", c.getName());
+            }
         }
 
         TUser ua = userRepository.find(apply);

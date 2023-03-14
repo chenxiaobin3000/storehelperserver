@@ -8,8 +8,10 @@ package com.cxb.storehelperserver.util;
 public class TypeDefine {
     // 订单类型
     public enum OrderType {
-        PURCHASE_PURCHASE_ORDER(1),     // 采购进货订单
-        PURCHASE_RETURN_ORDER(2),       // 采购退货订单
+        PURCHASE_PURCHASE_ORDER(1),     // 采购仓储进货订单
+        PURCHASE_RETURN_ORDER(2),       // 采购仓储退货订单
+        PURCHASE_PURCHASE2_ORDER(3),    // 采购云仓进货订单
+        PURCHASE_RETURN2_ORDER(4),      // 采购云仓退货订单
         STORAGE_PURCHASE_ORDER(10),     // 仓储采购入库订单
         STORAGE_DISPATCH_ORDER(11),     // 仓储调度出库订单
         STORAGE_PURCHASE2_ORDER(12),    // 仓储调度入库订单
@@ -41,31 +43,41 @@ public class TypeDefine {
                 case 2:
                     return PURCHASE_RETURN_ORDER;
                 case 3:
-                    return STORAGE_PURCHASE_ORDER;
+                    return PURCHASE_PURCHASE2_ORDER;
                 case 4:
-                    return STORAGE_DISPATCH_ORDER;
-                case 5:
-                    return STORAGE_PURCHASE2_ORDER;
-                case 6:
-                    return STORAGE_LOSS_ORDER;
-                case 7:
-                    return STORAGE_RETURN_ORDER;
-                case 8:
-                    return PRODUCT_PROCESS_ORDER;
-                case 9:
-                    return PRODUCT_COMPLETE_ORDER;
+                    return PURCHASE_RETURN2_ORDER;
                 case 10:
-                    return PRODUCT_LOSS_ORDER;
+                    return STORAGE_PURCHASE_ORDER;
                 case 11:
-                    return AGREEMENT_SHIPPED_ORDER;
+                    return STORAGE_DISPATCH_ORDER;
                 case 12:
-                    return AGREEMENT_RETURN_ORDER;
+                    return STORAGE_PURCHASE2_ORDER;
                 case 13:
-                    return CLOUD_PURCHASE_ORDER;
+                    return STORAGE_LOSS_ORDER;
                 case 14:
-                    return CLOUD_RETURN_ORDER;
+                    return STORAGE_RETURN_ORDER;
                 case 15:
+                    return STORAGE_AGREEMENT_ORDER;
+                case 20:
+                    return PRODUCT_PROCESS_ORDER;
+                case 21:
+                    return PRODUCT_COMPLETE_ORDER;
+                case 22:
+                    return PRODUCT_LOSS_ORDER;
+                case 30:
+                    return AGREEMENT_SHIPPED_ORDER;
+                case 31:
+                    return AGREEMENT_RETURN_ORDER;
+                case 40:
+                    return CLOUD_PURCHASE_ORDER;
+                case 41:
+                    return CLOUD_RETURN_ORDER;
+                case 42:
                     return CLOUD_LOSS_ORDER;
+                case 43:
+                    return CLOUD_BACK_ORDER;
+                case 44:
+                    return CLOUD_AGREEMENT_ORDER;
             }
             return SALE_RETURN_ORDER;
         }
@@ -77,10 +89,14 @@ public class TypeDefine {
 
     // 财务记录类型
     public enum FinanceAction {
-        FINANCE_PURCHASE_PAY(1),        // 采购进货
-        FINANCE_PURCHASE_FARE(2),       // 采购进货运费
-        FINANCE_PURCHASE_RET(3),        // 采购退货
-        FINANCE_PURCHASE_FARE2(4),      // 采购退货运费
+        FINANCE_PURCHASE_PAY(1),        // 采购仓储进货
+        FINANCE_PURCHASE_FARE(2),       // 采购仓储进货运费
+        FINANCE_PURCHASE_RET(3),        // 采购仓储退货
+        FINANCE_PURCHASE_FARE2(4),      // 采购仓储退货运费
+        FINANCE_PURCHASE2_PAY(5),       // 采购云仓进货
+        FINANCE_PURCHASE2_FARE(6),      // 采购云仓进货运费
+        FINANCE_PURCHASE2_RET(7),       // 采购云仓退货
+        FINANCE_PURCHASE2_FARE2(8),     // 采购云仓退货运费
 
         FINANCE_STORAGE_MGR(10),        // 仓储管理费
         FINANCE_STORAGE_FARE(11),       // 仓储调度运费
@@ -119,6 +135,14 @@ public class TypeDefine {
                     return FINANCE_PURCHASE_RET;
                 case 4:
                     return FINANCE_PURCHASE_FARE2;
+                case 5:
+                    return FINANCE_PURCHASE2_PAY;
+                case 6:
+                    return FINANCE_PURCHASE2_FARE;
+                case 7:
+                    return FINANCE_PURCHASE2_RET;
+                case 8:
+                    return FINANCE_PURCHASE2_FARE2;
 
                 case 10:
                     return FINANCE_STORAGE_MGR;
@@ -145,6 +169,10 @@ public class TypeDefine {
                     return FINANCE_CLOUD_RET;
                 case 41:
                     return FINANCE_CLOUD_FARE;
+                case 42:
+                    return FINANCE_CLOUD_BACK;
+                case 43:
+                    return FINANCE_CLOUD_FARE2;
 
                 case 50:
                     return FINANCE_MARKET_SALE;

@@ -20,6 +20,9 @@ public class GetCloudWeekValid implements IValid {
     @Min(value = 0, message = "仓库账号错误")
     private int sid;
 
+    @Min(value = 0, message = "商品类型错误")
+    private int ctype;
+
     @NotEmpty(message = "请输入查询日期")
     @Length(min = 10, max = 10, message = "查询日期格式错误")
     private String date;

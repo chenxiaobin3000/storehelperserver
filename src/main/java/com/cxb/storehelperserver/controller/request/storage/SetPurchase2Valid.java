@@ -22,9 +22,6 @@ public class SetPurchase2Valid implements IValid {
     @Min(value = 1, message = "订单编号错误")
     private int oid;
 
-    @Min(value = 1, message = "仓库账号错误")
-    private int sid;
-
     @NotEmpty(message = "请输入订单制单日期")
     @Length(min = 19, max = 19, message = "订单制单日期格式错误")
     private String date;
@@ -34,6 +31,9 @@ public class SetPurchase2Valid implements IValid {
 
     @Size(min = 1, message = "商品id不能为空")
     private List<Integer> commoditys;
+
+    @Size(min = 1, message = "商品重量不能为空")
+    private List<Integer> weights;
 
     @Size(min = 1, message = "商品数量不能为空")
     private List<Integer> values;

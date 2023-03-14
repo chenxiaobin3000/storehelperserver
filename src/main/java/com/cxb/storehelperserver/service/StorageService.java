@@ -2,10 +2,8 @@ package com.cxb.storehelperserver.service;
 
 import com.cxb.storehelperserver.model.*;
 import com.cxb.storehelperserver.repository.*;
-import com.cxb.storehelperserver.repository.model.MyOrderCommodity;
 import com.cxb.storehelperserver.util.DateUtil;
 import com.cxb.storehelperserver.util.RestResult;
-import com.cxb.storehelperserver.util.TypeDefine;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.stereotype.Service;
@@ -13,10 +11,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 
 import static com.cxb.storehelperserver.util.Permission.*;
 import static com.cxb.storehelperserver.util.TypeDefine.FinanceAction.*;
+import static com.cxb.storehelperserver.util.TypeDefine.OrderType.*;
 
 /**
  * desc: 仓库订单业务
@@ -93,12 +93,15 @@ public class StorageService {
     /**
      * desc: 仓储采购入库
      */
-    public RestResult purchase(int id, TStorageOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<Integer> attrs) {
+    public RestResult purchase(int id, TStorageOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
         // 采购单未审核不能入库
         int rid = order.getOid();
         TPurchaseOrder purchaseOrder = purchaseOrderRepository.find(rid);
         if (null == purchaseOrder) {
             return RestResult.fail("未查询到采购单");
+        }
+        if (!purchaseOrder.getOtype().equals(PURCHASE_PURCHASE_ORDER.getValue())) {
+            return RestResult.fail("进货单据类型异常");
         }
         if (null == purchaseOrder.getReview()) {
             return RestResult.fail("采购单未审核通过，不能进行入库");
@@ -114,7 +117,7 @@ public class StorageService {
 
         // 生成入库单
         val comms = new ArrayList<TStorageCommodity>();
-        ret = createPurchaseComms(order, order.getOid(), types, commoditys, values, comms);
+        ret = createPurchaseComms(order, order.getOid(), types, commoditys, weights, values, comms);
         if (null != ret) {
             return ret;
         }
@@ -136,7 +139,7 @@ public class StorageService {
     /**
      * desc: 仓储采购入库修改
      */
-    public RestResult setPurchase(int id, int oid, Date applyTime, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<Integer> attrs) {
+    public RestResult setPurchase(int id, int oid, Date applyTime, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
         // 已经审核的订单不能修改
         TStorageOrder order = storageOrderRepository.find(oid);
         if (null == order) {
@@ -158,7 +161,7 @@ public class StorageService {
 
         // 生成入库单
         val comms = new ArrayList<TStorageCommodity>();
-        ret = createPurchaseComms(order, order.getOid(), types, commoditys, values, comms);
+        ret = createPurchaseComms(order, order.getOid(), types, commoditys, weights, values, comms);
         if (null != ret) {
             return ret;
         }
@@ -224,13 +227,13 @@ public class StorageService {
         if (unit < 0) {
             return RestResult.fail("入库商品总量不能超出采购订单总量");
         }
+        if (0 == unit) {
+            purchase.setComplete(new Byte("1"));
+        }
         purchase.setCurUnit(unit);
         if (!purchaseOrderRepository.update(purchase)) {
             return RestResult.fail("修改进货单数据失败");
         }
-        // TODO 修改采购单完成状态
-
-        // TODO 采购数量为0时，标记采购完成
 
         // 添加审核信息
         Date reviewTime = new Date();
@@ -246,7 +249,7 @@ public class StorageService {
         }
 
         // 增加库存
-        String msg = storageStockService.handleStorageStock(order, purchase, true);
+        String msg = storageStockService.handlePurchaseStock(order, true);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -274,10 +277,7 @@ public class StorageService {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
-        TPurchaseOrder purchase = purchaseOrderRepository.find(order.getOid());
-        if (null == purchase) {
-            return RestResult.fail("未查询到对应的进货单");
-        }
+        // TODO 还原扣除的采购单数量
 
         RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApply(), mp_storage_purchase_review);
         if (null != ret) {
@@ -295,7 +295,7 @@ public class StorageService {
         }
 
         // 减少库存
-        msg = storageStockService.handleStorageStock(order, purchase, false);
+        msg = storageStockService.handlePurchaseStock(order, false);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -353,7 +353,7 @@ public class StorageService {
     /**
      * desc: 仓储调度出库
      */
-    public RestResult dispatch(int id, TStorageOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<Integer> attrs) {
+    public RestResult dispatch(int id, TStorageOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_storage_dispatch_apply, mp_storage_dispatch_review, reviews);
         if (null != ret) {
@@ -362,7 +362,7 @@ public class StorageService {
 
         // 生成入库单
         val comms = new ArrayList<TStorageCommodity>();
-        ret = createDispatchComms(order, types, commoditys, values, comms);
+        ret = createDispatchComms(order, types, commoditys, weights, values, comms);
         if (null != ret) {
             return ret;
         }
@@ -384,7 +384,7 @@ public class StorageService {
     /**
      * desc: 仓储调度出库修改
      */
-    public RestResult setDispatch(int id, int oid, int sid, Date applyTime, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<Integer> attrs) {
+    public RestResult setDispatch(int id, int oid, int sid, Date applyTime, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
         // 已经审核的订单不能修改
         TStorageOrder order = storageOrderRepository.find(oid);
         if (null == order) {
@@ -415,11 +415,10 @@ public class StorageService {
 
         // 生成入库单
         val comms = new ArrayList<TStorageCommodity>();
-        ret = createDispatchComms(order, types, commoditys, values, comms);
+        ret = createDispatchComms(order, types, commoditys, weights, values, comms);
         if (null != ret) {
             return ret;
         }
-
         if (!storageOrderRepository.update(order)) {
             return RestResult.fail("生成调度订单失败");
         }
@@ -636,18 +635,22 @@ public class StorageService {
     /**
      * desc: 仓储调度入库
      */
-    public RestResult purchase2(int id, TStorageOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<Integer> attrs) {
+    public RestResult purchase2(int id, TStorageOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
         // 调度单未审核不能入库
         int did = order.getOid();
         TStorageOrder dispatch = storageOrderRepository.find(did);
         if (null == dispatch) {
             return RestResult.fail("未查询到调度单");
         }
+        if (!dispatch.getOtype().equals(STORAGE_DISPATCH_ORDER.getValue())) {
+            return RestResult.fail("进货单据类型异常");
+        }
         if (null == dispatch.getReview()) {
             return RestResult.fail("调度单未审核通过，不能进行入库");
         }
 
         order.setGid(dispatch.getGid());
+        order.setSid(dispatch.getSid());
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_storage_purchase2_apply, mp_storage_purchase2_review, reviews);
         if (null != ret) {
@@ -656,7 +659,7 @@ public class StorageService {
 
         // 生成入库单
         val comms = new ArrayList<TStorageCommodity>();
-        ret = createPurchase2Comms(order, did, types, commoditys, values, comms);
+        ret = createPurchase2Comms(order, did, types, commoditys, weights, values, comms);
         if (null != ret) {
             return ret;
         }
@@ -678,7 +681,7 @@ public class StorageService {
     /**
      * desc: 仓储调度入库修改
      */
-    public RestResult setPurchase2(int id, int oid, int sid, Date applyTime, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<Integer> attrs) {
+    public RestResult setPurchase2(int id, int oid, Date applyTime, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
         // 已经审核的订单不能修改
         TStorageOrder order = storageOrderRepository.find(oid);
         if (null == order) {
@@ -691,23 +694,16 @@ public class StorageService {
             return RestResult.fail("只能修改自己的订单");
         }
 
+        order.setApplyTime(applyTime);
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_storage_purchase2_apply, mp_storage_purchase2_review, reviews);
         if (null != ret) {
             return ret;
         }
 
-        // 更新仓库信息
-        if (!order.getSid().equals(sid)) {
-            ret = reviewService.update(order.getOtype(), oid, sid);
-            if (null != ret) {
-                return ret;
-            }
-        }
-
         // 生成入库单
         val comms = new ArrayList<TStorageCommodity>();
-        ret = createPurchase2Comms(order, order.getOid(), types, commoditys, values, comms);
+        ret = createPurchase2Comms(order, order.getOid(), types, commoditys, weights, values, comms);
         if (null != ret) {
             return ret;
         }
@@ -774,6 +770,9 @@ public class StorageService {
         if (unit < 0) {
             return RestResult.fail("入库商品总量不能超出调度订单总量");
         }
+        if (0 == unit) {
+            dispatch.setComplete(new Byte("1"));
+        }
         dispatch.setCurUnit(unit);
         if (!storageOrderRepository.update(dispatch)) {
             return RestResult.fail("修改调度单数据失败");
@@ -793,7 +792,7 @@ public class StorageService {
         }
 
         // 增加库存
-        String msg = storageStockService.handleStorageStock(order, true);
+        String msg = storageStockService.handlePurchaseStock(order, true);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -821,6 +820,8 @@ public class StorageService {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
+        // TODO 还原扣除的采购单数量
+
         RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApply(), mp_storage_purchase2_review);
         if (null != ret) {
             return ret;
@@ -837,7 +838,7 @@ public class StorageService {
         }
 
         // 减少库存
-        msg = storageStockService.handleStorageStock(order, false);
+        msg = storageStockService.handlePurchaseStock(order, false);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -855,18 +856,22 @@ public class StorageService {
     /**
      * desc: 仓储履约入库
      */
-    public RestResult agreement(int id, TStorageOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<Integer> attrs) {
+    public RestResult agreement(int id, TStorageOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
         // 调度单未审核不能入库
         int did = order.getOid();
-        TAgreementOrder dispatch = agreementOrderRepository.find(did);
-        if (null == dispatch) {
+        TAgreementOrder agreement = agreementOrderRepository.find(did);
+        if (null == agreement) {
             return RestResult.fail("未查询到履约单");
         }
-        if (null == dispatch.getReview()) {
+        if (!agreement.getOtype().equals(AGREEMENT_RETURN_ORDER.getValue())) {
+            return RestResult.fail("退货单据类型异常");
+        }
+        if (null == agreement.getReview()) {
             return RestResult.fail("履约单未审核通过，不能进行入库");
         }
 
-        order.setGid(dispatch.getGid());
+        order.setGid(agreement.getGid());
+        order.setSid(agreement.getSid());
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_storage_agreement_apply, mp_storage_agreement_review, reviews);
         if (null != ret) {
@@ -875,7 +880,7 @@ public class StorageService {
 
         // 生成入库单
         val comms = new ArrayList<TStorageCommodity>();
-        ret = createAgreementComms(order, did, types, commoditys, values, comms);
+        ret = createAgreementComms(order, did, types, commoditys, weights, values, comms);
         if (null != ret) {
             return ret;
         }
@@ -897,7 +902,7 @@ public class StorageService {
     /**
      * desc: 仓储履约入库修改
      */
-    public RestResult setAgreement(int id, int oid, int sid, Date applyTime, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<Integer> attrs) {
+    public RestResult setAgreement(int id, int oid, Date applyTime, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
         // 已经审核的订单不能修改
         TStorageOrder order = storageOrderRepository.find(oid);
         if (null == order) {
@@ -910,23 +915,16 @@ public class StorageService {
             return RestResult.fail("只能修改自己的订单");
         }
 
+        order.setApplyTime(applyTime);
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_storage_agreement_apply, mp_storage_agreement_review, reviews);
         if (null != ret) {
             return ret;
         }
 
-        // 更新仓库信息
-        if (!order.getSid().equals(sid)) {
-            ret = reviewService.update(order.getOtype(), oid, sid);
-            if (null != ret) {
-                return ret;
-            }
-        }
-
         // 生成入库单
         val comms = new ArrayList<TStorageCommodity>();
-        ret = createAgreementComms(order, order.getOid(), types, commoditys, values, comms);
+        ret = createAgreementComms(order, order.getOid(), types, commoditys, weights, values, comms);
         if (null != ret) {
             return ret;
         }
@@ -993,6 +991,9 @@ public class StorageService {
         if (unit < 0) {
             return RestResult.fail("入库商品总量不能超出履约订单总量");
         }
+        if (0 == unit) {
+            agreement.setComplete(new Byte("1"));
+        }
         agreement.setCurUnit(unit);
         if (!agreementOrderRepository.update(agreement)) {
             return RestResult.fail("修改履约单数据失败");
@@ -1012,7 +1013,7 @@ public class StorageService {
         }
 
         // 增加库存
-        String msg = storageStockService.handleStorageStock(order, true);
+        String msg = storageStockService.handlePurchaseStock(order, true);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -1040,6 +1041,8 @@ public class StorageService {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
+        // TODO 还原扣除的采购单数量
+
         RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApply(), mp_storage_agreement_review);
         if (null != ret) {
             return ret;
@@ -1056,7 +1059,7 @@ public class StorageService {
         }
 
         // 减少库存
-        msg = storageStockService.handleStorageStock(order, false);
+        msg = storageStockService.handlePurchaseStock(order, false);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -1074,7 +1077,7 @@ public class StorageService {
     /**
      * desc: 仓储损耗
      */
-    public RestResult loss(int id, TStorageOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<Integer> attrs) {
+    public RestResult loss(int id, TStorageOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_storage_loss_apply, mp_storage_loss_review, reviews);
         if (null != ret) {
@@ -1083,7 +1086,7 @@ public class StorageService {
 
         // 生成损耗单
         val comms = new ArrayList<TStorageCommodity>();
-        ret = createDispatchComms(order, types, commoditys, values, comms);
+        ret = createDispatchComms(order, types, commoditys, weights, values, comms);
         if (null != ret) {
             return ret;
         }
@@ -1105,7 +1108,7 @@ public class StorageService {
     /**
      * desc: 仓储损耗修改
      */
-    public RestResult setLoss(int id, int oid, int sid, Date applyTime, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<Integer> attrs) {
+    public RestResult setLoss(int id, int oid, int sid, Date applyTime, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
         // 已经审核的订单不能修改
         TStorageOrder order = storageOrderRepository.find(oid);
         if (null == order) {
@@ -1136,11 +1139,10 @@ public class StorageService {
 
         // 生成损耗单
         val comms = new ArrayList<TStorageCommodity>();
-        ret = createDispatchComms(order, types, commoditys, values, comms);
+        ret = createDispatchComms(order, types, commoditys, weights, values, comms);
         if (null != ret) {
             return ret;
         }
-
         if (!storageOrderRepository.update(order)) {
             return RestResult.fail("生成损耗订单失败");
         }
@@ -1260,12 +1262,15 @@ public class StorageService {
     /**
      * desc: 仓储退货
      */
-    public RestResult returnc(int id, TStorageOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<BigDecimal> prices, List<Integer> attrs) {
+    public RestResult returnc(int id, TStorageOrder order, List<Integer> types, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
         // 采购单未审核不能退货
         int rid = order.getOid();
         TPurchaseOrder purchaseOrder = purchaseOrderRepository.find(rid);
         if (null == purchaseOrder) {
             return RestResult.fail("未查询到采购单");
+        }
+        if (!purchaseOrder.getOtype().equals(PURCHASE_PURCHASE_ORDER.getValue())) {
+            return RestResult.fail("进货单据类型异常");
         }
         if (null == purchaseOrder.getReview()) {
             return RestResult.fail("采购单未审核通过，不能进行退货");
@@ -1284,7 +1289,7 @@ public class StorageService {
 
         // 生成退货单
         val comms = new ArrayList<TStorageCommodity>();
-        ret = createReturnComms(order, order.getOid(), types, commoditys, values, prices, comms);
+        ret = createReturnComms(order, order.getOid(), types, commoditys, prices, weights, values, comms);
         if (null != ret) {
             return ret;
         }
@@ -1306,7 +1311,7 @@ public class StorageService {
     /**
      * desc: 仓储退货修改
      */
-    public RestResult setReturn(int id, int oid, Date applyTime, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<BigDecimal> prices, List<Integer> attrs) {
+    public RestResult setReturn(int id, int oid, Date applyTime, List<Integer> types, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
         // 已经审核的订单不能修改
         TStorageOrder order = storageOrderRepository.find(oid);
         if (null == order) {
@@ -1328,7 +1333,7 @@ public class StorageService {
 
         // 生成退货单
         val comms = new ArrayList<TStorageCommodity>();
-        ret = createReturnComms(order, order.getOid(), types, commoditys, values, prices, comms);
+        ret = createReturnComms(order, order.getOid(), types, commoditys, prices, weights, values, comms);
         if (null != ret) {
             return ret;
         }
@@ -1387,6 +1392,7 @@ public class StorageService {
         }
 
         // 校验退货订单总价格和总量不能超出采购单
+        // 注意: 仓储退货不修改进货单信息
         TPurchaseOrder purchase = purchaseOrderRepository.find(order.getOid());
         if (null == purchase) {
             return RestResult.fail("未查询到对应的进货单");
@@ -1399,13 +1405,6 @@ public class StorageService {
         if (price.compareTo(BigDecimal.ZERO) < 0) {
             return RestResult.fail("退货商品总价不能超出采购订单总价");
         }
-        purchase.setCurUnit(unit);
-        purchase.setCurPrice(price);
-        if (!purchaseOrderRepository.update(purchase)) {
-            return RestResult.fail("修改进货单数据失败");
-        }
-
-        // TODO 采购数量为0时，标记采购完成
 
         // 添加审核信息
         Date reviewTime = new Date();
@@ -1493,7 +1492,7 @@ public class StorageService {
         }
 
         // 财务记录
-        BigDecimal money = purchaseCommodityRepository.count(oid);
+        BigDecimal money = storageCommodityRepository.count(oid);
         if (!financeService.insertRecord(id, gid, FINANCE_STORAGE_RET, oid, money.negate())) {
             return RestResult.fail("添加财务记录失败");
         }
@@ -1533,10 +1532,10 @@ public class StorageService {
         return reviewService.checkPerm(id, gid, applyPerm, reviewPerm, reviews);
     }
 
-    private RestResult createPurchaseComms(TStorageOrder order, int pid, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<TStorageCommodity> list) {
+    private RestResult createPurchaseComms(TStorageOrder order, int pid, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<TStorageCommodity> list) {
         // 生成入库单
         int size = commoditys.size();
-        if (size != types.size() || size != values.size()) {
+        if (size != types.size() || size != weights.size() || size != values.size()) {
             return RestResult.fail("商品信息异常");
         }
         val purchaseCommodities = purchaseCommodityRepository.find(pid);
@@ -1546,29 +1545,35 @@ public class StorageService {
         int total = 0;
         BigDecimal price = new BigDecimal(0);
         for (int i = 0; i < size; i++) {
-            // 获取商品单位信息
             boolean find = false;
             int ctype = types.get(i);
             int cid = commoditys.get(i);
+            int weight = weights.get(i);
+            int value = values.get(i);
             for (TPurchaseCommodity pc : purchaseCommodities) {
                 if (pc.getCtype() == ctype && pc.getCid() == cid) {
                     find = true;
-                    // 生成数据
-                    int value = values.get(i);
+                    if (weight > pc.getWeight()) {
+                        return RestResult.fail("入库商品重量不能大于采购重量:" + ctype + ", 商品id:" + cid);
+                    }
+                    if (value > pc.getValue()) {
+                        return RestResult.fail("入库商品件数不能大于采购件数:" + ctype + ", 商品id:" + cid);
+                    }
+
                     TStorageCommodity c = new TStorageCommodity();
                     c.setCtype(ctype);
                     c.setCid(cid);
+                    if (weight == pc.getWeight()) {
+                        c.setPrice(pc.getPrice());
+                    } else {
+                        c.setPrice(pc.getPrice().multiply(new BigDecimal(weight)).divide(new BigDecimal(pc.getWeight()), 2, RoundingMode.DOWN));
+                    }
+                    c.setWeight(weight);
                     c.setValue(value);
-                    c.setPrice(pc.getPrice());
                     list.add(c);
 
-                    // 校验商品入库数不能大于采购单
-                    if (value > pc.getValue()) {
-                        return RestResult.fail("入库商品数量不能大于采购数量, 商品id:" + cid + ", 类型:" + ctype);
-                    }
-
-                    total = total + pc.getUnit() * value;
-                    price = price.add(pc.getPrice().multiply(new BigDecimal(value)));
+                    total = total + weight;
+                    price = price.add(c.getPrice());
                     break;
                 }
             }
@@ -1583,38 +1588,41 @@ public class StorageService {
         return null;
     }
 
-    private RestResult createDispatchComms(TStorageOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<TStorageCommodity> list) {
+    private RestResult createDispatchComms(TStorageOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<TStorageCommodity> list) {
         // 生成调度单
         int size = commoditys.size();
-        if (size != types.size() || size != values.size()) {
+        if (size != types.size() || size != weights.size() || size != values.size()) {
             return RestResult.fail("商品信息异常");
         }
         int sid = order.getSid();
         int total = 0;
         BigDecimal price = new BigDecimal(0);
         for (int i = 0; i < size; i++) {
-            // 获取商品单位信息
             int ctype = types.get(i);
             int cid = commoditys.get(i);
+            int weight = weights.get(i);
             int value = values.get(i);
             TStock stock = stockRepository.find(sid, ctype, cid);
             if (null == stock) {
                 return RestResult.fail("未查询到库存类型:" + types.get(i) + ",商品:" + commoditys.get(i));
             }
-            if (stock.getValue() < value) {
-                return RestResult.fail("库存商品数量不足:" + types.get(i) + ",商品:" + commoditys.get(i));
+            if (weight > stock.getWeight()) {
+                return RestResult.fail("库存商品重量不足:" + ctype + ",商品:" + cid);
+            }
+            if (value > stock.getValue()) {
+                return RestResult.fail("库存商品件数不足:" + ctype + ",商品:" + cid);
             }
 
-            // 生成数据
             TStorageCommodity c = new TStorageCommodity();
             c.setCtype(ctype);
             c.setCid(cid);
+            c.setPrice(stock.getPrice().multiply(new BigDecimal(weight)).divide(new BigDecimal(stock.getWeight()), 2, RoundingMode.DOWN));
+            c.setWeight(weight);
             c.setValue(value);
-            c.setPrice(stock.getPrice());
             list.add(c);
 
-            total = total + value;
-            price = price.add(stock.getPrice().multiply(new BigDecimal(value)));
+            total = total + weight;
+            price = price.add(c.getPrice());
         }
         order.setUnit(total);
         order.setPrice(price);
@@ -1623,10 +1631,10 @@ public class StorageService {
         return null;
     }
 
-    private RestResult createPurchase2Comms(TStorageOrder order, int did, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<TStorageCommodity> list) {
+    private RestResult createPurchase2Comms(TStorageOrder order, int did, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<TStorageCommodity> list) {
         // 生成入库单
         int size = commoditys.size();
-        if (size != types.size() || size != values.size()) {
+        if (size != types.size() || size != weights.size() || size != values.size()) {
             return RestResult.fail("商品信息异常");
         }
         val dispatchCommodities = storageCommodityRepository.find(did);
@@ -1636,29 +1644,31 @@ public class StorageService {
         int total = 0;
         BigDecimal price = new BigDecimal(0);
         for (int i = 0; i < size; i++) {
-            // 获取商品单位信息
             boolean find = false;
             int ctype = types.get(i);
             int cid = commoditys.get(i);
+            int weight = weights.get(i);
+            int value = values.get(i);
             for (TStorageCommodity sc : dispatchCommodities) {
                 if (sc.getCtype() == ctype && sc.getCid() == cid) {
                     find = true;
-                    // 生成数据
-                    int value = values.get(i);
+                    if (weight > sc.getWeight()) {
+                        return RestResult.fail("入库商品数量不能大于调度重量:" + ctype + ", 商品id:" + cid);
+                    }
+                    if (value > sc.getValue()) {
+                        return RestResult.fail("入库商品数量不能大于调度件数:" + ctype + ", 商品id:" + cid);
+                    }
+
                     TStorageCommodity c = new TStorageCommodity();
                     c.setCtype(ctype);
                     c.setCid(cid);
-                    c.setValue(value);
                     c.setPrice(sc.getPrice());
+                    c.setWeight(weight);
+                    c.setValue(value);
                     list.add(c);
 
-                    // 校验商品入库数不能大于调度单
-                    if (value > sc.getValue()) {
-                        return RestResult.fail("入库商品数量不能大于调度数量, 商品id:" + cid + ", 类型:" + ctype);
-                    }
-
-                    total = total + value;
-                    price = price.add(sc.getPrice().multiply(new BigDecimal(value)));
+                    total = total + weight;
+                    price = price.add(c.getPrice());
                     break;
                 }
             }
@@ -1673,10 +1683,10 @@ public class StorageService {
         return null;
     }
 
-    private RestResult createAgreementComms(TStorageOrder order, int aid, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<TStorageCommodity> list) {
+    private RestResult createAgreementComms(TStorageOrder order, int aid, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<TStorageCommodity> list) {
         // 生成入库单
         int size = commoditys.size();
-        if (size != types.size() || size != values.size()) {
+        if (size != types.size() || size != weights.size() || size != values.size()) {
             return RestResult.fail("商品信息异常");
         }
         val agreementCommodities = agreementCommodityRepository.find(aid);
@@ -1686,29 +1696,35 @@ public class StorageService {
         int total = 0;
         BigDecimal price = new BigDecimal(0);
         for (int i = 0; i < size; i++) {
-            // 获取商品单位信息
             boolean find = false;
             int ctype = types.get(i);
             int cid = commoditys.get(i);
+            int weight = weights.get(i);
+            int value = values.get(i);
             for (TAgreementCommodity ac : agreementCommodities) {
                 if (ac.getCtype() == ctype && ac.getCid() == cid) {
                     find = true;
-                    // 生成数据
-                    int value = values.get(i);
+                    if (weight > ac.getWeight()) {
+                        return RestResult.fail("入库商品数量不能大于履约数量:" + ctype + ", 商品id:" + cid);
+                    }
+                    if (value > ac.getValue()) {
+                        return RestResult.fail("入库商品数量不能大于履约数量:" + ctype + ", 商品id:" + cid);
+                    }
+
                     TStorageCommodity c = new TStorageCommodity();
                     c.setCtype(ctype);
                     c.setCid(cid);
+                    if (weight == ac.getWeight()) {
+                        c.setPrice(ac.getPrice());
+                    } else {
+                        c.setPrice(ac.getPrice().multiply(new BigDecimal(weight)).divide(new BigDecimal(ac.getWeight()), 2, RoundingMode.DOWN));
+                    }
+                    c.setWeight(weight);
                     c.setValue(value);
-                    c.setPrice(ac.getPrice());
                     list.add(c);
 
-                    // 校验商品入库数不能大于调度单
-                    if (value > ac.getValue()) {
-                        return RestResult.fail("入库商品数量不能大于履约数量, 商品id:" + cid + ", 类型:" + ctype);
-                    }
-
-                    total = total + value;
-                    price = price.add(ac.getPrice().multiply(new BigDecimal(value)));
+                    total = total + weight;
+                    price = price.add(c.getPrice());
                     break;
                 }
             }
@@ -1723,42 +1739,44 @@ public class StorageService {
         return null;
     }
 
-    private RestResult createReturnComms(TStorageOrder order, int rid, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<BigDecimal> prices, List<TStorageCommodity> list) {
-        // 生成退货单
+    private RestResult createReturnComms(TStorageOrder order, int pid, List<Integer> types, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<Integer> values, List<TStorageCommodity> list) {
+        // 生成入库单
         int size = commoditys.size();
-        if (size != types.size() || size != values.size() || size != prices.size()) {
+        if (size != types.size() || size != weights.size() || size != values.size()) {
             return RestResult.fail("商品信息异常");
         }
-        val purchaseCommodities = purchaseCommodityRepository.find(rid);
+        val purchaseCommodities = purchaseCommodityRepository.find(pid);
         if (null == purchaseCommodities || purchaseCommodities.isEmpty()) {
             return RestResult.fail("未查询到采购商品信息");
         }
         int total = 0;
         BigDecimal price = new BigDecimal(0);
         for (int i = 0; i < size; i++) {
-            // 获取商品单位信息
             boolean find = false;
             int ctype = types.get(i);
             int cid = commoditys.get(i);
+            int weight = weights.get(i);
+            int value = values.get(i);
             for (TPurchaseCommodity pc : purchaseCommodities) {
                 if (pc.getCtype() == ctype && pc.getCid() == cid) {
                     find = true;
-                    // 生成数据
-                    int value = values.get(i);
-                    // 校验商品退货数不能大于采购单
+                    if (weight > pc.getWeight()) {
+                        return RestResult.fail("入库商品重量不能大于采购重量:" + ctype + ", 商品id:" + cid);
+                    }
                     if (value > pc.getValue()) {
-                        return RestResult.fail("退货商品数量不能大于采购数量, 商品id:" + cid + ", 类型:" + ctype);
+                        return RestResult.fail("入库商品件数不能大于采购件数:" + ctype + ", 商品id:" + cid);
                     }
 
                     TStorageCommodity c = new TStorageCommodity();
                     c.setCtype(ctype);
                     c.setCid(cid);
-                    c.setValue(value);
                     c.setPrice(prices.get(i));
+                    c.setWeight(weight);
+                    c.setValue(value);
                     list.add(c);
 
-                    total = total + pc.getUnit() * value;
-                    price = price.add(prices.get(i).multiply(new BigDecimal(value)));
+                    total = total + weight;
+                    price = price.add(c.getPrice());
                     break;
                 }
             }

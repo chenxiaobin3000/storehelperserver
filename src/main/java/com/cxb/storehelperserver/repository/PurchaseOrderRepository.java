@@ -45,10 +45,10 @@ public class PurchaseOrderRepository extends BaseRepository<TPurchaseOrder> {
         return purchaseOrder;
     }
 
-    public int total(int gid, int type, ReviewType review, String search) {
+    public int total(int gid, int type, ReviewType review, Byte complete, String search) {
         TPurchaseOrderExample example = new TPurchaseOrderExample();
         TPurchaseOrderExample.Criteria criteria = example.createCriteria();
-        criteria.andGidEqualTo(gid).andOtypeEqualTo(type);
+        criteria.andGidEqualTo(gid).andOtypeEqualTo(type).andCompleteEqualTo(complete);
         if (null != search) {
             criteria.andBatchLike("%" + search + "%");
         }
@@ -65,10 +65,10 @@ public class PurchaseOrderRepository extends BaseRepository<TPurchaseOrder> {
         return (int) purchaseOrderMapper.countByExample(example);
     }
 
-    public List<TPurchaseOrder> pagination(int gid, int type, int page, int limit, ReviewType review, String search) {
+    public List<TPurchaseOrder> pagination(int gid, int type, int page, int limit, ReviewType review, Byte complete, String search) {
         TPurchaseOrderExample example = new TPurchaseOrderExample();
         TPurchaseOrderExample.Criteria criteria = example.createCriteria();
-        criteria.andGidEqualTo(gid).andOtypeEqualTo(type);
+        criteria.andGidEqualTo(gid).andOtypeEqualTo(type).andCompleteEqualTo(complete);
         if (null != search) {
             criteria.andBatchLike("%" + search + "%");
         }

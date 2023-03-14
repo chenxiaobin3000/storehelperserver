@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -69,18 +71,21 @@ public class StockDetailRepository extends BaseRepository<TStockDetail> {
         }
     }
 
-    public boolean insert(TStockDetail row) {
+    public boolean insert(int gid, int sid, int otype, int oid, int ctype, int cid, BigDecimal price, int weight, int value, Date cdate) {
+        TStockDetail row = new TStockDetail();
+        row.setGid(gid);
+        row.setSid(sid);
+        row.setOtype(otype);
+        row.setOid(oid);
+        row.setCtype(ctype);
+        row.setCid(cid);
+        row.setPrice(price);
+        row.setWeight(weight);
+        row.setValue(value);
+        row.setCdate(cdate);
         if (stockDetailMapper.insert(row) > 0) {
             setCache(joinKey(row.getSid(), row.getCid()), row);
             delTotalCache(joinKey(row.getGid(), row.getSid()));
-            return true;
-        }
-        return false;
-    }
-
-    public boolean update(TStockDetail row) {
-        if (stockDetailMapper.updateByPrimaryKey(row) > 0) {
-            setCache(joinKey(row.getSid(), row.getCid()), row);
             return true;
         }
         return false;

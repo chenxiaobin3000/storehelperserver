@@ -74,12 +74,12 @@ public class StockRepository extends BaseRepository<TStock> {
         }
     }
 
-    public List<MyStockCommodity> pagination(int gid, int sid, int page, int limit, CommodityType type, String search) {
+    public List<MyStockCommodity> pagination(int gid, int sid, int page, int limit, int type, String search) {
         String key = null;
         if (null != search) {
             key = "%" + search + "%";
         }
-        switch (type) {
+        switch (CommodityType.valueOf(type)) {
             case COMMODITY:
                 return myStockMapper.pagination_commodity((page - 1) * limit, limit, gid, sid, key);
             case HALFGOOD:

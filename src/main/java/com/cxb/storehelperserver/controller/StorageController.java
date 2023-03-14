@@ -90,7 +90,7 @@ public class StorageController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return storageService.purchase(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
+        return storageService.purchase(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/setPurchase")
@@ -102,7 +102,7 @@ public class StorageController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return storageService.setPurchase(req.getId(), req.getOid(), applyTime, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
+        return storageService.setPurchase(req.getId(), req.getOid(), applyTime, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/delPurchase")
@@ -143,7 +143,7 @@ public class StorageController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return storageService.dispatch(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
+        return storageService.dispatch(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/setDispatch")
@@ -155,7 +155,7 @@ public class StorageController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return storageService.setDispatch(req.getId(), req.getOid(), req.getSid(), applyTime, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
+        return storageService.setDispatch(req.getId(), req.getOid(), req.getSid(), applyTime, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/delDispatch")
@@ -187,7 +187,6 @@ public class StorageController {
     public RestResult purchase2(@Validated @RequestBody Purchase2Valid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
         TStorageOrder order = new TStorageOrder();
-        order.setSid(req.getSid());
         order.setOtype(STORAGE_PURCHASE2_ORDER.getValue());
         order.setApply(req.getId());
         order.setOid(req.getDid());
@@ -196,7 +195,7 @@ public class StorageController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return storageService.purchase2(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
+        return storageService.purchase2(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/setPurchase2")
@@ -208,7 +207,7 @@ public class StorageController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return storageService.setPurchase2(req.getId(), req.getOid(), req.getSid(), applyTime, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
+        return storageService.setPurchase2(req.getId(), req.getOid(), applyTime, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/delPurchase2")
@@ -240,7 +239,6 @@ public class StorageController {
     public RestResult agreement(@Validated @RequestBody AgreementValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
         TStorageOrder order = new TStorageOrder();
-        order.setSid(req.getSid());
         order.setOtype(STORAGE_AGREEMENT_ORDER.getValue());
         order.setApply(req.getId());
         order.setOid(req.getAid());
@@ -249,7 +247,7 @@ public class StorageController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return storageService.agreement(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
+        return storageService.agreement(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/setAgreement")
@@ -261,7 +259,7 @@ public class StorageController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return storageService.setAgreement(req.getId(), req.getOid(), req.getSid(), applyTime, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
+        return storageService.setAgreement(req.getId(), req.getOid(), applyTime, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/delAgreement")
@@ -302,7 +300,7 @@ public class StorageController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return storageService.loss(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
+        return storageService.loss(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/setLoss")
@@ -314,7 +312,7 @@ public class StorageController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return storageService.setLoss(req.getId(), req.getOid(), req.getSid(), applyTime, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
+        return storageService.setLoss(req.getId(), req.getOid(), req.getSid(), applyTime, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/delLoss")
@@ -354,7 +352,7 @@ public class StorageController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return storageService.returnc(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
+        return storageService.returnc(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getPrices(), req.getWeights(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/setReturn")
@@ -366,7 +364,7 @@ public class StorageController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return storageService.setReturn(req.getId(), req.getOid(), applyTime, req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
+        return storageService.setReturn(req.getId(), req.getOid(), applyTime, req.getTypes(), req.getCommoditys(), req.getPrices(), req.getWeights(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/delReturn")

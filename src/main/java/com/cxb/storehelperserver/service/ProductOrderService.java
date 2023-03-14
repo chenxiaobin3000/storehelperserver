@@ -68,6 +68,7 @@ public class ProductOrderService extends BaseService<HashMap> {
                 data.put("id", sc.getId());
                 data.put("cid", sc.getCid());
                 data.put("ctype", sc.getCtype());
+                data.put("price", sc.getPrice());
                 data.put("value", sc.getValue());
                 commoditys.add(data);
 

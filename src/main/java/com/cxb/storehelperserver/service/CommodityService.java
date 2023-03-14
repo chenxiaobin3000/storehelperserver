@@ -128,7 +128,7 @@ public class CommodityService {
             return RestResult.fail(msg);
         }
 
-        if (!commodityOriginalRepository.delete(commodity.getGid(), commodity.getId())) {
+        if (!commodityOriginalRepository.delete(commodity.getId())) {
             return RestResult.fail("删除商品关联原料失败");
         }
         if (!commodityAttrRepository.delete(commodity.getId())) {
@@ -158,7 +158,6 @@ public class CommodityService {
         data.put("code", commodity.getCode());
         data.put("name", commodity.getName());
         data.put("cid", commodity.getCid());
-        data.put("unit", commodity.getUnit());
         data.put("remark", commodity.getRemark());
         List<TCommodityAttr> attrs = commodityAttrRepository.find(commodity.getId());
         if (null != attrs && !attrs.isEmpty()) {
@@ -199,7 +198,6 @@ public class CommodityService {
             tmp.put("code", c.getCode());
             tmp.put("name", c.getName());
             tmp.put("cid", c.getCid());
-            tmp.put("unit", c.getUnit());
             tmp.put("remark", c.getRemark());
             datas.add(tmp);
 
@@ -214,7 +212,7 @@ public class CommodityService {
             }
 
             // 关联来源
-            TCommodityOriginal commodityOriginal = commodityOriginalRepository.find(gid, c.getId());
+            TCommodityOriginal commodityOriginal = commodityOriginalRepository.find(c.getId());
             if (null != commodityOriginal) {
                 TOriginal original = originalRepository.find(commodityOriginal.getOid());
                 if (null != original) {
@@ -258,7 +256,6 @@ public class CommodityService {
             tmp.put("code", c.getCode());
             tmp.put("name", c.getName());
             tmp.put("cid", c.getCid());
-            tmp.put("unit", c.getUnit());
             tmp.put("remark", c.getRemark());
             datas.add(tmp);
 
@@ -273,7 +270,7 @@ public class CommodityService {
             }
 
             // 关联来源
-            TCommodityOriginal commodityOriginal = commodityOriginalRepository.find(gid, c.getId());
+            TCommodityOriginal commodityOriginal = commodityOriginalRepository.find(c.getId());
             if (null != commodityOriginal) {
                 TOriginal original = originalRepository.find(commodityOriginal.getOid());
                 if (null != original) {
@@ -296,10 +293,9 @@ public class CommodityService {
             return RestResult.fail(msg);
         }
 
-        TCommodityOriginal commodityOriginal = commodityOriginalRepository.find(gid, cid);
+        TCommodityOriginal commodityOriginal = commodityOriginalRepository.find(cid);
         if (null == commodityOriginal) {
             commodityOriginal = new TCommodityOriginal();
-            commodityOriginal.setGid(gid);
             commodityOriginal.setOid(oid);
             commodityOriginal.setCid(cid);
             if (!commodityOriginalRepository.insert(commodityOriginal)) {

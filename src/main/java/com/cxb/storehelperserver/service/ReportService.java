@@ -110,16 +110,16 @@ public class ReportService {
         product.put("list", productOrders);
 
         // 库存
-        val cdata = new HashMap<Integer, Integer>();
+        /*val cdata = new HashMap<Integer, Integer>();
         val commodities = storageStockService.getAllStockDay(gid, 0, today, REPORT_DAILY);
         if (null != commodities && !commodities.isEmpty()) {
             for (MyStockCommodity c : commodities) {
                 cdata.merge(c.getSid(), c.getValue(), Integer::sum);
             }
-        }
+        }*/
 
         // 仓库信息
-        val stocks = new ArrayList<>();
+        /*val stocks = new ArrayList<>();
         int total = storageRepository.total(gid, null);
         val storages = storageRepository.pagination(gid, 1, total, null);
         if (null != storages && !storages.isEmpty()) {
@@ -137,7 +137,7 @@ public class ReportService {
                 stocks.add(stock);
             }
         }
-        data.put("stock", stocks);
+        data.put("stock", stocks);*/
         return RestResult.ok(data);
     }
 

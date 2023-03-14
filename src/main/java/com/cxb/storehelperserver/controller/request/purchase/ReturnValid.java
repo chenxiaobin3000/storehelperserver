@@ -33,11 +33,14 @@ public class ReturnValid implements IValid {
     @Size(min = 1, message = "商品id不能为空")
     private List<Integer> commoditys;
 
-    @Size(min = 1, message = "商品数量不能为空")
-    private List<Integer> values;
-
     @Size(min = 1, message = "商品价格不能为空")
     private List<BigDecimal> prices;
+
+    @Size(min = 1, message = "商品重量不能为空")
+    private List<Integer> weights;
+
+    @Size(min = 1, message = "商品件数不能为空")
+    private List<Integer> values;
 
     private List<Integer> attrs;
 }

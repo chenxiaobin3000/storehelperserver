@@ -202,7 +202,7 @@ public class CloudStockService {
     }
 
     private boolean addStockCommodityP(int gid, int sid, TCloudCommodity cloudCommodity, TPurchaseCommodity purchaseCommodity, boolean add) {
-        int newValue = cloudCommodity.getValue() * purchaseCommodity.getUnit(); // 入库单总重量
+        int newValue = cloudCommodity.getValue() * purchaseCommodity.getNorm() * purchaseCommodity.getValue(); // 入库单总重量
         TCloudStock stock = cloudStockRepository.find(sid, cloudCommodity.getCtype(), cloudCommodity.getCid());
         if (null == stock) {
             if (!add) {
@@ -233,7 +233,7 @@ public class CloudStockService {
     }
 
     private boolean addStockCommodityA(int gid, int sid, TCloudCommodity cloudCommodity, TAgreementCommodity agreementCommodity, boolean add) {
-        int newValue = cloudCommodity.getValue() * agreementCommodity.getUnit(); // 入库单总重量
+        int newValue = cloudCommodity.getValue() * agreementCommodity.getNorm(); // 入库单总重量
         TCloudStock stock = cloudStockRepository.find(sid, cloudCommodity.getCtype(), cloudCommodity.getCid());
         if (null == stock) {
             if (!add) {

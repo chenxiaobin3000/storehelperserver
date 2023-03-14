@@ -158,7 +158,6 @@ public class HalfgoodService {
         data.put("code", halfgood.getCode());
         data.put("name", halfgood.getName());
         data.put("cid", halfgood.getCid());
-        data.put("unit", halfgood.getUnit());
         data.put("remark", halfgood.getRemark());
         List<THalfgoodAttr> attrs = halfgoodAttrRepository.find(halfgood.getId());
         if (null != attrs && !attrs.isEmpty()) {
@@ -199,7 +198,6 @@ public class HalfgoodService {
             tmp.put("code", c.getCode());
             tmp.put("name", c.getName());
             tmp.put("cid", c.getCid());
-            tmp.put("unit", c.getUnit());
             tmp.put("remark", c.getRemark());
             datas.add(tmp);
 
@@ -214,7 +212,7 @@ public class HalfgoodService {
             }
 
             // 关联来源
-            THalfgoodOriginal halfgoodOriginal = halfgoodOriginalRepository.find(gid, c.getId());
+            THalfgoodOriginal halfgoodOriginal = halfgoodOriginalRepository.find(c.getId());
             if (null != halfgoodOriginal) {
                 TOriginal original = originalRepository.find(halfgoodOriginal.getOid());
                 if (null != original) {
@@ -258,7 +256,6 @@ public class HalfgoodService {
             tmp.put("code", c.getCode());
             tmp.put("name", c.getName());
             tmp.put("cid", c.getCid());
-            tmp.put("unit", c.getUnit());
             tmp.put("remark", c.getRemark());
             datas.add(tmp);
 
@@ -273,7 +270,7 @@ public class HalfgoodService {
             }
 
             // 关联来源
-            THalfgoodOriginal halfgoodOriginal = halfgoodOriginalRepository.find(gid, c.getId());
+            THalfgoodOriginal halfgoodOriginal = halfgoodOriginalRepository.find(c.getId());
             if (null != halfgoodOriginal) {
                 TOriginal original = originalRepository.find(halfgoodOriginal.getOid());
                 if (null != original) {
@@ -296,10 +293,9 @@ public class HalfgoodService {
             return RestResult.fail(msg);
         }
 
-        THalfgoodOriginal halfgoodOriginal = halfgoodOriginalRepository.find(gid, hid);
+        THalfgoodOriginal halfgoodOriginal = halfgoodOriginalRepository.find(hid);
         if (null == halfgoodOriginal) {
             halfgoodOriginal = new THalfgoodOriginal();
-            halfgoodOriginal.setGid(gid);
             halfgoodOriginal.setOid(oid);
             halfgoodOriginal.setHid(hid);
             if (!halfgoodOriginalRepository.insert(halfgoodOriginal)) {

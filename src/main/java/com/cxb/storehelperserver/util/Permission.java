@@ -12,6 +12,8 @@ public class Permission {
     static public final int mp_purchase_apply = 11;
     static public final int mp_purchase_purchase_apply = 12;
     static public final int mp_purchase_return_apply = 13;
+    static public final int mp_purchase_purchase2_apply = 14;
+    static public final int mp_purchase_return2_apply = 47;
     static public final int mp_storage_apply = 15;
     static public final int mp_storage_purchase_apply = 16;
     static public final int mp_storage_dispatch_apply = 17;
@@ -33,11 +35,13 @@ public class Permission {
     static public final int mp_cloud_back_apply = 39;
     static public final int mp_cloud_agreement_apply = 40;
     static public final int mp_sale_apply = 45;
-    static public final int mp_sale_return_apply = 46;
+    static public final int mp_sale_return_apply = 50;
 
     static public final int mp_purchase_review = 51;
     static public final int mp_purchase_purchase_review = 52;
     static public final int mp_purchase_return_review = 53;
+    static public final int mp_purchase_purchase2_review = 54;
+    static public final int mp_purchase_return2_review = 87;
     static public final int mp_storage_review = 55;
     static public final int mp_storage_purchase_review = 56;
     static public final int mp_storage_dispatch_review = 57;
@@ -59,7 +63,7 @@ public class Permission {
     static public final int mp_cloud_back_review = 79;
     static public final int mp_cloud_agreement_review = 80;
     static public final int mp_sale_review = 85;
-    static public final int mp_sale_return_review = 86;
+    static public final int mp_sale_return_review = 90;
 
     // 管理后台
     static public final int dashboard_report = 100;
@@ -75,6 +79,8 @@ public class Permission {
     static public final int purchase_report = 251;
     static public final int purchase_purchase = 252;
     static public final int purchase_return = 253;
+    static public final int purchase_purchase2 = 254;
+    static public final int purchase_return2 = 255;
 
     static public final int commodity = 300;
     static public final int commodity_report = 301;
@@ -132,8 +138,10 @@ public class Permission {
     static public final int stock = 850;
     static public final int stock_storage = 851;
     static public final int stock_storagelist = 852;
-    static public final int stock_cloud = 853;
-    static public final int stock_cloudlist = 854;
+    static public final int stock_storageoldlist = 853;
+    static public final int stock_cloud = 854;
+    static public final int stock_cloudlist = 855;
+    static public final int stock_cloudoldlist = 856;
 
     static public final int supplier = 900;
     static public final int supplier_getlist = 901;

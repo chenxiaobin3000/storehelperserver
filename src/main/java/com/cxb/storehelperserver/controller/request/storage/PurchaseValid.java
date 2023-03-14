@@ -34,6 +34,9 @@ public class PurchaseValid implements IValid {
     @Size(min = 1, message = "商品id不能为空")
     private List<Integer> commoditys;
 
+    @Size(min = 1, message = "商品重量不能为空")
+    private List<Integer> weights;
+
     @Size(min = 1, message = "商品数量不能为空")
     private List<Integer> values;
 

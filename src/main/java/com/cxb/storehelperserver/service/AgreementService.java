@@ -17,6 +17,7 @@ import java.util.*;
 import static com.cxb.storehelperserver.util.Permission.*;
 import static com.cxb.storehelperserver.util.TypeDefine.FinanceAction.*;
 import static com.cxb.storehelperserver.util.TypeDefine.FinanceAction.FINANCE_PURCHASE_FARE2;
+import static com.cxb.storehelperserver.util.TypeDefine.OrderType.PURCHASE_PURCHASE_ORDER;
 
 /**
  * desc: 履约业务
@@ -338,6 +339,9 @@ public class AgreementService {
         if (null == purchaseOrder) {
             return RestResult.fail("未查询到履约单");
         }
+        if (!purchaseOrder.getOtype().equals(PURCHASE_PURCHASE_ORDER.getValue())) {
+            return RestResult.fail("进货单据类型异常");
+        }
         if (null == purchaseOrder.getReview()) {
             return RestResult.fail("履约单未审核通过，不能进行入库");
         }
@@ -471,13 +475,14 @@ public class AgreementService {
         if (price.compareTo(BigDecimal.ZERO) < 0) {
             return RestResult.fail("退货商品总价不能超出发货订单总价");
         }
+        if (0 == unit) {
+            agreement.setComplete(new Byte("1"));
+        }
         agreement.setCurUnit(unit);
         agreement.setCurPrice(price);
         if (!agreementOrderRepository.update(agreement)) {
             return RestResult.fail("修改发货单数据失败");
         }
-
-        // TODO 采购数量为0时，标记采购完成
 
         // 添加审核信息
         Date reviewTime = new Date();
@@ -497,7 +502,7 @@ public class AgreementService {
         if (null != msg) {
             return RestResult.fail(msg);
         }
-        return reviewService.review(order.getApply(), id, order.getGid(), order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
+        return reviewService.review(order.getApply(), id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
     }
 
     public RestResult revokeReturn(int id, int oid) {

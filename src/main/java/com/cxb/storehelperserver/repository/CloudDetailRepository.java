@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -69,18 +71,21 @@ public class CloudDetailRepository extends BaseRepository<TCloudDetail> {
         }
     }
 
-    public boolean insert(TCloudDetail row) {
+    public boolean insert(int gid, int sid, int otype, int oid, int ctype, int cid, BigDecimal price, int weight, int value, Date cdate) {
+        TCloudDetail row = new TCloudDetail();
+        row.setGid(gid);
+        row.setSid(sid);
+        row.setOtype(otype);
+        row.setOid(oid);
+        row.setCtype(ctype);
+        row.setCid(cid);
+        row.setPrice(price);
+        row.setWeight(weight);
+        row.setValue(value);
+        row.setCdate(cdate);
         if (cloudDetailMapper.insert(row) > 0) {
             setCache(joinKey(row.getSid(), row.getCid()), row);
             delTotalCache(joinKey(row.getGid(), row.getSid()));
-            return true;
-        }
-        return false;
-    }
-
-    public boolean update(TCloudDetail row) {
-        if (cloudDetailMapper.updateByPrimaryKey(row) > 0) {
-            setCache(joinKey(row.getSid(), row.getCid()), row);
             return true;
         }
         return false;

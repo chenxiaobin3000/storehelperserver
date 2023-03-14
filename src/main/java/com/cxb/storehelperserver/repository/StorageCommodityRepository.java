@@ -10,6 +10,7 @@ import org.springframework.data.annotation.AccessType;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -61,6 +62,10 @@ public class StorageCommodityRepository extends BaseRepository<List> {
             setCache(oid, storageCommoditys);
         }
         return storageCommoditys;
+    }
+
+    public BigDecimal count(int oid) {
+        return myStorageCommodityMapper.count(oid);
     }
 
     public List<MyOrderCommodity> pagination(int gid, int sid, Date start, Date end) {
