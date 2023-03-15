@@ -5,10 +5,12 @@ import com.cxb.storehelperserver.model.TCloudStock;
 import com.cxb.storehelperserver.model.TCloudStockExample;
 import com.cxb.storehelperserver.repository.mapper.MyCloudStockMapper;
 import com.cxb.storehelperserver.repository.model.MyStockCommodity;
+import com.cxb.storehelperserver.repository.model.MyStockReport;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.List;
 
 import static com.cxb.storehelperserver.util.TypeDefine.CommodityType;
@@ -45,6 +47,10 @@ public class CloudStockRepository extends BaseRepository<TCloudStock> {
             setCache(joinKey(sid, ctype, cid), stock);
         }
         return stock;
+    }
+
+    public List<MyStockReport> findReport(int gid, int sid, int ctype) {
+        return myCloudStockMapper.selectReport(gid, sid, ctype);
     }
 
     public int total(int gid, int sid, int ctype, String search) {
@@ -93,7 +99,15 @@ public class CloudStockRepository extends BaseRepository<TCloudStock> {
         }
     }
 
-    public boolean insert(TCloudStock row) {
+    public boolean insert(int gid, int sid, int ctype, int cid, BigDecimal price, int weight, int value) {
+        TCloudStock row = new TCloudStock();
+        row.setGid(gid);
+        row.setSid(sid);
+        row.setCtype(ctype);
+        row.setCid(cid);
+        row.setPrice(price);
+        row.setWeight(weight);
+        row.setValue(value);
         if (cloudStockMapper.insert(row) > 0) {
             setCache(joinKey(row.getSid(), row.getCtype(), row.getCid()), row);
             delTotalCache(joinKey(row.getGid(), row.getSid(), row.getCtype()));

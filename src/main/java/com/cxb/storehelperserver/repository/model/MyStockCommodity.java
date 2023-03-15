@@ -12,11 +12,13 @@ public class MyStockCommodity {
 
     private Integer sid;
 
+    private BigDecimal price;
+
+    private Integer weight;
+
     private Integer value;
 
     private Integer total;
-
-    private BigDecimal price;
 
     private Integer cid;
 

@@ -5,6 +5,7 @@ import com.cxb.storehelperserver.repository.*;
 import com.cxb.storehelperserver.repository.model.*;
 import com.cxb.storehelperserver.util.DateUtil;
 import com.cxb.storehelperserver.util.RestResult;
+import com.cxb.storehelperserver.util.TypeDefine;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,10 +17,7 @@ import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.cxb.storehelperserver.util.Permission.admin_grouplist;
 
@@ -105,7 +103,7 @@ public class StorageStockService {
         return RestResult.ok(data);
     }
 
-    public RestResult getStockDay(int id, int sid, int ctype, Date date, int page, int limit, String search) {
+    public RestResult getStockDetail(int id, int sid, int ctype, int page, int limit, String search) {
         RestResult ret = check(id, sid);
         if (null != ret) {
             return ret;
@@ -118,14 +116,14 @@ public class StorageStockService {
         }
 
         val data = new HashMap<String, Object>();
-        int total = stockDayRepository.total(group.getGid(), sid, ctype, date, search);
+        int total = stockDetailRepository.total(group.getGid(), sid, ctype, search);
         if (0 == total) {
             data.put("total", 0);
             data.put("list", null);
             return RestResult.ok(data);
         }
 
-        val commodities = stockDayRepository.pagination(group.getGid(), sid, page, limit, ctype, date, search);
+        val commodities = stockDetailRepository.pagination(group.getGid(), sid, page, limit, ctype, search);
         if (null == commodities) {
             return RestResult.fail("获取商品信息失败");
         }
@@ -134,7 +132,35 @@ public class StorageStockService {
         return RestResult.ok(data);
     }
 
-    public RestResult getStockWeek(int id, int sid, int ctype, Date date, int page, int limit, String search) {
+    public RestResult getStockDay(int id, int gid, int sid, int ctype) {
+        // 验证公司
+        String msg = checkService.checkGroup(id, gid);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+
+        SimpleDateFormat dateFormat = dateUtil.getSimpleDateFormat();
+        Date end = dateUtil.getStartTime(new Date());
+        Date start = dateUtil.addOneDay(end, -6);
+        List<MyStockReport> stocks = stockDayRepository.findReport(gid, sid, ctype, start, end);
+        if (null == stocks) {
+            return RestResult.fail("未查询到库存信息");
+        }
+        val data = new HashMap<String, Object>();
+        val list = new ArrayList<>();
+        for (MyStockReport stock : stocks) {
+            val tmp = new HashMap<String, Object>();
+            tmp.put("id", stock.getId());
+            tmp.put("total", stock.getTotal());
+            tmp.put("date", dateFormat.format(stock.getCdate()));
+            list.add(tmp);
+        }
+        data.put("list", list);
+        data.put("today", stockRepository.findReport(gid, sid, ctype));
+        return RestResult.ok(data);
+    }
+
+    public RestResult getStockWeek(int id, int gid, int sid, int ctype) {
         return null;
     }
 
@@ -159,14 +185,7 @@ public class StorageStockService {
                     TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                     return "未查询到要扣减的仓储库存:" + storageCommodity.getOid() + ",类型:" + ctype + ",商品:" + cid;
                 }
-                stock = new TStock();
-                stock.setGid(gid);
-                stock.setSid(sid);
-                stock.setCtype(ctype);
-                stock.setCid(cid);
-                stock.setPrice(price);
-                stock.setValue(weight);
-                if (!stockRepository.insert(stock)) {
+                if (!stockRepository.insert(gid, sid, ctype, cid, price, weight, value)) {
                     TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                     return "添加库存信息失败";
                 }
@@ -181,7 +200,7 @@ public class StorageStockService {
                     TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                     return "库存商品件数不足:" + ctype + ",商品:" + cid;
                 }
-                stock.setPrice(add ? price.add(stock.getPrice()) : price.subtract(stock.getPrice()));
+                stock.setPrice(add ? stock.getPrice().add(price) : stock.getPrice().subtract(price));
                 stock.setWeight(newWeight);
                 stock.setValue(newValue);
                 if (!stockRepository.update(stock)) {
@@ -228,7 +247,7 @@ public class StorageStockService {
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                 return "库存商品件数不足:" + ctype + ",商品:" + cid;
             }
-            stock.setPrice(add ? price.add(stock.getPrice()) : price.subtract(stock.getPrice()));
+            stock.setPrice(add ? stock.getPrice().add(price) : stock.getPrice().subtract(price));
             stock.setWeight(newWeight);
             stock.setValue(newValue);
             if (!stockRepository.update(stock)) {

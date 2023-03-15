@@ -212,6 +212,33 @@ public class TypeDefine {
         }
     }
 
+    // 完成类型
+    public enum CompleteType {
+        COMPLETE_ALL(0),  // 全部
+        COMPLETE_HAS(1),  // 未完成
+        COMPLETE_NOT(2);  // 已完成
+
+        private int value = 0;
+
+        private CompleteType(int v) {
+            this.value = v;
+        }
+
+        public static CompleteType valueOf(int v) {
+            switch (v) {
+                case 0:
+                    return COMPLETE_ALL;
+                case 1:
+                    return COMPLETE_HAS;
+            }
+            return COMPLETE_NOT;
+        }
+
+        public int getValue() {
+            return value;
+        }
+    }
+
     // 商品类型
     public enum CommodityType {
         COMMODITY(1),   // 商品

@@ -6,6 +6,7 @@ import com.cxb.storehelperserver.model.TStockDayExample;
 import com.cxb.storehelperserver.repository.mapper.MyStockDayMapper;
 import com.cxb.storehelperserver.repository.model.MyStockCommodity;
 import com.cxb.storehelperserver.repository.model.MyStockReport;
+import com.cxb.storehelperserver.util.TypeDefine;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
@@ -37,8 +38,8 @@ public class StockDayRepository extends BaseRepository<TStockDay> {
         return stockDayMapper.selectOneByExample(example);
     }
 
-    public List<MyStockReport> findReport(int gid, Date start, Date end) {
-        return myStockDayMapper.selectReport(gid, new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
+    public List<MyStockReport> findReport(int gid, int sid, int ctype, Date start, Date end) {
+        return myStockDayMapper.selectReport(gid, sid, ctype, new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
     }
 
     public int total(int gid, int sid, int ctype, Date date, String search) {

@@ -650,7 +650,6 @@ public class StorageService {
         }
 
         order.setGid(dispatch.getGid());
-        order.setSid(dispatch.getSid());
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_storage_purchase2_apply, mp_storage_purchase2_review, reviews);
         if (null != ret) {
@@ -681,7 +680,7 @@ public class StorageService {
     /**
      * desc: 仓储调度入库修改
      */
-    public RestResult setPurchase2(int id, int oid, Date applyTime, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
+    public RestResult setPurchase2(int id, int oid, int sid, Date applyTime, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
         // 已经审核的订单不能修改
         TStorageOrder order = storageOrderRepository.find(oid);
         if (null == order) {
@@ -699,6 +698,15 @@ public class StorageService {
         RestResult ret = check(id, order, mp_storage_purchase2_apply, mp_storage_purchase2_review, reviews);
         if (null != ret) {
             return ret;
+        }
+
+        // 更新仓库信息
+        if (!order.getSid().equals(sid)) {
+            order.setSid(sid);
+            ret = reviewService.update(order.getOtype(), oid, sid);
+            if (null != ret) {
+                return ret;
+            }
         }
 
         // 生成入库单
@@ -1397,11 +1405,11 @@ public class StorageService {
         if (null == purchase) {
             return RestResult.fail("未查询到对应的进货单");
         }
-        int unit = purchase.getCurUnit() - order.getUnit();
+        int unit = purchase.getUnit() - order.getUnit();
         if (unit < 0) {
             return RestResult.fail("退货商品总量不能超出采购订单总量");
         }
-        BigDecimal price = purchase.getCurPrice().subtract(order.getPrice());
+        BigDecimal price = purchase.getPrice().subtract(order.getPrice());
         if (price.compareTo(BigDecimal.ZERO) < 0) {
             return RestResult.fail("退货商品总价不能超出采购订单总价");
         }
@@ -1569,6 +1577,7 @@ public class StorageService {
                         c.setPrice(pc.getPrice().multiply(new BigDecimal(weight)).divide(new BigDecimal(pc.getWeight()), 2, RoundingMode.DOWN));
                     }
                     c.setWeight(weight);
+                    c.setNorm(pc.getNorm());
                     c.setValue(value);
                     list.add(c);
 
@@ -1618,6 +1627,7 @@ public class StorageService {
             c.setCid(cid);
             c.setPrice(stock.getPrice().multiply(new BigDecimal(weight)).divide(new BigDecimal(stock.getWeight()), 2, RoundingMode.DOWN));
             c.setWeight(weight);
+            c.setNorm(0);
             c.setValue(value);
             list.add(c);
 
@@ -1664,6 +1674,7 @@ public class StorageService {
                     c.setCid(cid);
                     c.setPrice(sc.getPrice());
                     c.setWeight(weight);
+                    c.setNorm(sc.getNorm());
                     c.setValue(value);
                     list.add(c);
 
@@ -1720,6 +1731,7 @@ public class StorageService {
                         c.setPrice(ac.getPrice().multiply(new BigDecimal(weight)).divide(new BigDecimal(ac.getWeight()), 2, RoundingMode.DOWN));
                     }
                     c.setWeight(weight);
+                    c.setNorm(ac.getNorm());
                     c.setValue(value);
                     list.add(c);
 
@@ -1772,6 +1784,7 @@ public class StorageService {
                     c.setCid(cid);
                     c.setPrice(prices.get(i));
                     c.setWeight(weight);
+                    c.setNorm(pc.getNorm());
                     c.setValue(value);
                     list.add(c);
 

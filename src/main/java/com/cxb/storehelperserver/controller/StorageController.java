@@ -85,6 +85,7 @@ public class StorageController {
         order.setOtype(STORAGE_PURCHASE_ORDER.getValue());
         order.setApply(req.getId());
         order.setOid(req.getPid());
+        order.setComplete(new Byte("0"));
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));
         } catch (ParseException e) {
@@ -138,6 +139,7 @@ public class StorageController {
         order.setSid(req.getSid());
         order.setOtype(STORAGE_DISPATCH_ORDER.getValue());
         order.setApply(req.getId());
+        order.setComplete(new Byte("0"));
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));
         } catch (ParseException e) {
@@ -187,9 +189,11 @@ public class StorageController {
     public RestResult purchase2(@Validated @RequestBody Purchase2Valid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
         TStorageOrder order = new TStorageOrder();
+        order.setSid(req.getSid());
         order.setOtype(STORAGE_PURCHASE2_ORDER.getValue());
         order.setApply(req.getId());
         order.setOid(req.getDid());
+        order.setComplete(new Byte("0"));
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));
         } catch (ParseException e) {
@@ -207,7 +211,7 @@ public class StorageController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return storageService.setPurchase2(req.getId(), req.getOid(), applyTime, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
+        return storageService.setPurchase2(req.getId(), req.getOid(), req.getSid(), applyTime, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/delPurchase2")
@@ -242,6 +246,7 @@ public class StorageController {
         order.setOtype(STORAGE_AGREEMENT_ORDER.getValue());
         order.setApply(req.getId());
         order.setOid(req.getAid());
+        order.setComplete(new Byte("0"));
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));
         } catch (ParseException e) {
@@ -295,6 +300,7 @@ public class StorageController {
         order.setSid(req.getSid());
         order.setOtype(STORAGE_LOSS_ORDER.getValue());
         order.setApply(req.getId());
+        order.setComplete(new Byte("0"));
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));
         } catch (ParseException e) {
@@ -347,6 +353,7 @@ public class StorageController {
         order.setOtype(STORAGE_RETURN_ORDER.getValue());
         order.setApply(req.getId());
         order.setOid(req.getRid());
+        order.setComplete(new Byte("0"));
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));
         } catch (ParseException e) {

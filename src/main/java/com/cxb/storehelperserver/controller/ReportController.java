@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 
-import static com.cxb.storehelperserver.util.TypeDefine.CommodityType;
 import static com.cxb.storehelperserver.util.TypeDefine.ReportCycleType;
 
 /**
@@ -34,7 +33,7 @@ public class ReportController {
 
     @PostMapping("/getMarketReport")
     public RestResult getMarketReport(@Validated @RequestBody getMarketReportValid req) {
-        return reportService.getMarketReport(req.getId(), req.getGid(), req.getMid(), req.getType(), ReportCycleType.valueOf(req.getCycle()));
+        return reportService.getMarketReport(req.getId(), req.getGid(), req.getMid(), req.getCtype(), ReportCycleType.valueOf(req.getCycle()));
     }
 
     @PostMapping("/getAgreementReport")
@@ -60,10 +59,5 @@ public class ReportController {
     @PostMapping("/getStorageReport")
     public RestResult getStorageReport(@Validated @RequestBody getStorageReportValid req) {
         return reportService.getStorageReport(req.getId(), req.getGid(), req.getSid(), ReportCycleType.valueOf(req.getCycle()));
-    }
-
-    @PostMapping("/getStockReport")
-    public RestResult getStockReport(@Validated @RequestBody getStockReportValid req) {
-        return reportService.getStockReport(req.getId(), req.getGid(), CommodityType.valueOf(req.getType()), ReportCycleType.valueOf(req.getCycle()));
     }
 }

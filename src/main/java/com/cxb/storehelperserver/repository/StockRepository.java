@@ -5,10 +5,12 @@ import com.cxb.storehelperserver.model.TStock;
 import com.cxb.storehelperserver.model.TStockExample;
 import com.cxb.storehelperserver.repository.mapper.MyStockMapper;
 import com.cxb.storehelperserver.repository.model.MyStockCommodity;
+import com.cxb.storehelperserver.repository.model.MyStockReport;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.List;
 
 import static com.cxb.storehelperserver.util.TypeDefine.CommodityType;
@@ -47,6 +49,10 @@ public class StockRepository extends BaseRepository<TStock> {
         return stock;
     }
 
+    public List<MyStockReport> findReport(int gid, int sid, int ctype) {
+        return myStockMapper.selectReport(gid, sid, ctype);
+    }
+
     public int total(int gid, int sid, int ctype, String search) {
         if (null != search) {
             switch (CommodityType.valueOf(ctype)) {
@@ -74,12 +80,12 @@ public class StockRepository extends BaseRepository<TStock> {
         }
     }
 
-    public List<MyStockCommodity> pagination(int gid, int sid, int page, int limit, int type, String search) {
+    public List<MyStockCommodity> pagination(int gid, int sid, int page, int limit, int ctype, String search) {
         String key = null;
         if (null != search) {
             key = "%" + search + "%";
         }
-        switch (CommodityType.valueOf(type)) {
+        switch (CommodityType.valueOf(ctype)) {
             case COMMODITY:
                 return myStockMapper.pagination_commodity((page - 1) * limit, limit, gid, sid, key);
             case HALFGOOD:
@@ -93,7 +99,15 @@ public class StockRepository extends BaseRepository<TStock> {
         }
     }
 
-    public boolean insert(TStock row) {
+    public boolean insert(int gid, int sid, int ctype, int cid, BigDecimal price, int weight, int value) {
+        TStock row = new TStock();
+        row.setGid(gid);
+        row.setSid(sid);
+        row.setCtype(ctype);
+        row.setCid(cid);
+        row.setPrice(price);
+        row.setWeight(weight);
+        row.setValue(value);
         if (stockMapper.insert(row) > 0) {
             setCache(joinKey(row.getSid(), row.getCtype(), row.getCid()), row);
             delTotalCache(joinKey(row.getGid(), row.getSid(), row.getCtype()));

@@ -5,6 +5,7 @@ import com.cxb.storehelperserver.model.TStockDetail;
 import com.cxb.storehelperserver.model.TStockDetailExample;
 import com.cxb.storehelperserver.repository.mapper.MyStockDetailMapper;
 import com.cxb.storehelperserver.repository.model.MyStockDetail;
+import com.cxb.storehelperserver.util.TypeDefine;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
@@ -47,9 +48,20 @@ public class StockDetailRepository extends BaseRepository<TStockDetail> {
         return stock;
     }
 
-    public int total(int gid, int sid, String search) {
+    public int total(int gid, int sid, int ctype, String search) {
         if (null != search) {
-            return myStockDetailMapper.count(gid, sid, "%" + search + "%");
+            switch (TypeDefine.CommodityType.valueOf(ctype)) {
+                case COMMODITY:
+                    return myStockDetailMapper.count_commodity(gid, sid, "%" + search + "%");
+                case HALFGOOD:
+                    return myStockDetailMapper.count_halfgood(gid, sid, "%" + search + "%");
+                case ORIGINAL:
+                    return myStockDetailMapper.count_original(gid, sid, "%" + search + "%");
+                case STANDARD:
+                    return myStockDetailMapper.count_standard(gid, sid, "%" + search + "%");
+                default:
+                    return 0;
+            }
         } else {
             int total = getTotalCache(joinKey(gid, sid));
             if (0 != total) {
@@ -63,20 +75,31 @@ public class StockDetailRepository extends BaseRepository<TStockDetail> {
         }
     }
 
-    public List<MyStockDetail> pagination(int gid, int sid, int page, int limit, String search) {
+    public List<MyStockDetail> pagination(int gid, int sid, int page, int limit, int ctype, String search) {
+        String key = null;
         if (null != search) {
-            return myStockDetailMapper.pagination((page - 1) * limit, limit, gid, sid, "%" + search + "%");
-        } else {
-            return myStockDetailMapper.pagination((page - 1) * limit, limit, gid, sid, null);
+            key = "%" + search + "%";
+        }
+        switch (TypeDefine.CommodityType.valueOf(ctype)) {
+            case COMMODITY:
+                return myStockDetailMapper.pagination_commodity((page - 1) * limit, limit, gid, sid, key);
+            case HALFGOOD:
+                return myStockDetailMapper.pagination_halfgood((page - 1) * limit, limit, gid, sid, key);
+            case ORIGINAL:
+                return myStockDetailMapper.pagination_original((page - 1) * limit, limit, gid, sid, key);
+            case STANDARD:
+                return myStockDetailMapper.pagination_standard((page - 1) * limit, limit, gid, sid, key);
+            default:
+                return null;
         }
     }
 
-    public boolean insert(int gid, int sid, int otype, int oid, int ctype, int cid, BigDecimal price, int weight, int value, Date cdate) {
+    public boolean insert(int gid, int sid, int otype, Integer oid, int ctype, int cid, BigDecimal price, int weight, int value, Date cdate) {
         TStockDetail row = new TStockDetail();
         row.setGid(gid);
         row.setSid(sid);
         row.setOtype(otype);
-        row.setOid(oid);
+        row.setOid(null == oid ? 0 : oid);
         row.setCtype(ctype);
         row.setCid(cid);
         row.setPrice(price);

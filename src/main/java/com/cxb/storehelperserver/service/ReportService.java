@@ -308,35 +308,4 @@ public class ReportService {
         data.put("list", list);
         return RestResult.ok(data);
     }
-
-    public RestResult getStockReport(int id, int gid, CommodityType type, ReportCycleType cycle) {
-        // 验证公司
-        String msg = checkService.checkGroup(id, gid);
-        if (null != msg) {
-            return RestResult.fail(msg);
-        }
-
-        SimpleDateFormat dateFormat = dateUtil.getSimpleDateFormat();
-        Date end = dateUtil.getStartTime(dateUtil.addOneDay(new Date(), 1));
-        Date start = dateUtil.addOneDay(end, -7);
-        List<MyStockReport> stocks = null;
-        switch (type) {
-            case COMMODITY:
-                stocks = stockDayRepository.findReport(gid, start, end);
-                break;
-            default:
-                break;
-        }
-        val list = new ArrayList<>();
-        for (MyStockReport stock : stocks) {
-            val tmp = new HashMap<String, Object>();
-            tmp.put("id", stock.getId());
-            tmp.put("total", stock.getTotal());
-            tmp.put("date", dateFormat.format(stock.getCdate()));
-            list.add(tmp);
-        }
-        val data = new HashMap<String, Object>();
-        data.put("list", list);
-        return RestResult.ok(data);
-    }
 }

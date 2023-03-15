@@ -22,7 +22,7 @@ public class getMarketReportValid implements IValid {
     private int mid;
 
     @Min(value = 0, message = "商品类型错误")
-    private int type;
+    private int ctype;
 
     @Min(value = 1, message = "查询周期错误")
     private int cycle;

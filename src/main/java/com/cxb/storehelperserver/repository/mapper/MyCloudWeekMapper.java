@@ -34,7 +34,7 @@ public interface MyCloudWeekMapper {
     List<MyStockCommodity> pagination(int offset, int limit, int gid, int sid, Date date, String search);
 
     @Select({"<script>",
-            "select sid as id, sum(value) as total, cdate from t_stock_commodity_week where gid = #{gid}",
+            "select sid as id, sum(weight) as total, cdate from t_stock_commodity_week where gid = #{gid}",
             "and cdate <![CDATA[ >= ]]> #{start} and cdate <![CDATA[ < ]]> #{end} group by sid, cdate",
             "</script>"})
     List<MyStockReport> selectReport(int gid, Date start, Date end);

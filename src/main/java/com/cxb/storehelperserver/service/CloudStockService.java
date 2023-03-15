@@ -209,14 +209,8 @@ public class CloudStockService {
                 log.warn("未查询到要扣减的云仓库存:" + cloudCommodity.getOid() + ",类型:" + cloudCommodity.getCtype() + ",商品:" + cloudCommodity.getCid());
                 return false;
             }
-            stock = new TCloudStock();
-            stock.setGid(gid);
-            stock.setSid(sid);
-            stock.setCtype(cloudCommodity.getCtype());
-            stock.setCid(cloudCommodity.getCid());
-            stock.setValue(newValue);
-            stock.setPrice(purchaseCommodity.getPrice().divide(new BigDecimal(newValue), 2, RoundingMode.DOWN));
-            return cloudStockRepository.insert(stock);
+            return cloudStockRepository.insert(gid, sid, cloudCommodity.getCtype(), cloudCommodity.getCid(),
+                    purchaseCommodity.getPrice().divide(new BigDecimal(newValue), 2, RoundingMode.DOWN), newValue, newValue);
         } else {
             BigDecimal newPrice = purchaseCommodity.getPrice().multiply(new BigDecimal(newValue)); // 入库单总价
             BigDecimal oldPrice = stock.getPrice().multiply(new BigDecimal(stock.getValue())); // 库存总价
@@ -240,14 +234,8 @@ public class CloudStockService {
                 log.warn("未查询到要扣减的云仓库存:" + cloudCommodity.getOid() + ",类型:" + cloudCommodity.getCtype() + ",商品:" + cloudCommodity.getCid());
                 return false;
             }
-            stock = new TCloudStock();
-            stock.setGid(gid);
-            stock.setSid(sid);
-            stock.setCtype(cloudCommodity.getCtype());
-            stock.setCid(cloudCommodity.getCid());
-            stock.setValue(newValue);
-            stock.setPrice(agreementCommodity.getPrice().divide(new BigDecimal(newValue), 2, RoundingMode.DOWN));
-            return cloudStockRepository.insert(stock);
+            return cloudStockRepository.insert(gid, sid, cloudCommodity.getCtype(), cloudCommodity.getCid(),
+                    agreementCommodity.getPrice().divide(new BigDecimal(newValue), 2, RoundingMode.DOWN), newValue, newValue);
         } else {
             BigDecimal newPrice = agreementCommodity.getPrice().multiply(new BigDecimal(newValue)); // 入库单总价
             BigDecimal oldPrice = stock.getPrice().multiply(new BigDecimal(stock.getValue())); // 库存总价

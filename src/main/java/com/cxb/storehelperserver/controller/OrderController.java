@@ -44,12 +44,13 @@ public class OrderController {
     @PostMapping("/getPurchaseOrder")
     public RestResult getPurchaseOrder(@Validated @RequestBody GetPurchaseOrderValid req) {
         return orderService.getPurchaseOrder(req.getId(), req.getType(), req.getPage(), req.getLimit(),
-                ReviewType.valueOf(req.getReview()), (byte) req.getComplete(), req.getSearch());
+                ReviewType.valueOf(req.getReview()), req.getComplete(), req.getSearch());
     }
 
     @PostMapping("/getStorageOrder")
     public RestResult getStorageOrder(@Validated @RequestBody GetStorageOrderValid req) {
-        return orderService.getStorageOrder(req.getId(), req.getType(), req.getPage(), req.getLimit(), ReviewType.valueOf(req.getReview()), req.getSearch());
+        return orderService.getStorageOrder(req.getId(), req.getType(), req.getPage(), req.getLimit(),
+                ReviewType.valueOf(req.getReview()), req.getComplete(), req.getSearch());
     }
 
     @PostMapping("/getMyWait")

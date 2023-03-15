@@ -28,6 +28,9 @@ public class GetStorageOrderValid implements IValid {
     @Min(value = 1, message = "审核标志错误")
     private int review;
 
+    @Min(value = 0, message = "完成标志错误")
+    private int complete;
+
     @Length(max = 16, message = "搜索内容不能大于16个字符")
     private String search;
 }

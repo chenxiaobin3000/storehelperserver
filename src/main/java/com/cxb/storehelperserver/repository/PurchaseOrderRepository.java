@@ -11,6 +11,7 @@ import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
 
+import static com.cxb.storehelperserver.util.TypeDefine.CompleteType;
 import static com.cxb.storehelperserver.util.TypeDefine.ReviewType;
 
 /**
@@ -45,10 +46,20 @@ public class PurchaseOrderRepository extends BaseRepository<TPurchaseOrder> {
         return purchaseOrder;
     }
 
-    public int total(int gid, int type, ReviewType review, Byte complete, String search) {
+    public int total(int gid, int type, ReviewType review, int complete, String search) {
         TPurchaseOrderExample example = new TPurchaseOrderExample();
         TPurchaseOrderExample.Criteria criteria = example.createCriteria();
-        criteria.andGidEqualTo(gid).andOtypeEqualTo(type).andCompleteEqualTo(complete);
+        criteria.andGidEqualTo(gid).andOtypeEqualTo(type);
+        switch (CompleteType.valueOf(complete)) {
+            case COMPLETE_HAS:
+                criteria.andCompleteEqualTo(new Byte("1"));
+                break;
+            case COMPLETE_NOT:
+                criteria.andCompleteEqualTo(new Byte("0"));
+                break;
+            default:
+                break;
+        }
         if (null != search) {
             criteria.andBatchLike("%" + search + "%");
         }
@@ -65,10 +76,20 @@ public class PurchaseOrderRepository extends BaseRepository<TPurchaseOrder> {
         return (int) purchaseOrderMapper.countByExample(example);
     }
 
-    public List<TPurchaseOrder> pagination(int gid, int type, int page, int limit, ReviewType review, Byte complete, String search) {
+    public List<TPurchaseOrder> pagination(int gid, int type, int page, int limit, ReviewType review, int complete, String search) {
         TPurchaseOrderExample example = new TPurchaseOrderExample();
         TPurchaseOrderExample.Criteria criteria = example.createCriteria();
-        criteria.andGidEqualTo(gid).andOtypeEqualTo(type).andCompleteEqualTo(complete);
+        criteria.andGidEqualTo(gid).andOtypeEqualTo(type);
+        switch (CompleteType.valueOf(complete)) {
+            case COMPLETE_HAS:
+                criteria.andCompleteEqualTo(new Byte("1"));
+                break;
+            case COMPLETE_NOT:
+                criteria.andCompleteEqualTo(new Byte("0"));
+                break;
+            default:
+                break;
+        }
         if (null != search) {
             criteria.andBatchLike("%" + search + "%");
         }

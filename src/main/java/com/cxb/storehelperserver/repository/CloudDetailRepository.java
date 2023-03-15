@@ -71,12 +71,12 @@ public class CloudDetailRepository extends BaseRepository<TCloudDetail> {
         }
     }
 
-    public boolean insert(int gid, int sid, int otype, int oid, int ctype, int cid, BigDecimal price, int weight, int value, Date cdate) {
+    public boolean insert(int gid, int sid, int otype, Integer oid, int ctype, int cid, BigDecimal price, int weight, int value, Date cdate) {
         TCloudDetail row = new TCloudDetail();
         row.setGid(gid);
         row.setSid(sid);
         row.setOtype(otype);
-        row.setOid(oid);
+        row.setOid(null == oid ? 0 : oid);
         row.setCtype(ctype);
         row.setCid(cid);
         row.setPrice(price);
