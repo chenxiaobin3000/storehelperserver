@@ -2,6 +2,7 @@ package com.cxb.storehelperserver.service;
 
 import com.cxb.storehelperserver.model.*;
 import com.cxb.storehelperserver.repository.*;
+import com.cxb.storehelperserver.service.model.PageData;
 import com.cxb.storehelperserver.util.RestResult;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -180,10 +181,7 @@ public class CommodityService {
         int gid = group.getGid();
         int total = commodityRepository.total(gid, search);
         if (0 == total) {
-            val data = new HashMap<String, Object>();
-            data.put("total", 0);
-            data.put("list", null);
-            return RestResult.ok(data);
+            return RestResult.ok(new PageData());
         }
 
         val commodities = commodityRepository.pagination(gid, page, limit, search);
@@ -221,11 +219,7 @@ public class CommodityService {
                 }
             }
         }
-
-        val data = new HashMap<String, Object>();
-        data.put("total", total);
-        data.put("list", datas);
-        return RestResult.ok(data);
+        return RestResult.ok(new PageData(total, datas));
     }
 
     public RestResult getGroupAllCommodity(int id) {
@@ -238,10 +232,7 @@ public class CommodityService {
         int gid = group.getGid();
         int total = commodityRepository.total(gid, null);
         if (0 == total) {
-            val data = new HashMap<String, Object>();
-            data.put("total", 0);
-            data.put("list", null);
-            return RestResult.ok(data);
+            return RestResult.ok(new PageData());
         }
 
         val commodities = commodityRepository.pagination(gid, 1, total, null);
@@ -279,11 +270,7 @@ public class CommodityService {
                 }
             }
         }
-
-        val data = new HashMap<String, Object>();
-        data.put("total", total);
-        data.put("list", datas);
-        return RestResult.ok(data);
+        return RestResult.ok(new PageData(total, datas));
     }
 
     public RestResult setCommodityOriginal(int id, int gid, int cid, int oid) {

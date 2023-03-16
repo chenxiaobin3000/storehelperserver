@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 
 import static com.cxb.storehelperserver.util.Permission.*;
@@ -93,7 +94,7 @@ public class CloudService {
     /**
      * desc: 云仓采购入库
      */
-    public RestResult purchase(int id, TCloudOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<Integer> attrs) {
+    public RestResult purchase(int id, TCloudOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
         // 采购单未审核不能入库
         int rid = order.getOid();
         TPurchaseOrder purchaseOrder = purchaseOrderRepository.find(rid);
@@ -117,7 +118,7 @@ public class CloudService {
 
         // 生成入库单
         val comms = new ArrayList<TCloudCommodity>();
-        ret = createPurchaseComms(order, order.getOid(), types, commoditys, values, comms);
+        ret = createPurchaseComms(order, order.getOid(), types, commoditys, weights, values, comms);
         if (null != ret) {
             return ret;
         }
@@ -139,7 +140,7 @@ public class CloudService {
     /**
      * desc: 云仓采购入库修改
      */
-    public RestResult setPurchase(int id, int oid, Date applyTime, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<Integer> attrs) {
+    public RestResult setPurchase(int id, int oid, Date applyTime, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
         // 已经审核的订单不能修改
         TCloudOrder order = cloudOrderRepository.find(oid);
         if (null == order) {
@@ -161,7 +162,7 @@ public class CloudService {
 
         // 生成入库单
         val comms = new ArrayList<TCloudCommodity>();
-        ret = createPurchaseComms(order, order.getOid(), types, commoditys, values, comms);
+        ret = createPurchaseComms(order, order.getOid(), types, commoditys, weights, values, comms);
         if (null != ret) {
             return ret;
         }
@@ -227,11 +228,13 @@ public class CloudService {
         if (unit < 0) {
             return RestResult.fail("入库商品总量不能超出发货订单总量");
         }
+        if (0 == unit) {
+            purchase.setComplete(new Byte("1"));
+        }
         purchase.setCurUnit(unit);
         if (!purchaseOrderRepository.update(purchase)) {
             return RestResult.fail("修改进货单数据失败");
         }
-        // TODO 修改采购单完成状态
 
         // 添加审核信息
         Date reviewTime = new Date();
@@ -354,7 +357,7 @@ public class CloudService {
     /**
      * desc: 云仓履约入库
      */
-    public RestResult agreement(int id, TCloudOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<Integer> attrs) {
+    public RestResult agreement(int id, TCloudOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
         // 发货单未审核不能入库
         int rid = order.getOid();
         TAgreementOrder agreementOrder = agreementOrderRepository.find(rid);
@@ -400,7 +403,7 @@ public class CloudService {
     /**
      * desc: 云仓履约入库修改
      */
-    public RestResult setAgreement(int id, int oid, Date applyTime, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<Integer> attrs) {
+    public RestResult setAgreement(int id, int oid, Date applyTime, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
         // 已经审核的订单不能修改
         TCloudOrder order = cloudOrderRepository.find(oid);
         if (null == order) {
@@ -574,7 +577,7 @@ public class CloudService {
     /**
      * desc: 云仓损耗
      */
-    public RestResult loss(int id, TCloudOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<Integer> attrs) {
+    public RestResult loss(int id, TCloudOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_cloud_loss_apply, mp_cloud_loss_review, reviews);
         if (null != ret) {
@@ -605,7 +608,7 @@ public class CloudService {
     /**
      * desc: 云仓损耗修改
      */
-    public RestResult setLoss(int id, int oid, int sid, Date applyTime, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<Integer> attrs) {
+    public RestResult setLoss(int id, int oid, int sid, Date applyTime, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
         // 已经审核的订单不能修改
         TCloudOrder order = cloudOrderRepository.find(oid);
         if (null == order) {
@@ -760,7 +763,7 @@ public class CloudService {
     /**
      * desc: 云仓退货到仓库
      */
-    public RestResult returnc(int id, TCloudOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<BigDecimal> prices, List<Integer> attrs) {
+    public RestResult returnc(int id, TCloudOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<BigDecimal> prices, List<Integer> attrs) {
         // 采购单未审核不能退货
         int rid = order.getOid();
         TPurchaseOrder purchaseOrder = purchaseOrderRepository.find(rid);
@@ -809,7 +812,7 @@ public class CloudService {
     /**
      * desc: 云仓退货修改
      */
-    public RestResult setReturn(int id, int oid, Date applyTime, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<BigDecimal> prices, List<Integer> attrs) {
+    public RestResult setReturn(int id, int oid, Date applyTime, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<BigDecimal> prices, List<Integer> attrs) {
         // 已经审核的订单不能修改
         TCloudOrder order = cloudOrderRepository.find(oid);
         if (null == order) {
@@ -1095,7 +1098,7 @@ public class CloudService {
     /**
      * desc: 云仓退货到采购
      */
-    public RestResult backc(int id, TCloudOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<Integer> attrs) {
+    public RestResult backc(int id, TCloudOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
         // 履约单未审核不能退货
         int rid = order.getOid();
         TAgreementOrder agreementOrder = agreementOrderRepository.find(rid);
@@ -1144,7 +1147,7 @@ public class CloudService {
     /**
      * desc: 云仓退货修改
      */
-    public RestResult setBack(int id, int oid, Date applyTime, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<Integer> attrs) {
+    public RestResult setBack(int id, int oid, Date applyTime, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
         // 已经审核的订单不能修改
         TCloudOrder order = cloudOrderRepository.find(oid);
         if (null == order) {
@@ -1371,10 +1374,10 @@ public class CloudService {
         return reviewService.checkPerm(id, gid, applyPerm, reviewPerm, reviews);
     }
 
-    private RestResult createPurchaseComms(TCloudOrder order, int pid, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<TCloudCommodity> list) {
+    private RestResult createPurchaseComms(TCloudOrder order, int pid, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<TCloudCommodity> list) {
         // 生成入库单
         int size = commoditys.size();
-        if (size != types.size() || size != values.size()) {
+        if (size != types.size() || size != weights.size() || size != values.size()) {
             return RestResult.fail("商品信息异常");
         }
         val purchaseCommodities = purchaseCommodityRepository.find(pid);
@@ -1384,29 +1387,35 @@ public class CloudService {
         int total = 0;
         BigDecimal price = new BigDecimal(0);
         for (int i = 0; i < size; i++) {
-            // 获取商品单位信息
             boolean find = false;
             int ctype = types.get(i);
             int cid = commoditys.get(i);
+            int weight = weights.get(i);
+            int value = values.get(i);
             for (TPurchaseCommodity pc : purchaseCommodities) {
                 if (pc.getCtype() == ctype && pc.getCid() == cid) {
                     find = true;
-                    // 生成数据
-                    int value = values.get(i);
+                    if (weight > pc.getWeight()) {
+                        return RestResult.fail("入库商品重量不能大于采购重量:" + ctype + ", 商品id:" + cid);
+                    }
+                    if (value > pc.getValue()) {
+                        return RestResult.fail("入库商品件数不能大于采购件数:" + ctype + ", 商品id:" + cid);
+                    }
+
                     TCloudCommodity c = new TCloudCommodity();
                     c.setCtype(ctype);
                     c.setCid(cid);
+                    if (weight == pc.getWeight()) {
+                        c.setPrice(pc.getPrice());
+                    } else {
+                        c.setPrice(pc.getPrice().multiply(new BigDecimal(weight)).divide(new BigDecimal(pc.getWeight()), 2, RoundingMode.DOWN));
+                    }
+                    c.setWeight(weight);
                     c.setValue(value);
-                    c.setPrice(pc.getPrice());
                     list.add(c);
 
-                    // 校验商品入库数不能大于采购单
-                    if (value > pc.getValue()) {
-                        return RestResult.fail("入库商品数量不能大于采购数量, 商品id:" + cid + ", 类型:" + ctype);
-                    }
-
-                    total = total + pc.getNorm() * value;
-                    price = price.add(pc.getPrice().multiply(new BigDecimal(pc.getNorm() * value)));
+                    total = total + weight;
+                    price = price.add(c.getPrice());
                     break;
                 }
             }
@@ -1421,10 +1430,10 @@ public class CloudService {
         return null;
     }
 
-    private RestResult createAgreementComms(TCloudOrder order, int pid, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<TCloudCommodity> list) {
+    private RestResult createAgreementComms(TCloudOrder order, int pid, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<TCloudCommodity> list) {
         // 生成入库单
         int size = commoditys.size();
-        if (size != types.size() || size != values.size()) {
+        if (size != types.size() || size != weights.size() || size != values.size()) {
             return RestResult.fail("商品信息异常");
         }
         val agreementCommodities = agreementCommodityRepository.find(pid);
@@ -1471,10 +1480,10 @@ public class CloudService {
         return null;
     }
 
-    private RestResult createLossComms(TCloudOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<TCloudCommodity> list) {
+    private RestResult createLossComms(TCloudOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<TCloudCommodity> list) {
         // 生成损耗单
         int size = commoditys.size();
-        if (size != types.size() || size != values.size()) {
+        if (size != types.size() || size != weights.size() || size != values.size()) {
             return RestResult.fail("商品信息异常");
         }
         int sid = order.getSid();
@@ -1511,10 +1520,10 @@ public class CloudService {
         return null;
     }
 
-    private RestResult createReturnComms(TCloudOrder order, int rid, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<BigDecimal> prices, List<TCloudCommodity> list) {
+    private RestResult createReturnComms(TCloudOrder order, int rid, List<Integer> types, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<Integer> values, List<TCloudCommodity> list) {
         // 生成退货单
         int size = commoditys.size();
-        if (size != types.size() || size != values.size() || size != prices.size()) {
+        if (size != types.size() || size != prices.size() || size != weights.size() || size != values.size()) {
             return RestResult.fail("商品信息异常");
         }
         val purchaseCommodities = purchaseCommodityRepository.find(rid);
@@ -1561,10 +1570,10 @@ public class CloudService {
         return null;
     }
 
-    private RestResult createBackComms(TCloudOrder order, int rid, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<TCloudCommodity> list) {
+    private RestResult createBackComms(TCloudOrder order, int rid, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<TCloudCommodity> list) {
         // 生成退货单
         int size = commoditys.size();
-        if (size != types.size() || size != values.size()) {
+        if (size != types.size() || size != weights.size() || size != values.size()) {
             return RestResult.fail("商品信息异常");
         }
         val agreementCommodities = agreementCommodityRepository.find(rid);
@@ -1596,7 +1605,7 @@ public class CloudService {
                     list.add(c);
 
                     total = total + ac.getNorm() * value;
-                    price = price.add(ac.getPrice().multiply(new BigDecimal(ac.getNorm() *value)));
+                    price = price.add(ac.getPrice().multiply(new BigDecimal(ac.getNorm() * value)));
                     break;
                 }
             }

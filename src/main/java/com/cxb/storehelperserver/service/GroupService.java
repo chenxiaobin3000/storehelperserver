@@ -2,6 +2,7 @@ package com.cxb.storehelperserver.service;
 
 import com.cxb.storehelperserver.model.*;
 import com.cxb.storehelperserver.repository.*;
+import com.cxb.storehelperserver.service.model.PageData;
 import com.cxb.storehelperserver.util.RestResult;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -184,10 +185,7 @@ public class GroupService {
 
         int total = groupRepository.total(search);
         if (0 == total) {
-            val data = new HashMap<String, Object>();
-            data.put("total", 0);
-            data.put("list", null);
-            return RestResult.ok(data);
+            return RestResult.ok(new PageData());
         }
 
         val list = groupRepository.pagination(page, limit, search);
@@ -196,7 +194,7 @@ public class GroupService {
         }
 
         // 查询联系人
-        val list2 = new ArrayList<>();
+        val list2 = new ArrayList<HashMap<String, Object>>();
         for (TGroup g : list) {
             val group = new HashMap<String, Object>();
             group.put("id", g.getId());
@@ -208,11 +206,7 @@ public class GroupService {
             group.put("market", groupMarketRepository.find(g.getId()));
             list2.add(group);
         }
-
-        val data = new HashMap<String, Object>();
-        data.put("total", total);
-        data.put("list", list2);
-        return RestResult.ok(data);
+        return RestResult.ok(new PageData(total, list2));
     }
 
     public RestResult setUserGroup(int id, int uid, int gid) {

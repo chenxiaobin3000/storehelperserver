@@ -2,6 +2,7 @@ package com.cxb.storehelperserver.service;
 
 import com.cxb.storehelperserver.model.*;
 import com.cxb.storehelperserver.repository.*;
+import com.cxb.storehelperserver.service.model.PageData;
 import com.cxb.storehelperserver.util.RestResult;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -123,14 +124,11 @@ public class StorageMgrService {
 
         int total = storageRepository.total(group.getGid(), search);
         if (0 == total) {
-            val data = new HashMap<String, Object>();
-            data.put("total", 0);
-            data.put("list", null);
-            return RestResult.ok(data);
+            return RestResult.ok(new PageData());
         }
 
         // 查询联系人
-        val list2 = new ArrayList<>();
+        val list2 = new ArrayList<HashMap<String, Object>>();
         val list = storageRepository.pagination(group.getGid(), page, limit, search);
         if (null != list && !list.isEmpty()) {
             for (TStorage g : list) {
@@ -143,11 +141,7 @@ public class StorageMgrService {
                 list2.add(storage);
             }
         }
-
-        val data = new HashMap<String, Object>();
-        data.put("total", total);
-        data.put("list", list2);
-        return RestResult.ok(data);
+        return RestResult.ok(new PageData(total, list2));
     }
 
     public RestResult getGroupAllStorage(int id) {
@@ -159,14 +153,11 @@ public class StorageMgrService {
 
         int total = storageRepository.total(group.getGid(), null);
         if (0 == total) {
-            val data = new HashMap<String, Object>();
-            data.put("total", 0);
-            data.put("list", null);
-            return RestResult.ok(data);
+            return RestResult.ok(new PageData());
         }
 
         // 查询联系人
-        val list2 = new ArrayList<>();
+        val list2 = new ArrayList<HashMap<String, Object>>();
         val list = storageRepository.pagination(group.getGid(), 1, total, null);
         if (null != list && !list.isEmpty()) {
             for (TStorage g : list) {
@@ -179,10 +170,6 @@ public class StorageMgrService {
                 list2.add(storage);
             }
         }
-
-        val data = new HashMap<String, Object>();
-        data.put("total", total);
-        data.put("list", list2);
-        return RestResult.ok(data);
+        return RestResult.ok(new PageData(total, list2));
     }
 }

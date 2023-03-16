@@ -2,6 +2,7 @@ package com.cxb.storehelperserver.service;
 
 import com.cxb.storehelperserver.model.*;
 import com.cxb.storehelperserver.repository.*;
+import com.cxb.storehelperserver.service.model.PageData;
 import com.cxb.storehelperserver.util.RestResult;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -170,10 +171,7 @@ public class StandardService {
 
         int total = standardRepository.total(group.getGid(), search);
         if (0 == total) {
-            val data = new HashMap<String, Object>();
-            data.put("total", 0);
-            data.put("list", null);
-            return RestResult.ok(data);
+            return RestResult.ok(new PageData());
         }
 
         val commodities = standardRepository.pagination(group.getGid(), page, limit, search);
@@ -201,11 +199,7 @@ public class StandardService {
                 }
             }
         }
-
-        val data = new HashMap<String, Object>();
-        data.put("total", total);
-        data.put("list", datas);
-        return RestResult.ok(data);
+        return RestResult.ok(new PageData(total, datas));
     }
 
     public RestResult getGroupAllStandard(int id) {
@@ -217,10 +211,7 @@ public class StandardService {
 
         int total = standardRepository.total(group.getGid(), null);
         if (0 == total) {
-            val data = new HashMap<String, Object>();
-            data.put("total", 0);
-            data.put("list", null);
-            return RestResult.ok(data);
+            return RestResult.ok(new PageData());
         }
 
         val commodities = standardRepository.pagination(group.getGid(), 1, total, null);
@@ -248,10 +239,6 @@ public class StandardService {
                 }
             }
         }
-
-        val data = new HashMap<String, Object>();
-        data.put("total", total);
-        data.put("list", datas);
-        return RestResult.ok(data);
+        return RestResult.ok(new PageData(total, datas));
     }
 }

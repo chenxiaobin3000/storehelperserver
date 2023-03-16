@@ -2,6 +2,7 @@ package com.cxb.storehelperserver.service;
 
 import com.cxb.storehelperserver.model.*;
 import com.cxb.storehelperserver.repository.*;
+import com.cxb.storehelperserver.service.model.PageData;
 import com.cxb.storehelperserver.util.RestResult;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -232,10 +233,7 @@ public class UserService {
 
         int total = userRepository.total(group.getGid(), search);
         if (0 == total) {
-            val data = new HashMap<String, Object>();
-            data.put("total", 0);
-            data.put("list", null);
-            return RestResult.ok(data);
+            return RestResult.ok(new PageData());
         }
 
         val list = userRepository.pagination(page, limit, group.getGid(), search);
@@ -244,7 +242,7 @@ public class UserService {
         }
 
         // 查询角色信息
-        val list2 = new ArrayList<>();
+        val list2 = new ArrayList<HashMap<String, Object>>();
         for (TUser u : list) {
             val user = new HashMap<String, Object>();
             user.put("id", u.getId());
@@ -271,10 +269,6 @@ public class UserService {
             user.put("part", null);
             list2.add(user);
         }
-
-        val data = new HashMap<String, Object>();
-        data.put("total", total);
-        data.put("list", list2);
-        return RestResult.ok(data);
+        return RestResult.ok(new PageData(total, list2));
     }
 }

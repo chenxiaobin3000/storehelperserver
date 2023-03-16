@@ -2,9 +2,9 @@ package com.cxb.storehelperserver.service;
 
 import com.cxb.storehelperserver.model.*;
 import com.cxb.storehelperserver.repository.*;
+import com.cxb.storehelperserver.service.model.OriginalIndex;
 import com.cxb.storehelperserver.util.DateUtil;
 import com.cxb.storehelperserver.util.RestResult;
-import com.cxb.storehelperserver.util.TypeDefine;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.stereotype.Service;
@@ -12,11 +12,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 
 import static com.cxb.storehelperserver.util.Permission.*;
 import static com.cxb.storehelperserver.util.TypeDefine.CommodityType;
-import static com.cxb.storehelperserver.util.TypeDefine.OrderType.PURCHASE_PURCHASE_ORDER;
+import static com.cxb.storehelperserver.util.TypeDefine.CommodityType.*;
+import static com.cxb.storehelperserver.util.TypeDefine.OrderType.PRODUCT_PROCESS_ORDER;
 
 /**
  * desc: 生产业务
@@ -67,6 +69,12 @@ public class ProductService {
     private StockRepository stockRepository;
 
     @Resource
+    private HalfgoodOriginalRepository halfgoodOriginalRepository;
+
+    @Resource
+    private CommodityOriginalRepository commodityOriginalRepository;
+
+    @Resource
     private UserGroupRepository userGroupRepository;
 
     @Resource
@@ -75,7 +83,7 @@ public class ProductService {
     /**
      * desc: 生产开始
      */
-    public RestResult process(int id, TProductOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<Integer> attrs) {
+    public RestResult process(int id, TProductOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_product_process_apply, mp_product_process_review, reviews);
         if (null != ret) {
@@ -84,7 +92,7 @@ public class ProductService {
 
         // 生成生产单
         val comms = new ArrayList<TProductCommodity>();
-        ret = createProcessComms(order, types, commoditys, values, comms);
+        ret = createProcessComms(order, types, commoditys, weights, values, comms);
         if (null != ret) {
             return ret;
         }
@@ -106,7 +114,7 @@ public class ProductService {
     /**
      * desc: 生产开始修改
      */
-    public RestResult setProcess(int id, int oid, int sid, Date applyTime, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<Integer> attrs) {
+    public RestResult setProcess(int id, int oid, int sid, Date applyTime, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
         // 已经审核的订单不能修改
         TProductOrder order = productOrderRepository.find(oid);
         if (null == order) {
@@ -137,11 +145,10 @@ public class ProductService {
 
         // 生成生产单
         val comms = new ArrayList<TProductCommodity>();
-        ret = createProcessComms(order, types, commoditys, values, comms);
+        ret = createProcessComms(order, types, commoditys, weights, values, comms);
         if (null != ret) {
             return ret;
         }
-
         if (!productOrderRepository.update(order)) {
             return RestResult.fail("生成生产订单失败");
         }
@@ -301,15 +308,15 @@ public class ProductService {
     /**
      * desc: 生产完成
      */
-    public RestResult complete(int id, TProductOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<Integer> attrs) {
+    public RestResult complete(int id, TProductOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
         // 生产单未审核不能完成
         int pid = order.getPid();
         TProductOrder process = productOrderRepository.find(pid);
         if (null == process) {
             return RestResult.fail("未查询到生产单");
         }
-        if (!process.getOtype().equals(PURCHASE_PURCHASE_ORDER.getValue())) {
-            return RestResult.fail("进货单据类型异常");
+        if (!process.getOtype().equals(PRODUCT_PROCESS_ORDER.getValue())) {
+            return RestResult.fail("生产单据类型异常");
         }
         if (null == process.getReview()) {
             return RestResult.fail("生产单未审核通过，不能进行入库");
@@ -325,7 +332,7 @@ public class ProductService {
 
         // 生成完成单
         val comms = new ArrayList<TProductCommodity>();
-        ret = createCompleteComms(order, types, commoditys, values, comms);
+        ret = createCompleteComms(order, types, commoditys, values, weights, comms);
         if (null != ret) {
             return ret;
         }
@@ -347,7 +354,7 @@ public class ProductService {
     /**
      * desc: 生产完成修改
      */
-    public RestResult setComplete(int id, int oid, Date applyTime, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<Integer> attrs) {
+    public RestResult setComplete(int id, int oid, Date applyTime, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
         // 已经审核的订单不能修改
         TProductOrder order = productOrderRepository.find(oid);
         if (null == order) {
@@ -368,11 +375,10 @@ public class ProductService {
 
         // 生成进货单
         val comms = new ArrayList<TProductCommodity>();
-        ret = createCompleteComms(order, types, commoditys, values, comms);
+        ret = createCompleteComms(order, types, commoditys, values, weights, comms);
         if (null != ret) {
             return ret;
         }
-
         if (!productOrderRepository.update(order)) {
             return RestResult.fail("生成完成订单失败");
         }
@@ -435,6 +441,9 @@ public class ProductService {
         if (unit < 0) {
             return RestResult.fail("完成商品总量不能超出生产订单总量");
         }
+        if (0 == unit) {
+            process.setComplete(new Byte("1"));
+        }
         process.setCurUnit(unit);
         if (!productOrderRepository.update(process)) {
             return RestResult.fail("修改生产单数据失败");
@@ -454,11 +463,11 @@ public class ProductService {
         }
 
         // 增加库存
-        String msg = storageStockService.handleProductStock(order, true);
+        String msg = storageStockService.handleCompleteStock(order, true);
         if (null != msg) {
             return RestResult.fail(msg);
         }
-        return reviewService.review(order.getApply(), id, order.getGid(), order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
+        return reviewService.review(order.getApply(), id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
     }
 
     public RestResult revokeComplete(int id, int oid) {
@@ -482,6 +491,8 @@ public class ProductService {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
+        // TODO 还原扣除的采购单数量
+
         RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApply(), mp_product_complete_review);
         if (null != ret) {
             return ret;
@@ -498,7 +509,7 @@ public class ProductService {
         }
 
         // 减少库存
-        msg = storageStockService.handleProductStock(order, false);
+        msg = storageStockService.handleCompleteStock(order, false);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -516,7 +527,7 @@ public class ProductService {
     /**
      * desc: 生产损耗
      */
-    public RestResult loss(int id, TProductOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<Integer> attrs) {
+    public RestResult loss(int id, TProductOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_product_loss_apply, mp_product_loss_review, reviews);
         if (null != ret) {
@@ -525,7 +536,7 @@ public class ProductService {
 
         // 生成损耗单
         val comms = new ArrayList<TProductCommodity>();
-        ret = createProcessComms(order, types, commoditys, values, comms);
+        ret = createProcessComms(order, types, commoditys, values, weights, comms);
         if (null != ret) {
             return ret;
         }
@@ -547,7 +558,7 @@ public class ProductService {
     /**
      * desc: 仓储损耗修改
      */
-    public RestResult setLoss(int id, int oid, int sid, Date applyTime, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<Integer> attrs) {
+    public RestResult setLoss(int id, int oid, int sid, Date applyTime, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
         // 已经审核的订单不能修改
         TProductOrder order = productOrderRepository.find(oid);
         if (null == order) {
@@ -578,11 +589,10 @@ public class ProductService {
 
         // 生成损耗单
         val comms = new ArrayList<TProductCommodity>();
-        ret = createProcessComms(order, types, commoditys, values, comms);
+        ret = createProcessComms(order, types, commoditys, values, weights, comms);
         if (null != ret) {
             return ret;
         }
-
         if (!productOrderRepository.update(order)) {
             return RestResult.fail("生成损耗订单失败");
         }
@@ -625,6 +635,7 @@ public class ProductService {
         if (null == group) {
             return RestResult.fail("获取公司信息失败");
         }
+        int gid = group.getGid();
 
         // 校验审核人员信息
         TProductOrder order = productOrderRepository.find(oid);
@@ -648,7 +659,7 @@ public class ProductService {
         if (null != msg) {
             return RestResult.fail(msg);
         }
-        return reviewService.review(order.getApply(), id, order.getGid(), order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
+        return reviewService.review(order.getApply(), id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
     }
 
     public RestResult revokeLoss(int id, int oid) {
@@ -710,10 +721,10 @@ public class ProductService {
         return reviewService.checkPerm(id, gid, applyPerm, reviewPerm, reviews);
     }
 
-    private RestResult createProcessComms(TProductOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<TProductCommodity> list) {
+    private RestResult createProcessComms(TProductOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<TProductCommodity> list) {
         // 生成进货单
         int size = commoditys.size();
-        if (size != types.size() || size != values.size()) {
+        if (size != types.size() || size != weights.size() || size != values.size()) {
             return RestResult.fail("商品信息异常");
         }
         int sid = order.getSid();
@@ -723,25 +734,29 @@ public class ProductService {
             // 获取商品单位信息
             int ctype = types.get(i);
             int cid = commoditys.get(i);
+            int weight = weights.get(i);
             int value = values.get(i);
             TStock stock = stockRepository.find(sid, ctype, cid);
             if (null == stock) {
                 return RestResult.fail("未查询到库存类型:" + types.get(i) + ",商品:" + commoditys.get(i));
             }
-            if (stock.getValue() < value) {
-                return RestResult.fail("库存商品数量不足:" + types.get(i) + ",商品:" + commoditys.get(i));
+            if (weight > stock.getWeight()) {
+                return RestResult.fail("库存商品重量不足:" + ctype + ",商品:" + cid);
+            }
+            if (value > stock.getValue()) {
+                return RestResult.fail("库存商品件数不足:" + ctype + ",商品:" + cid);
             }
 
-            // 生成数据
             TProductCommodity c = new TProductCommodity();
             c.setCtype(ctype);
             c.setCid(cid);
+            c.setPrice(stock.getPrice().multiply(new BigDecimal(weight)).divide(new BigDecimal(stock.getWeight()), 2, RoundingMode.DOWN));
+            c.setWeight(weight);
             c.setValue(value);
-            c.setPrice(stock.getPrice());
             list.add(c);
 
-            total = total + value;
-            price = price.add(stock.getPrice().multiply(new BigDecimal(value)));
+            total = total + weight;
+            price = price.add(c.getPrice());
         }
         order.setUnit(total);
         order.setPrice(price);
@@ -750,80 +765,190 @@ public class ProductService {
         return null;
     }
 
-    private RestResult createCompleteComms(TProductOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<TProductCommodity> list) {
+    private RestResult createCompleteComms(TProductOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<TProductCommodity> list) {
         // 生成进货单
         int size = commoditys.size();
-        if (size != types.size() || size != values.size()) {
+        if (size != types.size() || size != weights.size() || size != values.size()) {
             return RestResult.fail("商品信息异常");
         }
         val productCommodities = productCommodityRepository.find(order.getPid());
         if (null == productCommodities || productCommodities.isEmpty()) {
             return RestResult.fail("未查询到生产原料信息");
         }
-        int sid = order.getSid();
+        // 生成原料索引表
+        val originalTable = new HashMap<Integer, OriginalIndex>();
+        for (TProductCommodity pc : productCommodities) {
+            if (pc.getCtype().equals(ORIGINAL.getValue())) {
+                originalTable.put(pc.getCid(), new OriginalIndex(pc));
+            }
+        }
+
+        // 补充出库半成品信息
+        for (TProductCommodity pc : productCommodities) {
+            if (pc.getCtype().equals(HALFGOOD.getValue())) {
+                OriginalIndex original = originalTable.get(pc.getCid());
+                if (null == original) {
+                    // 只有半成品，没有原料，就补充原料信息
+                    THalfgoodOriginal halfgood = halfgoodOriginalRepository.find(pc.getCid());
+                    if (null == halfgood) {
+                        return RestResult.fail("未查询到半成品对应的原料信息：" + pc.getCid());
+                    }
+                    TProductCommodity c = new TProductCommodity();
+                    c.setCtype(ORIGINAL.getValue());
+                    c.setCid(halfgood.getOid());
+                    c.setPrice(new BigDecimal(0));
+                    c.setWeight(0);
+                    c.setValue(0);
+                    original = new OriginalIndex(c);
+                    original.setHalfgood(c);
+                    originalTable.put(pc.getCid(), original);
+                } else {
+                    if (null != original.getHalfgood()) {
+                        return RestResult.fail("一个订单只能存在单一原料系列：" + pc.getCid());
+                    }
+                    original.setHalfgood(pc);
+                }
+            }
+        }
+
+        // 从原料开始扣减
         int total = 0;
         BigDecimal price = new BigDecimal(0);
         for (int i = 0; i < size; i++) {
-            // 获取商品单位信息
             int ctype = types.get(i);
-            int cid = commoditys.get(i);
-            int value = values.get(i);
-            switch (CommodityType.valueOf(ctype)) {
-                case COMMODITY: {
-                    TStock stock = stockRepository.find(sid, ctype, cid);
-                    if (null == stock) {
-                        return RestResult.fail("未查询到库存类型:" + types.get(i) + ",商品:" + commoditys.get(i));
-                    }
-                    if (stock.getValue() < value) {
-                        return RestResult.fail("库存商品数量不足:" + types.get(i) + ",商品:" + commoditys.get(i));
-                    }
-
-                    // 生成数据
-                    TProductCommodity c = new TProductCommodity();
-                    c.setCtype(ctype);
-                    c.setCid(cid);
-                    c.setValue(value);
-                    c.setPrice(stock.getPrice());
-                    list.add(c);
-
-                    total = total + value;
-                    price = price.add(stock.getPrice().multiply(new BigDecimal(value)));
-                    break;
+            if (ctype == ORIGINAL.getValue()) {
+                int cid = commoditys.get(i);
+                int weight = weights.get(i);
+                OriginalIndex originalIndex = originalTable.get(cid);
+                if (null == originalIndex) {
+                    return RestResult.fail("未查询到原料id:" + cid);
                 }
-                case HALFGOOD:
-                case ORIGINAL: {
-                    boolean find = false;
-                    for (TProductCommodity pc : productCommodities) {
-                        if (pc.getCtype() == ctype && pc.getCid() == cid) {
-                            find = true;
-
-                            // 生成数据
-                            TProductCommodity c = new TProductCommodity();
-                            c.setCtype(ctype);
-                            c.setCid(cid);
-                            c.setValue(value);
-                            c.setPrice(pc.getPrice());
-                            list.add(c);
-
-                            // 校验商品入库数不能大于采购单
-                            if (value > pc.getValue()) {
-                                return RestResult.fail("入库商品数量不能大于采购数量, 商品id:" + cid + ", 类型:" + ctype);
-                            }
-
-                            total = total + value;
-                            price = price.add(pc.getPrice().multiply(new BigDecimal(value)));
-                            break;
-                        }
-                    }
-                    if (!find) {
-                        return RestResult.fail("未查询到商品id:" + cid + ", 类型:" + ctype);
-                    }
-                    break;
+                TProductCommodity original = originalIndex.getOriginal();
+                if (weight > original.getWeight()) {
+                    return RestResult.fail("入库原料重量不能大于生产重量:" + cid);
                 }
-                default:
-                    return RestResult.fail("未查询到商品id:" + cid + ", 类型:" + ctype);
+
+                TProductCommodity c = new TProductCommodity();
+                c.setCtype(ctype);
+                c.setCid(cid);
+                if (weight == original.getWeight()) {
+                    c.setPrice(original.getPrice());
+                } else {
+                    c.setPrice(original.getPrice().multiply(new BigDecimal(weight)).divide(new BigDecimal(original.getWeight()), 2, RoundingMode.DOWN));
+                }
+                c.setWeight(weight);
+                c.setValue(values.get(i));
+                list.add(c);
+                originalIndex.setOriginal2(c);
+
+                total = total + weight;
+                price = price.add(c.getPrice());
             }
         }
+
+        // 然后扣减半成品
+        for (int i = 0; i < size; i++) {
+            int ctype = types.get(i);
+            if (ctype == HALFGOOD.getValue()) {
+                int cid = commoditys.get(i);
+                int weight = weights.get(i);
+                THalfgoodOriginal halfgoodOriginal = halfgoodOriginalRepository.find(cid);
+                if (null == halfgoodOriginal) {
+                    return RestResult.fail("未查询到半成品对应的原料信息：" + cid);
+                }
+                OriginalIndex originalIndex = originalTable.get(halfgoodOriginal.getOid());
+                if (null == originalIndex) {
+                    return RestResult.fail("未查询到原料id:" + cid);
+                }
+                TProductCommodity original = originalIndex.getOriginal();
+                TProductCommodity halfgood = originalIndex.getHalfgood();
+                TProductCommodity original2 = originalIndex.getOriginal2();
+                int weight1 = weight + (null == original2 ? 0 : original2.getWeight());
+                int weight2 = original.getWeight() + (null == halfgood ? 0 : halfgood.getWeight());
+                if (weight1 > weight2) {
+                    return RestResult.fail("入库半成品重量不能大于生产重量:" + cid);
+                }
+
+                TProductCommodity c = new TProductCommodity();
+                c.setCtype(ctype);
+                c.setCid(cid);
+                int weightOriginal = original.getWeight() - (null == original2 ? 0 : original2.getWeight()); // 原料剩余重量
+                if (weightOriginal > 0) { // 还有原料
+                    if (weight <= weightOriginal) { // 原料够用，直接转换
+                        c.setPrice(original.getPrice().multiply(new BigDecimal(weight)).divide(new BigDecimal(original.getWeight()), 2, RoundingMode.DOWN));
+                    } else {// 原料不够，凑半产品
+                        if (null != halfgood) {
+                            BigDecimal priceOriginal = original.getPrice().multiply(new BigDecimal(weightOriginal)).divide(new BigDecimal(original.getWeight()), 2, RoundingMode.DOWN);
+                            BigDecimal priceHalfgood = halfgood.getPrice().multiply(new BigDecimal(weight - weightOriginal)).divide(new BigDecimal(halfgood.getWeight()), 2, RoundingMode.DOWN);
+                            c.setPrice(priceOriginal.add(priceHalfgood));
+                        }
+                    }
+                } else { // 只有半成品
+                    if (null != halfgood) {
+                        c.setPrice(halfgood.getPrice().multiply(new BigDecimal(weight)).divide(new BigDecimal(halfgood.getWeight()), 2, RoundingMode.DOWN));
+                    }
+                }
+                c.setWeight(weight);
+                c.setValue(values.get(i));
+                list.add(c);
+
+                total = total + weight;
+                price = price.add(c.getPrice());
+            }
+        }
+
+        // 最后处理商品
+        for (int i = 0; i < size; i++) {
+            int ctype = types.get(i);
+            if (ctype == COMMODITY.getValue()) {
+                int cid = commoditys.get(i);
+                int weight = weights.get(i);
+                TCommodityOriginal commodityOriginal = commodityOriginalRepository.find(cid);
+                if (null == commodityOriginal) {
+                    return RestResult.fail("未查询到商品对应的原料信息：" + cid);
+                }
+                OriginalIndex originalIndex = originalTable.get(commodityOriginal.getOid());
+                if (null == originalIndex) {
+                    return RestResult.fail("未查询到原料id:" + cid);
+                }
+                TProductCommodity original = originalIndex.getOriginal();
+                TProductCommodity halfgood = originalIndex.getHalfgood();
+                TProductCommodity original2 = originalIndex.getOriginal2();
+                TProductCommodity halfgood2 = originalIndex.getHalfgood2();
+                int weight1 = weight + (null == original2 ? 0 : original2.getWeight()) + (null == halfgood2 ? 0 : halfgood2.getWeight());
+                int weight2 = original.getWeight() + (null == halfgood ? 0 : halfgood.getWeight());
+                if (weight1 > weight2) {
+                    return RestResult.fail("入库商品品重量不能大于生产重量:" + cid);
+                }
+
+                TProductCommodity c = new TProductCommodity();
+                c.setCtype(ctype);
+                c.setCid(cid);
+                int weightOriginal = original.getWeight() - (null == original2 ? 0 : original2.getWeight()); // 原料剩余重量
+                if (weightOriginal > 0) { // 还有原料
+                    if (weight <= weightOriginal) { // 原料够用，直接转换
+                        c.setPrice(original.getPrice().multiply(new BigDecimal(weight)).divide(new BigDecimal(original.getWeight()), 2, RoundingMode.DOWN));
+                    } else {// 原料不够，凑半产品
+                        if (null != halfgood) {
+                            BigDecimal priceOriginal = original.getPrice().multiply(new BigDecimal(weightOriginal)).divide(new BigDecimal(original.getWeight()), 2, RoundingMode.DOWN);
+                            BigDecimal priceHalfgood = halfgood.getPrice().multiply(new BigDecimal(weight - weightOriginal)).divide(new BigDecimal(halfgood.getWeight()), 2, RoundingMode.DOWN);
+                            c.setPrice(priceOriginal.add(priceHalfgood));
+                        }
+                    }
+                } else { // 只有半成品
+                    if (null != halfgood) {
+                        c.setPrice(halfgood.getPrice().multiply(new BigDecimal(weight)).divide(new BigDecimal(halfgood.getWeight()), 2, RoundingMode.DOWN));
+                    }
+                }
+                c.setWeight(weight);
+                c.setValue(values.get(i));
+                list.add(c);
+
+                total = total + weight;
+                price = price.add(c.getPrice());
+            }
+        }
+
         order.setUnit(total);
         order.setPrice(price);
         order.setCurUnit(total);

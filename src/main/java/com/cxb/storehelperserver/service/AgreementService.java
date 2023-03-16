@@ -4,7 +4,6 @@ import com.cxb.storehelperserver.model.*;
 import com.cxb.storehelperserver.repository.*;
 import com.cxb.storehelperserver.util.DateUtil;
 import com.cxb.storehelperserver.util.RestResult;
-import com.cxb.storehelperserver.util.TypeDefine;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.stereotype.Service;
@@ -12,12 +11,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 
 import static com.cxb.storehelperserver.util.Permission.*;
-import static com.cxb.storehelperserver.util.TypeDefine.FinanceAction.*;
-import static com.cxb.storehelperserver.util.TypeDefine.FinanceAction.FINANCE_PURCHASE_FARE2;
-import static com.cxb.storehelperserver.util.TypeDefine.OrderType.PURCHASE_PURCHASE_ORDER;
+import static com.cxb.storehelperserver.util.TypeDefine.OrderType.AGREEMENT_SHIPPED_ORDER;
 
 /**
  * desc: 履约业务
@@ -79,7 +77,7 @@ public class AgreementService {
     /**
      * desc: 履约发货
      */
-    public RestResult shipped(int id, TAgreementOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<Integer> attrs) {
+    public RestResult shipped(int id, TAgreementOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> norms, List<Integer> values, List<Integer> attrs) {
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_agreement_shipped_apply, mp_agreement_shipped_review, reviews);
         if (null != ret) {
@@ -88,7 +86,7 @@ public class AgreementService {
 
         // 生成发货单
         val comms = new ArrayList<TAgreementCommodity>();
-        ret = createShippedComms(order, types, commoditys, values, comms);
+        ret = createShippedComms(order, types, commoditys, weights, norms, values, comms);
         if (null != ret) {
             return ret;
         }
@@ -110,7 +108,8 @@ public class AgreementService {
     /**
      * desc: 履约发货修改
      */
-    public RestResult setShipped(int id, int oid, int sid, Date applyTime, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<Integer> attrs) {
+    public RestResult setShipped(int id, int oid, int sid, Date applyTime, List<Integer> types, List<Integer> commoditys,
+                                 List<Integer> weights, List<Integer> norms, List<Integer> values, List<Integer> attrs) {
         // 已经审核的订单不能修改
         TAgreementOrder order = agreementOrderRepository.find(oid);
         if (null == order) {
@@ -141,11 +140,10 @@ public class AgreementService {
 
         // 生成发货单
         val comms = new ArrayList<TAgreementCommodity>();
-        ret = createShippedComms(order, types, commoditys, values, comms);
+        ret = createShippedComms(order, types, commoditys, weights, norms, values, comms);
         if (null != ret) {
             return ret;
         }
-
         if (!agreementOrderRepository.update(order)) {
             return RestResult.fail("生成发货订单失败");
         }
@@ -332,14 +330,14 @@ public class AgreementService {
     /**
      * desc: 履约退货
      */
-    public RestResult returnc(int id, TAgreementOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<Integer> attrs) {
+    public RestResult returnc(int id, TAgreementOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
         // 发货单未审核，已入库都不能退货
         int rid = order.getRid();
         TPurchaseOrder purchaseOrder = purchaseOrderRepository.find(rid);
         if (null == purchaseOrder) {
             return RestResult.fail("未查询到履约单");
         }
-        if (!purchaseOrder.getOtype().equals(PURCHASE_PURCHASE_ORDER.getValue())) {
+        if (!purchaseOrder.getOtype().equals(AGREEMENT_SHIPPED_ORDER.getValue())) {
             return RestResult.fail("进货单据类型异常");
         }
         if (null == purchaseOrder.getReview()) {
@@ -359,7 +357,7 @@ public class AgreementService {
 
         // 生成退货单
         val comms = new ArrayList<TAgreementCommodity>();
-        ret = createReturnComms(order, order.getRid(), types, commoditys, values, comms);
+        ret = createReturnComms(order, order.getRid(), types, commoditys, weights, values, comms);
         if (null != ret) {
             return ret;
         }
@@ -381,7 +379,7 @@ public class AgreementService {
     /**
      * desc: 履约退货修改
      */
-    public RestResult setReturn(int id, int oid, Date applyTime, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<Integer> attrs) {
+    public RestResult setReturn(int id, int oid, Date applyTime, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
         // 已经审核的订单不能修改
         TAgreementOrder order = agreementOrderRepository.find(oid);
         if (null == order) {
@@ -403,12 +401,10 @@ public class AgreementService {
 
         // 生成退货单
         val comms = new ArrayList<TAgreementCommodity>();
-        ret = createReturnComms(order, order.getRid(), types, commoditys, values, comms);
+        ret = createReturnComms(order, order.getRid(), types, commoditys, weights, values, comms);
         if (null != ret) {
             return ret;
         }
-
-        // 插入订单商品和附件数据
         if (!agreementOrderRepository.update(order)) {
             return RestResult.fail("生成退货订单失败");
         }
@@ -526,6 +522,8 @@ public class AgreementService {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
+        // TODO 还原扣除的采购单数量
+
         RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApply(), mp_agreement_return_review);
         if (null != ret) {
             return ret;
@@ -569,10 +567,10 @@ public class AgreementService {
         return reviewService.checkPerm(id, gid, applyPerm, reviewPerm, reviews);
     }
 
-    private RestResult createShippedComms(TAgreementOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<TAgreementCommodity> list) {
+    private RestResult createShippedComms(TAgreementOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> norms, List<Integer> values, List<TAgreementCommodity> list) {
         // 生成发货单
         int size = commoditys.size();
-        if (size != types.size() || size != values.size()) {
+        if (size != types.size() || size != weights.size() || size != norms.size() || size != values.size()) {
             return RestResult.fail("商品信息异常");
         }
         int sid = order.getSid();
@@ -582,25 +580,34 @@ public class AgreementService {
             // 获取商品单位信息
             int ctype = types.get(i);
             int cid = commoditys.get(i);
+            int weight = weights.get(i);
             int value = values.get(i);
             TStock stock = stockRepository.find(sid, ctype, cid);
             if (null == stock) {
-                return RestResult.fail("未查询到库存类型:" + types.get(i) + ",商品:" + commoditys.get(i));
+                return RestResult.fail("未查询到库存类型:" + ctype + ",商品:" + cid);
             }
-            if (stock.getValue() < value) {
-                return RestResult.fail("库存商品数量不足:" + types.get(i) + ",商品:" + commoditys.get(i));
+            if (weight > stock.getWeight()) {
+                return RestResult.fail("库存商品重量不足:" + ctype + ",商品:" + cid);
+            }
+            if (value > stock.getValue()) {
+                return RestResult.fail("库存商品件数不足:" + ctype + ",商品:" + cid);
             }
 
-            // 生成数据
             TAgreementCommodity c = new TAgreementCommodity();
             c.setCtype(ctype);
             c.setCid(cid);
+            if (weight == stock.getWeight()) {
+                c.setPrice(stock.getPrice());
+            } else {
+                c.setPrice(stock.getPrice().multiply(new BigDecimal(weight)).divide(new BigDecimal(stock.getWeight()), 2, RoundingMode.DOWN));
+            }
+            c.setWeight(weight);
+            c.setNorm(norms.get(i));
             c.setValue(value);
-            c.setPrice(stock.getPrice());
             list.add(c);
 
-            total = total + value;
-            price = price.add(stock.getPrice().multiply(new BigDecimal(value)));
+            total = total + weight;
+            price = price.add(c.getPrice());
         }
         order.setUnit(total);
         order.setPrice(price);
@@ -609,10 +616,10 @@ public class AgreementService {
         return null;
     }
 
-    private RestResult createReturnComms(TAgreementOrder order, int aid, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<TAgreementCommodity> list) {
+    private RestResult createReturnComms(TAgreementOrder order, int aid, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<TAgreementCommodity> list) {
         // 生成发货单
         int size = commoditys.size();
-        if (size != types.size() || size != values.size()) {
+        if (size != types.size() || size != weights.size() || size != values.size()) {
             return RestResult.fail("商品信息异常");
         }
         val agreementCommodities = agreementCommodityRepository.find(aid);
@@ -622,30 +629,35 @@ public class AgreementService {
         int total = 0;
         BigDecimal price = new BigDecimal(0);
         for (int i = 0; i < size; i++) {
-            // 获取商品单位信息
+            boolean find = false;
             int ctype = types.get(i);
             int cid = commoditys.get(i);
+            int weight = weights.get(i);
             int value = values.get(i);
-            boolean find = false;
             for (TAgreementCommodity ac : agreementCommodities) {
                 if (ac.getCtype() == ctype && ac.getCid() == cid) {
                     find = true;
+                    if (weight > ac.getWeight()) {
+                        return RestResult.fail("退货商品重量不能大于发货重量:" + ctype + ", 商品id:" + cid);
+                    }
+                    if (value > ac.getValue()) {
+                        return RestResult.fail("退货商品件数不能大于发货件数:" + ctype + ", 商品id:" + cid);
+                    }
 
-                    // 生成数据
                     TAgreementCommodity c = new TAgreementCommodity();
                     c.setCtype(ctype);
                     c.setCid(cid);
+                    if (weight == ac.getWeight()) {
+                        c.setPrice(ac.getPrice());
+                    } else {
+                        c.setPrice(ac.getPrice().multiply(new BigDecimal(weight)).divide(new BigDecimal(ac.getWeight()), 2, RoundingMode.DOWN));
+                    }
+                    c.setWeight(weight);
                     c.setValue(value);
-                    c.setPrice(ac.getPrice());
                     list.add(c);
 
-                    // 校验商品退货数不能大于发货单
-                    if (value > ac.getValue()) {
-                        return RestResult.fail("退货商品数量不能大于发货数量, 商品id:" + cid + ", 类型:" + ctype);
-                    }
-
-                    total = total + value;
-                    price = price.add(ac.getPrice().multiply(new BigDecimal(value)));
+                    total = total + weight;
+                    price = price.add(c.getPrice());
                     break;
                 }
             }

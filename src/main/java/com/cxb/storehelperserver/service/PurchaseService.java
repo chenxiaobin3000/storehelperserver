@@ -1171,9 +1171,10 @@ public class PurchaseService {
         BigDecimal price = new BigDecimal(0);
         for (int i = 0; i < size; i++) {
             // 获取商品单位信息
-            CommodityType type = CommodityType.valueOf(types.get(i));
+            int ctype = types.get(i);
             int cid = commoditys.get(i);
-            switch (type) {
+            int weight = weights.get(i);
+            switch (CommodityType.valueOf(ctype)) {
                 case ORIGINAL:
                     TOriginal original = originalRepository.find(cid);
                     if (null == original) {
@@ -1187,19 +1188,19 @@ public class PurchaseService {
                     }
                     break;
                 default:
-                    return RestResult.fail("商品类型异常：" + type);
+                    return RestResult.fail("商品类型异常：" + ctype);
             }
 
             TPurchaseCommodity c = new TPurchaseCommodity();
-            c.setCtype(type.getValue());
+            c.setCtype(ctype);
             c.setCid(cid);
             c.setPrice(prices.get(i));
-            c.setWeight(weights.get(i));
+            c.setWeight(weight);
             c.setNorm(norms.get(i));
             c.setValue(values.get(i));
             list.add(c);
 
-            total = total + weights.get(i);
+            total = total + weight;
             price = price.add(prices.get(i));
         }
         order.setUnit(total);
@@ -1226,11 +1227,12 @@ public class PurchaseService {
             boolean find = false;
             int ctype = types.get(i);
             int cid = commoditys.get(i);
+            int weight = weights.get(i);
             int value = values.get(i);
             for (TPurchaseCommodity pc : purchaseCommodities) {
                 if (pc.getCtype() == ctype && pc.getCid() == cid) {
                     find = true;
-                    if (weights.get(i) > pc.getWeight()) {
+                    if (weight > pc.getWeight()) {
                         return RestResult.fail("退货商品重量不能大于采购重量:" + ctype + ", 商品id:" + cid);
                     }
                     if (value > pc.getValue()) {
@@ -1241,7 +1243,7 @@ public class PurchaseService {
                     c.setCtype(ctype);
                     c.setCid(cid);
                     c.setPrice(prices.get(i));
-                    c.setWeight(weights.get(i));
+                    c.setWeight(weight);
                     c.setNorm(pc.getNorm());
                     c.setValue(value);
                     list.add(c);

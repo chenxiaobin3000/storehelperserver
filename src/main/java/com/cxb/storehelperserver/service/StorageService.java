@@ -715,7 +715,6 @@ public class StorageService {
         if (null != ret) {
             return ret;
         }
-
         if (!storageOrderRepository.update(order)) {
             return RestResult.fail("生成入库订单失败");
         }
@@ -1613,7 +1612,7 @@ public class StorageService {
             int value = values.get(i);
             TStock stock = stockRepository.find(sid, ctype, cid);
             if (null == stock) {
-                return RestResult.fail("未查询到库存类型:" + types.get(i) + ",商品:" + commoditys.get(i));
+                return RestResult.fail("未查询到库存类型:" + ctype + ",商品:" + cid);
             }
             if (weight > stock.getWeight()) {
                 return RestResult.fail("库存商品重量不足:" + ctype + ",商品:" + cid);
@@ -1625,7 +1624,11 @@ public class StorageService {
             TStorageCommodity c = new TStorageCommodity();
             c.setCtype(ctype);
             c.setCid(cid);
-            c.setPrice(stock.getPrice().multiply(new BigDecimal(weight)).divide(new BigDecimal(stock.getWeight()), 2, RoundingMode.DOWN));
+            if (weight == stock.getWeight()) {
+                c.setPrice(stock.getPrice());
+            } else {
+                c.setPrice(stock.getPrice().multiply(new BigDecimal(weight)).divide(new BigDecimal(stock.getWeight()), 2, RoundingMode.DOWN));
+            }
             c.setWeight(weight);
             c.setNorm(0);
             c.setValue(value);
@@ -1663,16 +1666,20 @@ public class StorageService {
                 if (sc.getCtype() == ctype && sc.getCid() == cid) {
                     find = true;
                     if (weight > sc.getWeight()) {
-                        return RestResult.fail("入库商品数量不能大于调度重量:" + ctype + ", 商品id:" + cid);
+                        return RestResult.fail("入库商品重量不能大于调度重量:" + ctype + ", 商品id:" + cid);
                     }
                     if (value > sc.getValue()) {
-                        return RestResult.fail("入库商品数量不能大于调度件数:" + ctype + ", 商品id:" + cid);
+                        return RestResult.fail("入库商品件数不能大于调度件数:" + ctype + ", 商品id:" + cid);
                     }
 
                     TStorageCommodity c = new TStorageCommodity();
                     c.setCtype(ctype);
                     c.setCid(cid);
-                    c.setPrice(sc.getPrice());
+                    if (weight == sc.getWeight()) {
+                        c.setPrice(sc.getPrice());
+                    } else {
+                        c.setPrice(sc.getPrice().multiply(new BigDecimal(weight)).divide(new BigDecimal(sc.getWeight()), 2, RoundingMode.DOWN));
+                    }
                     c.setWeight(weight);
                     c.setNorm(sc.getNorm());
                     c.setValue(value);

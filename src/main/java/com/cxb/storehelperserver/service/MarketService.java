@@ -4,6 +4,7 @@ import com.cxb.storehelperserver.model.*;
 import com.cxb.storehelperserver.repository.*;
 import com.cxb.storehelperserver.repository.model.MyMarketCommodity;
 import com.cxb.storehelperserver.repository.model.MyMarketSaleInfo;
+import com.cxb.storehelperserver.service.model.PageData;
 import com.cxb.storehelperserver.util.DateUtil;
 import com.cxb.storehelperserver.util.RestResult;
 import lombok.extern.slf4j.Slf4j;
@@ -101,10 +102,7 @@ public class MarketService {
         }
         int total = commodityRepository.total(group.getGid(), search);
         if (0 == total) {
-            val data = new HashMap<String, Object>();
-            data.put("total", 0);
-            data.put("list", null);
-            return RestResult.ok(data);
+            return RestResult.ok(new PageData());
         }
 
         val list = marketCommodityRepository.pagination(group.getGid(), page, limit, mid, search);
@@ -167,10 +165,7 @@ public class MarketService {
         }
         int total = standardRepository.total(group.getGid(), search);
         if (0 == total) {
-            val data = new HashMap<String, Object>();
-            data.put("total", 0);
-            data.put("list", null);
-            return RestResult.ok(data);
+            return RestResult.ok(new PageData());
         }
 
         val list = marketStandardRepository.pagination(group.getGid(), page, limit, mid, search);
@@ -248,10 +243,7 @@ public class MarketService {
         }
         int total = marketCommodityRepository.total(group.getGid(), mid, search);
         if (0 == total) {
-            val data = new HashMap<String, Object>();
-            data.put("total", 0);
-            data.put("list", null);
-            return RestResult.ok(data);
+            return RestResult.ok(new PageData());
         }
 
         val list = marketCommodityRepository.paginationDetail(group.getGid(), page, limit, mid, date, search);
@@ -318,10 +310,7 @@ public class MarketService {
         }
         int total = marketStandardRepository.total(group.getGid(), mid, search);
         if (0 == total) {
-            val data = new HashMap<String, Object>();
-            data.put("total", 0);
-            data.put("list", null);
-            return RestResult.ok(data);
+            return RestResult.ok(new PageData());
         }
 
         val list = marketStandardRepository.paginationDetail(group.getGid(), page, limit, mid, date, search);
@@ -345,10 +334,7 @@ public class MarketService {
         int gid = group.getGid();
         int total = commodityRepository.total(gid, search);
         if (0 == total) {
-            val data = new HashMap<String, Object>();
-            data.put("total", 0);
-            data.put("list", null);
-            return RestResult.ok(data);
+            return RestResult.ok(new PageData());
         }
 
         val commodities = commodityRepository.pagination(gid, page, limit, search);
@@ -403,11 +389,7 @@ public class MarketService {
             tmp.put("value", value);
             tmp.put("total", price2);
         }
-
-        val data = new HashMap<String, Object>();
-        data.put("total", total);
-        data.put("list", datas);
-        return RestResult.ok(data);
+        return RestResult.ok(new PageData(total, datas));
     }
 
     public RestResult getStandardSaleInfo(int id, int page, int limit, int mid, ReportCycleType cycle, String search) {
@@ -420,10 +402,7 @@ public class MarketService {
         int gid = group.getGid();
         int total = standardRepository.total(gid, search);
         if (0 == total) {
-            val data = new HashMap<String, Object>();
-            data.put("total", 0);
-            data.put("list", null);
-            return RestResult.ok(data);
+            return RestResult.ok(new PageData());
         }
 
         val standards = standardRepository.pagination(gid, page, limit, search);
@@ -478,10 +457,6 @@ public class MarketService {
             tmp.put("value", value);
             tmp.put("total", price2);
         }
-
-        val data = new HashMap<String, Object>();
-        data.put("total", total);
-        data.put("list", datas);
-        return RestResult.ok(data);
+        return RestResult.ok(new PageData(total, datas));
     }
 }

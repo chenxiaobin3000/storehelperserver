@@ -2,6 +2,7 @@ package com.cxb.storehelperserver.service;
 
 import com.cxb.storehelperserver.model.*;
 import com.cxb.storehelperserver.repository.*;
+import com.cxb.storehelperserver.service.model.PageData;
 import com.cxb.storehelperserver.util.DateUtil;
 import com.cxb.storehelperserver.util.RestResult;
 import lombok.extern.slf4j.Slf4j;
@@ -99,15 +100,12 @@ public class OrderService {
 
         int total = agreementOrderRepository.total(group.getGid(), type, review, search);
         if (0 == total) {
-            val data = new HashMap<String, Object>();
-            data.put("total", 0);
-            data.put("list", null);
-            return RestResult.ok(data);
+            return RestResult.ok(new PageData());
         }
 
         // 查询联系人
         SimpleDateFormat dateFormat = dateUtil.getDateFormat();
-        val list2 = new ArrayList<>();
+        val list2 = new ArrayList<HashMap<String, Object>>();
         val list = agreementOrderRepository.pagination(group.getGid(), type, page, limit, review, search);
         if (null != list && !list.isEmpty()) {
             for (TAgreementOrder o : list) {
@@ -123,11 +121,7 @@ public class OrderService {
                 list2.add(ret);
             }
         }
-
-        val data = new HashMap<String, Object>();
-        data.put("total", total);
-        data.put("list", list2);
-        return RestResult.ok(data);
+        return RestResult.ok(new PageData(total, list2));
     }
 
     public RestResult getCloudOrder(int id, int type, int page, int limit, ReviewType review, String search) {
@@ -139,15 +133,12 @@ public class OrderService {
 
         int total = cloudOrderRepository.total(group.getGid(), type, review, search);
         if (0 == total) {
-            val data = new HashMap<String, Object>();
-            data.put("total", 0);
-            data.put("list", null);
-            return RestResult.ok(data);
+            return RestResult.ok(new PageData());
         }
 
         // 查询联系人
         SimpleDateFormat dateFormat = dateUtil.getDateFormat();
-        val list2 = new ArrayList<>();
+        val list2 = new ArrayList<HashMap<String, Object>>();
         val list = cloudOrderRepository.pagination(group.getGid(), type, page, limit, review, search);
         if (null != list && !list.isEmpty()) {
             for (TCloudOrder o : list) {
@@ -163,11 +154,7 @@ public class OrderService {
                 list2.add(ret);
             }
         }
-
-        val data = new HashMap<String, Object>();
-        data.put("total", total);
-        data.put("list", list2);
-        return RestResult.ok(data);
+        return RestResult.ok(new PageData(total, list2));
     }
 
     public RestResult getProductOrder(int id, int type, int page, int limit, ReviewType review, String search) {
@@ -179,15 +166,12 @@ public class OrderService {
 
         int total = productOrderRepository.total(group.getGid(), type, review, search);
         if (0 == total) {
-            val data = new HashMap<String, Object>();
-            data.put("total", 0);
-            data.put("list", null);
-            return RestResult.ok(data);
+            return RestResult.ok(new PageData());
         }
 
         // 查询联系人
         SimpleDateFormat dateFormat = dateUtil.getDateFormat();
-        val list2 = new ArrayList<>();
+        val list2 = new ArrayList<HashMap<String, Object>>();
         val list = productOrderRepository.pagination(group.getGid(), type, page, limit, review, search);
         if (null != list && !list.isEmpty()) {
             for (TProductOrder o : list) {
@@ -202,11 +186,7 @@ public class OrderService {
                 list2.add(ret);
             }
         }
-
-        val data = new HashMap<String, Object>();
-        data.put("total", total);
-        data.put("list", list2);
-        return RestResult.ok(data);
+        return RestResult.ok(new PageData(total, list2));
     }
 
     public RestResult getPurchaseOrder(int id, int type, int page, int limit, ReviewType review, int complete, String search) {
@@ -218,15 +198,12 @@ public class OrderService {
 
         int total = purchaseOrderRepository.total(group.getGid(), type, review, complete, search);
         if (0 == total) {
-            val data = new HashMap<String, Object>();
-            data.put("total", 0);
-            data.put("list", null);
-            return RestResult.ok(data);
+            return RestResult.ok(new PageData());
         }
 
         // 查询联系人
         SimpleDateFormat dateFormat = dateUtil.getDateFormat();
-        val list2 = new ArrayList<>();
+        val list2 = new ArrayList<HashMap<String, Object>>();
         val list = purchaseOrderRepository.pagination(group.getGid(), type, page, limit, review, complete, search);
         if (null != list && !list.isEmpty()) {
             for (TPurchaseOrder o : list) {
@@ -242,11 +219,7 @@ public class OrderService {
                 list2.add(ret);
             }
         }
-
-        val data = new HashMap<String, Object>();
-        data.put("total", total);
-        data.put("list", list2);
-        return RestResult.ok(data);
+        return RestResult.ok(new PageData(total, list2));
     }
 
     public RestResult getStorageOrder(int id, int type, int page, int limit, ReviewType review, int complete, String search) {
@@ -258,15 +231,12 @@ public class OrderService {
 
         int total = storageOrderRepository.total(group.getGid(), type, review, complete, search);
         if (0 == total) {
-            val data = new HashMap<String, Object>();
-            data.put("total", 0);
-            data.put("list", null);
-            return RestResult.ok(data);
+            return RestResult.ok(new PageData());
         }
 
         // 查询联系人
         SimpleDateFormat dateFormat = dateUtil.getDateFormat();
-        val list2 = new ArrayList<>();
+        val list2 = new ArrayList<HashMap<String, Object>>();
         val list = storageOrderRepository.pagination(group.getGid(), type, page, limit, review, complete, search);
         if (null != list && !list.isEmpty()) {
             for (TStorageOrder o : list) {
@@ -282,25 +252,18 @@ public class OrderService {
                 list2.add(ret);
             }
         }
-
-        val data = new HashMap<String, Object>();
-        data.put("total", total);
-        data.put("list", list2);
-        return RestResult.ok(data);
+        return RestResult.ok(new PageData(total, list2));
     }
 
     public RestResult getMyWait(int id, int page, int limit, String search) {
         int total = userOrderApplyRepository.total(id, search);
         if (0 == total) {
-            val data = new HashMap<String, Object>();
-            data.put("total", 0);
-            data.put("list", null);
-            return RestResult.ok(data);
+            return RestResult.ok(new PageData());
         }
 
         // 查询联系人
         SimpleDateFormat dateFormat = dateUtil.getDateFormat();
-        val list2 = new ArrayList<>();
+        val list2 = new ArrayList<HashMap<String, Object>>();
         val list = userOrderApplyRepository.pagination(id, page, limit, search);
         if (null != list && !list.isEmpty()) {
             for (TUserOrderApply oa : list) {
@@ -408,25 +371,18 @@ public class OrderService {
                 }
             }
         }
-
-        val data = new HashMap<String, Object>();
-        data.put("total", total);
-        data.put("list", list2);
-        return RestResult.ok(data);
+        return RestResult.ok(new PageData(total, list2));
     }
 
     public RestResult getMyCheck(int id, int page, int limit, String search) {
         int total = userOrderReviewRepository.total(id, search);
         if (0 == total) {
-            val data = new HashMap<String, Object>();
-            data.put("total", 0);
-            data.put("list", null);
-            return RestResult.ok(data);
+            return RestResult.ok(new PageData());
         }
 
         // 查询联系人
         SimpleDateFormat dateFormat = dateUtil.getDateFormat();
-        val list2 = new ArrayList<>();
+        val list2 = new ArrayList<HashMap<String, Object>>();
         val list = userOrderReviewRepository.pagination(id, page, limit, search);
         if (null != list && !list.isEmpty()) {
             for (TUserOrderReview or : list) {
@@ -534,26 +490,19 @@ public class OrderService {
                 }
             }
         }
-
-        val data = new HashMap<String, Object>();
-        data.put("total", total);
-        data.put("list", list2);
-        return RestResult.ok(data);
+        return RestResult.ok(new PageData(total, list2));
     }
 
     public RestResult getMyComplete(int id, int page, int limit, String search) {
         // TODO 根据id查公司，根据权限查具体数据
         int total = userOrderCompleteRepository.total(id, id, search);
         if (0 == total) {
-            val data = new HashMap<String, Object>();
-            data.put("total", 0);
-            data.put("list", null);
-            return RestResult.ok(data);
+            return RestResult.ok(new PageData());
         }
 
         // 查询联系人
         SimpleDateFormat dateFormat = dateUtil.getDateFormat();
-        val list2 = new ArrayList<>();
+        val list2 = new ArrayList<HashMap<String, Object>>();
         val list = userOrderCompleteRepository.pagination(id, id, page, limit, search);
         if (null != list && !list.isEmpty()) {
             for (TUserOrderComplete oc : list) {
@@ -661,11 +610,7 @@ public class OrderService {
                 }
             }
         }
-
-        val data = new HashMap<String, Object>();
-        data.put("total", total);
-        data.put("list", list2);
-        return RestResult.ok(data);
+        return RestResult.ok(new PageData(total, list2));
     }
 
     public RestResult getOrder(int id, int type, int oid) {

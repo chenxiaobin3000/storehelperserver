@@ -8,6 +8,7 @@ import com.cxb.storehelperserver.repository.GroupDetailRepository;
 import com.cxb.storehelperserver.repository.GroupRepository;
 import com.cxb.storehelperserver.repository.UserGroupRepository;
 import com.cxb.storehelperserver.repository.UserRepository;
+import com.cxb.storehelperserver.service.model.PageData;
 import com.cxb.storehelperserver.util.DateUtil;
 import com.cxb.storehelperserver.util.RestResult;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +25,6 @@ import java.util.Date;
 import java.util.HashMap;
 
 import static com.cxb.storehelperserver.util.TypeDefine.FinanceAction;
-import static com.cxb.storehelperserver.util.TypeDefine.FinanceAction.*;
 
 /**
  * desc: 财务业务
@@ -61,10 +61,7 @@ public class FinanceService {
         }
         int total = groupDetailRepository.total(group.getGid(), action);
         if (0 == total) {
-            val data = new HashMap<String, Object>();
-            data.put("total", 0);
-            data.put("list", null);
-            return RestResult.ok(data);
+            return RestResult.ok(new PageData());
         }
 
         val list = groupDetailRepository.pagination(group.getGid(), page, limit, action);
@@ -90,11 +87,7 @@ public class FinanceService {
             explainAction(FinanceAction.valueOf(detail.getAction()), tmp);
             tmps.add(tmp);
         }
-
-        val data = new HashMap<String, Object>();
-        data.put("total", total);
-        data.put("list", tmps);
-        return RestResult.ok(data);
+        return RestResult.ok(new PageData(total, tmps));
     }
 
     public boolean insertRecord(int id, int gid, FinanceAction action, int aid, BigDecimal value) {

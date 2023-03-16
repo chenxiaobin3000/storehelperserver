@@ -89,7 +89,7 @@ public class CloudController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return cloudService.purchase(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
+        return cloudService.purchase(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/setPurchase")
@@ -101,7 +101,7 @@ public class CloudController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return cloudService.setPurchase(req.getId(), req.getOid(), applyTime, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
+        return cloudService.setPurchase(req.getId(), req.getOid(), applyTime, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/delPurchase")
@@ -141,7 +141,7 @@ public class CloudController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return cloudService.agreement(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
+        return cloudService.agreement(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/setAgreement")
@@ -153,7 +153,7 @@ public class CloudController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return cloudService.setAgreement(req.getId(), req.getOid(), applyTime, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
+        return cloudService.setAgreement(req.getId(), req.getOid(), applyTime, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/delAgreement")
@@ -194,7 +194,7 @@ public class CloudController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return cloudService.loss(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
+        return cloudService.loss(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/setLoss")
@@ -206,7 +206,7 @@ public class CloudController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return cloudService.setLoss(req.getId(), req.getOid(), req.getSid(), applyTime, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
+        return cloudService.setLoss(req.getId(), req.getOid(), req.getSid(), applyTime, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/delLoss")
@@ -246,7 +246,7 @@ public class CloudController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return cloudService.returnc(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
+        return cloudService.returnc(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getPrices(), req.getAttrs());
     }
 
     @PostMapping("/setReturn")
@@ -258,7 +258,7 @@ public class CloudController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return cloudService.setReturn(req.getId(), req.getOid(), applyTime, req.getTypes(), req.getCommoditys(), req.getValues(), req.getPrices(), req.getAttrs());
+        return cloudService.setReturn(req.getId(), req.getOid(), applyTime, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getPrices(), req.getAttrs());
     }
 
     @PostMapping("/delReturn")
@@ -298,7 +298,7 @@ public class CloudController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return cloudService.backc(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
+        return cloudService.backc(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/setBack")
@@ -310,7 +310,7 @@ public class CloudController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return cloudService.setBack(req.getId(), req.getOid(), applyTime, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
+        return cloudService.setBack(req.getId(), req.getOid(), applyTime, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/delBack")

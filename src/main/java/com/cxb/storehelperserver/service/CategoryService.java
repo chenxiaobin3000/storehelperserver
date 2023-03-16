@@ -4,6 +4,7 @@ import com.cxb.storehelperserver.model.TCategory;
 import com.cxb.storehelperserver.model.TUserGroup;
 import com.cxb.storehelperserver.repository.CategoryRepository;
 import com.cxb.storehelperserver.repository.UserGroupRepository;
+import com.cxb.storehelperserver.service.model.PageData;
 import com.cxb.storehelperserver.util.RestResult;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -146,9 +147,6 @@ public class CategoryService {
                 }
             }
         }
-
-        val data = new HashMap<String, Object>();
-        data.put("list", datas);
-        return RestResult.ok(data);
+        return RestResult.ok(new PageData(0, datas));
     }
 }
