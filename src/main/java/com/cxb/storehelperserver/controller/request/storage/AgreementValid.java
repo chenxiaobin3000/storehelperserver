@@ -20,7 +20,7 @@ public class AgreementValid implements IValid {
     private int id;
 
     @Min(value = 1, message = "履约单号错误")
-    private int aid;
+    private int rid;
 
     @NotEmpty(message = "请输入订单制单日期")
     @Length(min = 19, max = 19, message = "订单制单日期格式错误")

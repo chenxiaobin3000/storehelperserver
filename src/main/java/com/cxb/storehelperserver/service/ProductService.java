@@ -332,7 +332,7 @@ public class ProductService {
 
         // 生成完成单
         val comms = new ArrayList<TProductCommodity>();
-        ret = createCompleteComms(order, types, commoditys, values, weights, comms);
+        ret = createCompleteComms(order, types, commoditys, weights, values, comms);
         if (null != ret) {
             return ret;
         }
@@ -367,6 +367,7 @@ public class ProductService {
             return RestResult.fail("只能修改自己的订单");
         }
 
+        order.setApplyTime(applyTime);
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_product_complete_apply, mp_product_complete_review, reviews);
         if (null != ret) {
@@ -375,7 +376,7 @@ public class ProductService {
 
         // 生成进货单
         val comms = new ArrayList<TProductCommodity>();
-        ret = createCompleteComms(order, types, commoditys, values, weights, comms);
+        ret = createCompleteComms(order, types, commoditys, weights, values, comms);
         if (null != ret) {
             return ret;
         }
@@ -536,7 +537,7 @@ public class ProductService {
 
         // 生成损耗单
         val comms = new ArrayList<TProductCommodity>();
-        ret = createProcessComms(order, types, commoditys, values, weights, comms);
+        ret = createProcessComms(order, types, commoditys, weights, values, comms);
         if (null != ret) {
             return ret;
         }
@@ -589,7 +590,7 @@ public class ProductService {
 
         // 生成损耗单
         val comms = new ArrayList<TProductCommodity>();
-        ret = createProcessComms(order, types, commoditys, values, weights, comms);
+        ret = createProcessComms(order, types, commoditys, weights, values, comms);
         if (null != ret) {
             return ret;
         }

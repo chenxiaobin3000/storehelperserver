@@ -5,6 +5,7 @@ import com.cxb.storehelperserver.model.TCloudDetail;
 import com.cxb.storehelperserver.model.TCloudDetailExample;
 import com.cxb.storehelperserver.repository.mapper.MyCloudDetailMapper;
 import com.cxb.storehelperserver.repository.model.MyStockDetail;
+import com.cxb.storehelperserver.util.TypeDefine;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
@@ -47,9 +48,20 @@ public class CloudDetailRepository extends BaseRepository<TCloudDetail> {
         return stock;
     }
 
-    public int total(int gid, int sid, String search) {
+    public int total(int gid, int sid, int ctype, String search) {
         if (null != search) {
-            return myCloudDetailMapper.count(gid, sid, "%" + search + "%");
+            switch (TypeDefine.CommodityType.valueOf(ctype)) {
+                case COMMODITY:
+                    return myCloudDetailMapper.count_commodity(gid, sid, "%" + search + "%");
+                case HALFGOOD:
+                    return myCloudDetailMapper.count_halfgood(gid, sid, "%" + search + "%");
+                case ORIGINAL:
+                    return myCloudDetailMapper.count_original(gid, sid, "%" + search + "%");
+                case STANDARD:
+                    return myCloudDetailMapper.count_standard(gid, sid, "%" + search + "%");
+                default:
+                    return 0;
+            }
         } else {
             int total = getTotalCache(joinKey(gid, sid));
             if (0 != total) {
@@ -63,11 +75,22 @@ public class CloudDetailRepository extends BaseRepository<TCloudDetail> {
         }
     }
 
-    public List<MyStockDetail> pagination(int gid, int sid, int page, int limit, String search) {
+    public List<MyStockDetail> pagination(int gid, int sid, int page, int limit, int ctype, String search) {
+        String key = null;
         if (null != search) {
-            return myCloudDetailMapper.pagination((page - 1) * limit, limit, gid, sid, "%" + search + "%");
-        } else {
-            return myCloudDetailMapper.pagination((page - 1) * limit, limit, gid, sid, null);
+            key = "%" + search + "%";
+        }
+        switch (TypeDefine.CommodityType.valueOf(ctype)) {
+            case COMMODITY:
+                return myCloudDetailMapper.pagination_commodity((page - 1) * limit, limit, gid, sid, key);
+            case HALFGOOD:
+                return myCloudDetailMapper.pagination_halfgood((page - 1) * limit, limit, gid, sid, key);
+            case ORIGINAL:
+                return myCloudDetailMapper.pagination_original((page - 1) * limit, limit, gid, sid, key);
+            case STANDARD:
+                return myCloudDetailMapper.pagination_standard((page - 1) * limit, limit, gid, sid, key);
+            default:
+                return null;
         }
     }
 

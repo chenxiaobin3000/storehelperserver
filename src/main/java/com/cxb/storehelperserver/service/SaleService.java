@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -62,7 +63,7 @@ public class SaleService {
     /**
      * desc: 销售售后
      */
-    public RestResult returnc(int id, TSaleOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<Integer> attrs) {
+    public RestResult returnc(int id, TSaleOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_sale_return_apply, mp_sale_return_review, reviews);
         if (null != ret) {
@@ -71,7 +72,7 @@ public class SaleService {
 
         // 生成售后单
         val comms = new ArrayList<TSaleCommodity>();
-        ret = createReturnComms(order, types, commoditys, values, comms);
+        ret = createReturnComms(order, types, commoditys, weights, values, comms);
         if (null != ret) {
             return ret;
         }
@@ -93,7 +94,7 @@ public class SaleService {
     /**
      * desc: 销售售后修改
      */
-    public RestResult setReturn(int id, int oid, int sid, Date applyTime, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<Integer> attrs) {
+    public RestResult setReturn(int id, int oid, int sid, Date applyTime, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
         // 已经审核的订单不能修改
         TSaleOrder order = saleOrderRepository.find(oid);
         if (null == order) {
@@ -124,11 +125,10 @@ public class SaleService {
 
         // 生成售后单
         val comms = new ArrayList<TSaleCommodity>();
-        ret = createReturnComms(order, types, commoditys, values, comms);
+        ret = createReturnComms(order, types, commoditys, weights, values, comms);
         if (null != ret) {
             return ret;
         }
-
         if (!saleOrderRepository.update(order)) {
             return RestResult.fail("生成售后订单失败");
         }
@@ -297,34 +297,41 @@ public class SaleService {
         return reviewService.checkPerm(id, gid, applyPerm, reviewPerm, reviews);
     }
 
-    private RestResult createReturnComms(TSaleOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> values, List<TSaleCommodity> list) {
-        // 生成发货单
+    private RestResult createReturnComms(TSaleOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<TSaleCommodity> list) {
+        // 生成售后单
         int size = commoditys.size();
-        if (size != types.size() || size != values.size()) {
+        if (size != types.size() || size != weights.size() || size != values.size()) {
             return RestResult.fail("商品信息异常");
         }
         int sid = order.getSid();
         int total = 0;
         BigDecimal price = new BigDecimal(0);
         for (int i = 0; i < size; i++) {
-            // 获取商品单位信息
             int ctype = types.get(i);
             int cid = commoditys.get(i);
+            int weight = weights.get(i);
             int value = values.get(i);
             TCloudStock stock = cloudStockRepository.find(sid, ctype, cid);
             if (null == stock) {
-                return RestResult.fail("未查询到库存类型:" + types.get(i) + ",商品:" + commoditys.get(i));
+                return RestResult.fail("未查询到库存类型:" + ctype + ",商品:" + cid);
             }
-            if (stock.getValue() < value) {
-                return RestResult.fail("库存商品数量不足:" + types.get(i) + ",商品:" + commoditys.get(i));
+            if (weight > stock.getWeight()) {
+                return RestResult.fail("库存商品重量不足:" + ctype + ",商品:" + cid);
+            }
+            if (value > stock.getValue()) {
+                return RestResult.fail("库存商品件数不足:" + ctype + ",商品:" + cid);
             }
 
-            // 生成数据
             TSaleCommodity c = new TSaleCommodity();
             c.setCtype(ctype);
             c.setCid(cid);
+            if (weight == stock.getWeight()) {
+                c.setPrice(stock.getPrice());
+            } else {
+                c.setPrice(stock.getPrice().multiply(new BigDecimal(weight)).divide(new BigDecimal(stock.getWeight()), 2, RoundingMode.DOWN));
+            }
+            c.setWeight(weight);
             c.setValue(value);
-            c.setPrice(stock.getPrice());
             list.add(c);
 
             total = total + value;

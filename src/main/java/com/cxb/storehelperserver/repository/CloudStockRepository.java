@@ -80,12 +80,12 @@ public class CloudStockRepository extends BaseRepository<TCloudStock> {
         }
     }
 
-    public List<MyStockCommodity> pagination(int gid, int sid, int page, int limit, CommodityType type, String search) {
+    public List<MyStockCommodity> pagination(int gid, int sid, int page, int limit, int type, String search) {
         String key = null;
         if (null != search) {
             key = "%" + search + "%";
         }
-        switch (type) {
+        switch (CommodityType.valueOf(type)) {
             case COMMODITY:
                 return myCloudStockMapper.pagination_commodity((page - 1) * limit, limit, gid, sid, key);
             case HALFGOOD:

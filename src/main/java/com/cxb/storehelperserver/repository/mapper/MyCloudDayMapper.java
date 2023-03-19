@@ -34,8 +34,8 @@ public interface MyCloudDayMapper {
     List<MyStockCommodity> pagination(int offset, int limit, int gid, int sid, Date date, String search);
 
     @Select({"<script>",
-            "select sid as id, sum(weight) as total, cdate from t_stock_commodity_day where gid = #{gid}",
+            "select sid as id, sum(weight) as total, cdate from t_stock_commodity_day where gid = #{gid} <if test='0 != sid'>and sid = #{sid}</if>",
             "and cdate <![CDATA[ >= ]]> #{start} and cdate <![CDATA[ < ]]> #{end} group by sid, cdate",
             "</script>"})
-    List<MyStockReport> selectReport(int gid, Date start, Date end);
+    List<MyStockReport> selectReport(int gid, int sid, int ctype, Date start, Date end);
 }

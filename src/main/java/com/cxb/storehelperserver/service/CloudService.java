@@ -2,7 +2,6 @@ package com.cxb.storehelperserver.service;
 
 import com.cxb.storehelperserver.model.*;
 import com.cxb.storehelperserver.repository.*;
-import com.cxb.storehelperserver.repository.model.MyOrderCommodity;
 import com.cxb.storehelperserver.util.DateUtil;
 import com.cxb.storehelperserver.util.RestResult;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +16,7 @@ import java.util.*;
 
 import static com.cxb.storehelperserver.util.Permission.*;
 import static com.cxb.storehelperserver.util.TypeDefine.FinanceAction.*;
-import static com.cxb.storehelperserver.util.TypeDefine.OrderType.PURCHASE_PURCHASE_ORDER;
+import static com.cxb.storehelperserver.util.TypeDefine.OrderType.*;
 
 /**
  * desc: 损耗业务
@@ -101,7 +100,7 @@ public class CloudService {
         if (null == purchaseOrder) {
             return RestResult.fail("未查询到采购单");
         }
-        if (!purchaseOrder.getOtype().equals(PURCHASE_PURCHASE_ORDER.getValue())) {
+        if (!purchaseOrder.getOtype().equals(PURCHASE_PURCHASE2_ORDER.getValue())) {
             return RestResult.fail("进货单据类型异常");
         }
         if (null == purchaseOrder.getReview()) {
@@ -250,7 +249,7 @@ public class CloudService {
         }
 
         // 增加库存
-        String msg = cloudStockService.handlePurchaseStock(order, purchase, true);
+        String msg = cloudStockService.handlePurchaseStock(order, true);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -278,10 +277,7 @@ public class CloudService {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
-        TPurchaseOrder purchase = purchaseOrderRepository.find(order.getOid());
-        if (null == purchase) {
-            return RestResult.fail("未查询到对应的采购单");
-        }
+        // TODO 还原扣除的采购单数量
 
         RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApply(), mp_cloud_purchase_review);
         if (null != ret) {
@@ -299,7 +295,7 @@ public class CloudService {
         }
 
         // 减少库存
-        msg = cloudStockService.handlePurchaseStock(order, purchase, false);
+        msg = cloudStockService.handlePurchaseStock(order, false);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -364,7 +360,7 @@ public class CloudService {
         if (null == agreementOrder) {
             return RestResult.fail("未查询到发货单");
         }
-        if (!agreementOrder.getOtype().equals(PURCHASE_PURCHASE_ORDER.getValue())) {
+        if (!agreementOrder.getOtype().equals(AGREEMENT_SHIPPED_ORDER.getValue())) {
             return RestResult.fail("进货单据类型异常");
         }
         if (null == agreementOrder.getReview()) {
@@ -381,7 +377,7 @@ public class CloudService {
 
         // 生成入库单
         val comms = new ArrayList<TCloudCommodity>();
-        ret = createAgreementComms(order, order.getOid(), types, commoditys, values, comms);
+        ret = createAgreementComms(order, order.getOid(), types, commoditys, weights, values, comms);
         if (null != ret) {
             return ret;
         }
@@ -425,11 +421,10 @@ public class CloudService {
 
         // 生成入库单
         val comms = new ArrayList<TCloudCommodity>();
-        ret = createAgreementComms(order, order.getOid(), types, commoditys, values, comms);
+        ret = createAgreementComms(order, order.getOid(), types, commoditys, values, weights, comms);
         if (null != ret) {
             return ret;
         }
-
         if (!cloudOrderRepository.update(order)) {
             return RestResult.fail("生成入库订单失败");
         }
@@ -491,6 +486,9 @@ public class CloudService {
         if (unit < 0) {
             return RestResult.fail("入库商品总量不能超出发货订单总量");
         }
+        if (0 == unit) {
+            agreement.setComplete(new Byte("1"));
+        }
         agreement.setCurUnit(unit);
         if (!agreementOrderRepository.update(agreement)) {
             return RestResult.fail("修改进货单数据失败");
@@ -510,7 +508,7 @@ public class CloudService {
         }
 
         // 增加库存
-        String msg = cloudStockService.handleAgreementStock(order, agreement, true);
+        String msg = cloudStockService.handlePurchaseStock(order, true);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -538,10 +536,7 @@ public class CloudService {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
-        TAgreementOrder agreement = agreementOrderRepository.find(order.getOid());
-        if (null == agreement) {
-            return RestResult.fail("未查询到对应的发货单");
-        }
+        // TODO 还原扣除的采购单数量
 
         RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApply(), mp_cloud_agreement_review);
         if (null != ret) {
@@ -559,7 +554,7 @@ public class CloudService {
         }
 
         // 减少库存
-        msg = cloudStockService.handleAgreementStock(order, agreement, false);
+        msg = cloudStockService.handlePurchaseStock(order, false);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -586,7 +581,7 @@ public class CloudService {
 
         // 生成损耗单
         val comms = new ArrayList<TCloudCommodity>();
-        ret = createLossComms(order, types, commoditys, values, comms);
+        ret = createLossComms(order, types, commoditys, weights, values, comms);
         if (null != ret) {
             return ret;
         }
@@ -639,11 +634,10 @@ public class CloudService {
 
         // 生成损耗单
         val comms = new ArrayList<TCloudCommodity>();
-        ret = createLossComms(order, types, commoditys, values, comms);
+        ret = createLossComms(order, types, commoditys, weights, values, comms);
         if (null != ret) {
             return ret;
         }
-
         if (!cloudOrderRepository.update(order)) {
             return RestResult.fail("生成损耗订单失败");
         }
@@ -706,7 +700,7 @@ public class CloudService {
         }
 
         // 减少库存
-        String msg = cloudStockService.handleLossStock(order, false);
+        String msg = cloudStockService.handleCloudStock(order, false);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -745,7 +739,7 @@ public class CloudService {
         }
 
         // 增加库存
-        msg = cloudStockService.handleLossStock(order, true);
+        msg = cloudStockService.handleCloudStock(order, true);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -770,7 +764,7 @@ public class CloudService {
         if (null == purchaseOrder) {
             return RestResult.fail("未查询到采购单");
         }
-        if (!purchaseOrder.getOtype().equals(PURCHASE_PURCHASE_ORDER.getValue())) {
+        if (!purchaseOrder.getOtype().equals(PURCHASE_RETURN2_ORDER.getValue())) {
             return RestResult.fail("进货单据类型异常");
         }
         if (null == purchaseOrder.getReview()) {
@@ -790,7 +784,7 @@ public class CloudService {
 
         // 生成退货单
         val comms = new ArrayList<TCloudCommodity>();
-        ret = createReturnComms(order, order.getOid(), types, commoditys, values, prices, comms);
+        ret = createReturnComms(order, order.getOid(), types, commoditys, prices, weights, values, comms);
         if (null != ret) {
             return ret;
         }
@@ -834,11 +828,10 @@ public class CloudService {
 
         // 生成退货单
         val comms = new ArrayList<TCloudCommodity>();
-        ret = createReturnComms(order, order.getOid(), types, commoditys, values, prices, comms);
+        ret = createReturnComms(order, order.getOid(), types, commoditys, prices, weights, values, comms);
         if (null != ret) {
             return ret;
         }
-
         if (!cloudOrderRepository.update(order)) {
             return RestResult.fail("生成退货订单失败");
         }
@@ -893,6 +886,7 @@ public class CloudService {
         }
 
         // 校验退货订单总价格和总量不能超出采购单
+        // 注意: 云仓退货不修改进货单信息
         TPurchaseOrder purchase = purchaseOrderRepository.find(order.getOid());
         if (null == purchase) {
             return RestResult.fail("未查询到对应的进货单");
@@ -904,14 +898,6 @@ public class CloudService {
         BigDecimal price = purchase.getCurPrice().subtract(order.getPrice());
         if (price.compareTo(BigDecimal.ZERO) < 0) {
             return RestResult.fail("退货商品总价不能超出采购订单总价");
-        }
-        if (0 == unit) {
-            purchase.setComplete(new Byte("1"));
-        }
-        purchase.setCurUnit(unit);
-        purchase.setCurPrice(price);
-        if (!purchaseOrderRepository.update(purchase)) {
-            return RestResult.fail("修改进货单数据失败");
         }
 
         // 添加审核信息
@@ -928,7 +914,7 @@ public class CloudService {
         }
 
         // 减少库存
-        String msg = cloudStockService.handleLossStock(order, false);
+        String msg = cloudStockService.handleCloudStock(order, false);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -976,8 +962,6 @@ public class CloudService {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
-        // TODO 还原扣除的采购单数量
-
         RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApply(), mp_cloud_return_review);
         if (null != ret) {
             return ret;
@@ -994,7 +978,7 @@ public class CloudService {
         }
 
         // 增加库存
-        msg = cloudStockService.handleLossStock(order, true);
+        msg = cloudStockService.handleCloudStock(order, true);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -1105,7 +1089,7 @@ public class CloudService {
         if (null == agreementOrder) {
             return RestResult.fail("未查询到履约单");
         }
-        if (!agreementOrder.getOtype().equals(PURCHASE_PURCHASE_ORDER.getValue())) {
+        if (!agreementOrder.getOtype().equals(AGREEMENT_SHIPPED_ORDER.getValue())) {
             return RestResult.fail("进货单据类型异常");
         }
         if (null == agreementOrder.getReview()) {
@@ -1125,7 +1109,7 @@ public class CloudService {
 
         // 生成退货单
         val comms = new ArrayList<TCloudCommodity>();
-        ret = createBackComms(order, order.getOid(), types, commoditys, values, comms);
+        ret = createAgreementComms(order, order.getOid(), types, commoditys, weights, values, comms);
         if (null != ret) {
             return ret;
         }
@@ -1169,7 +1153,7 @@ public class CloudService {
 
         // 生成退货单
         val comms = new ArrayList<TCloudCommodity>();
-        ret = createBackComms(order, order.getOid(), types, commoditys, values, comms);
+        ret = createAgreementComms(order, order.getOid(), types, commoditys, weights, values, comms);
         if (null != ret) {
             return ret;
         }
@@ -1228,6 +1212,7 @@ public class CloudService {
         }
 
         // 校验退货订单总价格和总量不能超出采购单
+        // 注意: 履约退货不修改发货单信息
         TAgreementOrder agreement = agreementOrderRepository.find(order.getOid());
         if (null == agreement) {
             return RestResult.fail("未查询到对应的履约单");
@@ -1239,11 +1224,6 @@ public class CloudService {
         BigDecimal price = agreement.getCurPrice().subtract(order.getPrice());
         if (price.compareTo(BigDecimal.ZERO) < 0) {
             return RestResult.fail("退货商品总价不能超出履约订单总价");
-        }
-        agreement.setCurUnit(unit);
-        agreement.setCurPrice(price);
-        if (!agreementOrderRepository.update(agreement)) {
-            return RestResult.fail("修改履约单数据失败");
         }
 
         // TODO 履约数量为0时，标记履约完成
@@ -1262,7 +1242,7 @@ public class CloudService {
         }
 
         // 减少库存
-        String msg = cloudStockService.handleLossStock(order, false);
+        String msg = cloudStockService.handleCloudStock(order, false);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -1310,8 +1290,6 @@ public class CloudService {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
-        // TODO 还原扣除的履约单数量
-
         RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApply(), mp_cloud_return_review);
         if (null != ret) {
             return ret;
@@ -1328,7 +1306,7 @@ public class CloudService {
         }
 
         // 增加库存
-        msg = cloudStockService.handleLossStock(order, true);
+        msg = cloudStockService.handleCloudStock(order, true);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -1443,29 +1421,35 @@ public class CloudService {
         int total = 0;
         BigDecimal price = new BigDecimal(0);
         for (int i = 0; i < size; i++) {
-            // 获取商品单位信息
             boolean find = false;
             int ctype = types.get(i);
             int cid = commoditys.get(i);
+            int weight = weights.get(i);
+            int value = values.get(i);
             for (TAgreementCommodity ac : agreementCommodities) {
                 if (ac.getCtype() == ctype && ac.getCid() == cid) {
                     find = true;
-                    // 生成数据
-                    int value = values.get(i);
+                    if (weight > ac.getWeight()) {
+                        return RestResult.fail("入库商品重量不能大于履约重量:" + ctype + ", 商品id:" + cid);
+                    }
+                    if (value > ac.getValue()) {
+                        return RestResult.fail("入库商品件数不能大于履约件数:" + ctype + ", 商品id:" + cid);
+                    }
+
                     TCloudCommodity c = new TCloudCommodity();
                     c.setCtype(ctype);
                     c.setCid(cid);
+                    if (weight == ac.getWeight()) {
+                        c.setPrice(ac.getPrice());
+                    } else {
+                        c.setPrice(ac.getPrice().multiply(new BigDecimal(weight)).divide(new BigDecimal(ac.getWeight()), 2, RoundingMode.DOWN));
+                    }
+                    c.setWeight(weight);
                     c.setValue(value);
-                    c.setPrice(ac.getPrice());
                     list.add(c);
 
-                    // 校验商品入库数不能大于发货单
-                    if (value > ac.getValue()) {
-                        return RestResult.fail("入库商品数量不能大于发货数量, 商品id:" + cid + ", 类型:" + ctype);
-                    }
-
-                    total = total + ac.getNorm() * value;
-                    price = price.add(ac.getPrice().multiply(new BigDecimal(ac.getNorm() * value)));
+                    total = total + weight;
+                    price = price.add(c.getPrice());
                     break;
                 }
             }
@@ -1490,28 +1474,35 @@ public class CloudService {
         int total = 0;
         BigDecimal price = new BigDecimal(0);
         for (int i = 0; i < size; i++) {
-            // 获取商品单位信息
             int ctype = types.get(i);
             int cid = commoditys.get(i);
+            int weight = weights.get(i);
             int value = values.get(i);
             TCloudStock stock = cloudStockRepository.find(sid, ctype, cid);
             if (null == stock) {
-                return RestResult.fail("未查询到库存类型:" + types.get(i) + ",商品:" + commoditys.get(i));
+                return RestResult.fail("未查询到库存类型:" + ctype + ",商品:" + cid);
             }
-            if (stock.getValue() < value) {
-                return RestResult.fail("库存商品数量不足:" + types.get(i) + ",商品:" + commoditys.get(i));
+            if (weight > stock.getWeight()) {
+                return RestResult.fail("库存商品重量不足:" + ctype + ",商品:" + cid);
+            }
+            if (value > stock.getValue()) {
+                return RestResult.fail("库存商品件数不足:" + ctype + ",商品:" + cid);
             }
 
-            // 生成数据
             TCloudCommodity c = new TCloudCommodity();
             c.setCtype(ctype);
             c.setCid(cid);
+            if (weight == stock.getWeight()) {
+                c.setPrice(stock.getPrice());
+            } else {
+                c.setPrice(stock.getPrice().multiply(new BigDecimal(weight)).divide(new BigDecimal(stock.getWeight()), 2, RoundingMode.DOWN));
+            }
+            c.setWeight(weight);
             c.setValue(value);
-            c.setPrice(stock.getPrice());
             list.add(c);
 
-            total = total + value;
-            price = price.add(stock.getPrice().multiply(new BigDecimal(value)));
+            total = total + weight;
+            price = price.add(c.getPrice());
         }
         order.setUnit(total);
         order.setPrice(price);
@@ -1533,79 +1524,31 @@ public class CloudService {
         int total = 0;
         BigDecimal price = new BigDecimal(0);
         for (int i = 0; i < size; i++) {
-            // 获取商品单位信息
             boolean find = false;
             int ctype = types.get(i);
             int cid = commoditys.get(i);
+            int weight = weights.get(i);
+            int value = values.get(i);
             for (TPurchaseCommodity pc : purchaseCommodities) {
                 if (pc.getCtype() == ctype && pc.getCid() == cid) {
                     find = true;
-                    // 生成数据
-                    int value = values.get(i);
-                    // 校验商品退货数不能大于采购单
+                    if (weight > pc.getWeight()) {
+                        return RestResult.fail("退货商品重量不能大于采购重量:" + ctype + ", 商品id:" + cid);
+                    }
                     if (value > pc.getValue()) {
-                        return RestResult.fail("退货商品数量不能大于采购数量, 商品id:" + cid + ", 类型:" + ctype);
+                        return RestResult.fail("退货商品件数不能大于采购件数:" + ctype + ", 商品id:" + cid);
                     }
 
                     TCloudCommodity c = new TCloudCommodity();
                     c.setCtype(ctype);
                     c.setCid(cid);
-                    c.setValue(value);
                     c.setPrice(prices.get(i));
-                    list.add(c);
-
-                    total = total + pc.getNorm() * value;
-                    price = price.add(prices.get(i).multiply(new BigDecimal(pc.getNorm() * value)));
-                    break;
-                }
-            }
-            if (!find) {
-                return RestResult.fail("未查询到商品id:" + cid + ", 类型:" + ctype);
-            }
-        }
-        order.setUnit(total);
-        order.setPrice(price);
-        order.setCurUnit(total);
-        order.setCurPrice(price);
-        return null;
-    }
-
-    private RestResult createBackComms(TCloudOrder order, int rid, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<TCloudCommodity> list) {
-        // 生成退货单
-        int size = commoditys.size();
-        if (size != types.size() || size != weights.size() || size != values.size()) {
-            return RestResult.fail("商品信息异常");
-        }
-        val agreementCommodities = agreementCommodityRepository.find(rid);
-        if (null == agreementCommodities || agreementCommodities.isEmpty()) {
-            return RestResult.fail("未查询到履约商品信息");
-        }
-        int total = 0;
-        BigDecimal price = new BigDecimal(0);
-        for (int i = 0; i < size; i++) {
-            // 获取商品单位信息
-            boolean find = false;
-            int ctype = types.get(i);
-            int cid = commoditys.get(i);
-            for (TAgreementCommodity ac : agreementCommodities) {
-                if (ac.getCtype() == ctype && ac.getCid() == cid) {
-                    find = true;
-                    // 生成数据
-                    int value = values.get(i);
-                    // 校验商品退货数不能大于发货单
-                    if (value > ac.getValue()) {
-                        return RestResult.fail("退货商品数量不能大于发货数量, 商品id:" + cid + ", 类型:" + ctype);
-                    }
-
-                    TCloudCommodity c = new TCloudCommodity();
-                    c.setCtype(ctype);
-                    c.setCid(cid);
+                    c.setWeight(weight);
                     c.setValue(value);
-                    c.setPrice(ac.getPrice());
                     list.add(c);
 
-                    total = total + ac.getNorm() * value;
-                    price = price.add(ac.getPrice().multiply(new BigDecimal(ac.getNorm() * value)));
+                    total = total + weight;
+                    price = price.add(c.getPrice());
                     break;
                 }
             }

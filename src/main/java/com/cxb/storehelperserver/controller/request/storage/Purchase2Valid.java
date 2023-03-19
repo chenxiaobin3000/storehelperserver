@@ -23,7 +23,7 @@ public class Purchase2Valid implements IValid {
     private int sid;
 
     @Min(value = 1, message = "调度单号错误")
-    private int did;
+    private int pid;
 
     @NotEmpty(message = "请输入订单制单日期")
     @Length(min = 19, max = 19, message = "订单制单日期格式错误")

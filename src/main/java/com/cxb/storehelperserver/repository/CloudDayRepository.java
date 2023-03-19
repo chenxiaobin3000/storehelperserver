@@ -37,8 +37,8 @@ public class CloudDayRepository extends BaseRepository<TCloudDay> {
         return cloudDayMapper.selectOneByExample(example);
     }
 
-    public List<MyStockReport> findReport(int gid, Date start, Date end) {
-        return myCloudDayMapper.selectReport(gid, new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
+    public List<MyStockReport> findReport(int gid, int sid, int ctype, Date start, Date end) {
+        return myCloudDayMapper.selectReport(gid, sid, ctype, new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
     }
 
     public int total(int gid, int sid, Date date, String search) {

@@ -165,7 +165,6 @@ public class StorageService {
         if (null != ret) {
             return ret;
         }
-
         if (!storageOrderRepository.update(order)) {
             return RestResult.fail("生成入库订单失败");
         }
@@ -870,7 +869,7 @@ public class StorageService {
         if (null == agreement) {
             return RestResult.fail("未查询到履约单");
         }
-        if (!agreement.getOtype().equals(AGREEMENT_RETURN_ORDER.getValue())) {
+        if (!agreement.getOtype().equals(CLOUD_BACK_ORDER.getValue())) {
             return RestResult.fail("退货单据类型异常");
         }
         if (null == agreement.getReview()) {
@@ -1475,8 +1474,6 @@ public class StorageService {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
-        // TODO 还原扣除的采购单数量
-
         RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApply(), mp_storage_return_review);
         if (null != ret) {
             return ret;
@@ -1761,7 +1758,7 @@ public class StorageService {
     private RestResult createReturnComms(TStorageOrder order, int pid, List<Integer> types, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<Integer> values, List<TStorageCommodity> list) {
         // 生成入库单
         int size = commoditys.size();
-        if (size != types.size() || size != weights.size() || size != values.size()) {
+        if (size != types.size() || size != prices.size() || size != weights.size() || size != values.size()) {
             return RestResult.fail("商品信息异常");
         }
         val purchaseCommodities = purchaseCommodityRepository.find(pid);

@@ -50,26 +50,22 @@ public class StockController {
 
     @PostMapping("/getCloudList")
     public RestResult getCloudList(@Validated @RequestBody GetCloudListValid req) {
-        return null;
-        //return cloudStockService.getCloudList(req.getId(), req.getSid(), req.getCtype(), req.getPage(), req.getLimit(), req.getSearch());
+        return cloudStockService.getStockList(req.getId(), req.getSid(), req.getCtype(), req.getPage(), req.getLimit(), req.getSearch());
     }
 
     @PostMapping("/getCloudDetail")
     public RestResult getCloudDetail(@Validated @RequestBody GetCloudDetailValid req) {
-        return null;
-        //return cloudStockService.getCloudDetail(req.getId(), req.getSid(), req.getCtype(), req.getPage(), req.getLimit(), req.getSearch());
+        return cloudStockService.getStockDetail(req.getId(), req.getSid(), req.getCtype(), req.getPage(), req.getLimit(), req.getSearch());
     }
 
     @PostMapping("/getCloudDay")
     public RestResult getCloudDay(@Validated @RequestBody GetCloudDayValid req) {
-        return null;
-        // return cloudStockService.getCloudDay(req.getId(), req.getGid(), req.getSid(), req.getCtype());
+        return cloudStockService.getStockDay(req.getId(), req.getGid(), req.getSid(), req.getCtype());
     }
 
     @PostMapping("/getCloudWeek")
     public RestResult getCloudWeek(@Validated @RequestBody GetCloudWeekValid req) {
-        return null;
-        // return cloudStockService.getCloudWeek(req.getId(), req.getGid(), req.getSid(), req.getCtype());
+        return cloudStockService.getStockWeek(req.getId(), req.getGid(), req.getSid(), req.getCtype());
     }
 
     @PostMapping("/countStock")

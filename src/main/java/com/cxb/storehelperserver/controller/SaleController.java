@@ -47,7 +47,7 @@ public class SaleController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return saleService.returnc(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
+        return saleService.returnc(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/setReturn")
@@ -59,7 +59,7 @@ public class SaleController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return saleService.setReturn(req.getId(), req.getOid(), req.getSid(), applyTime, req.getTypes(), req.getCommoditys(), req.getValues(), req.getAttrs());
+        return saleService.setReturn(req.getId(), req.getOid(), req.getSid(), applyTime, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/delReturn")

@@ -192,7 +192,7 @@ public class StorageController {
         order.setSid(req.getSid());
         order.setOtype(STORAGE_PURCHASE2_ORDER.getValue());
         order.setApply(req.getId());
-        order.setOid(req.getDid());
+        order.setOid(req.getPid());
         order.setComplete(new Byte("0"));
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));
@@ -245,7 +245,7 @@ public class StorageController {
         TStorageOrder order = new TStorageOrder();
         order.setOtype(STORAGE_AGREEMENT_ORDER.getValue());
         order.setApply(req.getId());
-        order.setOid(req.getAid());
+        order.setOid(req.getRid());
         order.setComplete(new Byte("0"));
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));

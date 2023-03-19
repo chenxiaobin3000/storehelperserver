@@ -41,6 +41,12 @@ public class StorageOrderService extends BaseService<HashMap> {
     private StorageRemarkRepository storageRemarkRepository;
 
     @Resource
+    private CommodityRepository commodityRepository;
+
+    @Resource
+    private HalfgoodRepository halfgoodRepository;
+
+    @Resource
     private OriginalRepository originalRepository;
 
     @Resource
@@ -79,6 +85,20 @@ public class StorageOrderService extends BaseService<HashMap> {
                 TypeDefine.CommodityType type = TypeDefine.CommodityType.valueOf(sc.getCtype());
                 int cid = sc.getCid();
                 switch (type) {
+                    case COMMODITY:
+                        TCommodity find1 = commodityRepository.find(cid);
+                        if (null != find1) {
+                            data.put("code", find1.getCode());
+                            data.put("name", find1.getName());
+                        }
+                        break;
+                    case HALFGOOD:
+                        THalfgood find2 = halfgoodRepository.find(cid);
+                        if (null != find2) {
+                            data.put("code", find2.getCode());
+                            data.put("name", find2.getName());
+                        }
+                        break;
                     case ORIGINAL:
                         TOriginal find3 = originalRepository.find(cid);
                         if (null != find3) {

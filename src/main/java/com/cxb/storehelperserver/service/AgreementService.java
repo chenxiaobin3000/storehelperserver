@@ -333,22 +333,22 @@ public class AgreementService {
     public RestResult returnc(int id, TAgreementOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
         // 发货单未审核，已入库都不能退货
         int rid = order.getRid();
-        TPurchaseOrder purchaseOrder = purchaseOrderRepository.find(rid);
-        if (null == purchaseOrder) {
+        TAgreementOrder agreement = agreementOrderRepository.find(rid);
+        if (null == agreement) {
             return RestResult.fail("未查询到履约单");
         }
-        if (!purchaseOrder.getOtype().equals(AGREEMENT_SHIPPED_ORDER.getValue())) {
+        if (!agreement.getOtype().equals(AGREEMENT_SHIPPED_ORDER.getValue())) {
             return RestResult.fail("进货单据类型异常");
         }
-        if (null == purchaseOrder.getReview()) {
+        if (null == agreement.getReview()) {
             return RestResult.fail("履约单未审核通过，不能进行入库");
         }
         if (cloudAgreementRepository.checkByAid(rid)) {
             return RestResult.fail("履约商品已入库，请使用云仓退货单");
         }
 
-        order.setGid(purchaseOrder.getGid());
-        order.setSid(purchaseOrder.getSid());
+        order.setGid(agreement.getGid());
+        order.setSid(agreement.getSid());
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_agreement_return_apply, mp_agreement_return_review, reviews);
         if (null != ret) {
@@ -653,6 +653,7 @@ public class AgreementService {
                         c.setPrice(ac.getPrice().multiply(new BigDecimal(weight)).divide(new BigDecimal(ac.getWeight()), 2, RoundingMode.DOWN));
                     }
                     c.setWeight(weight);
+                    c.setNorm(ac.getNorm());
                     c.setValue(value);
                     list.add(c);
 
