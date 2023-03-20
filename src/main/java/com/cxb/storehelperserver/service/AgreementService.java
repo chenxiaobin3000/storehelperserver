@@ -108,7 +108,7 @@ public class AgreementService {
     /**
      * desc: 履约发货修改
      */
-    public RestResult setShipped(int id, int oid, int sid, Date applyTime, List<Integer> types, List<Integer> commoditys,
+    public RestResult setShipped(int id, int oid, int sid, int cid, Date applyTime, List<Integer> types, List<Integer> commoditys,
                                  List<Integer> weights, List<Integer> norms, List<Integer> values, List<Integer> attrs) {
         // 已经审核的订单不能修改
         TAgreementOrder order = agreementOrderRepository.find(oid);
@@ -122,6 +122,7 @@ public class AgreementService {
             return RestResult.fail("只能修改自己的订单");
         }
 
+        order.setCid(cid);
         order.setApplyTime(applyTime);
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_agreement_shipped_apply, mp_agreement_shipped_review, reviews);
@@ -349,6 +350,7 @@ public class AgreementService {
 
         order.setGid(agreement.getGid());
         order.setSid(agreement.getSid());
+        order.setCid(agreement.getCid());
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_agreement_return_apply, mp_agreement_return_review, reviews);
         if (null != ret) {

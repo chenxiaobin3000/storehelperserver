@@ -334,8 +334,8 @@ public class SaleService {
             c.setValue(value);
             list.add(c);
 
-            total = total + value;
-            price = price.add(stock.getPrice().multiply(new BigDecimal(value)));
+            total = total + weight;
+            price = price.add(c.getPrice());
         }
         order.setUnit(total);
         order.setPrice(price);

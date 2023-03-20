@@ -167,7 +167,7 @@ public class CloudStockService {
         }
         Date cdate = new Date();
         int gid = order.getGid();
-        int sid = order.getSid();
+        int sid = order.getCid();
         for (TCloudCommodity cloudCommodity : cloudCommodities) {
             int ctype = cloudCommodity.getCtype();
             int cid = cloudCommodity.getCid();
@@ -226,7 +226,7 @@ public class CloudStockService {
         }
         Date cdate = new Date();
         int gid = order.getGid();
-        int sid = order.getSid();
+        int sid = order.getCid();
         for (TCloudCommodity cloudCommodity : cloudCommodities) {
             int ctype = cloudCommodity.getCtype();
             int cid = cloudCommodity.getCid();

@@ -79,7 +79,7 @@ public interface MyCloudStockMapper {
     @Select({"<script>",
             "select t1.id, t1.gid, t1.sid, t1.price, t1.weight, t1.value,",
             "t2.id as cid, t2.code, t2.name, t2.cid as ctid, t2.remark",
-            "from t_cloud_stock t1 left join t_commodity_standard t2 on t1.cid = t2.id",
+            "from t_cloud_stock t1 left join t_standard t2 on t1.cid = t2.id",
             "where t1.gid = #{gid} <if test='0 != sid'>and t1.sid = #{sid}</if>",
             "and t1.ctype = 4 <if test='null != search'>and t2.name like #{search}</if>",
             "limit #{offset}, #{limit}",

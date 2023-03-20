@@ -16,7 +16,7 @@ import java.util.List;
 @Mapper
 public interface MyCloudDayMapper {
     @Select({"<script>",
-            "select count(t1.id) from t_stock_commodity_day t1",
+            "select count(t1.id) from t_cloud_day t1",
             "left join t_commodity t2 on t1.cid = t2.id",
             "where t1.gid = #{gid}<if test='0 != sid'>and t1.sid = #{sid}</if> and t1.cdate = #{date}",
             "<if test='null != search'>and t2.name like #{search}</if>",
@@ -26,7 +26,7 @@ public interface MyCloudDayMapper {
     @Select({"<script>",
             "select t1.id, t1.gid, t1.sid, t1.unit, t1.value, t1.price,",
             "t2.id as cid, t2.code, t2.name, t2.cid as ctid, t2.remark",
-            "from t_stock_commodity_day t1 left join t_commodity t2 on t1.cid = t2.id",
+            "from t_cloud_day t1 left join t_commodity t2 on t1.cid = t2.id",
             "where t1.gid = #{gid}<if test='0 != sid'>and t1.sid = #{sid}</if> and t1.cdate = #{date}",
             "<if test='null != search'>and t2.name like #{search}</if>",
             "limit #{offset}, #{limit}",
@@ -34,7 +34,7 @@ public interface MyCloudDayMapper {
     List<MyStockCommodity> pagination(int offset, int limit, int gid, int sid, Date date, String search);
 
     @Select({"<script>",
-            "select sid as id, sum(weight) as total, cdate from t_stock_commodity_day where gid = #{gid} <if test='0 != sid'>and sid = #{sid}</if>",
+            "select sid as id, sum(weight) as total, cdate from t_cloud_day where gid = #{gid} <if test='0 != sid'>and sid = #{sid}</if>",
             "and cdate <![CDATA[ >= ]]> #{start} and cdate <![CDATA[ < ]]> #{end} group by sid, cdate",
             "</script>"})
     List<MyStockReport> selectReport(int gid, int sid, int ctype, Date start, Date end);

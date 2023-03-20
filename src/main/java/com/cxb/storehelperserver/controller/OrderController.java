@@ -53,6 +53,12 @@ public class OrderController {
                 ReviewType.valueOf(req.getReview()), req.getComplete(), req.getSearch());
     }
 
+    @PostMapping("/getSaleOrder")
+    public RestResult getSaleOrder(@Validated @RequestBody GetSaleOrderValid req) {
+        return orderService.getSaleOrder(req.getId(), req.getType(), req.getPage(), req.getLimit(),
+                ReviewType.valueOf(req.getReview()), req.getComplete(), req.getSearch());
+    }
+
     @PostMapping("/getMyWait")
     public RestResult getMyWait(@Validated @RequestBody GetMyWaitValid req) {
         return orderService.getMyWait(req.getId(), req.getPage(), req.getLimit(), req.getSearch());

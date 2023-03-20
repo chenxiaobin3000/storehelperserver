@@ -109,6 +109,7 @@ public class CloudService {
 
         order.setGid(purchaseOrder.getGid());
         order.setSid(purchaseOrder.getSid());
+        order.setCid(purchaseOrder.getSid());
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_cloud_purchase_apply, mp_cloud_purchase_review, reviews);
         if (null != ret) {
@@ -369,6 +370,7 @@ public class CloudService {
 
         order.setGid(agreementOrder.getGid());
         order.setSid(agreementOrder.getSid());
+        order.setCid(agreementOrder.getCid());
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_cloud_agreement_apply, mp_cloud_agreement_review, reviews);
         if (null != ret) {
@@ -421,7 +423,7 @@ public class CloudService {
 
         // 生成入库单
         val comms = new ArrayList<TCloudCommodity>();
-        ret = createAgreementComms(order, order.getOid(), types, commoditys, values, weights, comms);
+        ret = createAgreementComms(order, order.getOid(), types, commoditys, weights, values, comms);
         if (null != ret) {
             return ret;
         }
@@ -755,16 +757,16 @@ public class CloudService {
     }
 
     /**
-     * desc: 云仓退货到仓库
+     * desc: 云仓退货到采购
      */
-    public RestResult returnc(int id, TCloudOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<BigDecimal> prices, List<Integer> attrs) {
+    public RestResult returnc(int id, TCloudOrder order, List<Integer> types, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
         // 采购单未审核不能退货
         int rid = order.getOid();
         TPurchaseOrder purchaseOrder = purchaseOrderRepository.find(rid);
         if (null == purchaseOrder) {
             return RestResult.fail("未查询到采购单");
         }
-        if (!purchaseOrder.getOtype().equals(PURCHASE_RETURN2_ORDER.getValue())) {
+        if (!purchaseOrder.getOtype().equals(PURCHASE_PURCHASE2_ORDER.getValue())) {
             return RestResult.fail("进货单据类型异常");
         }
         if (null == purchaseOrder.getReview()) {
@@ -776,6 +778,7 @@ public class CloudService {
 
         order.setGid(purchaseOrder.getGid());
         order.setSid(purchaseOrder.getSid());
+        order.setCid(purchaseOrder.getSid());
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_cloud_return_apply, mp_cloud_return_review, reviews);
         if (null != ret) {
@@ -806,7 +809,7 @@ public class CloudService {
     /**
      * desc: 云仓退货修改
      */
-    public RestResult setReturn(int id, int oid, Date applyTime, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<BigDecimal> prices, List<Integer> attrs) {
+    public RestResult setReturn(int id, int oid, Date applyTime, List<Integer> types, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
         // 已经审核的订单不能修改
         TCloudOrder order = cloudOrderRepository.find(oid);
         if (null == order) {
@@ -891,11 +894,11 @@ public class CloudService {
         if (null == purchase) {
             return RestResult.fail("未查询到对应的进货单");
         }
-        int unit = purchase.getCurUnit() - order.getUnit();
+        int unit = purchase.getUnit() - order.getUnit();
         if (unit < 0) {
             return RestResult.fail("退货商品总量不能超出采购订单总量");
         }
-        BigDecimal price = purchase.getCurPrice().subtract(order.getPrice());
+        BigDecimal price = purchase.getPrice().subtract(order.getPrice());
         if (price.compareTo(BigDecimal.ZERO) < 0) {
             return RestResult.fail("退货商品总价不能超出采购订单总价");
         }
@@ -1080,7 +1083,7 @@ public class CloudService {
     }
 
     /**
-     * desc: 云仓退货到采购
+     * desc: 云仓退货到仓库
      */
     public RestResult backc(int id, TCloudOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
         // 履约单未审核不能退货
@@ -1101,6 +1104,7 @@ public class CloudService {
 
         order.setGid(agreementOrder.getGid());
         order.setSid(agreementOrder.getSid());
+        order.setCid(agreementOrder.getCid());
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_cloud_back_apply, mp_cloud_back_review, reviews);
         if (null != ret) {
@@ -1217,11 +1221,11 @@ public class CloudService {
         if (null == agreement) {
             return RestResult.fail("未查询到对应的履约单");
         }
-        int unit = agreement.getCurUnit() - order.getUnit();
+        int unit = agreement.getUnit() - order.getUnit();
         if (unit < 0) {
             return RestResult.fail("退货商品总量不能超出履约订单总量");
         }
-        BigDecimal price = agreement.getCurPrice().subtract(order.getPrice());
+        BigDecimal price = agreement.getPrice().subtract(order.getPrice());
         if (price.compareTo(BigDecimal.ZERO) < 0) {
             return RestResult.fail("退货商品总价不能超出履约订单总价");
         }
@@ -1389,6 +1393,7 @@ public class CloudService {
                         c.setPrice(pc.getPrice().multiply(new BigDecimal(weight)).divide(new BigDecimal(pc.getWeight()), 2, RoundingMode.DOWN));
                     }
                     c.setWeight(weight);
+                    c.setNorm(pc.getNorm());
                     c.setValue(value);
                     list.add(c);
 
@@ -1445,6 +1450,7 @@ public class CloudService {
                         c.setPrice(ac.getPrice().multiply(new BigDecimal(weight)).divide(new BigDecimal(ac.getWeight()), 2, RoundingMode.DOWN));
                     }
                     c.setWeight(weight);
+                    c.setNorm(0);
                     c.setValue(value);
                     list.add(c);
 
@@ -1498,6 +1504,7 @@ public class CloudService {
                 c.setPrice(stock.getPrice().multiply(new BigDecimal(weight)).divide(new BigDecimal(stock.getWeight()), 2, RoundingMode.DOWN));
             }
             c.setWeight(weight);
+            c.setNorm(0);
             c.setValue(value);
             list.add(c);
 
@@ -1544,6 +1551,7 @@ public class CloudService {
                     c.setCid(cid);
                     c.setPrice(prices.get(i));
                     c.setWeight(weight);
+                    c.setNorm(pc.getNorm());
                     c.setValue(value);
                     list.add(c);
 

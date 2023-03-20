@@ -187,6 +187,7 @@ public class CloudController {
         TCloudOrder order = new TCloudOrder();
         order.setGid(req.getGid());
         order.setSid(req.getSid());
+        order.setCid(req.getSid());
         order.setOtype(CLOUD_LOSS_ORDER.getValue());
         order.setApply(req.getId());
         try {
@@ -246,7 +247,7 @@ public class CloudController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return cloudService.returnc(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getPrices(), req.getAttrs());
+        return cloudService.returnc(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getPrices(), req.getWeights(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/setReturn")
@@ -258,7 +259,7 @@ public class CloudController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return cloudService.setReturn(req.getId(), req.getOid(), applyTime, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getPrices(), req.getAttrs());
+        return cloudService.setReturn(req.getId(), req.getOid(), applyTime, req.getTypes(), req.getCommoditys(), req.getPrices(), req.getWeights(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/delReturn")
