@@ -88,7 +88,7 @@ public class Permission {
     static public final int commodity_halfgoodlist = 303;
     static public final int commodity_originallist = 304;
     static public final int commodity_destroylist = 305;
-    static public final int commodity_setcategory = 306;
+    static public final int commodity_category = 306;
     static public final int commodity_attributelist = 307;
 
     static public final int finance = 400;
@@ -155,6 +155,7 @@ public class Permission {
     static public final int system = 1100;
     static public final int system_alarm = 1101;
     static public final int system_groupinfo = 1102;
+    static public final int system_department = 1107;
     static public final int system_storageaddress = 1103;
     static public final int system_cloudaddress = 1104;
     static public final int system_rolelist = 1105;

@@ -36,6 +36,9 @@ public class UserService {
     private UserGroupRepository userGroupRepository;
 
     @Resource
+    private UserDepartmentRepository userDepartmentRepository;
+
+    @Resource
     private UserRoleRepository userRoleRepository;
 
     @Resource
@@ -52,6 +55,9 @@ public class UserService {
 
     @Resource
     private GroupMarketRepository groupMarketRepository;
+
+    @Resource
+    private DepartmentRepository departmentRepository;
 
     @Resource
     private RoleRepository roleRepository;
@@ -154,9 +160,6 @@ public class UserService {
             return RestResult.fail("获取用户信息失败");
         }
 
-        // 用户可以没有公司，不需要判断是否为空
-        TUserGroup userGroup = userGroupRepository.find(id);
-
         // 获取角色权限
         List<Integer> permissions = null;
         TUserRole userRole = userRoleRepository.find(id);
@@ -175,8 +178,9 @@ public class UserService {
             permissionMps = rolePermissionMpRepository.find(userRoleMp.getRid());
         }
 
-        // 获取公司信息
+        // 获取公司信息，用户可以没有公司
         val data = new HashMap<String, Object>();
+        TUserGroup userGroup = userGroupRepository.find(id);
         if (null == userGroup) {
             data.put("group", null);
         } else {
@@ -195,6 +199,18 @@ public class UserService {
                 }
             }
             data.put("market", market);
+        }
+
+        // 获取部门信息
+        TUserDepartment userDepartment = userDepartmentRepository.find(id);
+        if (null == userDepartment) {
+            data.put("depart", null);
+        } else {
+            TDepartment department = departmentRepository.find(userDepartment.getDid());
+            if (null == department) {
+                return RestResult.fail("获取用户部门信息失败");
+            }
+            data.put("depart", department);
         }
 
         data.put("user", user);
@@ -244,13 +260,14 @@ public class UserService {
         // 查询角色信息
         val list2 = new ArrayList<HashMap<String, Object>>();
         for (TUser u : list) {
+            int uid = u.getId();
             val user = new HashMap<String, Object>();
-            user.put("id", u.getId());
+            user.put("id", uid);
             user.put("name", u.getName());
             user.put("phone", u.getPhone());
 
             // 角色信息
-            TUserRole userRole = userRoleRepository.find(u.getId());
+            TUserRole userRole = userRoleRepository.find(uid);
             if (null != userRole) {
                 user.put("role", roleRepository.find(userRole.getRid()));
             } else {
@@ -258,15 +275,24 @@ public class UserService {
             }
 
             // 小程序角色信息
-            TUserRoleMp userRoleMp = userRoleMpRepository.find(u.getId());
+            TUserRoleMp userRoleMp = userRoleMpRepository.find(uid);
             if (null != userRoleMp) {
                 user.put("rolemp", roleMpRepository.find(userRoleMp.getRid()));
             } else {
                 user.put("rolemp", null);
             }
 
-            // 公司信息
-            user.put("part", null);
+            // 获取部门信息
+            TUserDepartment userDepartment = userDepartmentRepository.find(uid);
+            if (null == userDepartment) {
+                user.put("depart", null);
+            } else {
+                TDepartment department = departmentRepository.find(userDepartment.getDid());
+                if (null == department) {
+                    return RestResult.fail("获取用户部门信息失败");
+                }
+                user.put("depart", department);
+            }
             list2.add(user);
         }
         return RestResult.ok(new PageData(total, list2));
