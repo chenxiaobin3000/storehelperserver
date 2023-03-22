@@ -6,7 +6,6 @@ import com.cxb.storehelperserver.repository.model.*;
 import com.cxb.storehelperserver.service.model.PageData;
 import com.cxb.storehelperserver.util.DateUtil;
 import com.cxb.storehelperserver.util.RestResult;
-import com.cxb.storehelperserver.util.TypeDefine;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,11 +15,10 @@ import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static com.cxb.storehelperserver.util.Permission.admin_grouplist;
+import static com.cxb.storehelperserver.util.Permission.admin;
 import static com.cxb.storehelperserver.util.TypeDefine.CommodityType.COMMODITY;
 import static com.cxb.storehelperserver.util.TypeDefine.CommodityType.HALFGOOD;
 
@@ -434,11 +432,7 @@ public class StorageStockService {
         return null;
     }
 
-
-    /**
-     * desc: 计算库存只到昨天，当天的要到晚上12点以后截止
-     */
-    public RestResult countStock(int id, int gid) {
+    public RestResult countStock(int id, int gid, Date date) {
         // 验证公司
         String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
@@ -446,70 +440,18 @@ public class StorageStockService {
         }
 
         // 权限校验，必须admin
-        if (!checkService.checkRolePermission(id, admin_grouplist)) {
+        if (!checkService.checkRolePermission(id, admin)) {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
-/*
-        int total = storageRepository.total(gid, null);
-        val storages = storageRepository.pagination(gid, 1, total, null);
-        SimpleDateFormat dateFormat = dateUtil.getDateFormat();
+
+        date = dateUtil.getStartTime(date);
         synchronized (lock) {
-            for (TStorage storage : storages) {
-                val comms = new HashMap<Integer, TStockDay>();
-
-                // 获取开始时间，若没有记录就查找最初订单
-                int sid = storage.getId();
-                Date last = getLastStock(sid);
-                if (null == last) {
-                    TUserOrderComplete userOrderComplete = userOrderCompleteRepository.findFirstOrder(sid);
-                    if (null == userOrderComplete) {
-                        log.info("库存空仓库：" + sid);
-                        continue;
-                    }
-                    last = userOrderComplete.getCdate();
-                } else {
-                    // 获取库存信息
-                    val stockComms = getAllStockDay(gid, sid, last, REPORT_DAILY);
-                    if (null != stockComms && !stockComms.isEmpty()) {
-                        for (MyStockCommodity c : stockComms) {
-                            TStockDay sc = new TStockDay();
-                            sc.setGid(gid);
-                            sc.setSid(sid);
-                            sc.setCid(c.getCid());
-                            sc.setUnit(c.getUnit());
-                            sc.setValue(c.getValue());
-                            sc.setPrice(c.getPrice());
-                            comms.put(c.getCid(), sc);
-                        }
-                    }
-
-                    // 已生成的库存，日期加1
-                    dateUtil.addOneDay(last, 1);
-                }
-
-                // 计算间隔天数
-                Date today = dateUtil.getStartTime(new Date());
-                int span = (int) ((today.getTime() - last.getTime()) / (24 * 60 * 60 * 1000));
-                log.info("仓库:" + sid + ", 当前时间：" + dateFormat.format(today) + ", 最后库存时间:" + dateFormat.format(last) + ", 间隔天数：" + span);
-                if (span <= 0) {
-                    return RestResult.fail("没有需要计算的库存");
-                } else {
-                    span = stockday;
-                }
-                for (int i = 0; i < span; i++, last = dateUtil.addOneDay(last, 1)) {
-                    log.info("开始计算库存时间:" + dateFormat.format(last));
-                    RestResult ret = countStockOneDay(gid, sid, last, comms, halfs, oris, stans, dests);
-                    if (null != ret) {
-                        return ret;
-                    }
-                }
-                try {
-                    Thread.sleep(stockspan);
-                } catch (InterruptedException e) {
-                    log.error(e.getMessage());
-                }
+            val stocks = stockRepository.all(gid);
+            for (TStock stock : stocks) {
+                stockDayRepository.insert(stock.getId(), stock.getGid(), stock.getSid(), stock.getCtype(),
+                        stock.getCid(), stock.getPrice(), stock.getWeight(), stock.getValue(), date);
             }
-        }*/
+        }
         return RestResult.ok();
     }
 
@@ -532,190 +474,5 @@ public class StorageStockService {
             return RestResult.fail("只能获取本公司信息");
         }
         return null;
-    }
-
-    /**
-     * desc: 获取库存最后时间
-     */
-    private Date getLastStock(int sid) {
-        Date last = null;
-        /*TStockDay commodity = stockDayRepository.findLast(sid, 0);
-        if (null != commodity) {
-            last = commodity.getCdate();
-        }
-        TStockHalfgoodDay halfgood = stockHalfgoodDayRepository.findLast(sid, 0);
-        if (null != halfgood) {
-            if (null == last) {
-                last = halfgood.getCdate();
-            } else {
-                if (halfgood.getCdate().after(last)) {
-                    last = halfgood.getCdate();
-                }
-            }
-        }*/
-        return last;
-    }
-
-    /**
-     * desc: 处理date当天已审核订单的商品
-     */
-    private RestResult countStockOneDay(int gid, int sid, Date date, HashMap<Integer, TStockDay> comms, HashMap<Integer, TStockDay> halfs,
-                                        HashMap<Integer, TStockDay> oris, HashMap<Integer, TStockDay> stans, HashMap<Integer, TStockDay> dests) {
-        Date start = dateUtil.getStartTime(date);
-        Date end = dateUtil.getEndTime(date);
-        /*val agreementCommodities = agreementCommodityRepository.pagination(gid, sid, start, end);
-        log.info("履约订单数:" + agreementCommodities.size());
-        handleCommoditys(gid, sid, agreementCommodities, comms, halfs, oris, stans, dests);
-        val productOrderCommodities = productCommodityRepository.pagination(sid, start, end);
-        log.info("生产订单数:" + productOrderCommodities.size());
-        handleCommoditys(gid, sid, productOrderCommodities, comms, halfs, oris, stans, dests);
-        val storageOrderCommodities = storageCommodityRepository.pagination(sid, start, end);
-        log.info("仓储订单数:" + storageOrderCommodities.size());
-        handleCommoditys(gid, sid, storageOrderCommodities, comms, halfs, oris, stans, dests);
-*/
-        // 插入数量大于0的数据，所有数据按start时间算
-        start = dateUtil.addOneDay(start, 1);
-        for (Map.Entry<Integer, TStockDay> entry : comms.entrySet()) {
-            TStockDay commodity = entry.getValue();
-            log.info("商品：" + commodity.getCid() + ", 数量:" + commodity.getValue() + ", 价格:" + commodity.getPrice());
-            commodity.setId(0);
-            commodity.setCdate(start);
-            if (!stockDayRepository.insert(commodity)) {
-                SimpleDateFormat simpleDateFormat = dateUtil.getSimpleDateFormat();
-                return RestResult.fail("添加商品" + simpleDateFormat.format(commodity.getCdate()) + "库存记录失败" + commodity.getCid());
-            }
-        }
-        return null;
-    }
-
-    private void handleCommoditys(int gid, int sid, List<MyOrderCommodity> commodities, HashMap<Integer, TStockDay> comms) {
-        for (MyOrderCommodity commodity : commodities) {
-            /*switch (CommodityType.valueOf(commodity.getCtype())) {
-                case COMMODITY: {
-                    TStockDay stockDay = comms.get(commodity.getCid());
-                    if (null == stockDay) {
-                        // 没数据就先尝试从库存获取
-                        stockDay = stockDayRepository.findLast(sid, commodity.getCid());
-                        if (null == stockDay) {
-                            stockDay = new TStockDay();
-                            stockDay.setValue(commodity.getValue());
-                            comms.put(commodity.getCid(), stockDay);
-                        } else {
-                            if (commodity.getIo()) {
-                                stockDay.setValue(stockDay.getValue() - commodity.getValue());
-                            } else {
-                                stockDay.setValue(stockDay.getValue() + commodity.getValue());
-                            }
-                            comms.put(commodity.getCid(), stockDay);
-                        }
-                    } else {
-                        if (commodity.getIo()) {
-                            stockDay.setValue(stockDay.getValue() - commodity.getValue());
-                        } else {
-                            stockDay.setValue(stockDay.getValue() + commodity.getValue());
-                        }
-                    }
-                    stockDay.setGid(gid);
-                    stockDay.setSid(sid);
-                    stockDay.setCid(commodity.getCid());
-                    stockDay.setUnit(commodity.getUnit());
-                    stockDay.setPrice(commodity.getPrice());
-                    break;
-                }
-                case HALFGOOD: {
-                    TStockHalfgoodDay stockHalfgood = halfs.get(commodity.getCid());
-                    if (null == stockHalfgood) {
-                        // 没数据就先尝试从库存获取
-                        stockHalfgood = stockHalfgoodDayRepository.findLast(sid, commodity.getCid());
-                        if (null == stockHalfgood) {
-                            stockHalfgood = new TStockHalfgoodDay();
-                            stockHalfgood.setValue(commodity.getValue());
-                            halfs.put(commodity.getCid(), stockHalfgood);
-                        } else {
-                            if (commodity.getIo()) {
-                                stockHalfgood.setValue(stockHalfgood.getValue() - commodity.getValue());
-                            } else {
-                                stockHalfgood.setValue(stockHalfgood.getValue() + commodity.getValue());
-                            }
-                            halfs.put(commodity.getCid(), stockHalfgood);
-                        }
-                    } else {
-                        if (commodity.getIo()) {
-                            stockHalfgood.setValue(stockHalfgood.getValue() - commodity.getValue());
-                        } else {
-                            stockHalfgood.setValue(stockHalfgood.getValue() + commodity.getValue());
-                        }
-                    }
-                    stockHalfgood.setGid(gid);
-                    stockHalfgood.setSid(sid);
-                    stockHalfgood.setHid(commodity.getCid());
-                    stockHalfgood.setUnit(commodity.getUnit());
-                    stockHalfgood.setPrice(commodity.getPrice());
-                    break;
-                }
-                case ORIGINAL: {
-                    TStockOriginalDay stockOriginal = oris.get(commodity.getCid());
-                    if (null == stockOriginal) {
-                        // 没数据就先尝试从库存获取
-                        stockOriginal = stockOriginalDayRepository.findLast(sid, commodity.getCid());
-                        if (null == stockOriginal) {
-                            stockOriginal = new TStockOriginalDay();
-                            stockOriginal.setValue(commodity.getValue());
-                            oris.put(commodity.getCid(), stockOriginal);
-                        } else {
-                            if (commodity.getIo()) {
-                                stockOriginal.setValue(stockOriginal.getValue() - commodity.getValue());
-                            } else {
-                                stockOriginal.setValue(stockOriginal.getValue() + commodity.getValue());
-                            }
-                            oris.put(commodity.getCid(), stockOriginal);
-                        }
-                    } else {
-                        if (commodity.getIo()) {
-                            stockOriginal.setValue(stockOriginal.getValue() - commodity.getValue());
-                        } else {
-                            stockOriginal.setValue(stockOriginal.getValue() + commodity.getValue());
-                        }
-                    }
-                    stockOriginal.setGid(gid);
-                    stockOriginal.setSid(sid);
-                    stockOriginal.setOid(commodity.getCid());
-                    stockOriginal.setUnit(commodity.getUnit());
-                    stockOriginal.setPrice(commodity.getPrice());
-                    break;
-                }
-                case STANDARD: {
-                    TStockStandardDay stockStandard = stans.get(commodity.getCid());
-                    if (null == stockStandard) {
-                        // 没数据就先尝试从库存获取
-                        stockStandard = stockStandardDayRepository.findLast(sid, commodity.getCid());
-                        if (null == stockStandard) {
-                            stockStandard = new TStockStandardDay();
-                            stockStandard.setValue(commodity.getValue());
-                            stans.put(commodity.getCid(), stockStandard);
-                        } else {
-                            if (commodity.getIo()) {
-                                stockStandard.setValue(stockStandard.getValue() - commodity.getValue());
-                            } else {
-                                stockStandard.setValue(stockStandard.getValue() + commodity.getValue());
-                            }
-                            stans.put(commodity.getCid(), stockStandard);
-                        }
-                    } else {
-                        if (commodity.getIo()) {
-                            stockStandard.setValue(stockStandard.getValue() - commodity.getValue());
-                        } else {
-                            stockStandard.setValue(stockStandard.getValue() + commodity.getValue());
-                        }
-                    }
-                    stockStandard.setGid(gid);
-                    stockStandard.setSid(sid);
-                    stockStandard.setStid(commodity.getCid());
-                    stockStandard.setUnit(commodity.getUnit());
-                    stockStandard.setPrice(commodity.getPrice());
-                    break;
-                }
-            }*/
-        }
     }
 }

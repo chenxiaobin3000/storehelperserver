@@ -137,7 +137,8 @@ public class StorageMgrService {
                 storage.put("area", String.valueOf(g.getArea()));
                 storage.put("name", g.getName());
                 storage.put("address", g.getAddress());
-                storage.put("contact", userRepository.find(g.getContact()));
+                storage.put("contact", g.getContact());
+                storage.put("phone", g.getPhone());
                 list2.add(storage);
             }
         }
@@ -166,7 +167,8 @@ public class StorageMgrService {
                 storage.put("area", String.valueOf(g.getArea()));
                 storage.put("name", g.getName());
                 storage.put("address", g.getAddress());
-                storage.put("contact", userRepository.find(g.getContact()));
+                storage.put("contact", g.getContact());
+                storage.put("phone", g.getPhone());
                 list2.add(storage);
             }
         }

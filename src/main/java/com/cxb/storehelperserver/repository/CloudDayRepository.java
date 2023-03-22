@@ -1,8 +1,7 @@
 package com.cxb.storehelperserver.repository;
 
 import com.cxb.storehelperserver.mapper.TCloudDayMapper;
-import com.cxb.storehelperserver.model.TCloudDay;
-import com.cxb.storehelperserver.model.TCloudDayExample;
+import com.cxb.storehelperserver.model.*;
 import com.cxb.storehelperserver.repository.mapper.MyCloudDayMapper;
 import com.cxb.storehelperserver.repository.model.MyStockCommodity;
 import com.cxb.storehelperserver.repository.model.MyStockReport;
@@ -10,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -59,7 +59,17 @@ public class CloudDayRepository extends BaseRepository<TCloudDay> {
         }
     }
 
-    public boolean insert(TCloudDay row) {
+    public boolean insert(int id, int gid, int sid, int ctype, int cid, BigDecimal price, int weight, int value, Date cdate) {
+        TCloudDay row = new TCloudDay();
+        row.setId(id);
+        row.setGid(gid);
+        row.setSid(sid);
+        row.setCtype(ctype);
+        row.setCid(cid);
+        row.setPrice(price);
+        row.setWeight(weight);
+        row.setValue(value);
+        row.setCdate(cdate);
         return cloudDayMapper.insert(row) > 0;
     }
 

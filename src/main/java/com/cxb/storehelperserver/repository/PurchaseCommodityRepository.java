@@ -4,13 +4,11 @@ import com.cxb.storehelperserver.mapper.TPurchaseCommodityMapper;
 import com.cxb.storehelperserver.model.TPurchaseCommodity;
 import com.cxb.storehelperserver.model.TPurchaseCommodityExample;
 import com.cxb.storehelperserver.repository.mapper.MyPurchaseCommodityMapper;
-import com.cxb.storehelperserver.repository.model.MyOrderCommodity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -65,10 +63,6 @@ public class PurchaseCommodityRepository extends BaseRepository<List> {
 
     public BigDecimal count(int oid) {
         return myPurchaseCommodityMapper.count(oid);
-    }
-
-    public List<MyOrderCommodity> pagination(int gid, int sid, Date start, Date end) {
-        return myPurchaseCommodityMapper.pagination(gid, sid, start, end);
     }
 
     // 注意：数据被缓存在PurchaseCommodityService，所以不能直接调用该函数

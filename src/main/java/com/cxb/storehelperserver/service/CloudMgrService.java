@@ -113,7 +113,8 @@ public class CloudMgrService {
                 cloud.put("area", String.valueOf(g.getArea()));
                 cloud.put("name", g.getName());
                 cloud.put("address", g.getAddress());
-                cloud.put("contact", userRepository.find(g.getContact()));
+                cloud.put("contact", g.getContact());
+                cloud.put("phone", g.getPhone());
                 list2.add(cloud);
             }
         }
@@ -142,7 +143,8 @@ public class CloudMgrService {
                 cloud.put("area", String.valueOf(g.getArea()));
                 cloud.put("name", g.getName());
                 cloud.put("address", g.getAddress());
-                cloud.put("contact", userRepository.find(g.getContact()));
+                cloud.put("contact", g.getContact());
+                cloud.put("phone", g.getPhone());
                 list2.add(cloud);
             }
         }

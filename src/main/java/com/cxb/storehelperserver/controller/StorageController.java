@@ -45,8 +45,9 @@ public class StorageController {
         TStorage storage = new TStorage();
         storage.setGid(req.getGid());
         storage.setArea(Long.valueOf(req.getArea()));
-        storage.setContact(req.getContact());
         storage.setName(req.getName());
+        storage.setContact(req.getContact());
+        storage.setPhone(req.getPhone());
         storage.setAddress(req.getAddress());
         return storageMgrService.addStorage(req.getId(), storage);
     }
@@ -57,8 +58,9 @@ public class StorageController {
         storage.setId(req.getSid());
         storage.setGid(req.getGid());
         storage.setArea(Long.valueOf(req.getArea()));
-        storage.setContact(req.getContact());
         storage.setName(req.getName());
+        storage.setContact(req.getContact());
+        storage.setPhone(req.getPhone());
         storage.setAddress(req.getAddress());
         return storageMgrService.setStorage(req.getId(), storage);
     }

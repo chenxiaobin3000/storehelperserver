@@ -3,13 +3,10 @@ package com.cxb.storehelperserver.repository;
 import com.cxb.storehelperserver.mapper.TAgreementCommodityMapper;
 import com.cxb.storehelperserver.model.TAgreementCommodity;
 import com.cxb.storehelperserver.model.TAgreementCommodityExample;
-import com.cxb.storehelperserver.repository.mapper.MyAgreementCommodityMapper;
-import com.cxb.storehelperserver.repository.model.MyOrderCommodity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -22,9 +19,6 @@ import java.util.List;
 public class AgreementCommodityRepository extends BaseRepository<List> {
     @Resource
     private TAgreementCommodityMapper agreementCommodityMapper;
-
-    @Resource
-    private MyAgreementCommodityMapper myAgreementCommodityMapper;
 
     public AgreementCommodityRepository() {
         init("agreeComm::");
@@ -60,10 +54,6 @@ public class AgreementCommodityRepository extends BaseRepository<List> {
             setCache(oid, agreementCommoditys);
         }
         return agreementCommoditys;
-    }
-
-    public List<MyOrderCommodity> pagination(int gid, int sid, Date start, Date end) {
-        return myAgreementCommodityMapper.pagination(gid, sid, start, end);
     }
 
     // 注意：数据被缓存在AgreementCommodityService，所以不能直接调用该函数

@@ -95,10 +95,14 @@ public class Permission {
     static public final int finance_report = 401;
     static public final int finance_getlist = 402;
 
+    static public final int dock = 450;
+    static public final int dock_account = 451;
+    static public final int dock_cloud = 452;
+    static public final int dock_commodity = 453;
+
     static public final int market = 500;
     static public final int market_report = 501;
     static public final int market_getlist = 502;
-    static public final int market_commodity = 503;
     static public final int market_input = 504;
     static public final int market_salereturn = 505;
 

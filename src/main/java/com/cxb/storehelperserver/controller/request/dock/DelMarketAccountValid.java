@@ -1,4 +1,4 @@
-package com.cxb.storehelperserver.controller.request.stock;
+package com.cxb.storehelperserver.controller.request.dock;
 
 import com.cxb.storehelperserver.controller.request.IValid;
 import lombok.Data;
@@ -10,17 +10,19 @@ import javax.validation.constraints.NotEmpty;
 /**
  * desc:
  * auth: cxb
- * date: 2023/1/24
+ * date: 2022/12/21
  */
 @Data
-public class CountStockValid implements IValid {
+public class DelMarketAccountValid implements IValid {
     @Min(value = 1, message = "账号错误")
     private int id;
 
     @Min(value = 1, message = "公司账号错误")
     private int gid;
 
-    @NotEmpty(message = "请输入日期")
-    @Length(min = 19, max = 19, message = "日期格式错误")
-    private String date;
+    @Min(value = 1, message = "平台账号错误")
+    private int mid;
+
+    @Min(value = 1, message = "账号信息错误")
+    private int aid;
 }

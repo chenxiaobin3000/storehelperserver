@@ -22,6 +22,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import static com.cxb.storehelperserver.util.Permission.admin;
+
 /**
  * desc: 云仓库存统计业务
  * auth: cxb
@@ -72,6 +74,8 @@ public class CloudStockService {
 
     @Value("${store-app.config.stockspan}")
     private int stockspan;
+
+    private static final Object lock = new Object();
 
     public RestResult getStockList(int id, int sid, int ctype, int page, int limit, String search) {
         RestResult ret = check(id, sid);
@@ -320,54 +324,31 @@ public class CloudStockService {
         return null;
     }
 
-    private boolean addStockCommodityP(int gid, int sid, TCloudCommodity cloudCommodity, TPurchaseCommodity purchaseCommodity, boolean add) {
-        int newValue = cloudCommodity.getValue() * purchaseCommodity.getNorm() * purchaseCommodity.getValue(); // 入库单总重量
-        TCloudStock stock = cloudStockRepository.find(sid, cloudCommodity.getCtype(), cloudCommodity.getCid());
-        if (null == stock) {
-            if (!add) {
-                log.warn("未查询到要扣减的云仓库存:" + cloudCommodity.getOid() + ",类型:" + cloudCommodity.getCtype() + ",商品:" + cloudCommodity.getCid());
-                return false;
-            }
-            return cloudStockRepository.insert(gid, sid, cloudCommodity.getCtype(), cloudCommodity.getCid(),
-                    purchaseCommodity.getPrice().divide(new BigDecimal(newValue), 2, RoundingMode.DOWN), newValue, newValue);
-        } else {
-            BigDecimal newPrice = purchaseCommodity.getPrice().multiply(new BigDecimal(newValue)); // 入库单总价
-            BigDecimal oldPrice = stock.getPrice().multiply(new BigDecimal(stock.getValue())); // 库存总价
-            BigDecimal allPrice = newPrice.add(oldPrice);
-            int value = add ? stock.getValue() + newValue : stock.getValue() - newValue; // 重量直接想加
-            if (value < 0) {
-                log.warn("云仓库存商品扣减小于0:" + cloudCommodity.getOid() + ",类型:" + cloudCommodity.getCtype() + ",商品:" + cloudCommodity.getCid());
-                return false;
-            }
-            stock.setValue(value);
-            stock.setPrice(allPrice.divide(new BigDecimal(value), 2, RoundingMode.DOWN));
-            return cloudStockRepository.update(stock);
+    public RestResult countStock(int id, int gid, Date date) {
+        // 验证公司
+        String msg = checkService.checkGroup(id, gid);
+        if (null != msg) {
+            return RestResult.fail(msg);
         }
+
+        // 权限校验，必须admin
+        if (!checkService.checkRolePermission(id, admin)) {
+            return RestResult.fail("本账号没有相关的权限，请联系管理员");
+        }
+
+        date = dateUtil.getStartTime(date);
+        synchronized (lock) {
+            val stocks = cloudStockRepository.all(gid);
+            for (TCloudStock stock : stocks) {
+                cloudDayRepository.insert(stock.getId(), stock.getGid(), stock.getSid(), stock.getCtype(),
+                        stock.getCid(), stock.getPrice(), stock.getWeight(), stock.getValue(), date);
+            }
+        }
+        return RestResult.ok();
     }
 
-    private boolean addStockCommodityA(int gid, int sid, TCloudCommodity cloudCommodity, TAgreementCommodity agreementCommodity, boolean add) {
-        int newValue = cloudCommodity.getValue() * agreementCommodity.getNorm(); // 入库单总重量
-        TCloudStock stock = cloudStockRepository.find(sid, cloudCommodity.getCtype(), cloudCommodity.getCid());
-        if (null == stock) {
-            if (!add) {
-                log.warn("未查询到要扣减的云仓库存:" + cloudCommodity.getOid() + ",类型:" + cloudCommodity.getCtype() + ",商品:" + cloudCommodity.getCid());
-                return false;
-            }
-            return cloudStockRepository.insert(gid, sid, cloudCommodity.getCtype(), cloudCommodity.getCid(),
-                    agreementCommodity.getPrice().divide(new BigDecimal(newValue), 2, RoundingMode.DOWN), newValue, newValue);
-        } else {
-            BigDecimal newPrice = agreementCommodity.getPrice().multiply(new BigDecimal(newValue)); // 入库单总价
-            BigDecimal oldPrice = stock.getPrice().multiply(new BigDecimal(stock.getValue())); // 库存总价
-            BigDecimal allPrice = newPrice.add(oldPrice);
-            int value = add ? stock.getValue() + newValue : stock.getValue() - newValue; // 重量直接想加
-            if (value < 0) {
-                log.warn("云仓库存商品扣减小于0:" + cloudCommodity.getOid() + ",类型:" + cloudCommodity.getCtype() + ",商品:" + cloudCommodity.getCid());
-                return false;
-            }
-            stock.setValue(value);
-            stock.setPrice(allPrice.divide(new BigDecimal(value), 2, RoundingMode.DOWN));
-            return cloudStockRepository.update(stock);
-        }
+    public void delStock(int sid, Date date) {
+        cloudDayRepository.delete(sid, date);
     }
 
     private RestResult check(int id, int sid) {

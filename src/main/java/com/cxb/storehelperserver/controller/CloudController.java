@@ -44,8 +44,9 @@ public class CloudController {
         TCloud cloud = new TCloud();
         cloud.setGid(req.getGid());
         cloud.setArea(Long.valueOf(req.getArea()));
-        cloud.setContact(req.getContact());
         cloud.setName(req.getName());
+        cloud.setContact(req.getContact());
+        cloud.setPhone(req.getPhone());
         cloud.setAddress(req.getAddress());
         return cloudMgrService.addCloud(req.getId(), cloud);
     }
@@ -56,8 +57,9 @@ public class CloudController {
         cloud.setId(req.getSid());
         cloud.setGid(req.getGid());
         cloud.setArea(Long.valueOf(req.getArea()));
-        cloud.setContact(req.getContact());
         cloud.setName(req.getName());
+        cloud.setContact(req.getContact());
+        cloud.setPhone(req.getPhone());
         cloud.setAddress(req.getAddress());
         return cloudMgrService.setCloud(req.getId(), cloud);
     }

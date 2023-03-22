@@ -15,8 +15,6 @@ public class MyMarketCommodity {
 
     private Integer cid;
 
-    private Integer unit;
-
     private String remark;
 
     private Integer mcid;

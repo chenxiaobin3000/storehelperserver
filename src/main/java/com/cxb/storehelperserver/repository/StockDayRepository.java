@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -64,7 +65,17 @@ public class StockDayRepository extends BaseRepository<TStockDay> {
         }
     }
 
-    public boolean insert(TStockDay row) {
+    public boolean insert(int id, int gid, int sid, int ctype, int cid, BigDecimal price, int weight, int value, Date cdate) {
+        TStockDay row = new TStockDay();
+        row.setId(id);
+        row.setGid(gid);
+        row.setSid(sid);
+        row.setCtype(ctype);
+        row.setCid(cid);
+        row.setPrice(price);
+        row.setWeight(weight);
+        row.setValue(value);
+        row.setCdate(cdate);
         return stockDayMapper.insert(row) > 0;
     }
 

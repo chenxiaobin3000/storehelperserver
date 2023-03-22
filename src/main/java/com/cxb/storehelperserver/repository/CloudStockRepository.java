@@ -99,6 +99,12 @@ public class CloudStockRepository extends BaseRepository<TCloudStock> {
         }
     }
 
+    public List<TCloudStock> all(int gid) {
+        TCloudStockExample example = new TCloudStockExample();
+        example.or().andGidEqualTo(gid);
+        return cloudStockMapper.selectByExample(example);
+    }
+
     public boolean insert(int gid, int sid, int ctype, int cid, BigDecimal price, int weight, int value) {
         TCloudStock row = new TCloudStock();
         row.setGid(gid);

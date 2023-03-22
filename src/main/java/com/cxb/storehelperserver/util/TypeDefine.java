@@ -28,6 +28,8 @@ public class TypeDefine {
         CLOUD_LOSS_ORDER(42),           // 云仓损耗订单
         CLOUD_BACK_ORDER(43),           // 云仓履约退货订单
         CLOUD_AGREEMENT_ORDER(44),      // 云仓履约入库订单
+        // 调度
+        // 线下销售
         SALE_RETURN_ORDER(50);          // 销售退货订单
 
         private int value = 0;

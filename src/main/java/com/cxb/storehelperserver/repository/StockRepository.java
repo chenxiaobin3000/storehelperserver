@@ -99,6 +99,12 @@ public class StockRepository extends BaseRepository<TStock> {
         }
     }
 
+    public List<TStock> all(int gid) {
+        TStockExample example = new TStockExample();
+        example.or().andGidEqualTo(gid);
+        return stockMapper.selectByExample(example);
+    }
+
     public boolean insert(int gid, int sid, int ctype, int cid, BigDecimal price, int weight, int value) {
         TStock row = new TStock();
         row.setGid(gid);

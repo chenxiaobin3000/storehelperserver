@@ -4,9 +4,7 @@ import com.cxb.storehelperserver.mapper.TStorageCommodityMapper;
 import com.cxb.storehelperserver.model.TStorageCommodity;
 import com.cxb.storehelperserver.model.TStorageCommodityExample;
 import com.cxb.storehelperserver.repository.mapper.MyStorageCommodityMapper;
-import com.cxb.storehelperserver.repository.model.MyOrderCommodity;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.annotation.AccessType;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
@@ -66,10 +64,6 @@ public class StorageCommodityRepository extends BaseRepository<List> {
 
     public BigDecimal count(int oid) {
         return myStorageCommodityMapper.count(oid);
-    }
-
-    public List<MyOrderCommodity> pagination(int gid, int sid, Date start, Date end) {
-        return myStorageCommodityMapper.pagination(gid, sid, start, end);
     }
 
     // 注意：数据被缓存在StorageCommodityService，所以不能直接调用该函数

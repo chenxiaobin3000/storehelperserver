@@ -3,6 +3,7 @@ package com.cxb.storehelperserver.controller;
 import com.cxb.storehelperserver.controller.request.stock.*;
 import com.cxb.storehelperserver.service.CloudStockService;
 import com.cxb.storehelperserver.service.StorageStockService;
+import com.cxb.storehelperserver.util.DateUtil;
 import com.cxb.storehelperserver.util.RestResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
@@ -12,6 +13,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * desc: 库存接口
@@ -27,6 +31,9 @@ public class StockController {
 
     @Resource
     private CloudStockService cloudStockService;
+
+    @Resource
+    private DateUtil dateUtil;
 
     @PostMapping("/getStockList")
     public RestResult getStockList(@Validated @RequestBody GetStockListValid req) {
@@ -70,6 +77,25 @@ public class StockController {
 
     @PostMapping("/countStock")
     public RestResult countStock(@Validated @RequestBody CountStockValid req) {
-        return storageStockService.countStock(req.getId(), req.getGid());
+        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
+        Date date = null;
+        try {
+            date = simpleDateFormat.parse(req.getDate());
+        } catch (ParseException e) {
+            return RestResult.fail("订单制单日期转换失败");
+        }
+        return storageStockService.countStock(req.getId(), req.getGid(), date);
+    }
+
+    @PostMapping("/countCloud")
+    public RestResult countCloud(@Validated @RequestBody CountStockValid req) {
+        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
+        Date date = null;
+        try {
+            date = simpleDateFormat.parse(req.getDate());
+        } catch (ParseException e) {
+            return RestResult.fail("订单制单日期转换失败");
+        }
+        return cloudStockService.countStock(req.getId(), req.getGid(), date);
     }
 }

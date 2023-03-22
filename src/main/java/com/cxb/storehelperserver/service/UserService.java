@@ -78,6 +78,10 @@ public class UserService {
             return RestResult.fail("获取公司信息失败");
         }
 
+        if (null != accountRepository.find(account)) {
+            return RestResult.fail("账号已存在");
+        }
+
         List<TRole> roles = roleRepository.findByGroup(group.getGid());
         if (null == roles) {
             return RestResult.fail("获取角色信息失败");
@@ -109,7 +113,7 @@ public class UserService {
         if (!accountRepository.insert(account, defaultpwd, user.getId())) {
             return RestResult.fail("新增账号信息失败");
         }
-        return RestResult.ok();
+        return RestResult.ok(user);
     }
 
     public RestResult setUser(int id, int uid, String name, String phone) {

@@ -7,6 +7,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.Date;
 
 /**
  * desc:
@@ -25,7 +26,8 @@ public class ScheduledTasks {
     @Scheduled(cron = "1 0 0 * * ?")
     private void scheduledStock() {
         log.info("scheduled stock");
-        storageStockService.countStock(1, 2);
-        //cloudStockServicee.countStock(1, 2);
+        Date date = new Date();
+        storageStockService.countStock(1, 2, date);
+        //cloudStockServicee.countStock(1, 2, date);
     }
 }
