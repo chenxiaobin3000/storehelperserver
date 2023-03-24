@@ -1,12 +1,14 @@
 package com.cxb.storehelperserver.repository;
 
 import com.cxb.storehelperserver.mapper.TCommodityCloudMapper;
-import com.cxb.storehelperserver.model.TCommodityCloud;
-import com.cxb.storehelperserver.model.TCommodityCloudExample;
+import com.cxb.storehelperserver.model.*;
+import com.cxb.storehelperserver.repository.mapper.MyCommodityCloudMapper;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * desc: 商品云仓关联仓库
@@ -15,44 +17,61 @@ import javax.annotation.Resource;
  */
 @Slf4j
 @Repository
-public class CommodityCloudRepository extends BaseRepository<TCommodityCloud> {
+public class CommodityCloudRepository extends BaseRepository<List> {
     @Resource
     private TCommodityCloudMapper commodityCloudMapper;
+
+    @Resource
+    private MyCommodityCloudMapper myCommodityCloudMapper;
 
     public CommodityCloudRepository() {
         init("commCloud::");
     }
 
-    public TCommodityCloud find(int cid) {
-        TCommodityCloud commodityCloud = getCache(cid, TCommodityCloud.class);
-        if (null != commodityCloud) {
-            return commodityCloud;
+    public List<TCommodityCloud> find(int cid) {
+        List<TCommodityCloud> commodityClouds = getCache(cid, List.class);
+        if (null != commodityClouds) {
+            return commodityClouds;
         }
 
         // 缓存没有就查询数据库
         TCommodityCloudExample example = new TCommodityCloudExample();
         example.or().andCidEqualTo(cid);
-        commodityCloud = commodityCloudMapper.selectOneByExample(example);
-        if (null != commodityCloud) {
-            setCache(cid, commodityCloud);
+        commodityClouds = commodityCloudMapper.selectByExample(example);
+        if (null != commodityClouds) {
+            setCache(cid, commodityClouds);
         }
-        return commodityCloud;
+        return commodityClouds;
     }
 
-    public boolean insert(TCommodityCloud row) {
-        if (commodityCloudMapper.insert(row) > 0) {
-            setCache(row.getCid(), row);
-            return true;
+    public int total(int sid, int mid, String search) {
+        if (null != search) {
+            return myCommodityCloudMapper.count(sid, mid, "%" + search + "%");
+        } else {
+            return myCommodityCloudMapper.count(sid, mid, null);
         }
-        return false;
     }
 
-    public boolean update(TCommodityCloud row) {
-        if (commodityCloudMapper.updateByPrimaryKey(row) > 0) {
-            setCache(row.getCid(), row);
-            return true;
+    public List<TMarketCommodity> pagination(int sid, int mid, int page, int limit, String search) {
+        if (null != search) {
+            return myCommodityCloudMapper.pagination(sid, mid, (page - 1) * limit, limit, "%" + search + "%");
+        } else {
+            return myCommodityCloudMapper.pagination(sid, mid, (page - 1) * limit, limit, null);
         }
-        return false;
+    }
+
+    public boolean update(int cid, List<Integer> sids) {
+        delete(cid);
+        TCommodityCloud row = new TCommodityCloud();
+        row.setCid(cid);
+        for (Integer sid : sids) {
+            row.setId(0);
+            row.setSid(sid);
+            if (commodityCloudMapper.insert(row) <= 0) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public boolean delete(int cid) {

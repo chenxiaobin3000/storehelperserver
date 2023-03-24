@@ -38,6 +38,12 @@ public class CommodityService {
     private CommodityOriginalRepository commodityOriginalRepository;
 
     @Resource
+    private CommodityCloudRepository commodityCloudRepository;
+
+    @Resource
+    private CommodityStorageRepository commodityStorageRepository;
+
+    @Resource
     private OriginalRepository originalRepository;
 
     @Resource
@@ -45,6 +51,12 @@ public class CommodityService {
 
     @Resource
     private CategoryRepository categoryRepository;
+
+    @Resource
+    private CloudRepository cloudRepository;
+
+    @Resource
+    private StorageRepository storageRepository;
 
     @Resource
     private UserGroupRepository userGroupRepository;
@@ -191,13 +203,48 @@ public class CommodityService {
 
         val datas = new ArrayList<HashMap<String, Object>>();
         for (TCommodity c : commodities) {
+            int cid = c.getId();
             val tmp = new HashMap<String, Object>();
-            tmp.put("id", c.getId());
+            tmp.put("id", cid);
             tmp.put("code", c.getCode());
             tmp.put("name", c.getName());
             tmp.put("cid", c.getCid());
             tmp.put("remark", c.getRemark());
             datas.add(tmp);
+
+            // 云仓
+            val clouds = commodityCloudRepository.find(cid);
+            if (null != clouds && !clouds.isEmpty()) {
+                val list2 = new ArrayList<HashMap<String, Object>>();
+                tmp.put("clouds", list2);
+                for (TCommodityCloud sc : clouds) {
+                    val tmp2 = new HashMap<String, Object>();
+                    int sid = sc.getSid();
+                    tmp2.put("sid", sid);
+                    TCloud cloud = cloudRepository.find(sid);
+                    if (null != cloud) {
+                        tmp2.put("name", cloud.getName());
+                    }
+                    list2.add(tmp2);
+                }
+            }
+
+            // 仓库
+            val storages = commodityStorageRepository.find(cid);
+            if (null != storages && !storages.isEmpty()) {
+                val list2 = new ArrayList<HashMap<String, Object>>();
+                tmp.put("storages", list2);
+                for (TCommodityStorage ss : storages) {
+                    val tmp2 = new HashMap<String, Object>();
+                    int sid = ss.getSid();
+                    tmp2.put("sid", sid);
+                    TStorage storage = storageRepository.find(sid);
+                    if (null != storage) {
+                        tmp2.put("name", storage.getName());
+                    }
+                    list2.add(tmp2);
+                }
+            }
 
             // 属性
             List<TCommodityAttr> attrs = commodityAttrRepository.find(c.getId());
@@ -293,6 +340,30 @@ public class CommodityService {
             if (!commodityOriginalRepository.update(commodityOriginal)) {
                 return RestResult.fail("修改商品关联原料失败");
             }
+        }
+        return RestResult.ok();
+    }
+
+    public RestResult setCommodityCloud(int id, int gid, int cid, List<Integer> sids) {
+        // 验证公司
+        String msg = checkService.checkGroup(id, gid);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+        if (!commodityCloudRepository.update(cid, sids)) {
+            return RestResult.fail("添加商品关联云仓失败");
+        }
+        return RestResult.ok();
+    }
+
+    public RestResult setCommodityStorage(int id, int gid, int cid, List<Integer> sids) {
+        // 验证公司
+        String msg = checkService.checkGroup(id, gid);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+        if (!commodityStorageRepository.update(cid, sids)) {
+            return RestResult.fail("添加商品关联仓库失败");
         }
         return RestResult.ok();
     }

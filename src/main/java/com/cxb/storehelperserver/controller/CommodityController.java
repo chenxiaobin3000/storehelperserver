@@ -72,4 +72,14 @@ public class CommodityController {
     public RestResult setCommodityOriginal(@Validated @RequestBody SetCommodityOriginalValid req) {
         return commodityService.setCommodityOriginal(req.getId(), req.getGid(), req.getCid(), req.getOid());
     }
+
+    @PostMapping("/setCommodityCloud")
+    public RestResult setCommodityCloud(@Validated @RequestBody SetCommodityCloudValid req) {
+        return commodityService.setCommodityCloud(req.getId(), req.getGid(), req.getCid(), req.getSids());
+    }
+
+    @PostMapping("/setCommodityStorage")
+    public RestResult setCommodityStorage(@Validated @RequestBody SetCommodityCloudValid req) {
+        return commodityService.setCommodityStorage(req.getId(), req.getGid(), req.getCid(), req.getSids());
+    }
 }

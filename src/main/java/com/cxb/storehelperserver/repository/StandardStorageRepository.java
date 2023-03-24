@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * desc: 标品仓库关联仓库
@@ -15,50 +16,48 @@ import javax.annotation.Resource;
  */
 @Slf4j
 @Repository
-public class StandardStorageRepository extends BaseRepository<TStandardStorage> {
+public class StandardStorageRepository extends BaseRepository<List> {
     @Resource
-    private TStandardStorageMapper commodityStorageMapper;
+    private TStandardStorageMapper standardStorageMapper;
 
     public StandardStorageRepository() {
         init("stanStorage::");
     }
 
-    public TStandardStorage find(int cid) {
-        TStandardStorage commodityStorage = getCache(cid, TStandardStorage.class);
-        if (null != commodityStorage) {
-            return commodityStorage;
+    public List<TStandardStorage> find(int cid) {
+        List<TStandardStorage> standardStorages = getCache(cid, List.class);
+        if (null != standardStorages) {
+            return standardStorages;
         }
 
         // 缓存没有就查询数据库
         TStandardStorageExample example = new TStandardStorageExample();
         example.or().andCidEqualTo(cid);
-        commodityStorage = commodityStorageMapper.selectOneByExample(example);
-        if (null != commodityStorage) {
-            setCache(cid, commodityStorage);
+        standardStorages = standardStorageMapper.selectByExample(example);
+        if (null != standardStorages) {
+            setCache(cid, standardStorages);
         }
-        return commodityStorage;
+        return standardStorages;
     }
 
-    public boolean insert(TStandardStorage row) {
-        if (commodityStorageMapper.insert(row) > 0) {
-            setCache(row.getCid(), row);
-            return true;
+    public boolean update(int cid, List<Integer> sids) {
+        delete(cid);
+        TStandardStorage row = new TStandardStorage();
+        row.setCid(cid);
+        for (Integer sid : sids) {
+            row.setId(0);
+            row.setSid(sid);
+            if (standardStorageMapper.insert(row) <= 0) {
+                return false;
+            }
         }
-        return false;
-    }
-
-    public boolean update(TStandardStorage row) {
-        if (commodityStorageMapper.updateByPrimaryKey(row) > 0) {
-            setCache(row.getCid(), row);
-            return true;
-        }
-        return false;
+        return true;
     }
 
     public boolean delete(int cid) {
         delCache(cid);
         TStandardStorageExample example = new TStandardStorageExample();
         example.or().andCidEqualTo(cid);
-        return commodityStorageMapper.deleteByExample(example) > 0;
+        return standardStorageMapper.deleteByExample(example) > 0;
     }
 }
