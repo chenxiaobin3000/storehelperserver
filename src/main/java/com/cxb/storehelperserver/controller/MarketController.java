@@ -1,6 +1,7 @@
 package com.cxb.storehelperserver.controller;
 
 import com.cxb.storehelperserver.controller.request.market.*;
+import com.cxb.storehelperserver.model.TMarketCommodity;
 import com.cxb.storehelperserver.model.TMarketCommodityDetail;
 import com.cxb.storehelperserver.model.TMarketStandardDetail;
 import com.cxb.storehelperserver.service.MarketService;
@@ -37,12 +38,12 @@ public class MarketController {
 
     @PostMapping("/setMarketCommodity")
     public RestResult setMarketCommodity(@Validated @RequestBody SetMarketCommodityValid req) {
-        return marketService.setMarketCommodity(req.getId(), req.getGid(), req.getMid(), req.getCid(), req.getName(), req.getPrice());
+        return marketService.setMarketCommodity(req.getId(), req.getGid(), req.getSid(), req.getMid(), req.getCid(), req.getCode(), req.getName(), req.getRemark(), req.getPrice());
     }
 
     @PostMapping("/delMarketCommodity")
     public RestResult delMarketCommodity(@Validated @RequestBody DelMarketCommodityValid req) {
-        return marketService.delMarketCommodity(req.getId(), req.getGid(), req.getMid(), req.getCid());
+        return marketService.delMarketCommodity(req.getId(), req.getGid(), req.getSid(), req.getMid(), req.getCid());
     }
 
     @PostMapping("/getMarketCommodity")
@@ -52,12 +53,12 @@ public class MarketController {
 
     @PostMapping("/setMarketStandard")
     public RestResult setMarketStandard(@Validated @RequestBody SetMarketStandardValid req) {
-        return marketService.setMarketStandard(req.getId(), req.getGid(), req.getMid(), req.getCid(), req.getName(), req.getPrice());
+        return marketService.setMarketStandard(req.getId(), req.getGid(), req.getSid(), req.getMid(), req.getCid(), req.getCode(), req.getName(), req.getRemark(), req.getPrice());
     }
 
     @PostMapping("/delMarketStandard")
     public RestResult delMarketStandard(@Validated @RequestBody DelMarketStandardValid req) {
-        return marketService.delMarketStandard(req.getId(), req.getGid(), req.getMid(), req.getCid());
+        return marketService.delMarketStandard(req.getId(), req.getGid(), req.getSid(), req.getMid(), req.getCid());
     }
 
     @PostMapping("/getMarketStandard")
@@ -82,17 +83,18 @@ public class MarketController {
         TMarketCommodityDetail detail = new TMarketCommodityDetail();
         detail.setId(0 == req.getDid() ? null : req.getDid());
         detail.setGid(req.getGid());
+        detail.setSid(req.getSid());
         detail.setMid(req.getMid());
         detail.setCid(req.getCid());
         detail.setValue(req.getValue());
         detail.setPrice(req.getPrice());
         detail.setCdate(date);
-        return marketService.setMarketCommDetail(req.getId(), req.getGid(), detail);
+        return marketService.setMarketCommodityDetail(req.getId(), req.getGid(), detail);
     }
 
     @PostMapping("/delMarketCommDetail")
     public RestResult delMarketCommDetail(@Validated @RequestBody DelMarketCommodityDetailValid req) {
-        return marketService.delMarketCommDetail(req.getId(), req.getGid(), req.getDid());
+        return marketService.delMarketCommodityDetail(req.getId(), req.getGid(), req.getDid());
     }
 
     @PostMapping("/getMarketCommDetail")
@@ -104,11 +106,11 @@ public class MarketController {
         } catch (ParseException e) {
             return RestResult.fail("查询日期转换失败");
         }
-        return marketService.getMarketCommDetail(req.getId(), req.getPage(), req.getLimit(), req.getMid(), date, req.getSearch());
+        return marketService.getMarketCommodityDetail(req.getId(), req.getGid(), req.getPage(), req.getLimit(), req.getSid(), req.getMid(), date, req.getSearch());
     }
 
     @PostMapping("/setMarketStanDetail")
-    public RestResult setMarketStanDetail(@Validated @RequestBody SetMarketCommodityDetailValid req) {
+    public RestResult setMarketStanDetail(@Validated @RequestBody SetMarketStandardDetailValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
         Date date = null;
         try {
@@ -124,21 +126,22 @@ public class MarketController {
         TMarketStandardDetail detail = new TMarketStandardDetail();
         detail.setId(0 == req.getDid() ? null : req.getDid());
         detail.setGid(req.getGid());
+        detail.setSid(req.getSid());
         detail.setMid(req.getMid());
         detail.setCid(req.getCid());
         detail.setValue(req.getValue());
         detail.setPrice(req.getPrice());
         detail.setCdate(date);
-        return marketService.setMarketStanDetail(req.getId(), req.getGid(), detail);
+        return marketService.setMarketStandardDetail(req.getId(), req.getGid(), detail);
     }
 
     @PostMapping("/delMarketStanDetail")
-    public RestResult delMarketStanDetail(@Validated @RequestBody DelMarketCommodityDetailValid req) {
-        return marketService.delMarketStanDetail(req.getId(), req.getGid(), req.getDid());
+    public RestResult delMarketStanDetail(@Validated @RequestBody DelMarketStandardDetailValid req) {
+        return marketService.delMarketStandardDetail(req.getId(), req.getGid(), req.getDid());
     }
 
     @PostMapping("/getMarketStanDetail")
-    public RestResult getMarketStanDetail(@Validated @RequestBody GetMarketCommodityDetailValid req) {
+    public RestResult getMarketStanDetail(@Validated @RequestBody GetMarketStandardDetailValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
         Date date = null;
         try {
@@ -146,7 +149,7 @@ public class MarketController {
         } catch (ParseException e) {
             return RestResult.fail("查询日期转换失败");
         }
-        return marketService.getMarketStanDetail(req.getId(), req.getPage(), req.getLimit(), req.getMid(), date, req.getSearch());
+        return marketService.getMarketStandardDetail(req.getId(), req.getGid(), req.getPage(), req.getLimit(), req.getSid(), req.getMid(), date, req.getSearch());
     }
 
     @PostMapping("/getCommoditySaleInfo")

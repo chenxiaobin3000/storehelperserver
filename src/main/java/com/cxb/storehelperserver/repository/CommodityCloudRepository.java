@@ -2,9 +2,7 @@ package com.cxb.storehelperserver.repository;
 
 import com.cxb.storehelperserver.mapper.TCommodityCloudMapper;
 import com.cxb.storehelperserver.model.*;
-import com.cxb.storehelperserver.repository.mapper.MyCommodityCloudMapper;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
@@ -20,9 +18,6 @@ import java.util.List;
 public class CommodityCloudRepository extends BaseRepository<List> {
     @Resource
     private TCommodityCloudMapper commodityCloudMapper;
-
-    @Resource
-    private MyCommodityCloudMapper myCommodityCloudMapper;
 
     public CommodityCloudRepository() {
         init("commCloud::");
@@ -42,22 +37,6 @@ public class CommodityCloudRepository extends BaseRepository<List> {
             setCache(cid, commodityClouds);
         }
         return commodityClouds;
-    }
-
-    public int total(int sid, int mid, String search) {
-        if (null != search) {
-            return myCommodityCloudMapper.count(sid, mid, "%" + search + "%");
-        } else {
-            return myCommodityCloudMapper.count(sid, mid, null);
-        }
-    }
-
-    public List<TMarketCommodity> pagination(int sid, int mid, int page, int limit, String search) {
-        if (null != search) {
-            return myCommodityCloudMapper.pagination(sid, mid, (page - 1) * limit, limit, "%" + search + "%");
-        } else {
-            return myCommodityCloudMapper.pagination(sid, mid, (page - 1) * limit, limit, null);
-        }
     }
 
     public boolean update(int cid, List<Integer> sids) {

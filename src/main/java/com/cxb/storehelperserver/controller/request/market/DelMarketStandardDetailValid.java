@@ -2,10 +2,8 @@ package com.cxb.storehelperserver.controller.request.market;
 
 import com.cxb.storehelperserver.controller.request.IValid;
 import lombok.Data;
-import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotEmpty;
 
 /**
  * desc:

@@ -28,7 +28,7 @@ public class GetMarketStandardValid implements IValid {
     @Min(value = 1, message = "云仓账号错误")
     private int sid;
 
-    @Min(value = 1, message = "平台账号错误")
+    @Min(value = 0, message = "平台账号错误")
     private int mid;
 
     @Length(max = 16, message = "搜索内容不能大于16个字符")

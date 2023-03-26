@@ -3,7 +3,7 @@ package com.cxb.storehelperserver.repository;
 import com.cxb.storehelperserver.mapper.TStorageCommodityMapper;
 import com.cxb.storehelperserver.model.TStorageCommodity;
 import com.cxb.storehelperserver.model.TStorageCommodityExample;
-import com.cxb.storehelperserver.repository.mapper.MyStorageCommodityMapper;
+import com.cxb.storehelperserver.repository.mapper.MyCommodityCountMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
@@ -24,7 +24,7 @@ public class StorageCommodityRepository extends BaseRepository<List> {
     private TStorageCommodityMapper storageCommodityMapper;
 
     @Resource
-    private MyStorageCommodityMapper myStorageCommodityMapper;
+    private MyCommodityCountMapper myCommodityCountMapper;
 
     public StorageCommodityRepository() {
         init("storageComm::");
@@ -63,7 +63,7 @@ public class StorageCommodityRepository extends BaseRepository<List> {
     }
 
     public BigDecimal count(int oid) {
-        return myStorageCommodityMapper.count(oid);
+        return myCommodityCountMapper.count_storage(oid);
     }
 
     // 注意：数据被缓存在StorageCommodityService，所以不能直接调用该函数

@@ -3,7 +3,7 @@ package com.cxb.storehelperserver.repository;
 import com.cxb.storehelperserver.mapper.TPurchaseCommodityMapper;
 import com.cxb.storehelperserver.model.TPurchaseCommodity;
 import com.cxb.storehelperserver.model.TPurchaseCommodityExample;
-import com.cxb.storehelperserver.repository.mapper.MyPurchaseCommodityMapper;
+import com.cxb.storehelperserver.repository.mapper.MyCommodityCountMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
@@ -23,7 +23,7 @@ public class PurchaseCommodityRepository extends BaseRepository<List> {
     private TPurchaseCommodityMapper purchaseCommodityMapper;
 
     @Resource
-    private MyPurchaseCommodityMapper myPurchaseCommodityMapper;
+    private MyCommodityCountMapper myCommodityCountMapper;
 
     public PurchaseCommodityRepository() {
         init("purComm::");
@@ -62,7 +62,7 @@ public class PurchaseCommodityRepository extends BaseRepository<List> {
     }
 
     public BigDecimal count(int oid) {
-        return myPurchaseCommodityMapper.count(oid);
+        return myCommodityCountMapper.count_purchase(oid);
     }
 
     // 注意：数据被缓存在PurchaseCommodityService，所以不能直接调用该函数

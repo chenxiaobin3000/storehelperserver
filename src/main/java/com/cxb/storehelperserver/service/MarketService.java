@@ -2,6 +2,8 @@ package com.cxb.storehelperserver.service;
 
 import com.cxb.storehelperserver.model.*;
 import com.cxb.storehelperserver.repository.*;
+import com.cxb.storehelperserver.repository.model.MyMarketCloud;
+import com.cxb.storehelperserver.repository.model.MyMarketCommodity;
 import com.cxb.storehelperserver.repository.model.MyMarketSaleInfo;
 import com.cxb.storehelperserver.service.model.PageData;
 import com.cxb.storehelperserver.util.DateUtil;
@@ -48,22 +50,28 @@ public class MarketService {
     private MarketStandardDetailRepository marketStandardDetailRepository;
 
     @Resource
-    private CommodityCloudRepository commodityCloudRepository;
+    private MarketCloudRepository marketCloudRepository;
 
     @Resource
     private CommodityRepository commodityRepository;
 
     @Resource
-    private CommodityAttrRepository commodityAttrRepository;
+    private CommodityCloudRepository commodityCloudRepository;
 
     @Resource
-    private StandardCloudRepository standardCloudRepository;
+    private CommodityAttrRepository commodityAttrRepository;
 
     @Resource
     private StandardRepository standardRepository;
 
     @Resource
+    private StandardCloudRepository standardCloudRepository;
+
+    @Resource
     private StandardAttrRepository standardAttrRepository;
+
+    @Resource
+    private CloudRepository cloudRepository;
 
     @Resource
     private CloudStockRepository cloudStockRepository;
@@ -74,7 +82,7 @@ public class MarketService {
     @Resource
     private DateUtil dateUtil;
 
-    public RestResult setMarketCommodity(int id, int gid, int mid, int cid, String name, BigDecimal price) {
+    public RestResult setMarketCommodity(int id, int gid, int sid, int mid, int cid, String code, String name, String remark, BigDecimal price) {
         // 验证公司
         String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
@@ -82,9 +90,12 @@ public class MarketService {
         }
         TMarketCommodity commodity = new TMarketCommodity();
         commodity.setGid(gid);
+        commodity.setSid(sid);
         commodity.setMid(mid);
         commodity.setCid(cid);
+        commodity.setCode(code);
         commodity.setName(name);
+        commodity.setRemark(remark);
         commodity.setPrice(price);
         if (!marketCommodityRepository.update(commodity)) {
             return RestResult.fail("修改对接商品信息失败");
@@ -92,13 +103,13 @@ public class MarketService {
         return RestResult.ok();
     }
 
-    public RestResult delMarketCommodity(int id, int gid, int mid, int cid) {
+    public RestResult delMarketCommodity(int id, int gid, int sid, int mid, int cid) {
         // 验证公司
         String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
             return RestResult.fail(msg);
         }
-        if (!marketCommodityRepository.delete(gid, mid, cid)) {
+        if (!marketCommodityRepository.delete(sid, mid, cid)) {
             return RestResult.fail("删除对接商品信息失败");
         }
         return RestResult.ok();
@@ -111,11 +122,11 @@ public class MarketService {
             return RestResult.fail(msg);
         }
 
-        int total = commodityCloudRepository.total(sid, mid, search);
+        int total = marketCommodityRepository.total(sid, mid, search);
         if (0 == total) {
             return RestResult.ok(new PageData());
         }
-        val list = commodityCloudRepository.pagination(sid, mid, page, limit, search);
+        val list = marketCommodityRepository.pagination(sid, mid, page, limit, search);
         if (null == list) {
             return RestResult.fail("未查询到销售信息");
         }
@@ -124,14 +135,31 @@ public class MarketService {
         val datas = new ArrayList<HashMap<String, Object>>();
         for (TMarketCommodity c : list) {
             int cid = c.getCid();
+            Integer sid2 = c.getSid();
             val tmp = new HashMap<String, Object>();
             tmp.put("id", c.getId());
             tmp.put("cid", cid);
+            tmp.put("sid", sid2);
+            tmp.put("mid", c.getMid());
             tmp.put("mcode", c.getCode());
             tmp.put("mname", c.getName());
             tmp.put("mremark", c.getRemark());
             tmp.put("alarm", c.getPrice());
             datas.add(tmp);
+
+            if (null != sid2) {
+                // 云仓
+                TCloud cloud = cloudRepository.find(sid2);
+                if (null != cloud) {
+                    tmp.put("cloud", cloud.getName());
+                }
+
+                // 平台账号
+                MyMarketCloud marketCloud = marketCloudRepository.find(sid2);
+                if (null != marketCloud) {
+                    tmp.put("account", marketCloud.getAccount());
+                }
+            }
 
             // 商品信息
             val commodity = commodityRepository.find(cid);
@@ -162,7 +190,7 @@ public class MarketService {
         return RestResult.ok(new PageData(total, datas));
     }
 
-    public RestResult setMarketStandard(int id, int gid, int mid, int cid, String name, BigDecimal price) {
+    public RestResult setMarketStandard(int id, int gid, int sid, int mid, int cid, String code, String name, String remark, BigDecimal price) {
         // 验证公司
         String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
@@ -170,9 +198,12 @@ public class MarketService {
         }
         TMarketStandard standard = new TMarketStandard();
         standard.setGid(gid);
+        standard.setSid(sid);
         standard.setMid(mid);
         standard.setCid(cid);
+        standard.setCode(code);
         standard.setName(name);
+        standard.setRemark(remark);
         standard.setPrice(price);
         if (!marketStandardRepository.update(standard)) {
             return RestResult.fail("修改对接标品信息失败");
@@ -180,13 +211,13 @@ public class MarketService {
         return RestResult.ok();
     }
 
-    public RestResult delMarketStandard(int id, int gid, int mid, int cid) {
+    public RestResult delMarketStandard(int id, int gid, int sid, int mid, int cid) {
         // 验证公司
         String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
             return RestResult.fail(msg);
         }
-        if (!marketStandardRepository.delete(gid, mid, cid)) {
+        if (!marketStandardRepository.delete(sid, mid, cid)) {
             return RestResult.fail("删除对接标品信息失败");
         }
         return RestResult.ok();
@@ -199,11 +230,11 @@ public class MarketService {
             return RestResult.fail(msg);
         }
 
-        int total = standardCloudRepository.total(sid, mid, search);
+        int total = marketStandardRepository.total(sid, mid, search);
         if (0 == total) {
             return RestResult.ok(new PageData());
         }
-        val list = standardCloudRepository.pagination(sid, mid, page, limit, search);
+        val list = marketStandardRepository.pagination(sid, mid, page, limit, search);
         if (null == list) {
             return RestResult.fail("未查询到销售信息");
         }
@@ -212,14 +243,31 @@ public class MarketService {
         val datas = new ArrayList<HashMap<String, Object>>();
         for (TMarketStandard c : list) {
             int cid = c.getCid();
+            Integer sid2 = c.getSid();
             val tmp = new HashMap<String, Object>();
             tmp.put("id", c.getId());
             tmp.put("cid", cid);
+            tmp.put("sid", sid2);
+            tmp.put("mid", c.getMid());
             tmp.put("mcode", c.getCode());
             tmp.put("mname", c.getName());
             tmp.put("mremark", c.getRemark());
             tmp.put("alarm", c.getPrice());
             datas.add(tmp);
+
+            if (null != sid2) {
+                // 云仓
+                TCloud cloud = cloudRepository.find(sid2);
+                if (null != cloud) {
+                    tmp.put("cloud", cloud.getName());
+                }
+
+                // 平台账号
+                MyMarketCloud marketCloud = marketCloudRepository.find(sid2);
+                if (null != marketCloud) {
+                    tmp.put("account", marketCloud.getAccount());
+                }
+            }
 
             // 商品信息
             val standard = standardRepository.find(cid);
@@ -250,7 +298,7 @@ public class MarketService {
         return RestResult.ok(new PageData(total, datas));
     }
 
-    public RestResult setMarketCommDetail(int id, int gid, TMarketCommodityDetail detail) {
+    public RestResult setMarketCommodityDetail(int id, int gid, TMarketCommodityDetail detail) {
         // 验证公司
         String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
@@ -273,7 +321,7 @@ public class MarketService {
         return RestResult.ok();
     }
 
-    public RestResult delMarketCommDetail(int id, int gid, int did) {
+    public RestResult delMarketCommodityDetail(int id, int gid, int did) {
         // 验证公司
         String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
@@ -295,16 +343,68 @@ public class MarketService {
         return RestResult.ok();
     }
 
-    public RestResult getMarketCommDetail(int id, int page, int limit, int mid, Date date, String search) {
-        // 获取公司信息
-        TUserGroup group = userGroupRepository.find(id);
-        if (null == group) {
-            return RestResult.fail("获取公司信息失败");
+    public RestResult getMarketCommodityDetail(int id, int gid, int page, int limit, int sid, int mid, Date date, String search) {
+        // 验证公司
+        String msg = checkService.checkGroup(id, gid);
+        if (null != msg) {
+            return RestResult.fail(msg);
         }
-        return RestResult.ok();
+
+        int total = marketCommodityDetailRepository.total(sid, mid, search);
+        if (0 == total) {
+            return RestResult.ok(new PageData());
+        }
+        val list = marketCommodityDetailRepository.pagination(sid, mid, page, limit, date, search);
+        if (null == list) {
+            return RestResult.fail("未查询到销售信息");
+        }
+
+        // 属性
+        val datas = new ArrayList<HashMap<String, Object>>();
+        for (MyMarketCommodity c : list) {
+            int cid = c.getCid();
+            Integer sid2 = c.getSid();
+            val tmp = new HashMap<String, Object>();
+            tmp.put("id", c.getId());
+            tmp.put("cid", cid);
+            tmp.put("sid", sid2);
+            tmp.put("mid", c.getMid());
+            tmp.put("mcode", c.getCode());
+            tmp.put("mname", c.getName());
+            tmp.put("mremark", c.getRemark());
+            tmp.put("alarm", c.getAlarm());
+            tmp.put("mprice", c.getPrice());
+            tmp.put("mvalue", c.getValue());
+            datas.add(tmp);
+
+            // 平台账号
+            if (null != sid2) {
+                MyMarketCloud marketCloud = marketCloudRepository.find(sid2);
+                if (null != marketCloud) {
+                    tmp.put("account", marketCloud.getAccount());
+                }
+            }
+
+            // 商品信息
+            val commodity = commodityRepository.find(cid);
+            if (null != commodity) {
+                tmp.put("category", commodity.getCid());
+                tmp.put("ccode", commodity.getCode());
+                tmp.put("cname", commodity.getName());
+                tmp.put("cremark", commodity.getRemark());
+            }
+
+            // 库存价格
+            TCloudStock stock = cloudStockRepository.find(sid, COMMODITY.getValue(), cid);
+            if (null != stock) {
+                tmp.put("sprice", stock.getPrice());
+                tmp.put("svalue", stock.getValue());
+            }
+        }
+        return RestResult.ok(new PageData(total, datas));
     }
 
-    public RestResult setMarketStanDetail(int id, int gid, TMarketStandardDetail detail) {
+    public RestResult setMarketStandardDetail(int id, int gid, TMarketStandardDetail detail) {
         // 验证公司
         String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
@@ -327,7 +427,7 @@ public class MarketService {
         return RestResult.ok();
     }
 
-    public RestResult delMarketStanDetail(int id, int gid, int did) {
+    public RestResult delMarketStandardDetail(int id, int gid, int did) {
         // 验证公司
         String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
@@ -349,13 +449,65 @@ public class MarketService {
         return RestResult.ok();
     }
 
-    public RestResult getMarketStanDetail(int id, int page, int limit, int mid, Date date, String search) {
-        // 获取公司信息
-        TUserGroup group = userGroupRepository.find(id);
-        if (null == group) {
-            return RestResult.fail("获取公司信息失败");
+    public RestResult getMarketStandardDetail(int id, int gid, int page, int limit, int sid, int mid, Date date, String search) {
+        // 验证公司
+        String msg = checkService.checkGroup(id, gid);
+        if (null != msg) {
+            return RestResult.fail(msg);
         }
-        return RestResult.ok();
+
+        int total = marketStandardDetailRepository.total(sid, mid, search);
+        if (0 == total) {
+            return RestResult.ok(new PageData());
+        }
+        val list = marketStandardDetailRepository.pagination(sid, mid, page, limit, date, search);
+        if (null == list) {
+            return RestResult.fail("未查询到销售信息");
+        }
+
+        // 属性
+        val datas = new ArrayList<HashMap<String, Object>>();
+        for (MyMarketCommodity c : list) {
+            int cid = c.getCid();
+            Integer sid2 = c.getSid();
+            val tmp = new HashMap<String, Object>();
+            tmp.put("id", c.getId());
+            tmp.put("cid", cid);
+            tmp.put("sid", sid2);
+            tmp.put("mid", c.getMid());
+            tmp.put("mcode", c.getCode());
+            tmp.put("mname", c.getName());
+            tmp.put("mremark", c.getRemark());
+            tmp.put("alarm", c.getAlarm());
+            tmp.put("mprice", c.getPrice());
+            tmp.put("mvalue", c.getValue());
+            datas.add(tmp);
+
+            // 平台账号
+            if (null != sid2) {
+                MyMarketCloud marketCloud = marketCloudRepository.find(sid2);
+                if (null != marketCloud) {
+                    tmp.put("account", marketCloud.getAccount());
+                }
+            }
+
+            // 商品信息
+            val standard = standardRepository.find(cid);
+            if (null != standard) {
+                tmp.put("category", standard.getCid());
+                tmp.put("ccode", standard.getCode());
+                tmp.put("cname", standard.getName());
+                tmp.put("cremark", standard.getRemark());
+            }
+
+            // 库存价格
+            TCloudStock stock = cloudStockRepository.find(sid, STANDARD.getValue(), cid);
+            if (null != stock) {
+                tmp.put("sprice", stock.getPrice());
+                tmp.put("svalue", stock.getValue());
+            }
+        }
+        return RestResult.ok(new PageData(total, datas));
     }
 
     public RestResult getCommoditySaleInfo(int id, int page, int limit, int mid, ReportCycleType cycle, String search) {

@@ -2,9 +2,8 @@ package com.cxb.storehelperserver.repository;
 
 import com.cxb.storehelperserver.mapper.TMarketAccountMapper;
 import com.cxb.storehelperserver.mapper.TMarketCloudMapper;
-import com.cxb.storehelperserver.model.TMarketAccount;
-import com.cxb.storehelperserver.model.TMarketCloud;
-import com.cxb.storehelperserver.model.TMarketCloudExample;
+import com.cxb.storehelperserver.model.*;
+import com.cxb.storehelperserver.repository.mapper.MyMarketStandardMapper;
 import com.cxb.storehelperserver.repository.model.MyMarketCloud;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
@@ -25,6 +24,9 @@ public class MarketCloudRepository extends BaseRepository<MyMarketCloud> {
 
     @Resource
     private TMarketAccountMapper marketAccountMapper;
+
+    @Resource
+    private MyMarketStandardMapper myMarketStandardMapper;
 
     public MarketCloudRepository() {
         init("marketCloud::");

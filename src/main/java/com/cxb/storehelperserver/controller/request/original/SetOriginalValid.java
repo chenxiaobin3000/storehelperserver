@@ -39,9 +39,6 @@ public class SetOriginalValid implements IValid {
     @Min(value = 1, message = "原料品类错误")
     private int cid;
 
-    @Min(value = 1, message = "原料单位错误")
-    private int unit;
-
     @Length(max = 16, message = "原料备注长度不能大于16个字符")
     private String remark;
 

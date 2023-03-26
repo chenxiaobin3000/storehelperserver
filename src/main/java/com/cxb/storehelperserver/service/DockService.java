@@ -135,8 +135,19 @@ public class DockService {
         val list = marketAccountRepository.find(gid, mid);
         for (TMarketAccount marketAccount : list) {
             if (marketAccount.getAccount().equals(account)) {
-                if (!marketCloudRepository.insert(marketAccount.getId(), cid)) {
-                    return RestResult.fail("修改关联云仓信息失败");
+                MyMarketCloud cloud = marketCloudRepository.find(cid);
+                if (null == cloud) {
+                    if (!marketCloudRepository.insert(marketAccount.getId(), cid)) {
+                        return RestResult.fail("修改关联云仓信息失败");
+                    }
+                } else {
+                    TMarketCloud c = new TMarketCloud();
+                    c.setId(cloud.getId());
+                    c.setAid(marketAccount.getId());
+                    c.setCid(cid);
+                    if (!marketCloudRepository.update(c)) {
+                        return RestResult.fail("修改关联云仓信息失败");
+                    }
                 }
                 return RestResult.ok();
             }

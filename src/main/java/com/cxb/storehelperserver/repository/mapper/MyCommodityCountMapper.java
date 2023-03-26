@@ -6,12 +6,15 @@ import org.apache.ibatis.annotations.Select;
 import java.math.BigDecimal;
 
 /**
- * desc: 采购订单商品查询
+ * desc: 商品订单数据统计查询
  * auth: cxb
  * date: 2023/1/23
  */
 @Mapper
-public interface MyPurchaseCommodityMapper {
+public interface MyCommodityCountMapper {
     @Select({"<script>select sum(value*price) as total from t_purchase_commodity where oid = #{oid} group by oid</script>"})
-    BigDecimal count(int oid);
+    BigDecimal count_purchase(int oid);
+
+    @Select({"<script>select sum(value*price) as total from t_storage_commodity where oid = #{oid} group by oid</script>"})
+    BigDecimal count_storage(int oid);
 }

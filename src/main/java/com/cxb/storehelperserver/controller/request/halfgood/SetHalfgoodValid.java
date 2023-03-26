@@ -39,9 +39,6 @@ public class SetHalfgoodValid implements IValid {
     @Min(value = 1, message = "半成品品类错误")
     private int cid;
 
-    @Min(value = 1, message = "半成品单位错误")
-    private int unit;
-
     @Length(max = 16, message = "半成品备注长度不能大于16个字符")
     private String remark;
 

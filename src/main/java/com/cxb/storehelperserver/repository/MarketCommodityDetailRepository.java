@@ -2,8 +2,9 @@ package com.cxb.storehelperserver.repository;
 
 import com.cxb.storehelperserver.mapper.TMarketCommodityDetailMapper;
 import com.cxb.storehelperserver.model.TMarketCommodityDetail;
-import com.cxb.storehelperserver.model.TMarketCommodityDetailExample;
-import com.cxb.storehelperserver.repository.mapper.MyMarketCommodityDetailMapper;
+import com.cxb.storehelperserver.repository.mapper.MyMarketCommodityMapper;
+import com.cxb.storehelperserver.repository.mapper.MyMarketMapper;
+import com.cxb.storehelperserver.repository.model.MyMarketCommodity;
 import com.cxb.storehelperserver.repository.model.MyMarketReport;
 import com.cxb.storehelperserver.repository.model.MyMarketSaleInfo;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +26,10 @@ public class MarketCommodityDetailRepository extends BaseRepository<TMarketCommo
     private TMarketCommodityDetailMapper marketCommodityDetailMapper;
 
     @Resource
-    private MyMarketCommodityDetailMapper myMarketCommodityDetailMapper;
+    private MyMarketCommodityMapper myMarketCommodityMapper;
+
+    @Resource
+    private MyMarketMapper myMarketMapper;
 
     public MarketCommodityDetailRepository() {
         init("marketCommDetail::");
@@ -46,26 +50,27 @@ public class MarketCommodityDetailRepository extends BaseRepository<TMarketCommo
     }
 
     public List<MyMarketReport> findByDate(int gid, int mid, Date start, Date end) {
-        return myMarketCommodityDetailMapper.select(gid, mid, new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
+        return myMarketMapper.select_commodity(gid, mid, new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
     }
 
     public List<MyMarketSaleInfo> findInCids(int gid, int mid, List<Integer> cids) {
-        return myMarketCommodityDetailMapper.selectInCids(gid, mid, cids);
+        return myMarketMapper.selectInCids_commodity(gid, mid, cids);
     }
 
-    public int total(int gid, int mid, String search) {
-        TMarketCommodityDetailExample example = new TMarketCommodityDetailExample();
-        example.or().andGidEqualTo(gid).andMidEqualTo(mid);
-        return (int) marketCommodityDetailMapper.countByExample(example);
+    public int total(int sid, int mid, String search) {
+        if (null != search) {
+            return myMarketCommodityMapper.countDetail(sid, mid, "%" + search + "%");
+        } else {
+            return myMarketCommodityMapper.countDetail(sid, mid, null);
+        }
     }
 
-    public List<TMarketCommodityDetail> pagination(int gid, int page, int limit, int mid, String search) {
-        TMarketCommodityDetailExample example = new TMarketCommodityDetailExample();
-        example.or().andGidEqualTo(gid).andMidEqualTo(mid);
-        example.setOffset((page - 1) * limit);
-        example.setLimit(limit);
-        example.setOrderByClause("ctime desc");
-        return marketCommodityDetailMapper.selectByExample(example);
+    public List<MyMarketCommodity> pagination(int sid, int mid, int page, int limit, Date date, String search) {
+        if (null != search) {
+            return myMarketCommodityMapper.paginationDetail((page - 1) * limit, limit, sid, mid, new java.sql.Date(date.getTime()), "%" + search + "%");
+        } else {
+            return myMarketCommodityMapper.paginationDetail((page - 1) * limit, limit, sid, mid, new java.sql.Date(date.getTime()), null);
+        }
     }
 
     public boolean insert(TMarketCommodityDetail row) {

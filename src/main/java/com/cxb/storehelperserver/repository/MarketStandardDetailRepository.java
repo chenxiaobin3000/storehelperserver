@@ -2,8 +2,9 @@ package com.cxb.storehelperserver.repository;
 
 import com.cxb.storehelperserver.mapper.TMarketStandardDetailMapper;
 import com.cxb.storehelperserver.model.TMarketStandardDetail;
-import com.cxb.storehelperserver.model.TMarketStandardDetailExample;
-import com.cxb.storehelperserver.repository.mapper.MyMarketStandardDetailMapper;
+import com.cxb.storehelperserver.repository.mapper.MyMarketMapper;
+import com.cxb.storehelperserver.repository.mapper.MyMarketStandardMapper;
+import com.cxb.storehelperserver.repository.model.MyMarketCommodity;
 import com.cxb.storehelperserver.repository.model.MyMarketReport;
 import com.cxb.storehelperserver.repository.model.MyMarketSaleInfo;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +26,10 @@ public class MarketStandardDetailRepository extends BaseRepository<TMarketStanda
     private TMarketStandardDetailMapper marketStandardDetailMapper;
 
     @Resource
-    private MyMarketStandardDetailMapper myMarketStandardDetailMapper;
+    private MyMarketStandardMapper myMarketStandardMapper;
+
+    @Resource
+    private MyMarketMapper myMarketMapper;
 
     public MarketStandardDetailRepository() {
         init("marketStanDetail::");
@@ -46,26 +50,27 @@ public class MarketStandardDetailRepository extends BaseRepository<TMarketStanda
     }
 
     public List<MyMarketReport> findByDate(int gid, int mid, Date start, Date end) {
-        return myMarketStandardDetailMapper.select(gid, mid, new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
+        return myMarketMapper.select_standard(gid, mid, new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
     }
 
     public List<MyMarketSaleInfo> findInCids(int gid, int mid, List<Integer> cids) {
-        return myMarketStandardDetailMapper.selectInCids(gid, mid, cids);
+        return myMarketMapper.selectInCids_standard(gid, mid, cids);
     }
 
-    public int total(int gid, int mid, String search) {
-        TMarketStandardDetailExample example = new TMarketStandardDetailExample();
-        example.or().andGidEqualTo(gid).andMidEqualTo(mid);
-        return (int) marketStandardDetailMapper.countByExample(example);
+    public int total(int sid, int mid, String search) {
+        if (null != search) {
+            return myMarketStandardMapper.countDetail(sid, mid, "%" + search + "%");
+        } else {
+            return myMarketStandardMapper.countDetail(sid, mid, null);
+        }
     }
 
-    public List<TMarketStandardDetail> pagination(int gid, int page, int limit, int mid, String search) {
-        TMarketStandardDetailExample example = new TMarketStandardDetailExample();
-        example.or().andGidEqualTo(gid).andMidEqualTo(mid);
-        example.setOffset((page - 1) * limit);
-        example.setLimit(limit);
-        example.setOrderByClause("ctime desc");
-        return marketStandardDetailMapper.selectByExample(example);
+    public List<MyMarketCommodity> pagination(int sid, int mid, int page, int limit, Date date, String search) {
+        if (null != search) {
+            return myMarketStandardMapper.paginationDetail((page - 1) * limit, limit, sid, mid, new java.sql.Date(date.getTime()), "%" + search + "%");
+        } else {
+            return myMarketStandardMapper.paginationDetail((page - 1) * limit, limit, sid, mid, new java.sql.Date(date.getTime()), null);
+        }
     }
 
     public boolean insert(TMarketStandardDetail row) {
