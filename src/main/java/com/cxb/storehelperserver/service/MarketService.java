@@ -53,6 +53,12 @@ public class MarketService {
     private MarketCloudRepository marketCloudRepository;
 
     @Resource
+    private MarketAccountRepository marketAccountRepository;
+
+    @Resource
+    private MarketManyRepository marketManyRepository;
+
+    @Resource
     private CommodityRepository commodityRepository;
 
     @Resource
@@ -82,16 +88,32 @@ public class MarketService {
     @Resource
     private DateUtil dateUtil;
 
-    public RestResult setMarketCommodity(int id, int gid, int sid, int mid, int cid, String code, String name, String remark, BigDecimal price) {
+    public RestResult setMarketCommodity(int id, int gid, int sid, int aid, int asid, int cid, String code, String name, String remark, BigDecimal price) {
         // 验证公司
         String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
             return RestResult.fail(msg);
         }
+        int mid = 0;
+        if (0 == asid) {
+            TMarketAccount account = marketAccountRepository.find(aid);
+            if (null == account) {
+                return RestResult.fail("未查询到账号信息");
+            }
+            mid = account.getMid();
+        } else {
+            TMarketMany many = marketManyRepository.find(asid);
+            if (null == many) {
+                return RestResult.fail("未查询到子账号信息");
+            }
+            mid = many.getMid();
+        }
         TMarketCommodity commodity = new TMarketCommodity();
         commodity.setGid(gid);
         commodity.setSid(sid);
         commodity.setMid(mid);
+        commodity.setAid(aid);
+        commodity.setAsid(asid);
         commodity.setCid(cid);
         commodity.setCode(code);
         commodity.setName(name);
@@ -103,30 +125,30 @@ public class MarketService {
         return RestResult.ok();
     }
 
-    public RestResult delMarketCommodity(int id, int gid, int sid, int mid, int cid) {
+    public RestResult delMarketCommodity(int id, int gid, int sid, int aid, int asid, int cid) {
         // 验证公司
         String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
             return RestResult.fail(msg);
         }
-        if (!marketCommodityRepository.delete(sid, mid, cid)) {
+        if (!marketCommodityRepository.delete(sid, aid, asid, cid)) {
             return RestResult.fail("删除对接商品信息失败");
         }
         return RestResult.ok();
     }
 
-    public RestResult getMarketCommodity(int id, int gid, int page, int limit, int sid, int mid, String search) {
+    public RestResult getMarketCommodity(int id, int gid, int page, int limit, int sid, int aid, int asid, String search) {
         // 验证公司
         String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
             return RestResult.fail(msg);
         }
 
-        int total = marketCommodityRepository.total(sid, mid, search);
+        int total = marketCommodityRepository.total(sid, aid, asid, search);
         if (0 == total) {
             return RestResult.ok(new PageData());
         }
-        val list = marketCommodityRepository.pagination(sid, mid, page, limit, search);
+        val list = marketCommodityRepository.pagination(sid, aid, asid, page, limit, search);
         if (null == list) {
             return RestResult.fail("未查询到销售信息");
         }
@@ -136,11 +158,15 @@ public class MarketService {
         for (TMarketCommodity c : list) {
             int cid = c.getCid();
             Integer sid2 = c.getSid();
+            Integer aid2 = c.getAid();
+            Integer asid2 = c.getAsid();
             val tmp = new HashMap<String, Object>();
             tmp.put("id", c.getId());
             tmp.put("cid", cid);
             tmp.put("sid", sid2);
             tmp.put("mid", c.getMid());
+            tmp.put("aid", aid2);
+            tmp.put("asid", asid2);
             tmp.put("mcode", c.getCode());
             tmp.put("mname", c.getName());
             tmp.put("mremark", c.getRemark());
@@ -153,11 +179,19 @@ public class MarketService {
                 if (null != cloud) {
                     tmp.put("cloud", cloud.getName());
                 }
+            }
 
-                // 平台账号
-                MyMarketCloud marketCloud = marketCloudRepository.find(sid2);
-                if (null != marketCloud) {
-                    tmp.put("account", marketCloud.getAccount());
+            // 平台账号
+            if (null != aid2) {
+                TMarketAccount account = marketAccountRepository.find(aid2);
+                if (null != account) {
+                    tmp.put("account", account.getAccount());
+                }
+            }
+            if (null != asid2) {
+                val many = marketManyRepository.find(asid2);
+                if (null != many) {
+                    tmp.put("saccount", many.getAccount());
                 }
             }
 
@@ -187,19 +221,37 @@ public class MarketService {
                 }
             }
         }
-        return RestResult.ok(new PageData(total, datas));
+        return RestResult.ok(new
+
+                PageData(total, datas));
     }
 
-    public RestResult setMarketStandard(int id, int gid, int sid, int mid, int cid, String code, String name, String remark, BigDecimal price) {
+    public RestResult setMarketStandard(int id, int gid, int sid, int aid, int asid, int cid, String code, String name, String remark, BigDecimal price) {
         // 验证公司
         String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
             return RestResult.fail(msg);
         }
+        int mid = 0;
+        if (0 == asid) {
+            TMarketAccount account = marketAccountRepository.find(aid);
+            if (null == account) {
+                return RestResult.fail("未查询到账号信息");
+            }
+            mid = account.getMid();
+        } else {
+            TMarketMany many = marketManyRepository.find(asid);
+            if (null == many) {
+                return RestResult.fail("未查询到子账号信息");
+            }
+            mid = many.getMid();
+        }
         TMarketStandard standard = new TMarketStandard();
         standard.setGid(gid);
         standard.setSid(sid);
         standard.setMid(mid);
+        standard.setAid(aid);
+        standard.setAsid(asid);
         standard.setCid(cid);
         standard.setCode(code);
         standard.setName(name);
@@ -211,30 +263,30 @@ public class MarketService {
         return RestResult.ok();
     }
 
-    public RestResult delMarketStandard(int id, int gid, int sid, int mid, int cid) {
+    public RestResult delMarketStandard(int id, int gid, int sid, int aid, int asid, int cid) {
         // 验证公司
         String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
             return RestResult.fail(msg);
         }
-        if (!marketStandardRepository.delete(sid, mid, cid)) {
+        if (!marketStandardRepository.delete(sid, aid, asid, cid)) {
             return RestResult.fail("删除对接标品信息失败");
         }
         return RestResult.ok();
     }
 
-    public RestResult getMarketStandard(int id, int gid, int page, int limit, int sid, int mid, String search) {
+    public RestResult getMarketStandard(int id, int gid, int page, int limit, int sid, int aid, int asid, String search) {
         // 验证公司
         String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
             return RestResult.fail(msg);
         }
 
-        int total = marketStandardRepository.total(sid, mid, search);
+        int total = marketStandardRepository.total(sid, aid, asid, search);
         if (0 == total) {
             return RestResult.ok(new PageData());
         }
-        val list = marketStandardRepository.pagination(sid, mid, page, limit, search);
+        val list = marketStandardRepository.pagination(sid, aid, asid, page, limit, search);
         if (null == list) {
             return RestResult.fail("未查询到销售信息");
         }
@@ -244,11 +296,15 @@ public class MarketService {
         for (TMarketStandard c : list) {
             int cid = c.getCid();
             Integer sid2 = c.getSid();
+            Integer aid2 = c.getAid();
+            Integer asid2 = c.getAsid();
             val tmp = new HashMap<String, Object>();
             tmp.put("id", c.getId());
             tmp.put("cid", cid);
             tmp.put("sid", sid2);
             tmp.put("mid", c.getMid());
+            tmp.put("aid", aid2);
+            tmp.put("asid", asid2);
             tmp.put("mcode", c.getCode());
             tmp.put("mname", c.getName());
             tmp.put("mremark", c.getRemark());
@@ -261,11 +317,19 @@ public class MarketService {
                 if (null != cloud) {
                     tmp.put("cloud", cloud.getName());
                 }
+            }
 
-                // 平台账号
-                MyMarketCloud marketCloud = marketCloudRepository.find(sid2);
-                if (null != marketCloud) {
-                    tmp.put("account", marketCloud.getAccount());
+            // 平台账号
+            if (null != aid2) {
+                TMarketAccount account = marketAccountRepository.find(aid2);
+                if (null != account) {
+                    tmp.put("account", account.getAccount());
+                }
+            }
+            if (null != asid2) {
+                val many = marketManyRepository.find(asid2);
+                if (null != many) {
+                    tmp.put("saccount", many.getAccount());
                 }
             }
 
@@ -304,16 +368,35 @@ public class MarketService {
         if (null != msg) {
             return RestResult.fail(msg);
         }
+
+        //
+        int mid = 0;
+        if (0 == detail.getAsid()) {
+            TMarketAccount account = marketAccountRepository.find(detail.getAid());
+            if (null == account) {
+                return RestResult.fail("未查询到账号信息");
+            }
+            mid = account.getMid();
+        } else {
+            TMarketMany many = marketManyRepository.find(detail.getAsid());
+            if (null == many) {
+                return RestResult.fail("未查询到子账号信息");
+            }
+            mid = many.getMid();
+        }
+        detail.setMid(mid);
+
+        // 只处理当天信息
+        Date today = dateUtil.getEndTime(dateUtil.addOneDay(new Date(), -2));
+        if (detail.getCdate().before(today)) {
+            return RestResult.fail("只能更新当日销售信息");
+        }
+
         if (null == detail.getId()) {
             if (!marketCommodityDetailRepository.insert(detail)) {
                 return RestResult.fail("插入商品销售信息失败");
             }
         } else {
-            // 只处理当天信息
-            Date today = dateUtil.getEndTime(dateUtil.addOneDay(new Date(), -1));
-            if (detail.getCdate().before(today)) {
-                return RestResult.fail("只能更新当日销售信息");
-            }
             if (!marketCommodityDetailRepository.update(detail)) {
                 return RestResult.fail("更新信息失败");
             }
@@ -333,7 +416,7 @@ public class MarketService {
             return RestResult.fail("未查询到商品销售信息");
         }
         // 只处理当天信息
-        Date today = dateUtil.getEndTime(dateUtil.addOneDay(new Date(), -1));
+        Date today = dateUtil.getEndTime(dateUtil.addOneDay(new Date(), -2));
         if (detail.getCdate().before(today)) {
             return RestResult.fail("只能更新当日信息");
         }
@@ -343,18 +426,18 @@ public class MarketService {
         return RestResult.ok();
     }
 
-    public RestResult getMarketCommodityDetail(int id, int gid, int page, int limit, int sid, int mid, Date date, String search) {
+    public RestResult getMarketCommodityDetail(int id, int gid, int page, int limit, int sid, int aid, int asid, Date date, String search) {
         // 验证公司
         String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
             return RestResult.fail(msg);
         }
 
-        int total = marketCommodityDetailRepository.total(sid, mid, search);
+        int total = marketCommodityDetailRepository.total(sid, aid, asid, search);
         if (0 == total) {
             return RestResult.ok(new PageData());
         }
-        val list = marketCommodityDetailRepository.pagination(sid, mid, page, limit, date, search);
+        val list = marketCommodityDetailRepository.pagination(sid, aid, asid, page, limit, date, search);
         if (null == list) {
             return RestResult.fail("未查询到销售信息");
         }
@@ -410,16 +493,35 @@ public class MarketService {
         if (null != msg) {
             return RestResult.fail(msg);
         }
+
+        //
+        int mid = 0;
+        if (0 == detail.getAsid()) {
+            TMarketAccount account = marketAccountRepository.find(detail.getAid());
+            if (null == account) {
+                return RestResult.fail("未查询到账号信息");
+            }
+            mid = account.getMid();
+        } else {
+            TMarketMany many = marketManyRepository.find(detail.getAsid());
+            if (null == many) {
+                return RestResult.fail("未查询到子账号信息");
+            }
+            mid = many.getMid();
+        }
+        detail.setMid(mid);
+
+        // 只处理当天信息
+        Date today = dateUtil.getEndTime(dateUtil.addOneDay(new Date(), -2));
+        if (detail.getCdate().before(today)) {
+            return RestResult.fail("只能更新当日销售信息");
+        }
+
         if (null == detail.getId()) {
             if (!marketStandardDetailRepository.insert(detail)) {
                 return RestResult.fail("插入商品销售信息失败");
             }
         } else {
-            // 只处理当天信息
-            Date today = dateUtil.getEndTime(dateUtil.addOneDay(new Date(), -1));
-            if (detail.getCdate().before(today)) {
-                return RestResult.fail("只能更新当日销售信息");
-            }
             if (!marketStandardDetailRepository.update(detail)) {
                 return RestResult.fail("更新信息失败");
             }
@@ -439,7 +541,7 @@ public class MarketService {
             return RestResult.fail("未查询到商品销售信息");
         }
         // 只处理当天信息
-        Date today = dateUtil.getEndTime(dateUtil.addOneDay(new Date(), -1));
+        Date today = dateUtil.getEndTime(dateUtil.addOneDay(new Date(), -2));
         if (detail.getCdate().before(today)) {
             return RestResult.fail("只能更新当日信息");
         }
@@ -449,18 +551,18 @@ public class MarketService {
         return RestResult.ok();
     }
 
-    public RestResult getMarketStandardDetail(int id, int gid, int page, int limit, int sid, int mid, Date date, String search) {
+    public RestResult getMarketStandardDetail(int id, int gid, int page, int limit, int sid, int aid, int asid, Date date, String search) {
         // 验证公司
         String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
             return RestResult.fail(msg);
         }
 
-        int total = marketStandardDetailRepository.total(sid, mid, search);
+        int total = marketStandardDetailRepository.total(sid, aid, asid, search);
         if (0 == total) {
             return RestResult.ok(new PageData());
         }
-        val list = marketStandardDetailRepository.pagination(sid, mid, page, limit, date, search);
+        val list = marketStandardDetailRepository.pagination(sid, aid, asid, page, limit, date, search);
         if (null == list) {
             return RestResult.fail("未查询到销售信息");
         }

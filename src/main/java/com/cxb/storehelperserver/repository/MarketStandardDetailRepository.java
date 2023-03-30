@@ -57,19 +57,19 @@ public class MarketStandardDetailRepository extends BaseRepository<TMarketStanda
         return myMarketMapper.selectInCids_standard(gid, mid, cids);
     }
 
-    public int total(int sid, int mid, String search) {
+    public int total(int sid, int aid, int asid, String search) {
         if (null != search) {
-            return myMarketStandardMapper.countDetail(sid, mid, "%" + search + "%");
+            return myMarketStandardMapper.countDetail(sid, aid, asid, "%" + search + "%");
         } else {
-            return myMarketStandardMapper.countDetail(sid, mid, null);
+            return myMarketStandardMapper.countDetail(sid, aid, asid, null);
         }
     }
 
-    public List<MyMarketCommodity> pagination(int sid, int mid, int page, int limit, Date date, String search) {
+    public List<MyMarketCommodity> pagination(int sid, int aid, int asid, int page, int limit, Date date, String search) {
         if (null != search) {
-            return myMarketStandardMapper.paginationDetail((page - 1) * limit, limit, sid, mid, new java.sql.Date(date.getTime()), "%" + search + "%");
+            return myMarketStandardMapper.paginationDetail((page - 1) * limit, limit, sid, aid, asid, new java.sql.Date(date.getTime()), "%" + search + "%");
         } else {
-            return myMarketStandardMapper.paginationDetail((page - 1) * limit, limit, sid, mid, new java.sql.Date(date.getTime()), null);
+            return myMarketStandardMapper.paginationDetail((page - 1) * limit, limit, sid, aid, asid, new java.sql.Date(date.getTime()), null);
         }
     }
 

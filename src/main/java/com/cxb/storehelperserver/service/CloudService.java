@@ -1290,7 +1290,7 @@ public class CloudService {
         }
 
         // 校验申请订单权限
-        if (!checkService.checkRolePermission(id, cloud_return)) {
+        if (!checkService.checkRolePermission(id, cloud_back)) {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 

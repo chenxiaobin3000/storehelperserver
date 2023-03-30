@@ -57,19 +57,19 @@ public class MarketCommodityDetailRepository extends BaseRepository<TMarketCommo
         return myMarketMapper.selectInCids_commodity(gid, mid, cids);
     }
 
-    public int total(int sid, int mid, String search) {
+    public int total(int sid, int aid, int asid, String search) {
         if (null != search) {
-            return myMarketCommodityMapper.countDetail(sid, mid, "%" + search + "%");
+            return myMarketCommodityMapper.countDetail(sid, aid, asid, "%" + search + "%");
         } else {
-            return myMarketCommodityMapper.countDetail(sid, mid, null);
+            return myMarketCommodityMapper.countDetail(sid, aid, asid, null);
         }
     }
 
-    public List<MyMarketCommodity> pagination(int sid, int mid, int page, int limit, Date date, String search) {
+    public List<MyMarketCommodity> pagination(int sid, int aid, int asid, int page, int limit, Date date, String search) {
         if (null != search) {
-            return myMarketCommodityMapper.paginationDetail((page - 1) * limit, limit, sid, mid, new java.sql.Date(date.getTime()), "%" + search + "%");
+            return myMarketCommodityMapper.paginationDetail((page - 1) * limit, limit, sid, aid, asid, new java.sql.Date(date.getTime()), "%" + search + "%");
         } else {
-            return myMarketCommodityMapper.paginationDetail((page - 1) * limit, limit, sid, mid, new java.sql.Date(date.getTime()), null);
+            return myMarketCommodityMapper.paginationDetail((page - 1) * limit, limit, sid, aid, asid, new java.sql.Date(date.getTime()), null);
         }
     }
 

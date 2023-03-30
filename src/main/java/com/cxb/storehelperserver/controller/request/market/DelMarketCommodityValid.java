@@ -22,7 +22,10 @@ public class DelMarketCommodityValid implements IValid {
     private int sid;
 
     @Min(value = 1, message = "平台账号错误")
-    private int mid;
+    private int aid;
+
+    @Min(value = 0, message = "平台子账号错误")
+    private int asid;
 
     @Min(value = 1, message = "商品账号错误")
     private int cid;

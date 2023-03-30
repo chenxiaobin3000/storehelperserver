@@ -1,6 +1,5 @@
 package com.cxb.storehelperserver.repository;
 
-import com.cxb.storehelperserver.mapper.TMarketAccountMapper;
 import com.cxb.storehelperserver.mapper.TMarketCloudMapper;
 import com.cxb.storehelperserver.model.*;
 import com.cxb.storehelperserver.repository.mapper.MyMarketStandardMapper;
@@ -18,12 +17,12 @@ import java.util.List;
  */
 @Slf4j
 @Repository
-public class MarketCloudRepository extends BaseRepository<MyMarketCloud> {
+public class MarketCloudRepository extends BaseRepository<TMarketCloud> {
     @Resource
     private TMarketCloudMapper marketCloudMapper;
 
     @Resource
-    private TMarketAccountMapper marketAccountMapper;
+    private MarketAccountRepository marketAccountRepository;
 
     @Resource
     private MyMarketStandardMapper myMarketStandardMapper;
@@ -33,19 +32,20 @@ public class MarketCloudRepository extends BaseRepository<MyMarketCloud> {
     }
 
     public MyMarketCloud find(int cid) {
-        MyMarketCloud marketCloud = getCache(cid, MyMarketCloud.class);
+        TMarketCloud marketCloud = getCache(cid, TMarketCloud.class);
         if (null != marketCloud) {
-            return marketCloud;
+            return new MyMarketCloud(marketCloud, marketAccountRepository.find(marketCloud.getAid()));
         }
 
         // 缓存没有就查询数据库
         TMarketCloudExample example = new TMarketCloudExample();
         example.or().andCidEqualTo(cid);
-        TMarketCloud cloud = marketCloudMapper.selectOneByExample(example);
-        if (null != cloud) {
-            marketCloud = create(cloud, cid);
+        marketCloud = marketCloudMapper.selectOneByExample(example);
+        if (null != marketCloud) {
+            setCache(cid, marketCloud);
+            return new MyMarketCloud(marketCloud, marketAccountRepository.find(marketCloud.getAid()));
         }
-        return marketCloud;
+        return null;
     }
 
     public boolean check(int aid) {
@@ -60,7 +60,7 @@ public class MarketCloudRepository extends BaseRepository<MyMarketCloud> {
         row.setAid(aid);
         row.setCid(cid);
         if (marketCloudMapper.insert(row) > 0) {
-            create(row, cid);
+            setCache(cid, row);
             return true;
         }
         return false;
@@ -68,7 +68,7 @@ public class MarketCloudRepository extends BaseRepository<MyMarketCloud> {
 
     public boolean update(TMarketCloud row) {
         if (marketCloudMapper.updateByPrimaryKey(row) > 0) {
-            create(row, row.getCid());
+            setCache(row.getCid(), row);
             return true;
         }
         return false;
@@ -79,19 +79,5 @@ public class MarketCloudRepository extends BaseRepository<MyMarketCloud> {
         TMarketCloudExample example = new TMarketCloudExample();
         example.or().andCidEqualTo(cid);
         return marketCloudMapper.deleteByExample(example) > 0;
-    }
-
-    private MyMarketCloud create(TMarketCloud cloud, int cid) {
-        MyMarketCloud marketCloud = new MyMarketCloud();
-        marketCloud.setId(cloud.getId());
-        marketCloud.setCid(cid);
-        TMarketAccount account = marketAccountMapper.selectByPrimaryKey(cloud.getAid());
-        if (null != account) {
-            marketCloud.setGid(account.getGid());
-            marketCloud.setMid(account.getMid());
-            marketCloud.setAccount(account.getAccount());
-        }
-        setCache(cid, marketCloud);
-        return marketCloud;
     }
 }

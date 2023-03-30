@@ -29,7 +29,10 @@ public class GetMarketStandardValid implements IValid {
     private int sid;
 
     @Min(value = 0, message = "平台账号错误")
-    private int mid;
+    private int aid;
+
+    @Min(value = 0, message = "平台子账号错误")
+    private int asid;
 
     @Length(max = 16, message = "搜索内容不能大于16个字符")
     private String search;

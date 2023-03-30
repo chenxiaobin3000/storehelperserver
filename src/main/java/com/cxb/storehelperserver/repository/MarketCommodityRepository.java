@@ -28,54 +28,53 @@ public class MarketCommodityRepository extends BaseRepository<TMarketCommodity> 
         init("marketComm::");
     }
 
-    public TMarketCommodity find(int sid, int mid, int cid) {
-        TMarketCommodity marketCommodity = getCache(joinKey(sid, mid, cid), TMarketCommodity.class);
+    public TMarketCommodity find(int sid, int aid, int asid, int cid) {
+        TMarketCommodity marketCommodity = getCache(joinKey(sid, aid, asid, cid), TMarketCommodity.class);
         if (null != marketCommodity) {
             return marketCommodity;
         }
 
         // 缓存没有就查询数据库
         TMarketCommodityExample example = new TMarketCommodityExample();
-        example.or().andSidEqualTo(sid).andMidEqualTo(mid).andCidEqualTo(cid);
+        example.or().andSidEqualTo(sid).andAidEqualTo(aid).andAsidEqualTo(asid).andCidEqualTo(cid);
         marketCommodity = marketCommodityMapper.selectOneByExample(example);
         if (null != marketCommodity) {
-            setCache(joinKey(sid, mid, cid), marketCommodity);
+            setCache(joinKey(sid, aid, asid, cid), marketCommodity);
         }
         return marketCommodity;
     }
 
-    public int total(int sid, int mid, String search) {
+    public int total(int sid, int aid, int asid, String search) {
         if (null != search) {
-            return myMarketCommodityMapper.count(sid, mid, "%" + search + "%");
+            return myMarketCommodityMapper.count(sid, aid, asid, "%" + search + "%");
         } else {
-            return myMarketCommodityMapper.count(sid, mid, null);
+            return myMarketCommodityMapper.count(sid, aid, asid, null);
         }
     }
 
-
-    public List<TMarketCommodity> pagination(int sid, int mid, int page, int limit, String search) {
+    public List<TMarketCommodity> pagination(int sid, int aid, int asid, int page, int limit, String search) {
         if (null != search) {
-            return myMarketCommodityMapper.pagination((page - 1) * limit, limit, sid, mid, "%" + search + "%");
+            return myMarketCommodityMapper.pagination((page - 1) * limit, limit, sid, aid, asid, "%" + search + "%");
         } else {
-            return myMarketCommodityMapper.pagination((page - 1) * limit, limit, sid, mid, null);
+            return myMarketCommodityMapper.pagination((page - 1) * limit, limit, sid, aid, asid, null);
         }
     }
 
     public boolean update(TMarketCommodity row) {
-        delete(row.getSid(), row.getMid(), row.getCid());
+        delete(row.getSid(), row.getAid(), row.getAsid(), row.getCid());
         if (marketCommodityMapper.insert(row) > 0) {
-            setCache(joinKey(row.getSid(), row.getMid(), row.getCid()), row);
+            setCache(joinKey(row.getSid(), row.getAid(), row.getAsid(), row.getCid()), row);
             return true;
         }
         return false;
     }
 
-    public boolean delete(int sid, int mid, int cid) {
-        TMarketCommodity marketCommodity = find(sid, mid, cid);
+    public boolean delete(int sid, int aid, int asid, int cid) {
+        TMarketCommodity marketCommodity = find(sid, aid, asid, cid);
         if (null == marketCommodity) {
             return false;
         }
-        delCache(joinKey(sid, mid, cid));
+        delCache(joinKey(sid, aid, asid, cid));
         return marketCommodityMapper.deleteByPrimaryKey(marketCommodity.getId()) > 0;
     }
 }

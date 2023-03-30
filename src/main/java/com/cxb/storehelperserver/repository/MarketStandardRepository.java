@@ -28,53 +28,53 @@ public class MarketStandardRepository extends BaseRepository<TMarketStandard> {
         init("marketStan::");
     }
 
-    public TMarketStandard find(int sid, int mid, int cid) {
-        TMarketStandard marketStandard = getCache(joinKey(sid, mid, cid), TMarketStandard.class);
+    public TMarketStandard find(int sid, int aid, int asid, int cid) {
+        TMarketStandard marketStandard = getCache(joinKey(sid, aid, asid, cid), TMarketStandard.class);
         if (null != marketStandard) {
             return marketStandard;
         }
 
         // 缓存没有就查询数据库
         TMarketStandardExample example = new TMarketStandardExample();
-        example.or().andSidEqualTo(sid).andMidEqualTo(mid).andCidEqualTo(cid);
+        example.or().andSidEqualTo(sid).andAidEqualTo(aid).andAsidEqualTo(asid).andCidEqualTo(cid);
         marketStandard = marketStandardMapper.selectOneByExample(example);
         if (null != marketStandard) {
-            setCache(joinKey(sid, mid, cid), marketStandard);
+            setCache(joinKey(sid, aid, asid, cid), marketStandard);
         }
         return marketStandard;
     }
 
-    public int total(int sid, int mid, String search) {
+    public int total(int sid, int aid, int asid, String search) {
         if (null != search) {
-            return myMarketStandardMapper.count(sid, mid, "%" + search + "%");
+            return myMarketStandardMapper.count(sid, aid, asid, "%" + search + "%");
         } else {
-            return myMarketStandardMapper.count(sid, mid, null);
+            return myMarketStandardMapper.count(sid, aid, asid, null);
         }
     }
 
-    public List<TMarketStandard> pagination(int sid, int mid, int page, int limit, String search) {
+    public List<TMarketStandard> pagination(int sid, int aid, int asid, int page, int limit, String search) {
         if (null != search) {
-            return myMarketStandardMapper.pagination((page - 1) * limit, limit, sid, mid, "%" + search + "%");
+            return myMarketStandardMapper.pagination((page - 1) * limit, limit, sid, aid, asid, "%" + search + "%");
         } else {
-            return myMarketStandardMapper.pagination((page - 1) * limit, limit, sid, mid, null);
+            return myMarketStandardMapper.pagination((page - 1) * limit, limit, sid, aid, asid, null);
         }
     }
 
     public boolean update(TMarketStandard row) {
-        delete(row.getSid(), row.getMid(), row.getCid());
+        delete(row.getSid(), row.getAid(), row.getAsid(), row.getCid());
         if (marketStandardMapper.insert(row) > 0) {
-            setCache(joinKey(row.getSid(), row.getMid(), row.getCid()), row);
+            setCache(joinKey(row.getSid(), row.getAid(), row.getAsid(), row.getCid()), row);
             return true;
         }
         return false;
     }
 
-    public boolean delete(int sid, int mid, int cid) {
-        TMarketStandard marketStandard = find(sid, mid, cid);
+    public boolean delete(int sid, int aid, int asid, int cid) {
+        TMarketStandard marketStandard = find(sid, aid, asid, cid);
         if (null == marketStandard) {
             return false;
         }
-        delCache(joinKey(sid, mid, cid));
+        delCache(joinKey(sid, aid, asid, cid));
         return marketStandardMapper.deleteByPrimaryKey(marketStandard.getId()) > 0;
     }
 }

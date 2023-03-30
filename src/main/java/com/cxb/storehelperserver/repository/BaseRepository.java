@@ -27,6 +27,10 @@ public class BaseRepository<Model> {
         return String.valueOf(id) + "::" + String.valueOf(id2) + "::" + String.valueOf(id3);
     }
 
+    protected String joinKey(int id, int id2, int id3, int id4) {
+        return String.valueOf(id) + "::" + String.valueOf(id2) + "::" + String.valueOf(id3) + "::" + String.valueOf(id4);
+    }
+
     /**
      * desc: 缓存 key 前缀
      */

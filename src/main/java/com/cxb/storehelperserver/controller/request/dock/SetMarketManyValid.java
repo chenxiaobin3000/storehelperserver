@@ -13,7 +13,7 @@ import javax.validation.constraints.NotEmpty;
  * date: 2022/12/21
  */
 @Data
-public class SetMarketAccountValid implements IValid {
+public class SetMarketManyValid implements IValid {
     @Min(value = 1, message = "账号错误")
     private int id;
 
@@ -23,8 +23,11 @@ public class SetMarketAccountValid implements IValid {
     @Min(value = 1, message = "平台账号错误")
     private int mid;
 
-    @Min(value = 1, message = "账号信息错误")
+    @Min(value = 1, message = "主账号信息错误")
     private int aid;
+
+    @Min(value = 1, message = "子账号信息错误")
+    private int sub;
 
     @NotEmpty(message = "请输入账号")
     @Length(min = 4, message = "账号长度不能小于4个字符")

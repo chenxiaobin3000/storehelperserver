@@ -1,9 +1,8 @@
 package com.cxb.storehelperserver.repository.model;
 
+import com.cxb.storehelperserver.model.TMarketAccount;
+import com.cxb.storehelperserver.model.TMarketCloud;
 import lombok.Data;
-
-import java.math.BigDecimal;
-import java.util.ArrayList;
 
 @Data
 public class MyMarketCloud {
@@ -13,7 +12,20 @@ public class MyMarketCloud {
 
     private Integer mid;
 
+    private Integer aid;
+
     private String account;
 
     private Integer cid;
+
+    public MyMarketCloud(TMarketCloud cloud, TMarketAccount account) {
+        this.id = cloud.getId();
+        this.cid = cloud.getCid();
+        if (null != account) {
+            this.gid = account.getGid();
+            this.mid = account.getMid();
+            this.aid = cloud.getAid();
+            this.account = account.getAccount();
+        }
+    }
 }
