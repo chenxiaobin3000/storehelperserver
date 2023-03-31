@@ -1,6 +1,8 @@
 package com.cxb.storehelperserver.repository;
 
+import com.cxb.storehelperserver.mapper.TCommodityCloudMapper;
 import com.cxb.storehelperserver.mapper.TMarketCommodityMapper;
+import com.cxb.storehelperserver.model.TCommodityCloudExample;
 import com.cxb.storehelperserver.model.TMarketCommodity;
 import com.cxb.storehelperserver.model.TMarketCommodityExample;
 import com.cxb.storehelperserver.repository.mapper.MyMarketCommodityMapper;
@@ -20,6 +22,9 @@ import java.util.List;
 public class MarketCommodityRepository extends BaseRepository<TMarketCommodity> {
     @Resource
     private TMarketCommodityMapper marketCommodityMapper;
+
+    @Resource
+    private TCommodityCloudMapper commodityCloudMapper;
 
     @Resource
     private MyMarketCommodityMapper myMarketCommodityMapper;
@@ -44,11 +49,13 @@ public class MarketCommodityRepository extends BaseRepository<TMarketCommodity> 
         return marketCommodity;
     }
 
-    public int total(int sid, int aid, int asid, String search) {
+    public int total(int sid, String search) {
         if (null != search) {
-            return myMarketCommodityMapper.count(sid, aid, asid, "%" + search + "%");
+            return myMarketCommodityMapper.count(sid, "%" + search + "%");
         } else {
-            return myMarketCommodityMapper.count(sid, aid, asid, null);
+            TCommodityCloudExample example = new TCommodityCloudExample();
+            example.or().andSidEqualTo(sid);
+            return (int) commodityCloudMapper.countByExample(example);
         }
     }
 

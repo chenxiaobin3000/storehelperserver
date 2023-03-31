@@ -70,6 +70,7 @@ spring:
 
 ################ mybatis 配置 ##############
 mybatis:
+  mapper-locations: classpath:com/cxb/storehelperserver/mapper/*.xml
   configuration:
     # 输出 sql 语句
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

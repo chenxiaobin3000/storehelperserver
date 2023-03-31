@@ -118,7 +118,7 @@ public class MarketController {
         detail.setGid(req.getGid());
         detail.setSid(req.getSid());
         detail.setAid(req.getAid());
-        detail.setAsid(req.getAid());
+        detail.setAsid(req.getAsid());
         detail.setCid(req.getCid());
         detail.setValue(req.getValue());
         detail.setPrice(req.getPrice());

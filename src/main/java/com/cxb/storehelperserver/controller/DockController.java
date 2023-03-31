@@ -46,7 +46,12 @@ public class DockController {
 
     @PostMapping("/getMarketAllAccount")
     public RestResult getMarketAllAccount(@Validated @RequestBody GetMarketAllAccountValid req) {
-        return dockService.getMarketAllAccount(req.getId(), req.getGid(), req.getCid());
+        return dockService.getMarketAllAccount(req.getId(), req.getGid());
+    }
+
+    @PostMapping("/getMarketCloudAccount")
+    public RestResult getMarketCloudAccount(@Validated @RequestBody GetMarketCloudAccountValid req) {
+        return dockService.getMarketCloudAccount(req.getId(), req.getGid(), req.getCid());
     }
 
     @PostMapping("/getMarketSubAccount")

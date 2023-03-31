@@ -80,6 +80,7 @@ public class MarketAccountRepository extends BaseRepository<TMarketAccount> {
         row.setRemark(remark);
         if (marketAccountMapper.insert(row) > 0) {
             setCache(row.getId(), row);
+            delTotalCache(joinKey(gid, 0));
             delTotalCache(joinKey(gid, mid));
             return true;
         }
@@ -89,6 +90,7 @@ public class MarketAccountRepository extends BaseRepository<TMarketAccount> {
     public boolean update(TMarketAccount row) {
         if (marketAccountMapper.updateByPrimaryKey(row) > 0) {
             setCache(row.getId(), row);
+            delTotalCache(joinKey(row.getGid(), 0));
             delTotalCache(joinKey(row.getGid(), row.getMid()));
             return true;
         }
@@ -101,6 +103,7 @@ public class MarketAccountRepository extends BaseRepository<TMarketAccount> {
             return false;
         }
         delCache(id);
+        delTotalCache(joinKey(account.getGid(), 0));
         delTotalCache(joinKey(account.getGid(), account.getMid()));
         return marketAccountMapper.deleteByPrimaryKey(id) > 0;
     }

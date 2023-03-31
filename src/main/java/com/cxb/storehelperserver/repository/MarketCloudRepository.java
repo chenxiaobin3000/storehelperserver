@@ -2,7 +2,6 @@ package com.cxb.storehelperserver.repository;
 
 import com.cxb.storehelperserver.mapper.TMarketCloudMapper;
 import com.cxb.storehelperserver.model.*;
-import com.cxb.storehelperserver.repository.mapper.MyMarketStandardMapper;
 import com.cxb.storehelperserver.repository.model.MyMarketCloud;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
@@ -23,9 +22,6 @@ public class MarketCloudRepository extends BaseRepository<TMarketCloud> {
 
     @Resource
     private MarketAccountRepository marketAccountRepository;
-
-    @Resource
-    private MyMarketStandardMapper myMarketStandardMapper;
 
     public MarketCloudRepository() {
         init("marketCloud::");
@@ -51,8 +47,7 @@ public class MarketCloudRepository extends BaseRepository<TMarketCloud> {
     public boolean check(int aid) {
         TMarketCloudExample example = new TMarketCloudExample();
         example.or().andAidEqualTo(aid);
-        List<TMarketCloud> marketClouds = marketCloudMapper.selectByExample(example);
-        return null != marketClouds && !marketClouds.isEmpty();
+        return null != marketCloudMapper.selectOneByExample(example);
     }
 
     public boolean insert(int aid, int cid) {

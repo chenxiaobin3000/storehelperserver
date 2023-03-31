@@ -1,7 +1,5 @@
 package com.cxb.storehelperserver.repository.mapper;
 
-import com.cxb.storehelperserver.model.TMarketCommodity;
-import com.cxb.storehelperserver.model.TMarketStandard;
 import com.cxb.storehelperserver.repository.model.MyMarketReport;
 import com.cxb.storehelperserver.repository.model.MyMarketSaleInfo;
 import org.apache.ibatis.annotations.Mapper;

@@ -66,6 +66,12 @@ public class MarketManyRepository extends BaseRepository<TMarketMany> {
         return marketManyMapper.selectByExample(example);
     }
 
+    public boolean check(int aid) {
+        TMarketManyExample example = new TMarketManyExample();
+        example.or().andAidEqualTo(aid);
+        return null != marketManyMapper.selectOneByExample(example);
+    }
+
     public boolean insert(int gid, int mid, int aid, String account, String remark) {
         TMarketMany row = new TMarketMany();
         row.setGid(gid);

@@ -89,6 +89,9 @@ public class DockService {
         if (null != msg) {
             return RestResult.fail(msg);
         }
+        if (marketManyRepository.check(aid)) {
+            return RestResult.fail("存在关联子账号，不能删除账号");
+        }
         if (marketCloudRepository.check(aid)) {
             return RestResult.fail("存在关联云仓，不能删除账号");
         }
@@ -121,17 +124,17 @@ public class DockService {
         return RestResult.ok(datas);
     }
 
-    public RestResult getMarketAllAccount(int id, int gid, int cid) {
+    public RestResult getMarketAllAccount(int id, int gid) {
         // 验证公司
         String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
             return RestResult.fail(msg);
         }
-        int total = marketAccountRepository.total(gid, mid);
+        int total = marketAccountRepository.total(gid, 0);
         if (0 == total) {
             return RestResult.ok(new PageData());
         }
-        val list = marketAccountRepository.pagination(gid, mid, 1, total);
+        val list = marketAccountRepository.pagination(gid, 0, 1, total);
         if (null == list) {
             return RestResult.fail("未查询到账号信息");
         }
@@ -139,6 +142,19 @@ public class DockService {
         datas.put("total", total);
         datas.put("list", list);
         return RestResult.ok(datas);
+    }
+
+    public RestResult getMarketCloudAccount(int id, int gid, int cid) {
+        // 验证公司
+        String msg = checkService.checkGroup(id, gid);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+        MyMarketCloud cloud = marketCloudRepository.find(cid);
+        if (null == cloud) {
+            return RestResult.fail("未查询到账号信息");
+        }
+        return RestResult.ok(cloud);
     }
 
     public RestResult getMarketSubAccount(int id, int gid, int aid) {
@@ -152,7 +168,7 @@ public class DockService {
             return RestResult.fail("未查询到账号信息");
         }
         val datas = new HashMap<>();
-        datas.put("total", list.size());
+        datas.put("total", 0);
         datas.put("list", list);
         return RestResult.ok(datas);
     }

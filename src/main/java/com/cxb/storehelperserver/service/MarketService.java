@@ -144,7 +144,7 @@ public class MarketService {
             return RestResult.fail(msg);
         }
 
-        int total = marketCommodityRepository.total(sid, aid, asid, search);
+        int total = marketCommodityRepository.total(sid, search);
         if (0 == total) {
             return RestResult.ok(new PageData());
         }
@@ -186,12 +186,6 @@ public class MarketService {
                 TMarketAccount account = marketAccountRepository.find(aid2);
                 if (null != account) {
                     tmp.put("account", account.getAccount());
-                }
-            }
-            if (null != asid2) {
-                val many = marketManyRepository.find(asid2);
-                if (null != many) {
-                    tmp.put("saccount", many.getAccount());
                 }
             }
 
@@ -282,7 +276,7 @@ public class MarketService {
             return RestResult.fail(msg);
         }
 
-        int total = marketStandardRepository.total(sid, aid, asid, search);
+        int total = marketStandardRepository.total(sid, search);
         if (0 == total) {
             return RestResult.ok(new PageData());
         }
@@ -324,12 +318,6 @@ public class MarketService {
                 TMarketAccount account = marketAccountRepository.find(aid2);
                 if (null != account) {
                     tmp.put("account", account.getAccount());
-                }
-            }
-            if (null != asid2) {
-                val many = marketManyRepository.find(asid2);
-                if (null != many) {
-                    tmp.put("saccount", many.getAccount());
                 }
             }
 
