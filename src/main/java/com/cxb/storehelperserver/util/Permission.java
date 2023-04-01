@@ -34,7 +34,10 @@ public class Permission {
     static public final int mp_cloud_loss_apply = 38;
     static public final int mp_cloud_back_apply = 39;
     static public final int mp_cloud_agreement_apply = 40;
+    static public final int mp_cloud_dispatch_apply = 41;
+    static public final int mp_cloud_purchase2_apply = 42;
     static public final int mp_sale_apply = 45;
+    static public final int mp_sale_offline_apply = 46;
     static public final int mp_sale_return_apply = 50;
 
     static public final int mp_purchase_review = 51;
@@ -62,7 +65,10 @@ public class Permission {
     static public final int mp_cloud_loss_review = 78;
     static public final int mp_cloud_back_review = 79;
     static public final int mp_cloud_agreement_review = 80;
+    static public final int mp_cloud_dispatch_review = 81;
+    static public final int mp_cloud_purchase2_review = 82;
     static public final int mp_sale_review = 85;
+    static public final int mp_sale_offline_review = 86;
     static public final int mp_sale_return_review = 90;
 
     // 管理后台
@@ -106,6 +112,7 @@ public class Permission {
     static public final int market_getlist = 502;
     static public final int market_input = 504;
     static public final int market_salereturn = 505;
+    static public final int market_saleoffline = 503;
 
     static public final int product = 600;
     static public final int product_report = 601;
@@ -130,6 +137,8 @@ public class Permission {
     static public final int cloud_loss = 754;
     static public final int cloud_return = 755;
     static public final int cloud_back = 756;
+    static public final int cloud_dispatch = 757;
+    static public final int cloud_purchase2 = 758;
 
     static public final int storage = 800;
     static public final int storage_report = 801;

@@ -17,6 +17,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import static com.cxb.storehelperserver.util.TypeDefine.OrderType.SALE_OFFLINE_ORDER;
 import static com.cxb.storehelperserver.util.TypeDefine.OrderType.SALE_RETURN_ORDER;
 
 /**
@@ -33,6 +34,59 @@ public class SaleController {
 
     @Resource
     private DateUtil dateUtil;
+
+    @PostMapping("/offLine")
+    public RestResult offLine(@Validated @RequestBody ReturnValid req) {
+        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
+        TSaleOrder order = new TSaleOrder();
+        order.setGid(req.getGid());
+        order.setSid(req.getSid());
+        order.setOtype(SALE_OFFLINE_ORDER.getValue());
+        order.setApply(req.getId());
+        try {
+            order.setApplyTime(simpleDateFormat.parse(req.getDate()));
+        } catch (ParseException e) {
+            return RestResult.fail("订单制单日期转换失败");
+        }
+        return saleService.offLine(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
+    }
+
+    @PostMapping("/setOffLine")
+    public RestResult setOffLine(@Validated @RequestBody SetReturnValid req) {
+        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
+        Date applyTime = null;
+        try {
+            applyTime = simpleDateFormat.parse(req.getDate());
+        } catch (ParseException e) {
+            return RestResult.fail("订单制单日期转换失败");
+        }
+        return saleService.setOffLine(req.getId(), req.getOid(), req.getSid(), applyTime, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
+    }
+
+    @PostMapping("/delOffLine")
+    public RestResult delOffLine(@Validated @RequestBody DelReturnValid req) {
+        return saleService.delOffLine(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/reviewOffLine")
+    public RestResult reviewOffLine(@Validated @RequestBody ReviewReturnValid req) {
+        return saleService.reviewOffLine(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/revokeOffLine")
+    public RestResult revokeOffLine(@Validated @RequestBody RevokeReturnValid req) {
+        return saleService.revokeOffLine(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/addOffLineInfo")
+    public RestResult addOffLineInfo(@Validated @RequestBody AddReturnInfoValid req) {
+        return saleService.addOffLineInfo(req.getId(), req.getOid(), req.getRemark());
+    }
+
+    @PostMapping("/delOffLineInfo")
+    public RestResult delOffLineInfo(@Validated @RequestBody DelReturnInfoValid req) {
+        return saleService.delOffLineInfo(req.getId(), req.getOid(), req.getRid());
+    }
 
     @PostMapping("/returnc")
     public RestResult returnc(@Validated @RequestBody ReturnValid req) {

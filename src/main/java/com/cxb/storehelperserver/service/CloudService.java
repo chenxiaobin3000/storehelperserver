@@ -58,6 +58,9 @@ public class CloudService {
     private CloudAgreementRepository cloudAgreementRepository;
 
     @Resource
+    private CloudDispatchRepository cloudDispatchRepository;
+
+    @Resource
     private CloudFareRepository cloudFareRepository;
 
     @Resource
@@ -1264,7 +1267,7 @@ public class CloudService {
                     if (!cloudFareRepository.update(fare)) {
                         return RestResult.fail("更新运费信息失败");
                     }
-                    if (!financeService.insertRecord(id, gid, FINANCE_STORAGE_FARE2, oid, fare.getFare().negate())) {
+                    if (!financeService.insertRecord(id, gid, FINANCE_CLOUD_FARE2, oid, fare.getFare().negate())) {
                         return RestResult.fail("添加运费记录失败");
                     }
                 }
@@ -1342,6 +1345,449 @@ public class CloudService {
 
     public RestResult delBackInfo(int id, int oid, int fid, int rid) {
         return delReturnInfo(id, oid, fid, rid);
+    }
+
+    /**
+     * desc: 仓储调度出库
+     */
+    public RestResult dispatch(int id, TCloudOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
+        val reviews = new ArrayList<Integer>();
+        RestResult ret = check(id, order, mp_cloud_dispatch_apply, mp_cloud_dispatch_review, reviews);
+        if (null != ret) {
+            return ret;
+        }
+
+        // 生成入库单
+        val comms = new ArrayList<TCloudCommodity>();
+        ret = createLossComms(order, types, commoditys, weights, values, comms);
+        if (null != ret) {
+            return ret;
+        }
+
+        // 生成入库单批号
+        String batch = dateUtil.createBatch(order.getOtype());
+        order.setBatch(batch);
+        if (!cloudOrderRepository.insert(order)) {
+            return RestResult.fail("生成调度订单失败");
+        }
+        int oid = order.getId();
+        String msg = cloudOrderService.update(oid, comms, attrs);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+        return reviewService.apply(id, order.getGid(), order.getSid(), order.getOtype(), oid, batch, reviews);
+    }
+
+    /**
+     * desc: 仓储调度出库修改
+     */
+    public RestResult setDispatch(int id, int oid, int sid, Date applyTime, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
+        // 已经审核的订单不能修改
+        TCloudOrder order = cloudOrderRepository.find(oid);
+        if (null == order) {
+            return RestResult.fail("未查询到要修改的订单");
+        }
+        if (null != order.getReview()) {
+            return RestResult.fail("已审核的订单不能修改");
+        }
+        if (!order.getApply().equals(id)) {
+            return RestResult.fail("只能修改自己的订单");
+        }
+
+        order.setApplyTime(applyTime);
+        val reviews = new ArrayList<Integer>();
+        RestResult ret = check(id, order, mp_cloud_dispatch_apply, mp_cloud_dispatch_review, reviews);
+        if (null != ret) {
+            return ret;
+        }
+
+        // 更新仓库信息
+        if (!order.getSid().equals(sid)) {
+            order.setSid(sid);
+            ret = reviewService.update(order.getOtype(), oid, sid);
+            if (null != ret) {
+                return ret;
+            }
+        }
+
+        // 生成入库单
+        val comms = new ArrayList<TCloudCommodity>();
+        ret = createLossComms(order, types, commoditys, weights, values, comms);
+        if (null != ret) {
+            return ret;
+        }
+        if (!cloudOrderRepository.update(order)) {
+            return RestResult.fail("生成调度订单失败");
+        }
+        String msg = cloudOrderService.update(oid, comms, attrs);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+        return RestResult.ok();
+    }
+
+    public RestResult delDispatch(int id, int oid) {
+        TCloudOrder order = cloudOrderRepository.find(oid);
+        if (null == order) {
+            return RestResult.fail("未查询到要删除的订单");
+        }
+
+        // 校验是否订单提交人，已经审核的订单不能删除
+        Integer review = order.getReview();
+        if (null != review) {
+            return RestResult.fail("已审核的订单不能删除");
+        }
+        if (!order.getApply().equals(id)) {
+            return RestResult.fail("订单必须由申请人删除");
+        }
+
+        // 删除商品附件数据
+        cloudAttachmentRepository.deleteByOid(oid);
+        if (!cloudCommodityRepository.delete(oid)) {
+            return RestResult.fail("删除关联商品失败");
+        }
+        if (!cloudOrderRepository.delete(oid)) {
+            return RestResult.fail("删除订单失败");
+        }
+        return reviewService.delete(review, order.getOtype(), oid);
+    }
+
+    public RestResult reviewDispatch(int id, int oid) {
+        // 获取公司信息
+        TUserGroup group = userGroupRepository.find(id);
+        if (null == group) {
+            return RestResult.fail("获取公司信息失败");
+        }
+        int gid = group.getGid();
+
+        // 校验审核人员信息
+        TCloudOrder order = cloudOrderRepository.find(oid);
+        if (null == order) {
+            return RestResult.fail("未查询到要审核的订单");
+        }
+        if (!reviewService.checkReview(id, order.getOtype(), oid)) {
+            return RestResult.fail("您没有审核权限");
+        }
+
+        // 添加审核信息
+        Date reviewTime = new Date();
+        order.setReview(id);
+        order.setReviewTime(reviewTime);
+        if (!cloudOrderRepository.update(order)) {
+            return RestResult.fail("审核用户订单信息失败");
+        }
+
+        // 减少库存
+        String msg = cloudStockService.handleCloudStock(order, false);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+        // 财务记录
+        val fares = cloudFareRepository.findByOid(oid);
+        if (null != fares && !fares.isEmpty()) {
+            for (TCloudFare fare : fares) {
+                if (null == fare.getReview()) {
+                    fare.setReview(id);
+                    fare.setReviewTime(reviewTime);
+                    if (!cloudFareRepository.update(fare)) {
+                        return RestResult.fail("更新运费信息失败");
+                    }
+                    if (!financeService.insertRecord(id, gid, FINANCE_CLOUD_FARE, oid, fare.getFare().negate())) {
+                        return RestResult.fail("添加运费记录失败");
+                    }
+                }
+            }
+        }
+        return reviewService.review(order.getApply(), id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
+    }
+
+    public RestResult revokeDispatch(int id, int oid) {
+        TCloudOrder order = cloudOrderRepository.find(oid);
+        if (null == order) {
+            return RestResult.fail("未查询到要撤销的订单");
+        }
+        if (null == order.getReview()) {
+            return RestResult.fail("未审核的订单不能撤销");
+        }
+
+        // 验证公司
+        int gid = order.getGid();
+        String msg = checkService.checkGroup(id, gid);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+
+        // 校验申请订单权限
+        if (!checkService.checkRolePermission(id, cloud_dispatch)) {
+            return RestResult.fail("本账号没有相关的权限，请联系管理员");
+        }
+
+        RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApply(), mp_cloud_dispatch_review);
+        if (null != ret) {
+            return ret;
+        }
+
+        // 撤销审核人信息
+        if (!cloudOrderRepository.setReviewNull(oid)) {
+            return RestResult.fail("撤销订单审核信息失败");
+        }
+
+        // 增加库存
+        msg = cloudStockService.handleCloudStock(order, true);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+        // 财务记录
+        val fares = cloudFareRepository.findByOid(oid);
+        if (null != fares && !fares.isEmpty()) {
+            for (TCloudFare fare : fares) {
+                if (null != fare.getReview()) {
+                    if (!financeService.insertRecord(id, gid, FINANCE_PURCHASE_FARE, oid, fare.getFare())) {
+                        return RestResult.fail("添加运费记录失败");
+                    }
+                }
+            }
+            if (!cloudFareRepository.setReviewNull(oid)) {
+                return RestResult.fail("更新运费信息失败");
+            }
+        }
+        return RestResult.ok();
+    }
+
+    public RestResult addDispatchInfo(int id, int oid, BigDecimal fare, String remark) {
+        return addReturnInfo(id, oid, fare, remark);
+    }
+
+    public RestResult delDispatchInfo(int id, int oid, int fid, int rid) {
+        return delReturnInfo(id, oid, fid, rid);
+    }
+
+    /**
+     * desc: 仓储调度入库
+     */
+    public RestResult purchase2(int id, TCloudOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
+        // 调度单未审核不能入库
+        int did = order.getOid();
+        TCloudOrder dispatch = cloudOrderRepository.find(did);
+        if (null == dispatch) {
+            return RestResult.fail("未查询到调度单");
+        }
+        if (!dispatch.getOtype().equals(CLOUD_DISPATCH_ORDER.getValue())) {
+            return RestResult.fail("进货单据类型异常");
+        }
+        if (null == dispatch.getReview()) {
+            return RestResult.fail("调度单未审核通过，不能进行入库");
+        }
+
+        order.setGid(dispatch.getGid());
+        val reviews = new ArrayList<Integer>();
+        RestResult ret = check(id, order, mp_cloud_purchase2_apply, mp_cloud_purchase2_review, reviews);
+        if (null != ret) {
+            return ret;
+        }
+
+        // 生成入库单
+        val comms = new ArrayList<TCloudCommodity>();
+        ret = createPurchase2Comms(order, did, types, commoditys, weights, values, comms);
+        if (null != ret) {
+            return ret;
+        }
+
+        // 生成入库单批号
+        String batch = dateUtil.createBatch(order.getOtype());
+        order.setBatch(batch);
+        if (!cloudOrderRepository.insert(order)) {
+            return RestResult.fail("生成入库订单失败");
+        }
+        int oid = order.getId();
+        String msg = cloudOrderService.update(oid, comms, attrs);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+        return reviewService.apply(id, order.getGid(), order.getSid(), order.getOtype(), oid, batch, reviews);
+    }
+
+    /**
+     * desc: 仓储调度入库修改
+     */
+    public RestResult setPurchase2(int id, int oid, int sid, Date applyTime, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
+        // 已经审核的订单不能修改
+        TCloudOrder order = cloudOrderRepository.find(oid);
+        if (null == order) {
+            return RestResult.fail("未查询到要修改的订单");
+        }
+        if (null != order.getReview()) {
+            return RestResult.fail("已审核的订单不能修改");
+        }
+        if (!order.getApply().equals(id)) {
+            return RestResult.fail("只能修改自己的订单");
+        }
+
+        order.setApplyTime(applyTime);
+        val reviews = new ArrayList<Integer>();
+        RestResult ret = check(id, order, mp_cloud_purchase2_apply, mp_cloud_purchase2_review, reviews);
+        if (null != ret) {
+            return ret;
+        }
+
+        // 更新仓库信息
+        if (!order.getSid().equals(sid)) {
+            order.setSid(sid);
+            ret = reviewService.update(order.getOtype(), oid, sid);
+            if (null != ret) {
+                return ret;
+            }
+        }
+
+        // 生成入库单
+        val comms = new ArrayList<TCloudCommodity>();
+        ret = createPurchase2Comms(order, order.getOid(), types, commoditys, weights, values, comms);
+        if (null != ret) {
+            return ret;
+        }
+        if (!cloudOrderRepository.update(order)) {
+            return RestResult.fail("生成入库订单失败");
+        }
+        String msg = cloudOrderService.update(oid, comms, attrs);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+        return RestResult.ok();
+    }
+
+    public RestResult delPurchase2(int id, int oid) {
+        TCloudOrder order = cloudOrderRepository.find(oid);
+        if (null == order) {
+            return RestResult.fail("未查询到要删除的订单");
+        }
+
+        // 校验是否订单提交人，已经审核的订单不能删除
+        Integer review = order.getReview();
+        if (null != review) {
+            return RestResult.fail("已审核的订单不能删除");
+        }
+        if (!order.getApply().equals(id)) {
+            return RestResult.fail("订单必须由申请人删除");
+        }
+
+        // 删除商品附件数据
+        cloudAttachmentRepository.deleteByOid(oid);
+        if (!cloudCommodityRepository.delete(oid)) {
+            return RestResult.fail("删除关联商品失败");
+        }
+        if (!cloudOrderRepository.delete(oid)) {
+            return RestResult.fail("删除订单失败");
+        }
+        return reviewService.delete(review, order.getOtype(), oid);
+    }
+
+    public RestResult reviewPurchase2(int id, int oid) {
+        // 获取公司信息
+        TUserGroup group = userGroupRepository.find(id);
+        if (null == group) {
+            return RestResult.fail("获取公司信息失败");
+        }
+        int gid = group.getGid();
+
+        // 校验审核人员信息
+        TCloudOrder order = cloudOrderRepository.find(oid);
+        if (null == order) {
+            return RestResult.fail("未查询到要审核的订单");
+        }
+        if (!reviewService.checkReview(id, order.getOtype(), oid)) {
+            return RestResult.fail("您没有审核权限");
+        }
+
+        // 校验退货订单总价格和总量不能超出采购单
+        TCloudOrder dispatch = cloudOrderRepository.find(order.getOid());
+        if (null == dispatch) {
+            return RestResult.fail("未查询到对应的调度单");
+        }
+        int unit = dispatch.getCurUnit() - order.getUnit();
+        if (unit < 0) {
+            return RestResult.fail("入库商品总量不能超出调度订单总量");
+        }
+        if (0 == unit) {
+            dispatch.setComplete(new Byte("1"));
+        }
+        dispatch.setCurUnit(unit);
+        if (!cloudOrderRepository.update(dispatch)) {
+            return RestResult.fail("修改调度单数据失败");
+        }
+
+        // 添加审核信息
+        Date reviewTime = new Date();
+        order.setReview(id);
+        order.setReviewTime(reviewTime);
+        if (!cloudOrderRepository.update(order)) {
+            return RestResult.fail("审核用户订单信息失败");
+        }
+
+        // 添加关联
+        if (!cloudDispatchRepository.insert(oid, order.getOid())) {
+            return RestResult.fail("添加调度入库信息失败");
+        }
+
+        // 增加库存
+        String msg = cloudStockService.handlePurchaseStock(order, true);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+        return reviewService.review(order.getApply(), id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
+    }
+
+    public RestResult revokePurchase2(int id, int oid) {
+        TCloudOrder order = cloudOrderRepository.find(oid);
+        if (null == order) {
+            return RestResult.fail("未查询到要撤销的订单");
+        }
+        if (null == order.getReview()) {
+            return RestResult.fail("未审核的订单不能撤销");
+        }
+
+        // 验证公司
+        int gid = order.getGid();
+        String msg = checkService.checkGroup(id, gid);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+
+        // 校验申请订单权限
+        if (!checkService.checkRolePermission(id, cloud_purchase2)) {
+            return RestResult.fail("本账号没有相关的权限，请联系管理员");
+        }
+
+        // TODO 还原扣除的采购单数量
+
+        RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApply(), mp_cloud_purchase2_review);
+        if (null != ret) {
+            return ret;
+        }
+
+        // 撤销审核人信息
+        if (!cloudOrderRepository.setReviewNull(oid)) {
+            return RestResult.fail("撤销订单审核信息失败");
+        }
+
+        // 删除关联
+        if (!cloudDispatchRepository.delete(oid, order.getOid())) {
+            return RestResult.fail("撤销调度入库信息失败");
+        }
+
+        // 减少库存
+        msg = cloudStockService.handlePurchaseStock(order, false);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+        return RestResult.ok();
+    }
+
+    public RestResult addPurchase2Info(int id, int oid, String remark) {
+        return addPurchaseInfo(id, oid, remark);
+    }
+
+    public RestResult delPurchase2Info(int id, int oid, int rid) {
+        return delPurchaseInfo(id, oid, rid);
     }
 
     private RestResult check(int id, TCloudOrder order, int applyPerm, int reviewPerm, List<Integer> reviews) {
@@ -1510,6 +1956,63 @@ public class CloudService {
 
             total = total + weight;
             price = price.add(c.getPrice());
+        }
+        order.setUnit(total);
+        order.setPrice(price);
+        order.setCurUnit(total);
+        order.setCurPrice(price);
+        return null;
+    }
+
+    private RestResult createPurchase2Comms(TCloudOrder order, int did, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<TCloudCommodity> list) {
+        // 生成入库单
+        int size = commoditys.size();
+        if (size != types.size() || size != weights.size() || size != values.size()) {
+            return RestResult.fail("商品信息异常");
+        }
+        val dispatchCommodities = cloudCommodityRepository.find(did);
+        if (null == dispatchCommodities || dispatchCommodities.isEmpty()) {
+            return RestResult.fail("未查询到调度商品信息");
+        }
+        int total = 0;
+        BigDecimal price = new BigDecimal(0);
+        for (int i = 0; i < size; i++) {
+            boolean find = false;
+            int ctype = types.get(i);
+            int cid = commoditys.get(i);
+            int weight = weights.get(i);
+            int value = values.get(i);
+            for (TCloudCommodity sc : dispatchCommodities) {
+                if (sc.getCtype() == ctype && sc.getCid() == cid) {
+                    find = true;
+                    if (weight > sc.getWeight()) {
+                        return RestResult.fail("入库商品重量不能大于调度重量:" + ctype + ", 商品id:" + cid);
+                    }
+                    if (value > sc.getValue()) {
+                        return RestResult.fail("入库商品件数不能大于调度件数:" + ctype + ", 商品id:" + cid);
+                    }
+
+                    TCloudCommodity c = new TCloudCommodity();
+                    c.setCtype(ctype);
+                    c.setCid(cid);
+                    if (weight == sc.getWeight()) {
+                        c.setPrice(sc.getPrice());
+                    } else {
+                        c.setPrice(sc.getPrice().multiply(new BigDecimal(weight)).divide(new BigDecimal(sc.getWeight()), 2, RoundingMode.DOWN));
+                    }
+                    c.setWeight(weight);
+                    c.setNorm(sc.getNorm());
+                    c.setValue(value);
+                    list.add(c);
+
+                    total = total + weight;
+                    price = price.add(c.getPrice());
+                    break;
+                }
+            }
+            if (!find) {
+                return RestResult.fail("未查询到商品id:" + cid + ", 类型:" + ctype);
+            }
         }
         order.setUnit(total);
         order.setPrice(price);
