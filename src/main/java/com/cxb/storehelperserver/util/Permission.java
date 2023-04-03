@@ -100,6 +100,8 @@ public class Permission {
     static public final int finance = 400;
     static public final int finance_report = 401;
     static public final int finance_getlist = 402;
+    static public final int finance_detail = 403;
+    static public final int finance_label = 404;
 
     static public final int dock = 450;
     static public final int dock_account = 451;

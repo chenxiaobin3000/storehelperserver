@@ -1,13 +1,7 @@
 package com.cxb.storehelperserver.service;
 
-import com.cxb.storehelperserver.model.TGroup;
-import com.cxb.storehelperserver.model.TGroupDetail;
-import com.cxb.storehelperserver.model.TUser;
-import com.cxb.storehelperserver.model.TUserGroup;
-import com.cxb.storehelperserver.repository.GroupDetailRepository;
-import com.cxb.storehelperserver.repository.GroupRepository;
-import com.cxb.storehelperserver.repository.UserGroupRepository;
-import com.cxb.storehelperserver.repository.UserRepository;
+import com.cxb.storehelperserver.model.*;
+import com.cxb.storehelperserver.repository.*;
 import com.cxb.storehelperserver.service.model.PageData;
 import com.cxb.storehelperserver.util.DateUtil;
 import com.cxb.storehelperserver.util.RestResult;
@@ -15,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import javax.annotation.Resource;
 
@@ -39,6 +34,12 @@ public class FinanceService {
     private CheckService checkService;
 
     @Resource
+    private FinanceLabelRepository financeLabelRepository;
+
+    @Resource
+    private FinanceDetailRepository financeDetailRepository;
+
+    @Resource
     private GroupRepository groupRepository;
 
     @Resource
@@ -52,6 +53,8 @@ public class FinanceService {
 
     @Resource
     private DateUtil dateUtil;
+
+    private static final Object lock = new Object();
 
     public RestResult getFinance(int id, int page, int limit, int action) {
         // 获取公司信息
@@ -91,41 +94,128 @@ public class FinanceService {
     }
 
     public boolean insertRecord(int id, int gid, FinanceAction action, int aid, BigDecimal value) {
-        TGroup group = groupRepository.find(gid);
-        if (null == group) {
-            return false;
-        }
-
-        BigDecimal old = group.getMoney();
         TGroupDetail groupDetail = new TGroupDetail();
         groupDetail.setGid(gid);
         groupDetail.setUid(id);
-        groupDetail.setOld(old);
         groupDetail.setValue(value);
         groupDetail.setAction(action.getValue());
         groupDetail.setAid(aid);
         groupDetail.setCdate(new Date());
-        if (!groupDetailRepository.insert(groupDetail)) {
-            return false;
+        synchronized (lock) {
+            TGroup group = groupRepository.find(gid);
+            if (null == group) {
+                return false;
+            }
+            BigDecimal old = group.getMoney();
+            groupDetail.setOld(old);
+            if (!groupDetailRepository.insert(groupDetail)) {
+                return false;
+            }
+            group.setMoney(old.add(value));
+            log.info("finance:" + id + ", gid:" + gid + ", action:" + action + ", aid:" + aid + ", old:" + old + ", value:" + value);
+            return groupRepository.update(group);
         }
-        group.setMoney(old.add(value));
-        log.info("finance:" + id + ", gid:" + gid + ", action:" + action + ", aid:" + aid + ", old:" + old + ", value:" + value);
-        return groupRepository.update(group);
+    }
+
+    public RestResult getLabelList(int id, int page, int limit, int action, Date date) {
+        // 获取公司信息
+        TUserGroup group = userGroupRepository.find(id);
+        if (null == group) {
+            return RestResult.fail("获取公司信息失败");
+        }
+        int total = financeDetailRepository.total(group.getGid(), action, date);
+        if (0 == total) {
+            return RestResult.ok(new PageData());
+        }
+
+        val list = financeDetailRepository.pagination(group.getGid(), page, limit, action, date);
+        if (null == list || list.isEmpty()) {
+            return RestResult.fail("未查询到财务信息");
+        }
+
+        SimpleDateFormat dateFormat = dateUtil.getDateFormat();
+        val tmps = new ArrayList<HashMap<String, Object>>();
+        for (TFinanceDetail detail : list) {
+            val tmp = new HashMap<String, Object>();
+            tmp.put("value", detail.getValue());
+            tmp.put("now", detail.getOld().add(detail.getValue()));
+            tmp.put("aid", detail.getAid());
+            tmp.put("remark", detail.getRemark());
+            tmp.put("time", dateFormat.format(detail.getCdate()).substring(0,10));
+
+            TUser user = userRepository.find(detail.getUid());
+            if (null == user) {
+                tmp.put("user", detail.getUid());
+            } else {
+                tmp.put("user", user.getName());
+            }
+
+            TFinanceLabel label = financeLabelRepository.find(detail.getAction());
+            if (null != label) {
+                tmp.put("action", label.getName());
+            }
+            tmps.add(tmp);
+        }
+        return RestResult.ok(new PageData(total, tmps));
+    }
+
+    public RestResult insertLabelDetail(int id, int gid, int action, int aid, BigDecimal value, String remark, Date date, int sub) {
+        if (sub > 0) {
+            value = value.negate();
+        }
+        TFinanceDetail detail = new TFinanceDetail();
+        detail.setGid(gid);
+        detail.setUid(id);
+        detail.setValue(value);
+        detail.setAction(action);
+        detail.setAid(aid);
+        detail.setRemark(remark);
+        detail.setCdate(date);
+        synchronized (lock) {
+            TGroup group = groupRepository.find(gid);
+            if (null == group) {
+                return RestResult.fail("未查询到关联公司信息");
+            }
+            BigDecimal old = group.getMoney();
+            detail.setOld(old);
+            if (!financeDetailRepository.insert(detail)) {
+                return RestResult.fail("添加财务记录失败");
+            }
+            group.setMoney(old.add(value));
+            log.info("finance:" + id + ", gid:" + gid + ", action:" + action + ", aid:" + aid + ", old:" + old + ", value:" + value);
+            if (!groupRepository.update(group)) {
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                return RestResult.fail("更新公司信息失败");
+            }
+            return RestResult.ok();
+        }
     }
 
     private void explainAction(FinanceAction action, HashMap<String, Object> data) {
         switch (action) {
             case FINANCE_PURCHASE_PAY:
-                data.put("action", "采购进货");
+                data.put("action", "采购仓储进货");
                 break;
             case FINANCE_PURCHASE_FARE:
-                data.put("action", "采购进货运费");
+                data.put("action", "采购仓储进货运费");
                 break;
             case FINANCE_PURCHASE_RET:
-                data.put("action", "采购退货");
+                data.put("action", "采购仓储退货");
                 break;
             case FINANCE_PURCHASE_FARE2:
-                data.put("action", "采购退货运费");
+                data.put("action", "采购仓储退货运费");
+                break;
+            case FINANCE_PURCHASE2_PAY:
+                data.put("action", "采购云仓进货");
+                break;
+            case FINANCE_PURCHASE2_FARE:
+                data.put("action", "采购云仓进货运费");
+                break;
+            case FINANCE_PURCHASE2_RET:
+                data.put("action", "采购云仓退货");
+                break;
+            case FINANCE_PURCHASE2_FARE2:
+                data.put("action", "采购云仓退货运费");
                 break;
 
             case FINANCE_STORAGE_MGR:
@@ -159,10 +249,16 @@ public class FinanceService {
                 break;
 
             case FINANCE_CLOUD_RET:
-                data.put("action", "云仓退货");
+                data.put("action", "云仓采购退货");
                 break;
             case FINANCE_CLOUD_FARE:
-                data.put("action", "云仓退货运费");
+                data.put("action", "云仓采购退货运费");
+                break;
+            case FINANCE_CLOUD_BACK:
+                data.put("action", "云仓履约退货");
+                break;
+            case FINANCE_CLOUD_FARE2:
+                data.put("action", "云仓履约退货运费");
                 break;
 
             case FINANCE_MARKET_SALE:
