@@ -40,6 +40,12 @@ public class StandardStorageRepository extends BaseRepository<List> {
         return standardStorages;
     }
 
+    public List<TStandardStorage> findBySid(int sid) {
+        TStandardStorageExample example = new TStandardStorageExample();
+        example.or().andSidEqualTo(sid);
+        return standardStorageMapper.selectByExample(example);
+    }
+
     public boolean update(int cid, List<Integer> sids) {
         delete(cid);
         TStandardStorage row = new TStandardStorage();

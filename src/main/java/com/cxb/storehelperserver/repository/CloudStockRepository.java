@@ -99,9 +99,9 @@ public class CloudStockRepository extends BaseRepository<TCloudStock> {
         }
     }
 
-    public List<TCloudStock> all(int gid) {
+    public List<TCloudStock> all(int sid) {
         TCloudStockExample example = new TCloudStockExample();
-        example.or().andGidEqualTo(gid);
+        example.or().andSidEqualTo(sid);
         return cloudStockMapper.selectByExample(example);
     }
 

@@ -48,47 +48,41 @@ public class CloudDetailRepository extends BaseRepository<TCloudDetail> {
         return stock;
     }
 
-    public int total(int gid, int sid, int ctype, String search) {
+    public int total(int gid, int sid, int ctype, Date start, Date end, String search) {
         if (null != search) {
             switch (TypeDefine.CommodityType.valueOf(ctype)) {
                 case COMMODITY:
-                    return myCloudDetailMapper.count_commodity(gid, sid, "%" + search + "%");
+                    return myCloudDetailMapper.count_commodity(gid, sid, start, end, "%" + search + "%");
                 case HALFGOOD:
-                    return myCloudDetailMapper.count_halfgood(gid, sid, "%" + search + "%");
+                    return myCloudDetailMapper.count_halfgood(gid, sid, start, end, "%" + search + "%");
                 case ORIGINAL:
-                    return myCloudDetailMapper.count_original(gid, sid, "%" + search + "%");
+                    return myCloudDetailMapper.count_original(gid, sid, start, end, "%" + search + "%");
                 case STANDARD:
-                    return myCloudDetailMapper.count_standard(gid, sid, "%" + search + "%");
+                    return myCloudDetailMapper.count_standard(gid, sid, start, end, "%" + search + "%");
                 default:
                     return 0;
             }
         } else {
-            int total = getTotalCache(joinKey(gid, sid));
-            if (0 != total) {
-                return total;
-            }
             TCloudDetailExample example = new TCloudDetailExample();
-            example.or().andGidEqualTo(gid).andSidEqualTo(sid);
-            total = (int) cloudDetailMapper.countByExample(example);
-            setTotalCache(joinKey(gid, sid), total);
-            return total;
+            example.or().andGidEqualTo(gid).andSidEqualTo(sid).andCdateGreaterThanOrEqualTo(start).andCdateLessThanOrEqualTo(end);
+            return (int) cloudDetailMapper.countByExample(example);
         }
     }
 
-    public List<MyStockDetail> pagination(int gid, int sid, int page, int limit, int ctype, String search) {
+    public List<MyStockDetail> pagination(int gid, int sid, int page, int limit, int ctype, Date start, Date end, String search) {
         String key = null;
         if (null != search) {
             key = "%" + search + "%";
         }
         switch (TypeDefine.CommodityType.valueOf(ctype)) {
             case COMMODITY:
-                return myCloudDetailMapper.pagination_commodity((page - 1) * limit, limit, gid, sid, key);
+                return myCloudDetailMapper.pagination_commodity((page - 1) * limit, limit, gid, sid, start, end, key);
             case HALFGOOD:
-                return myCloudDetailMapper.pagination_halfgood((page - 1) * limit, limit, gid, sid, key);
+                return myCloudDetailMapper.pagination_halfgood((page - 1) * limit, limit, gid, sid, start, end, key);
             case ORIGINAL:
-                return myCloudDetailMapper.pagination_original((page - 1) * limit, limit, gid, sid, key);
+                return myCloudDetailMapper.pagination_original((page - 1) * limit, limit, gid, sid, start, end, key);
             case STANDARD:
-                return myCloudDetailMapper.pagination_standard((page - 1) * limit, limit, gid, sid, key);
+                return myCloudDetailMapper.pagination_standard((page - 1) * limit, limit, gid, sid, start, end, key);
             default:
                 return null;
         }
@@ -108,7 +102,6 @@ public class CloudDetailRepository extends BaseRepository<TCloudDetail> {
         row.setCdate(cdate);
         if (cloudDetailMapper.insert(row) > 0) {
             setCache(joinKey(row.getSid(), row.getCid()), row);
-            delTotalCache(joinKey(row.getGid(), row.getSid()));
             return true;
         }
         return false;
@@ -120,7 +113,6 @@ public class CloudDetailRepository extends BaseRepository<TCloudDetail> {
             return false;
         }
         delCache(joinKey(stock.getSid(), stock.getCid()));
-        delTotalCache(joinKey(stock.getGid(), stock.getSid()));
         return cloudDetailMapper.deleteByPrimaryKey(stock.getId()) > 0;
     }
 }

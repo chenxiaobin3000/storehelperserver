@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * desc: 废料仓库关联仓库
@@ -15,50 +16,54 @@ import javax.annotation.Resource;
  */
 @Slf4j
 @Repository
-public class OriginalStorageRepository extends BaseRepository<TOriginalStorage> {
+public class OriginalStorageRepository extends BaseRepository<List> {
     @Resource
-    private TOriginalStorageMapper commodityStorageMapper;
+    private TOriginalStorageMapper originalStorageMapper;
 
     public OriginalStorageRepository() {
         init("oriStorage::");
     }
 
-    public TOriginalStorage find(int cid) {
-        TOriginalStorage commodityStorage = getCache(cid, TOriginalStorage.class);
-        if (null != commodityStorage) {
-            return commodityStorage;
+    public List<TOriginalStorage> find(int cid) {
+        List<TOriginalStorage> originalStorages = getCache(cid, List.class);
+        if (null != originalStorages) {
+            return originalStorages;
         }
 
         // 缓存没有就查询数据库
         TOriginalStorageExample example = new TOriginalStorageExample();
         example.or().andCidEqualTo(cid);
-        commodityStorage = commodityStorageMapper.selectOneByExample(example);
-        if (null != commodityStorage) {
-            setCache(cid, commodityStorage);
+        originalStorages = originalStorageMapper.selectByExample(example);
+        if (null != originalStorages) {
+            setCache(cid, originalStorages);
         }
-        return commodityStorage;
+        return originalStorages;
     }
 
-    public boolean insert(TOriginalStorage row) {
-        if (commodityStorageMapper.insert(row) > 0) {
-            setCache(row.getCid(), row);
-            return true;
-        }
-        return false;
+    public List<TOriginalStorage> findBySid(int sid) {
+        TOriginalStorageExample example = new TOriginalStorageExample();
+        example.or().andSidEqualTo(sid);
+        return originalStorageMapper.selectByExample(example);
     }
 
-    public boolean update(TOriginalStorage row) {
-        if (commodityStorageMapper.updateByPrimaryKey(row) > 0) {
-            setCache(row.getCid(), row);
-            return true;
+    public boolean update(int cid, List<Integer> sids) {
+        delete(cid);
+        TOriginalStorage row = new TOriginalStorage();
+        row.setCid(cid);
+        for (Integer sid : sids) {
+            row.setId(0);
+            row.setSid(sid);
+            if (originalStorageMapper.insert(row) <= 0) {
+                return false;
+            }
         }
-        return false;
+        return true;
     }
 
     public boolean delete(int cid) {
         delCache(cid);
         TOriginalStorageExample example = new TOriginalStorageExample();
         example.or().andCidEqualTo(cid);
-        return commodityStorageMapper.deleteByExample(example) > 0;
+        return originalStorageMapper.deleteByExample(example) > 0;
     }
 }

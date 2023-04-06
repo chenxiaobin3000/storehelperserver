@@ -18,9 +18,8 @@ import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static com.cxb.storehelperserver.util.Permission.admin;
-import static com.cxb.storehelperserver.util.TypeDefine.CommodityType.COMMODITY;
-import static com.cxb.storehelperserver.util.TypeDefine.CommodityType.HALFGOOD;
+import static com.cxb.storehelperserver.util.TypeDefine.CommodityType;
+import static com.cxb.storehelperserver.util.TypeDefine.CommodityType.*;
 
 /**
  * desc: 库存统计业务
@@ -44,7 +43,7 @@ public class StorageStockService {
     private StockDayRepository stockDayRepository;
 
     @Resource
-    private StockWeekRepository stockWeekRepository;
+    private StockMonthRepository stockMonthRepository;
 
     @Resource
     private AgreementCommodityRepository agreementCommodityRepository;
@@ -56,7 +55,16 @@ public class StorageStockService {
     private StorageCommodityRepository storageCommodityRepository;
 
     @Resource
-    private UserOrderCompleteRepository userOrderCompleteRepository;
+    private CommodityStorageRepository commodityStorageRepository;
+
+    @Resource
+    private HalfgoodStorageRepository halfgoodStorageRepository;
+
+    @Resource
+    private OriginalStorageRepository originalStorageRepository;
+
+    @Resource
+    private StandardStorageRepository standardStorageRepository;
 
     @Resource
     private UserGroupRepository userGroupRepository;
@@ -69,9 +77,6 @@ public class StorageStockService {
 
     @Value("${store-app.config.stockday}")
     private int stockday;
-
-    @Value("${store-app.config.stockspan}")
-    private int stockspan;
 
     private static final Object lock = new Object();
 
@@ -102,7 +107,7 @@ public class StorageStockService {
         return RestResult.ok(data);
     }
 
-    public RestResult getStockDetail(int id, int sid, int ctype, int page, int limit, String search) {
+    public RestResult getStockDetail(int id, int sid, int ctype, int page, int limit, Date start, Date end, String search) {
         RestResult ret = check(id, sid);
         if (null != ret) {
             return ret;
@@ -115,12 +120,12 @@ public class StorageStockService {
         }
 
         val data = new HashMap<String, Object>();
-        int total = stockDetailRepository.total(group.getGid(), sid, ctype, search);
+        int total = stockDetailRepository.total(group.getGid(), sid, ctype, start, end, search);
         if (0 == total) {
             return RestResult.ok(new PageData());
         }
 
-        val commodities = stockDetailRepository.pagination(group.getGid(), sid, page, limit, ctype, search);
+        val commodities = stockDetailRepository.pagination(group.getGid(), sid, page, limit, ctype, start, end, search);
         if (null == commodities) {
             return RestResult.fail("获取商品信息失败");
         }
@@ -154,6 +159,21 @@ public class StorageStockService {
         }
         data.put("list", list);
         data.put("today", stockRepository.findReport(gid, sid, ctype));
+        if (list.isEmpty()) {
+            if (0 == sid) {
+                int total = storageRepository.total(gid, null);
+                if (0 != total) {
+                    val list2 = storageRepository.pagination(gid, 1, total, null);
+                    if (null != list2 && !list2.isEmpty()) {
+                        for (TStorage s : list2) {
+                            countStockDay(s.getId(), ctype, end);
+                        }
+                    }
+                }
+            } else {
+                countStockDay(sid, ctype, end);
+            }
+        }
         return RestResult.ok(data);
     }
 
@@ -432,33 +452,6 @@ public class StorageStockService {
         return null;
     }
 
-    public RestResult countStock(int id, int gid, Date date) {
-        // 验证公司
-        String msg = checkService.checkGroup(id, gid);
-        if (null != msg) {
-            return RestResult.fail(msg);
-        }
-
-        // 权限校验，必须admin
-        if (!checkService.checkRolePermission(id, admin)) {
-            return RestResult.fail("本账号没有相关的权限，请联系管理员");
-        }
-
-        date = dateUtil.getStartTime(date);
-        synchronized (lock) {
-            val stocks = stockRepository.all(gid);
-            for (TStock stock : stocks) {
-                stockDayRepository.insert(stock.getId(), stock.getGid(), stock.getSid(), stock.getCtype(),
-                        stock.getCid(), stock.getPrice(), stock.getWeight(), stock.getValue(), date);
-            }
-        }
-        return RestResult.ok();
-    }
-
-    public void delStock(int sid, Date date) {
-        stockDayRepository.delete(sid, date);
-    }
-
     private RestResult check(int id, int sid) {
         // 获取公司信息
         TUserGroup group = userGroupRepository.find(id);
@@ -474,5 +467,56 @@ public class StorageStockService {
             return RestResult.fail("只能获取本公司信息");
         }
         return null;
+    }
+
+    // 计算库存
+    private void countStockDay(int sid, int ctype, Date date) {
+        // 获取注册仓库的商品id
+        val ids = new ArrayList<Integer>();
+        switch (CommodityType.valueOf(ctype)) {
+            case COMMODITY:
+                val commodityStorages = commodityStorageRepository.findBySid(sid);
+                for (TCommodityStorage c : commodityStorages) {
+                    ids.add(c.getCid());
+                }
+                break;
+            case HALFGOOD:
+                val halfgoodStorages = halfgoodStorageRepository.findBySid(sid);
+                for (THalfgoodStorage c : halfgoodStorages) {
+                    ids.add(c.getCid());
+                }
+                break;
+            case ORIGINAL:
+                val originalStorages = originalStorageRepository.findBySid(sid);
+                for (TOriginalStorage c : originalStorages) {
+                    ids.add(c.getCid());
+                }
+                break;
+            case STANDARD:
+                val standardStorages = standardStorageRepository.findBySid(sid);
+                for (TStandardStorage c : standardStorages) {
+                    ids.add(c.getCid());
+                }
+                break;
+            default:
+                break;
+        }
+
+        synchronized (lock) {
+            // 获取历史记录，没有就补
+            log.info("-------------:" + sid + "," + ids);
+
+            //
+            val stocks = stockRepository.all(sid);
+            for (TStock stock : stocks) {
+                stockDayRepository.insert(stock.getId(), stock.getGid(), stock.getSid(), stock.getCtype(),
+                        stock.getCid(), stock.getPrice(), stock.getWeight(), stock.getValue(), date);
+            }
+        }
+    }
+
+    // 计算库存月快照
+    private void countStockMonth(int sid, int ctype, Date date) {
+
     }
 }

@@ -38,6 +38,9 @@ public class HalfgoodService {
     private HalfgoodOriginalRepository halfgoodOriginalRepository;
 
     @Resource
+    private HalfgoodStorageRepository halfgoodStorageRepository;
+
+    @Resource
     private OriginalRepository originalRepository;
 
     @Resource
@@ -45,6 +48,9 @@ public class HalfgoodService {
 
     @Resource
     private CategoryRepository categoryRepository;
+
+    @Resource
+    private StorageRepository storageRepository;
 
     @Resource
     private UserGroupRepository userGroupRepository;
@@ -191,13 +197,31 @@ public class HalfgoodService {
 
         val datas = new ArrayList<HashMap<String, Object>>();
         for (THalfgood c : commodities) {
+            int cid = c.getId();
             val tmp = new HashMap<String, Object>();
-            tmp.put("id", c.getId());
+            tmp.put("id", cid);
             tmp.put("code", c.getCode());
             tmp.put("name", c.getName());
             tmp.put("cid", c.getCid());
             tmp.put("remark", c.getRemark());
             datas.add(tmp);
+
+            // 仓库
+            val storages = halfgoodStorageRepository.find(cid);
+            if (null != storages && !storages.isEmpty()) {
+                val list2 = new ArrayList<HashMap<String, Object>>();
+                tmp.put("storages", list2);
+                for (THalfgoodStorage ss : storages) {
+                    val tmp2 = new HashMap<String, Object>();
+                    int sid = ss.getSid();
+                    tmp2.put("sid", sid);
+                    TStorage storage = storageRepository.find(sid);
+                    if (null != storage) {
+                        tmp2.put("name", storage.getName());
+                    }
+                    list2.add(tmp2);
+                }
+            }
 
             // 属性
             List<THalfgoodAttr> attrs = halfgoodAttrRepository.find(c.getId());
@@ -293,6 +317,18 @@ public class HalfgoodService {
             if (!halfgoodOriginalRepository.update(halfgoodOriginal)) {
                 return RestResult.fail("修改商品关联半成品失败");
             }
+        }
+        return RestResult.ok();
+    }
+
+    public RestResult setHalfgoodStorage(int id, int gid, int cid, List<Integer> sids) {
+        // 验证公司
+        String msg = checkService.checkGroup(id, gid);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+        if (!halfgoodStorageRepository.update(cid, sids)) {
+            return RestResult.fail("添加商品关联仓库失败");
         }
         return RestResult.ok();
     }

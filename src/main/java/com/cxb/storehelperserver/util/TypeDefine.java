@@ -31,6 +31,7 @@ public class TypeDefine {
         CLOUD_DISPATCH_ORDER(45),       // 云仓调度出库订单
         CLOUD_PURCHASE2_ORDER(46),      // 云仓调度入库订单
         SALE_OFFLINE_ORDER(50),         // 线下销售订单
+        SALE_BACK_ORDER(51),            // TODO 线下销售退货订单
         SALE_RETURN_ORDER(60);          // 销售退货订单
 
         private int value = 0;
@@ -87,6 +88,8 @@ public class TypeDefine {
                     return CLOUD_PURCHASE2_ORDER;
                 case 50:
                     return SALE_OFFLINE_ORDER;
+                case 51:
+                    return SALE_BACK_ORDER;
             }
             return SALE_RETURN_ORDER;
         }

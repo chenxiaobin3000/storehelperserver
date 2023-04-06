@@ -40,6 +40,12 @@ public class CommodityStorageRepository extends BaseRepository<List> {
         return commodityStorages;
     }
 
+    public List<TCommodityStorage> findBySid(int sid) {
+        TCommodityStorageExample example = new TCommodityStorageExample();
+        example.or().andSidEqualTo(sid);
+        return commodityStorageMapper.selectByExample(example);
+    }
+
     public boolean update(int cid, List<Integer> sids) {
         delete(cid);
         TCommodityStorage row = new TCommodityStorage();

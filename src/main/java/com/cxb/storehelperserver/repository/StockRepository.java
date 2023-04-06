@@ -99,9 +99,9 @@ public class StockRepository extends BaseRepository<TStock> {
         }
     }
 
-    public List<TStock> all(int gid) {
+    public List<TStock> all(int sid) {
         TStockExample example = new TStockExample();
-        example.or().andGidEqualTo(gid);
+        example.or().andSidEqualTo(sid);
         return stockMapper.selectByExample(example);
     }
 

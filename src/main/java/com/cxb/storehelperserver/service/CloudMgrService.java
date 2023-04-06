@@ -107,14 +107,14 @@ public class CloudMgrService {
         val list2 = new ArrayList<HashMap<String, Object>>();
         val list = cloudRepository.pagination(group.getGid(), page, limit, search);
         if (null != list && !list.isEmpty()) {
-            for (TCloud g : list) {
+            for (TCloud s : list) {
                 val cloud = new HashMap<String, Object>();
-                cloud.put("id", g.getId());
-                cloud.put("area", String.valueOf(g.getArea()));
-                cloud.put("name", g.getName());
-                cloud.put("address", g.getAddress());
-                cloud.put("contact", g.getContact());
-                cloud.put("phone", g.getPhone());
+                cloud.put("id", s.getId());
+                cloud.put("area", String.valueOf(s.getArea()));
+                cloud.put("name", s.getName());
+                cloud.put("address", s.getAddress());
+                cloud.put("contact", s.getContact());
+                cloud.put("phone", s.getPhone());
                 list2.add(cloud);
             }
         }

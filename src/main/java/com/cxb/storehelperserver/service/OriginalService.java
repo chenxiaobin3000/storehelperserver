@@ -35,10 +35,16 @@ public class OriginalService {
     private OriginalAttrRepository originalAttrRepository;
 
     @Resource
+    private OriginalStorageRepository originalStorageRepository;
+
+    @Resource
     private AttributeTemplateRepository attributeTemplateRepository;
 
     @Resource
     private CategoryRepository categoryRepository;
+
+    @Resource
+    private StorageRepository storageRepository;
 
     @Resource
     private UserGroupRepository userGroupRepository;
@@ -181,13 +187,31 @@ public class OriginalService {
 
         val datas = new ArrayList<HashMap<String, Object>>();
         for (TOriginal c : commodities) {
+            int cid = c.getId();
             val tmp = new HashMap<String, Object>();
-            tmp.put("id", c.getId());
+            tmp.put("id", cid);
             tmp.put("code", c.getCode());
             tmp.put("name", c.getName());
             tmp.put("cid", c.getCid());
             tmp.put("remark", c.getRemark());
             datas.add(tmp);
+
+            // 仓库
+            val storages = originalStorageRepository.find(cid);
+            if (null != storages && !storages.isEmpty()) {
+                val list2 = new ArrayList<HashMap<String, Object>>();
+                tmp.put("storages", list2);
+                for (TOriginalStorage ss : storages) {
+                    val tmp2 = new HashMap<String, Object>();
+                    int sid = ss.getSid();
+                    tmp2.put("sid", sid);
+                    TStorage storage = storageRepository.find(sid);
+                    if (null != storage) {
+                        tmp2.put("name", storage.getName());
+                    }
+                    list2.add(tmp2);
+                }
+            }
 
             // 属性
             List<TOriginalAttr> attrs = originalAttrRepository.find(c.getId());
@@ -240,5 +264,17 @@ public class OriginalService {
             }
         }
         return RestResult.ok(new PageData(total, datas));
+    }
+
+    public RestResult setOriginalStorage(int id, int gid, int cid, List<Integer> sids) {
+        // 验证公司
+        String msg = checkService.checkGroup(id, gid);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+        if (!originalStorageRepository.update(cid, sids)) {
+            return RestResult.fail("添加商品关联仓库失败");
+        }
+        return RestResult.ok();
     }
 }

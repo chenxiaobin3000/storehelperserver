@@ -48,47 +48,41 @@ public class StockDetailRepository extends BaseRepository<TStockDetail> {
         return stock;
     }
 
-    public int total(int gid, int sid, int ctype, String search) {
+    public int total(int gid, int sid, int ctype, Date start, Date end, String search) {
         if (null != search) {
             switch (TypeDefine.CommodityType.valueOf(ctype)) {
                 case COMMODITY:
-                    return myStockDetailMapper.count_commodity(gid, sid, "%" + search + "%");
+                    return myStockDetailMapper.count_commodity(gid, sid, start, end, "%" + search + "%");
                 case HALFGOOD:
-                    return myStockDetailMapper.count_halfgood(gid, sid, "%" + search + "%");
+                    return myStockDetailMapper.count_halfgood(gid, sid, start, end, "%" + search + "%");
                 case ORIGINAL:
-                    return myStockDetailMapper.count_original(gid, sid, "%" + search + "%");
+                    return myStockDetailMapper.count_original(gid, sid, start, end, "%" + search + "%");
                 case STANDARD:
-                    return myStockDetailMapper.count_standard(gid, sid, "%" + search + "%");
+                    return myStockDetailMapper.count_standard(gid, sid, start, end, "%" + search + "%");
                 default:
                     return 0;
             }
         } else {
-            int total = getTotalCache(joinKey(gid, sid));
-            if (0 != total) {
-                return total;
-            }
             TStockDetailExample example = new TStockDetailExample();
-            example.or().andGidEqualTo(gid).andSidEqualTo(sid);
-            total = (int) stockDetailMapper.countByExample(example);
-            setTotalCache(joinKey(gid, sid), total);
-            return total;
+            example.or().andGidEqualTo(gid).andSidEqualTo(sid).andCdateGreaterThanOrEqualTo(start).andCdateLessThanOrEqualTo(end);
+            return (int) stockDetailMapper.countByExample(example);
         }
     }
 
-    public List<MyStockDetail> pagination(int gid, int sid, int page, int limit, int ctype, String search) {
+    public List<MyStockDetail> pagination(int gid, int sid, int page, int limit, int ctype, Date start, Date end, String search) {
         String key = null;
         if (null != search) {
             key = "%" + search + "%";
         }
         switch (TypeDefine.CommodityType.valueOf(ctype)) {
             case COMMODITY:
-                return myStockDetailMapper.pagination_commodity((page - 1) * limit, limit, gid, sid, key);
+                return myStockDetailMapper.pagination_commodity((page - 1) * limit, limit, gid, sid, start, end, key);
             case HALFGOOD:
-                return myStockDetailMapper.pagination_halfgood((page - 1) * limit, limit, gid, sid, key);
+                return myStockDetailMapper.pagination_halfgood((page - 1) * limit, limit, gid, sid, start, end, key);
             case ORIGINAL:
-                return myStockDetailMapper.pagination_original((page - 1) * limit, limit, gid, sid, key);
+                return myStockDetailMapper.pagination_original((page - 1) * limit, limit, gid, sid, start, end, key);
             case STANDARD:
-                return myStockDetailMapper.pagination_standard((page - 1) * limit, limit, gid, sid, key);
+                return myStockDetailMapper.pagination_standard((page - 1) * limit, limit, gid, sid, start, end, key);
             default:
                 return null;
         }
@@ -108,7 +102,6 @@ public class StockDetailRepository extends BaseRepository<TStockDetail> {
         row.setCdate(cdate);
         if (stockDetailMapper.insert(row) > 0) {
             setCache(joinKey(row.getSid(), row.getCid()), row);
-            delTotalCache(joinKey(row.getGid(), row.getSid()));
             return true;
         }
         return false;
@@ -120,7 +113,6 @@ public class StockDetailRepository extends BaseRepository<TStockDetail> {
             return false;
         }
         delCache(joinKey(stock.getSid(), stock.getCid()));
-        delTotalCache(joinKey(stock.getGid(), stock.getSid()));
         return stockDetailMapper.deleteByPrimaryKey(stock.getId()) > 0;
     }
 }

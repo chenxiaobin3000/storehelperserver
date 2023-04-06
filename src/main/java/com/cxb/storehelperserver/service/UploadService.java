@@ -123,12 +123,15 @@ public class UploadService {
             case CLOUD_LOSS_ORDER:
             case CLOUD_BACK_ORDER:
             case CLOUD_AGREEMENT_ORDER:
+            case CLOUD_DISPATCH_ORDER:
+            case CLOUD_PURCHASE2_ORDER:
                 TCloudAttachment cloudAttachment = cloudAttachmentRepository.insert(0, imagesrc, path, name);
                 if (null == cloudAttachment) {
                     return RestResult.fail("写入数据失败，请联系管理员");
                 }
                 data.put("id", cloudAttachment.getId());
                 break;
+            case SALE_OFFLINE_ORDER:
             case SALE_RETURN_ORDER:
                 TSaleAttachment saleAttachment = saleAttachmentRepository.insert(0, imagesrc, path, name);
                 if (null == saleAttachment) {

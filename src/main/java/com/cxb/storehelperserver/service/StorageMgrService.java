@@ -161,14 +161,14 @@ public class StorageMgrService {
         val list2 = new ArrayList<HashMap<String, Object>>();
         val list = storageRepository.pagination(group.getGid(), 1, total, null);
         if (null != list && !list.isEmpty()) {
-            for (TStorage g : list) {
+            for (TStorage s : list) {
                 val storage = new HashMap<String, Object>();
-                storage.put("id", g.getId());
-                storage.put("area", String.valueOf(g.getArea()));
-                storage.put("name", g.getName());
-                storage.put("address", g.getAddress());
-                storage.put("contact", g.getContact());
-                storage.put("phone", g.getPhone());
+                storage.put("id", s.getId());
+                storage.put("area", String.valueOf(s.getArea()));
+                storage.put("name", s.getName());
+                storage.put("address", s.getAddress());
+                storage.put("contact", s.getContact());
+                storage.put("phone", s.getPhone());
                 list2.add(storage);
             }
         }

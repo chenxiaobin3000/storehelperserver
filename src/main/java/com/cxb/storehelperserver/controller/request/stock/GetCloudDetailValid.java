@@ -5,6 +5,7 @@ import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotEmpty;
 
 /**
  * desc:
@@ -27,6 +28,10 @@ public class GetCloudDetailValid implements IValid {
 
     @Min(value = 10, message = "页面数量错误")
     private int limit;
+
+    @NotEmpty(message = "请输入查询日期")
+    @Length(min = 10, max = 10, message = "查询日期格式错误")
+    private String date;
 
     @Length(max = 16, message = "搜索内容不能大于16个字符")
     private String search;

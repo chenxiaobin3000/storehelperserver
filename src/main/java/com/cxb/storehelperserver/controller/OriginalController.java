@@ -67,4 +67,9 @@ public class OriginalController {
     public RestResult getGroupAllOriginal(@Validated @RequestBody GetGroupAllOriginalValid req) {
         return originalService.getGroupAllOriginal(req.getId());
     }
+
+    @PostMapping("/setOriginalStorage")
+    public RestResult setOriginalStorage(@Validated @RequestBody SetOriginalStorageValid req) {
+        return originalService.setOriginalStorage(req.getId(), req.getGid(), req.getCid(), req.getSids());
+    }
 }

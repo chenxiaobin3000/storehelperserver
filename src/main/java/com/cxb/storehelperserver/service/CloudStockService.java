@@ -6,6 +6,7 @@ import com.cxb.storehelperserver.repository.model.MyStockReport;
 import com.cxb.storehelperserver.service.model.PageData;
 import com.cxb.storehelperserver.util.DateUtil;
 import com.cxb.storehelperserver.util.RestResult;
+import com.cxb.storehelperserver.util.TypeDefine;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,7 +16,6 @@ import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -46,7 +46,7 @@ public class CloudStockService {
     private CloudDayRepository cloudDayRepository;
 
     @Resource
-    private CloudWeekRepository cloudWeekRepository;
+    private CloudMonthRepository cloudMonthRepository;
 
     @Resource
     private AgreementCommodityRepository agreementCommodityRepository;
@@ -61,6 +61,12 @@ public class CloudStockService {
     private SaleCommodityRepository saleCommodityRepository;
 
     @Resource
+    private CommodityStorageRepository commodityStorageRepository;
+
+    @Resource
+    private StandardStorageRepository standardStorageRepository;
+
+    @Resource
     private UserGroupRepository userGroupRepository;
 
     @Resource
@@ -71,9 +77,6 @@ public class CloudStockService {
 
     @Value("${store-app.config.stockday}")
     private int stockday;
-
-    @Value("${store-app.config.stockspan}")
-    private int stockspan;
 
     private static final Object lock = new Object();
 
@@ -104,7 +107,7 @@ public class CloudStockService {
         return RestResult.ok(data);
     }
 
-    public RestResult getStockDetail(int id, int sid, int ctype, int page, int limit, String search) {
+    public RestResult getStockDetail(int id, int sid, int ctype, int page, int limit, Date start, Date end, String search) {
         RestResult ret = check(id, sid);
         if (null != ret) {
             return ret;
@@ -117,12 +120,12 @@ public class CloudStockService {
         }
 
         val data = new HashMap<String, Object>();
-        int total = cloudDetailRepository.total(group.getGid(), sid, ctype, search);
+        int total = cloudDetailRepository.total(group.getGid(), sid, ctype, start, end, search);
         if (0 == total) {
             return RestResult.ok(new PageData());
         }
 
-        val commodities = cloudDetailRepository.pagination(group.getGid(), sid, page, limit, ctype, search);
+        val commodities = cloudDetailRepository.pagination(group.getGid(), sid, page, limit, ctype, start, end, search);
         if (null == commodities) {
             return RestResult.fail("获取商品信息失败");
         }
@@ -156,6 +159,9 @@ public class CloudStockService {
         }
         data.put("list", list);
         data.put("today", cloudStockRepository.findReport(gid, sid, ctype));
+        if (list.isEmpty()) {
+            countStockDay(sid, ctype, end);
+        }
         return RestResult.ok(data);
     }
 
@@ -324,33 +330,6 @@ public class CloudStockService {
         return null;
     }
 
-    public RestResult countStock(int id, int gid, Date date) {
-        // 验证公司
-        String msg = checkService.checkGroup(id, gid);
-        if (null != msg) {
-            return RestResult.fail(msg);
-        }
-
-        // 权限校验，必须admin
-        if (!checkService.checkRolePermission(id, admin)) {
-            return RestResult.fail("本账号没有相关的权限，请联系管理员");
-        }
-
-        date = dateUtil.getStartTime(date);
-        synchronized (lock) {
-            val stocks = cloudStockRepository.all(gid);
-            for (TCloudStock stock : stocks) {
-                cloudDayRepository.insert(stock.getId(), stock.getGid(), stock.getSid(), stock.getCtype(),
-                        stock.getCid(), stock.getPrice(), stock.getWeight(), stock.getValue(), date);
-            }
-        }
-        return RestResult.ok();
-    }
-
-    public void delStock(int sid, Date date) {
-        cloudDayRepository.delete(sid, date);
-    }
-
     private RestResult check(int id, int sid) {
         // 获取公司信息
         TUserGroup group = userGroupRepository.find(id);
@@ -366,5 +345,43 @@ public class CloudStockService {
             return RestResult.fail("只能获取本公司信息");
         }
         return null;
+    }
+
+    // 计算库存
+    private void countStockDay(int sid, int ctype, Date date) {
+        // 获取注册仓库的商品id
+        val ids = new ArrayList<Integer>();
+        switch (TypeDefine.CommodityType.valueOf(ctype)) {
+            case COMMODITY:
+                val commodityStorages = commodityStorageRepository.findBySid(sid);
+                for (TCommodityStorage c : commodityStorages) {
+                    ids.add(c.getCid());
+                }
+                break;
+            case STANDARD:
+                val standardStorages = standardStorageRepository.findBySid(sid);
+                for (TStandardStorage c : standardStorages) {
+                    ids.add(c.getCid());
+                }
+                break;
+            default:
+                break;
+        }
+
+        synchronized (lock) {
+            // 获取历史记录，没有就补
+
+            //
+            val stocks = cloudStockRepository.all(sid);
+            for (TCloudStock stock : stocks) {
+                cloudDayRepository.insert(stock.getId(), stock.getGid(), stock.getSid(), stock.getCtype(),
+                        stock.getCid(), stock.getPrice(), stock.getWeight(), stock.getValue(), date);
+            }
+        }
+    }
+
+    // 计算库存月快照
+    private void countStockMonth(int sid, int ctype, Date date) {
+
     }
 }

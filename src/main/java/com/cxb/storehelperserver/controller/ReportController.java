@@ -60,4 +60,9 @@ public class ReportController {
     public RestResult getStorageReport(@Validated @RequestBody getStorageReportValid req) {
         return reportService.getStorageReport(req.getId(), req.getGid(), req.getSid(), ReportCycleType.valueOf(req.getCycle()));
     }
+
+    @PostMapping("/getSaleReport")
+    public RestResult getSaleReport(@Validated @RequestBody getSaleReportValid req) {
+        return reportService.getSaleReport(req.getId(), req.getGid(), req.getSid(), ReportCycleType.valueOf(req.getCycle()));
+    }
 }

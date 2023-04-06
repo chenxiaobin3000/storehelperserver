@@ -98,5 +98,3 @@ store-app:
     imagepath: s/
     # 计算库存间隔天数上限
     stockday: 2
-    # 计算库存间隔时间(毫秒)
-    stockspan: 50
