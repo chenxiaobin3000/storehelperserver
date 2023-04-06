@@ -3,6 +3,7 @@ package com.cxb.storehelperserver.repository.model;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 @Data
 public class MyStockCommodity {
@@ -18,7 +19,7 @@ public class MyStockCommodity {
 
     private Integer value;
 
-    private Integer total;
+    private Date date;
 
     private Integer cid;
 

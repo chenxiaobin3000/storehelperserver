@@ -97,4 +97,4 @@ store-app:
     # 图片地址
     imagepath: s/
     # 计算库存间隔天数上限
-    stockday: 2
+    stockday: 7

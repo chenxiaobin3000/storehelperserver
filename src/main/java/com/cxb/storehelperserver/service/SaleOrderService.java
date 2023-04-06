@@ -3,7 +3,6 @@ package com.cxb.storehelperserver.service;
 import com.cxb.storehelperserver.model.*;
 import com.cxb.storehelperserver.repository.*;
 import com.cxb.storehelperserver.util.DateUtil;
-import com.cxb.storehelperserver.util.TypeDefine;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.stereotype.Service;
@@ -14,6 +13,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import static com.cxb.storehelperserver.util.TypeDefine.CommodityType;
 
 /**
  * desc: 销售订单缓存业务
@@ -71,7 +72,7 @@ public class SaleOrderService extends BaseService<HashMap> {
                 commoditys.add(data);
 
                 // 获取商品单位信息
-                TypeDefine.CommodityType type = TypeDefine.CommodityType.valueOf(sc.getCtype());
+                CommodityType type = CommodityType.valueOf(sc.getCtype());
                 int cid = sc.getCid();
                 switch (type) {
                     case COMMODITY:

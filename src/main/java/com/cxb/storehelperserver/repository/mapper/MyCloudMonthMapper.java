@@ -16,15 +16,14 @@ import java.util.List;
 @Mapper
 public interface MyCloudMonthMapper {
     @Select({"<script>",
-            "select count(t1.id) from t_cloud_month t1",
-            "left join t_commodity t2 on t1.cid = t2.id",
+            "select count(t1.id) from t_cloud_month t1 left join t_commodity t2 on t1.cid = t2.id",
             "where t1.gid = #{gid} <if test='0 != sid'>and t1.sid = #{sid}</if> and t1.cdate = #{date}",
             "<if test='null != search'>and t2.name like #{search}</if>",
             "</script>"})
     int count(int gid, int sid, Date date, String search);
 
     @Select({"<script>",
-            "select t1.id, t1.gid, t1.sid, t1.unit, t1.value, t1.price,",
+            "select t1.id, t1.gid, t1.sid, t1.price, t1.weight, t1.value,",
             "t2.id as cid, t2.code, t2.name, t2.cid as ctid, t2.remark",
             "from t_cloud_month t1 left join t_commodity t2 on t1.cid = t2.id",
             "where t1.gid = #{gid} <if test='0 != sid'>and t1.sid = #{sid}</if> and t1.cdate = #{date}",

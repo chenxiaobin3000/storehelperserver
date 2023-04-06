@@ -80,7 +80,7 @@ public class MarketService {
     private CloudRepository cloudRepository;
 
     @Resource
-    private CloudStockRepository cloudStockRepository;
+    private CloudDayRepository cloudDayRepository;
 
     @Resource
     private UserGroupRepository userGroupRepository;
@@ -199,7 +199,7 @@ public class MarketService {
             }
 
             // 库存价格
-            TCloudStock stock = cloudStockRepository.find(sid, COMMODITY.getValue(), cid);
+            TCloudDay stock = cloudDayRepository.findByYesterday(sid, COMMODITY.getValue(), cid);
             if (null != stock) {
                 tmp.put("sprice", stock.getPrice());
                 tmp.put("svalue", stock.getValue());
@@ -331,7 +331,7 @@ public class MarketService {
             }
 
             // 库存价格
-            TCloudStock stock = cloudStockRepository.find(sid, STANDARD.getValue(), cid);
+            TCloudDay stock = cloudDayRepository.findByYesterday(sid, STANDARD.getValue(), cid);
             if (null != stock) {
                 tmp.put("sprice", stock.getPrice());
                 tmp.put("svalue", stock.getValue());
@@ -466,7 +466,7 @@ public class MarketService {
             }
 
             // 库存价格
-            TCloudStock stock = cloudStockRepository.find(sid, COMMODITY.getValue(), cid);
+            TCloudDay stock = cloudDayRepository.findByYesterday(sid, COMMODITY.getValue(), cid);
             if (null != stock) {
                 tmp.put("sprice", stock.getPrice());
                 tmp.put("svalue", stock.getValue());
@@ -591,7 +591,7 @@ public class MarketService {
             }
 
             // 库存价格
-            TCloudStock stock = cloudStockRepository.find(sid, STANDARD.getValue(), cid);
+            TCloudDay stock = cloudDayRepository.findByYesterday(sid, STANDARD.getValue(), cid);
             if (null != stock) {
                 tmp.put("sprice", stock.getPrice());
                 tmp.put("svalue", stock.getValue());

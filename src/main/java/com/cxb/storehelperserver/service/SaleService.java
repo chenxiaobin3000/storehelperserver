@@ -52,10 +52,10 @@ public class SaleService {
     private SaleRemarkRepository saleRemarkRepository;
 
     @Resource
-    private CloudStockRepository cloudStockRepository;
+    private UserGroupRepository userGroupRepository;
 
     @Resource
-    private UserGroupRepository userGroupRepository;
+    private CloudDayRepository cloudDayRepository;
 
     @Resource
     private DateUtil dateUtil;
@@ -496,7 +496,7 @@ public class SaleService {
             int cid = commoditys.get(i);
             int weight = weights.get(i);
             int value = values.get(i);
-            TCloudStock stock = cloudStockRepository.find(sid, ctype, cid);
+            TCloudDay stock = cloudDayRepository.findByYesterday(sid, ctype, cid);
             if (null == stock) {
                 return RestResult.fail("未查询到库存类型:" + ctype + ",商品:" + cid);
             }

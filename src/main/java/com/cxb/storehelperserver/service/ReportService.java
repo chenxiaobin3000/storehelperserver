@@ -1,6 +1,5 @@
 package com.cxb.storehelperserver.service;
 
-import com.cxb.storehelperserver.model.TStorage;
 import com.cxb.storehelperserver.repository.*;
 import com.cxb.storehelperserver.repository.model.*;
 import com.cxb.storehelperserver.service.model.PageData;
@@ -17,10 +16,8 @@ import java.util.*;
 
 import static com.cxb.storehelperserver.util.Permission.dashboard_report;
 import static com.cxb.storehelperserver.util.Permission.mp_report;
-import static com.cxb.storehelperserver.util.TypeDefine.CommodityType;
 import static com.cxb.storehelperserver.util.TypeDefine.CommodityType.*;
 import static com.cxb.storehelperserver.util.TypeDefine.ReportCycleType;
-import static com.cxb.storehelperserver.util.TypeDefine.ReportCycleType.*;
 
 /**
  * desc: 报表业务
@@ -35,7 +32,7 @@ public class ReportService {
     private CheckService checkService;
 
     @Resource
-    private StorageStockService storageStockService;
+    private StockService stockService;
 
     @Resource
     private MarketCommodityDetailRepository marketCommodityDetailRepository;

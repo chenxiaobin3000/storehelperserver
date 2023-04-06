@@ -135,8 +135,14 @@ public class StandardService {
             return RestResult.fail(msg);
         }
 
-        if (!standardAttrRepository.delete(standard.getId())) {
+        if (!standardAttrRepository.delete(sid)) {
             return RestResult.fail("删除标品属性失败");
+        }
+        if (!standardStorageRepository.delete(sid)) {
+            return RestResult.fail("删除标品仓库信息失败");
+        }
+        if (!standardCloudRepository.delete(sid)) {
+            return RestResult.fail("删除标品云仓信息失败");
         }
         if (!standardRepository.delete(sid)) {
             return RestResult.fail("删除标品信息失败");

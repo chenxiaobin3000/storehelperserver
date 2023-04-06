@@ -16,7 +16,6 @@ import java.math.RoundingMode;
 import java.util.*;
 
 import static com.cxb.storehelperserver.util.Permission.*;
-import static com.cxb.storehelperserver.util.TypeDefine.CommodityType;
 import static com.cxb.storehelperserver.util.TypeDefine.CommodityType.*;
 import static com.cxb.storehelperserver.util.TypeDefine.OrderType.PRODUCT_PROCESS_ORDER;
 
@@ -39,7 +38,7 @@ public class ProductService {
     private ReviewService reviewService;
 
     @Resource
-    private StorageStockService storageStockService;
+    private StockService stockService;
 
     @Resource
     private ProductOrderRepository productOrderRepository;
@@ -57,18 +56,6 @@ public class ProductService {
     private ProductCompleteRepository productCompleteRepository;
 
     @Resource
-    private UserOrderApplyRepository userOrderApplyRepository;
-
-    @Resource
-    private UserOrderReviewRepository userOrderReviewRepository;
-
-    @Resource
-    private UserOrderCompleteRepository userOrderCompleteRepository;
-
-    @Resource
-    private StockRepository stockRepository;
-
-    @Resource
     private HalfgoodOriginalRepository halfgoodOriginalRepository;
 
     @Resource
@@ -76,6 +63,9 @@ public class ProductService {
 
     @Resource
     private UserGroupRepository userGroupRepository;
+
+    @Resource
+    private StockDayRepository stockDayRepository;
 
     @Resource
     private DateUtil dateUtil;
@@ -211,7 +201,7 @@ public class ProductService {
         }
 
         // 减少库存
-        String msg = storageStockService.handleProductStock(order, false);
+        String msg = stockService.handleProductStock(order, false);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -250,7 +240,7 @@ public class ProductService {
         }
 
         // 增加库存
-        msg = storageStockService.handleProductStock(order, true);
+        msg = stockService.handleProductStock(order, true);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -464,7 +454,7 @@ public class ProductService {
         }
 
         // 增加库存
-        String msg = storageStockService.handleCompleteStock(order, true);
+        String msg = stockService.handleCompleteStock(order, true);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -510,7 +500,7 @@ public class ProductService {
         }
 
         // 减少库存
-        msg = storageStockService.handleCompleteStock(order, false);
+        msg = stockService.handleCompleteStock(order, false);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -656,7 +646,7 @@ public class ProductService {
         }
 
         // 减少库存
-        String msg = storageStockService.handleProductStock(order, false);
+        String msg = stockService.handleProductStock(order, false);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -695,7 +685,7 @@ public class ProductService {
         }
 
         // 增加库存
-        msg = storageStockService.handleProductStock(order, true);
+        msg = stockService.handleProductStock(order, true);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -737,7 +727,7 @@ public class ProductService {
             int cid = commoditys.get(i);
             int weight = weights.get(i);
             int value = values.get(i);
-            TStock stock = stockRepository.find(sid, ctype, cid);
+            TStockDay stock = stockDayRepository.findByYesterday(sid, ctype, cid);
             if (null == stock) {
                 return RestResult.fail("未查询到库存类型:" + types.get(i) + ",商品:" + commoditys.get(i));
             }

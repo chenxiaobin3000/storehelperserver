@@ -2,11 +2,11 @@ package com.cxb.storehelperserver.service;
 
 import com.cxb.storehelperserver.model.*;
 import com.cxb.storehelperserver.repository.*;
+import com.cxb.storehelperserver.repository.model.MyStockCommodity;
 import com.cxb.storehelperserver.repository.model.MyStockReport;
 import com.cxb.storehelperserver.service.model.PageData;
 import com.cxb.storehelperserver.util.DateUtil;
 import com.cxb.storehelperserver.util.RestResult;
-import com.cxb.storehelperserver.util.TypeDefine;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,7 +22,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-import static com.cxb.storehelperserver.util.Permission.admin;
+import static com.cxb.storehelperserver.util.TypeDefine.CommodityType;
 
 /**
  * desc: 云仓库存统计业务
@@ -38,9 +38,6 @@ public class CloudStockService {
 
     @Resource
     private CloudStockRepository cloudStockRepository;
-
-    @Resource
-    private CloudDetailRepository cloudDetailRepository;
 
     @Resource
     private CloudDayRepository cloudDayRepository;
@@ -80,7 +77,7 @@ public class CloudStockService {
 
     private static final Object lock = new Object();
 
-    public RestResult getStockList(int id, int sid, int ctype, int page, int limit, String search) {
+    public RestResult getStockList(int id, int sid, int ctype, int page, int limit, Date date, String search) {
         RestResult ret = check(id, sid);
         if (null != ret) {
             return ret;
@@ -93,12 +90,12 @@ public class CloudStockService {
         }
 
         val data = new HashMap<String, Object>();
-        int total = cloudStockRepository.total(group.getGid(), sid, ctype, search);
+        int total = cloudDayRepository.total(group.getGid(), sid, ctype, date, search);
         if (0 == total) {
             return RestResult.ok(new PageData());
         }
 
-        val commodities = cloudStockRepository.pagination(group.getGid(), sid, page, limit, ctype, search);
+        val commodities = cloudDayRepository.pagination(group.getGid(), sid, page, limit, ctype, date, search);
         if (null == commodities) {
             return RestResult.fail("获取商品信息失败");
         }
@@ -107,6 +104,7 @@ public class CloudStockService {
         return RestResult.ok(data);
     }
 
+    // 废弃
     public RestResult getStockDetail(int id, int sid, int ctype, int page, int limit, Date start, Date end, String search) {
         RestResult ret = check(id, sid);
         if (null != ret) {
@@ -120,12 +118,12 @@ public class CloudStockService {
         }
 
         val data = new HashMap<String, Object>();
-        int total = cloudDetailRepository.total(group.getGid(), sid, ctype, start, end, search);
+        int total = cloudStockRepository.total(group.getGid(), sid, ctype, start, end, search);
         if (0 == total) {
             return RestResult.ok(new PageData());
         }
 
-        val commodities = cloudDetailRepository.pagination(group.getGid(), sid, page, limit, ctype, start, end, search);
+        val commodities = cloudStockRepository.pagination(group.getGid(), sid, page, limit, ctype, start, end, search);
         if (null == commodities) {
             return RestResult.fail("获取商品信息失败");
         }
@@ -158,9 +156,21 @@ public class CloudStockService {
             list.add(tmp);
         }
         data.put("list", list);
-        data.put("today", cloudStockRepository.findReport(gid, sid, ctype));
+        data.put("today", cloudStockRepository.findReport(gid, sid, ctype, dateUtil.getStartTime(new Date()), end));
         if (list.isEmpty()) {
-            countStockDay(sid, ctype, end);
+            if (0 == sid) {
+                int total = cloudRepository.total(gid, null);
+                if (0 != total) {
+                    val list2 = cloudRepository.pagination(gid, 1, total, null);
+                    if (null != list2 && !list2.isEmpty()) {
+                        for (TCloud s : list2) {
+                            countStockDay(gid, s.getId(), ctype, end);
+                        }
+                    }
+                }
+            } else {
+                countStockDay(gid, sid, ctype, end);
+            }
         }
         return RestResult.ok(data);
     }
@@ -184,41 +194,7 @@ public class CloudStockService {
             BigDecimal price = cloudCommodity.getPrice();
             int weight = cloudCommodity.getWeight();
             int value = cloudCommodity.getValue();
-            TCloudStock stock = cloudStockRepository.find(sid, ctype, cid);
-            if (null == stock) {
-                if (!add) {
-                    log.warn("未查询到要扣减的云仓库存:" + cloudCommodity.getOid() + ",类型:" + ctype + ",商品:" + cid);
-                    TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-                    return "未查询到要扣减的云仓库存:" + cloudCommodity.getOid() + ",类型:" + ctype + ",商品:" + cid;
-                }
-                if (!cloudStockRepository.insert(gid, sid, ctype, cid, price, weight, value)) {
-                    log.warn("添加库存信息失败");
-                    TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-                    return "添加库存信息失败";
-                }
-            } else {
-                int newWeight = add ? stock.getWeight() + weight : stock.getWeight() - weight;
-                if (newWeight < 0) {
-                    log.warn("库存商品重量不足:" + ctype + ",商品:" + cid);
-                    TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-                    return "库存商品重量不足:" + ctype + ",商品:" + cid;
-                }
-                int newValue = add ? stock.getValue() + value : stock.getValue() - value;
-                if (newValue < 0) {
-                    log.warn("库存商品件数不足:" + ctype + ",商品:" + cid);
-                    TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-                    return "库存商品件数不足:" + ctype + ",商品:" + cid;
-                }
-                stock.setPrice(add ? stock.getPrice().add(price) : stock.getPrice().subtract(price));
-                stock.setWeight(newWeight);
-                stock.setValue(newValue);
-                if (!cloudStockRepository.update(stock)) {
-                    log.warn("修改库存信息失败");
-                    TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-                    return "修改库存信息失败";
-                }
-            }
-            if (!cloudDetailRepository.insert(gid, sid, order.getOtype(), order.getOid(), ctype, cid,
+            if (!cloudStockRepository.insert(gid, sid, order.getOtype(), order.getOid(), ctype, cid,
                     add ? price : price.negate(), add ? weight : -weight, add ? value : -value, cdate)) {
                 log.warn("增加库存明细信息失败");
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
@@ -243,33 +219,7 @@ public class CloudStockService {
             BigDecimal price = cloudCommodity.getPrice();
             int weight = cloudCommodity.getWeight();
             int value = cloudCommodity.getValue();
-            TCloudStock stock = cloudStockRepository.find(sid, ctype, cid);
-            if (null == stock) {
-                log.warn("未查询到库存类型:" + ctype + ",商品:" + cid);
-                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-                return "未查询到库存类型:" + ctype + ",商品:" + cid;
-            }
-            int newWeight = add ? stock.getWeight() + weight : stock.getWeight() - weight;
-            if (newWeight < 0) {
-                log.warn("库存商品重量不足:" + ctype + ",商品:" + cid);
-                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-                return "库存商品重量不足:" + ctype + ",商品:" + cid;
-            }
-            int newValue = add ? stock.getValue() + value : stock.getValue() - value;
-            if (newValue < 0) {
-                log.warn("库存商品件数不足:" + ctype + ",商品:" + cid);
-                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-                return "库存商品件数不足:" + ctype + ",商品:" + cid;
-            }
-            stock.setPrice(add ? stock.getPrice().add(price) : stock.getPrice().subtract(price));
-            stock.setWeight(newWeight);
-            stock.setValue(newValue);
-            if (!cloudStockRepository.update(stock)) {
-                log.warn("修改库存信息失败");
-                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-                return "修改库存信息失败";
-            }
-            if (!cloudDetailRepository.insert(gid, sid, order.getOtype(), order.getOid(), ctype, cid,
+            if (!cloudStockRepository.insert(gid, sid, order.getOtype(), order.getOid(), ctype, cid,
                     add ? price : price.negate(), add ? weight : -weight, add ? value : -value, cdate)) {
                 log.warn("增加库存明细信息失败");
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
@@ -294,33 +244,7 @@ public class CloudStockService {
             BigDecimal price = saleCommodity.getPrice();
             int weight = saleCommodity.getWeight();
             int value = saleCommodity.getValue();
-            TCloudStock stock = cloudStockRepository.find(sid, ctype, cid);
-            if (null == stock) {
-                log.warn("未查询到库存类型:" + ctype + ",商品:" + cid);
-                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-                return "未查询到库存类型:" + ctype + ",商品:" + cid;
-            }
-            int newWeight = add ? stock.getWeight() + weight : stock.getWeight() - weight;
-            if (newWeight < 0) {
-                log.warn("库存商品重量不足:" + ctype + ",商品:" + cid);
-                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-                return "库存商品重量不足:" + ctype + ",商品:" + cid;
-            }
-            int newValue = add ? stock.getValue() + value : stock.getValue() - value;
-            if (newValue < 0) {
-                log.warn("库存商品件数不足:" + ctype + ",商品:" + cid);
-                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-                return "库存商品件数不足:" + ctype + ",商品:" + cid;
-            }
-            stock.setPrice(add ? stock.getPrice().add(price) : stock.getPrice().subtract(price));
-            stock.setWeight(newWeight);
-            stock.setValue(newValue);
-            if (!cloudStockRepository.update(stock)) {
-                log.warn("修改库存信息失败");
-                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-                return "修改库存信息失败";
-            }
-            if (!cloudDetailRepository.insert(gid, sid, order.getOtype(), null, ctype, cid,
+            if (!cloudStockRepository.insert(gid, sid, order.getOtype(), null, ctype, cid,
                     add ? price : price.negate(), add ? weight : -weight, add ? value : -value, cdate)) {
                 log.warn("增加库存明细信息失败");
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
@@ -348,10 +272,10 @@ public class CloudStockService {
     }
 
     // 计算库存
-    private void countStockDay(int sid, int ctype, Date date) {
+    private void countStockDay(int gid, int sid, int ctype, Date date) {
         // 获取注册仓库的商品id
         val ids = new ArrayList<Integer>();
-        switch (TypeDefine.CommodityType.valueOf(ctype)) {
+        switch (CommodityType.valueOf(ctype)) {
             case COMMODITY:
                 val commodityStorages = commodityStorageRepository.findBySid(sid);
                 for (TCommodityStorage c : commodityStorages) {
@@ -368,14 +292,41 @@ public class CloudStockService {
                 break;
         }
 
+        MyStockCommodity yesterday = new MyStockCommodity();
+        Date start = dateUtil.addOneDay(date, -stockday);
         synchronized (lock) {
             // 获取历史记录，没有就补
+            for (int cid : ids) {
+                val commodities = cloudStockRepository.findHistory(gid, sid, ctype, cid, start, date);
+                if (null == commodities || commodities.isEmpty()) {
+                    continue;
+                }
+                Date tmp = start;
+                yesterday.setPrice(new BigDecimal(0));
+                yesterday.setWeight(0);
+                yesterday.setValue(0);
+                while (tmp.before(date)) {
+                    val day = cloudDayRepository.find(sid, ctype, cid, tmp);
+                    if (null != day) {
+                        continue;
+                    }
+                    boolean find = false;
+                    for (MyStockCommodity c : commodities) {
+                        if (c.getDate().equals(tmp)) {
+                            yesterday.setPrice(yesterday.getPrice().add(c.getPrice()));
+                            yesterday.setWeight(yesterday.getWeight() + c.getWeight());
+                            yesterday.setValue(yesterday.getValue() + c.getValue());
+                            cloudDayRepository.insert(gid, sid, ctype, cid, yesterday.getPrice(), yesterday.getWeight(), yesterday.getValue(), tmp);
 
-            //
-            val stocks = cloudStockRepository.all(sid);
-            for (TCloudStock stock : stocks) {
-                cloudDayRepository.insert(stock.getId(), stock.getGid(), stock.getSid(), stock.getCtype(),
-                        stock.getCid(), stock.getPrice(), stock.getWeight(), stock.getValue(), date);
+                            find = true;
+                            break;
+                        }
+                    }
+                    if (!find) {
+                        cloudDayRepository.insert(gid, sid, ctype, cid, yesterday.getPrice(), yesterday.getWeight(), yesterday.getValue(), tmp);
+                    }
+                    tmp = dateUtil.addOneDay(tmp, 1);
+                }
             }
         }
     }

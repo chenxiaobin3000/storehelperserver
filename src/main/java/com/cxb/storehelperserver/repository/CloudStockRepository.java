@@ -11,12 +11,13 @@ import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 import static com.cxb.storehelperserver.util.TypeDefine.CommodityType;
 
 /**
- * desc: 云仓库存仓库
+ * desc: 云仓库存明细仓库
  * auth: cxb
  * date: 2023/1/13
  */
@@ -33,110 +34,77 @@ public class CloudStockRepository extends BaseRepository<TCloudStock> {
         init("cloudStock::");
     }
 
-    public TCloudStock find(int sid, int ctype, int cid) {
-        TCloudStock stock = getCache(joinKey(sid, ctype, cid), TCloudStock.class);
-        if (null != stock) {
-            return stock;
-        }
-
-        // 缓存没有就查询数据库
-        TCloudStockExample example = new TCloudStockExample();
-        example.or().andSidEqualTo(sid).andCtypeEqualTo(ctype).andCidEqualTo(cid);
-        stock = cloudStockMapper.selectOneByExample(example);
-        if (null != stock) {
-            setCache(joinKey(sid, ctype, cid), stock);
-        }
-        return stock;
+    public List<MyStockReport> findReport(int gid, int sid, int ctype, Date start, Date end) {
+        return myCloudStockMapper.selectReport(gid, sid, ctype, start, end);
     }
 
-    public List<MyStockReport> findReport(int gid, int sid, int ctype) {
-        return myCloudStockMapper.selectReport(gid, sid, ctype);
-    }
-
-    public int total(int gid, int sid, int ctype, String search) {
-        if (null != search) {
-            switch (CommodityType.valueOf(ctype)) {
-                case COMMODITY:
-                    return myCloudStockMapper.count_commodity(gid, sid, "%" + search + "%");
-                case HALFGOOD:
-                    return myCloudStockMapper.count_halfgood(gid, sid, "%" + search + "%");
-                case ORIGINAL:
-                    return myCloudStockMapper.count_original(gid, sid, "%" + search + "%");
-                case STANDARD:
-                    return myCloudStockMapper.count_standard(gid, sid, "%" + search + "%");
-                default:
-                    return 0;
-            }
-        } else {
-            int total = getTotalCache(joinKey(gid, sid, ctype));
-            if (0 != total) {
-                return total;
-            }
-            TCloudStockExample example = new TCloudStockExample();
-            example.or().andGidEqualTo(gid).andSidEqualTo(sid).andCtypeEqualTo(ctype);
-            total = (int) cloudStockMapper.countByExample(example);
-            setTotalCache(joinKey(gid, sid, ctype), total);
-            return total;
-        }
-    }
-
-    public List<MyStockCommodity> pagination(int gid, int sid, int page, int limit, int type, String search) {
-        String key = null;
-        if (null != search) {
-            key = "%" + search + "%";
-        }
-        switch (CommodityType.valueOf(type)) {
+    public List<MyStockCommodity> findHistory(int gid, int sid, int ctype, int cid, Date start, Date end) {
+        switch (CommodityType.valueOf(ctype)) {
             case COMMODITY:
-                return myCloudStockMapper.pagination_commodity((page - 1) * limit, limit, gid, sid, key);
+                return myCloudStockMapper.selectHistory_commodity(gid, sid, cid, new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
             case HALFGOOD:
-                return myCloudStockMapper.pagination_halfgood((page - 1) * limit, limit, gid, sid, key);
+                return myCloudStockMapper.selectHistory_halfgood(gid, sid, cid, new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
             case ORIGINAL:
-                return myCloudStockMapper.pagination_original((page - 1) * limit, limit, gid, sid, key);
+                return myCloudStockMapper.selectHistory_original(gid, sid, cid, new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
             case STANDARD:
-                return myCloudStockMapper.pagination_standard((page - 1) * limit, limit, gid, sid, key);
+                return myCloudStockMapper.selectHistory_standard(gid, sid, cid, new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
             default:
                 return null;
         }
     }
 
-    public List<TCloudStock> all(int sid) {
-        TCloudStockExample example = new TCloudStockExample();
-        example.or().andSidEqualTo(sid);
-        return cloudStockMapper.selectByExample(example);
+    public int total(int gid, int sid, int ctype, Date start, Date end, String search) {
+        if (null != search) {
+            switch (CommodityType.valueOf(ctype)) {
+                case COMMODITY:
+                    return myCloudStockMapper.count_commodity(gid, sid, start, end, "%" + search + "%");
+                case HALFGOOD:
+                    return myCloudStockMapper.count_halfgood(gid, sid, start, end, "%" + search + "%");
+                case ORIGINAL:
+                    return myCloudStockMapper.count_original(gid, sid, start, end, "%" + search + "%");
+                case STANDARD:
+                    return myCloudStockMapper.count_standard(gid, sid, start, end, "%" + search + "%");
+                default:
+                    return 0;
+            }
+        } else {
+            TCloudStockExample example = new TCloudStockExample();
+            example.or().andGidEqualTo(gid).andSidEqualTo(sid).andCdateGreaterThanOrEqualTo(start).andCdateLessThanOrEqualTo(end);
+            return (int) cloudStockMapper.countByExample(example);
+        }
     }
 
-    public boolean insert(int gid, int sid, int ctype, int cid, BigDecimal price, int weight, int value) {
+    public List<MyStockCommodity> pagination(int gid, int sid, int page, int limit, int ctype, Date start, Date end, String search) {
+        String key = null;
+        if (null != search) {
+            key = "%" + search + "%";
+        }
+        switch (CommodityType.valueOf(ctype)) {
+            case COMMODITY:
+                return myCloudStockMapper.pagination_commodity((page - 1) * limit, limit, gid, sid, start, end, key);
+            case HALFGOOD:
+                return myCloudStockMapper.pagination_halfgood((page - 1) * limit, limit, gid, sid, start, end, key);
+            case ORIGINAL:
+                return myCloudStockMapper.pagination_original((page - 1) * limit, limit, gid, sid, start, end, key);
+            case STANDARD:
+                return myCloudStockMapper.pagination_standard((page - 1) * limit, limit, gid, sid, start, end, key);
+            default:
+                return null;
+        }
+    }
+
+    public boolean insert(int gid, int sid, int otype, Integer oid, int ctype, int cid, BigDecimal price, int weight, int value, Date cdate) {
         TCloudStock row = new TCloudStock();
         row.setGid(gid);
         row.setSid(sid);
+        row.setOtype(otype);
+        row.setOid(null == oid ? 0 : oid);
         row.setCtype(ctype);
         row.setCid(cid);
         row.setPrice(price);
         row.setWeight(weight);
         row.setValue(value);
-        if (cloudStockMapper.insert(row) > 0) {
-            setCache(joinKey(row.getSid(), row.getCtype(), row.getCid()), row);
-            delTotalCache(joinKey(row.getGid(), row.getSid(), row.getCtype()));
-            return true;
-        }
-        return false;
-    }
-
-    public boolean update(TCloudStock row) {
-        if (cloudStockMapper.updateByPrimaryKey(row) > 0) {
-            setCache(joinKey(row.getSid(), row.getCtype(), row.getCid()), row);
-            return true;
-        }
-        return false;
-    }
-
-    public boolean delete(int sid, int ctype, int cid) {
-        TCloudStock stock = find(sid, ctype, cid);
-        if (null == stock) {
-            return false;
-        }
-        delCache(joinKey(stock.getSid(), stock.getCtype(), stock.getCid()));
-        delTotalCache(joinKey(stock.getGid(), stock.getSid(), stock.getCtype()));
-        return cloudStockMapper.deleteByPrimaryKey(stock.getId()) > 0;
+        row.setCdate(cdate);
+        return cloudStockMapper.insert(row) > 0;
     }
 }

@@ -154,10 +154,8 @@ public class Permission {
     static public final int stock = 850;
     static public final int stock_storage = 851;
     static public final int stock_storagelist = 852;
-    static public final int stock_storageoldlist = 853;
-    static public final int stock_cloud = 854;
-    static public final int stock_cloudlist = 855;
-    static public final int stock_cloudoldlist = 856;
+    static public final int stock_cloud = 853;
+    static public final int stock_cloudlist = 854;
 
     static public final int supplier = 900;
     static public final int supplier_getlist = 901;

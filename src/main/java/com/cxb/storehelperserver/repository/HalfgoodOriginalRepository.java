@@ -55,8 +55,8 @@ public class HalfgoodOriginalRepository extends BaseRepository<THalfgoodOriginal
         return false;
     }
 
-    public boolean delete(int gid, int hid) {
-        delCache(joinKey(gid, hid));
+    public boolean delete(int hid) {
+        delCache(hid);
         THalfgoodOriginalExample example = new THalfgoodOriginalExample();
         example.or().andHidEqualTo(hid);
         return halfgoodOriginalMapper.deleteByExample(example) > 0;

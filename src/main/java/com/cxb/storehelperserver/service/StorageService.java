@@ -40,7 +40,7 @@ public class StorageService {
     private FinanceService financeService;
 
     @Resource
-    private StorageStockService storageStockService;
+    private StockService stockService;
 
     @Resource
     private StorageOrderRepository storageOrderRepository;
@@ -85,7 +85,7 @@ public class StorageService {
     private UserGroupRepository userGroupRepository;
 
     @Resource
-    private StockRepository stockRepository;
+    private StockDayRepository stockDayRepository;
 
     @Resource
     private DateUtil dateUtil;
@@ -248,7 +248,7 @@ public class StorageService {
         }
 
         // 增加库存
-        String msg = storageStockService.handlePurchaseStock(order, true);
+        String msg = stockService.handlePurchaseStock(order, true);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -294,7 +294,7 @@ public class StorageService {
         }
 
         // 减少库存
-        msg = storageStockService.handlePurchaseStock(order, false);
+        msg = stockService.handlePurchaseStock(order, false);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -480,7 +480,7 @@ public class StorageService {
         }
 
         // 减少库存
-        String msg = storageStockService.handleStorageStock(order, false);
+        String msg = stockService.handleStorageStock(order, false);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -535,7 +535,7 @@ public class StorageService {
         }
 
         // 增加库存
-        msg = storageStockService.handleStorageStock(order, true);
+        msg = stockService.handleStorageStock(order, true);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -798,7 +798,7 @@ public class StorageService {
         }
 
         // 增加库存
-        String msg = storageStockService.handlePurchaseStock(order, true);
+        String msg = stockService.handlePurchaseStock(order, true);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -844,7 +844,7 @@ public class StorageService {
         }
 
         // 减少库存
-        msg = storageStockService.handlePurchaseStock(order, false);
+        msg = stockService.handlePurchaseStock(order, false);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -1019,7 +1019,7 @@ public class StorageService {
         }
 
         // 增加库存
-        String msg = storageStockService.handlePurchaseStock(order, true);
+        String msg = stockService.handlePurchaseStock(order, true);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -1065,7 +1065,7 @@ public class StorageService {
         }
 
         // 减少库存
-        msg = storageStockService.handlePurchaseStock(order, false);
+        msg = stockService.handlePurchaseStock(order, false);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -1211,7 +1211,7 @@ public class StorageService {
         }
 
         // 减少库存
-        String msg = storageStockService.handleStorageStock(order, false);
+        String msg = stockService.handleStorageStock(order, false);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -1250,7 +1250,7 @@ public class StorageService {
         }
 
         // 增加库存
-        msg = storageStockService.handleStorageStock(order, true);
+        msg = stockService.handleStorageStock(order, true);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -1426,7 +1426,7 @@ public class StorageService {
         }
 
         // 减少库存
-        String msg = storageStockService.handleStorageStock(order, false);
+        String msg = stockService.handleStorageStock(order, false);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -1490,7 +1490,7 @@ public class StorageService {
         }
 
         // 增加库存
-        msg = storageStockService.handleStorageStock(order, true);
+        msg = stockService.handleStorageStock(order, true);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -1607,7 +1607,7 @@ public class StorageService {
             int cid = commoditys.get(i);
             int weight = weights.get(i);
             int value = values.get(i);
-            TStock stock = stockRepository.find(sid, ctype, cid);
+            TStockDay stock = stockDayRepository.findByYesterday(sid, ctype, cid);
             if (null == stock) {
                 return RestResult.fail("未查询到库存类型:" + ctype + ",商品:" + cid);
             }

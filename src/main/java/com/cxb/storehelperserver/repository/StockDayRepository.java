@@ -6,7 +6,7 @@ import com.cxb.storehelperserver.model.TStockDayExample;
 import com.cxb.storehelperserver.repository.mapper.MyStockDayMapper;
 import com.cxb.storehelperserver.repository.model.MyStockCommodity;
 import com.cxb.storehelperserver.repository.model.MyStockReport;
-import com.cxb.storehelperserver.util.TypeDefine;
+import com.cxb.storehelperserver.util.DateUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
@@ -14,6 +14,8 @@ import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+
+import static com.cxb.storehelperserver.util.TypeDefine.CommodityType;
 
 /**
  * desc: 库存日快照仓库
@@ -29,14 +31,22 @@ public class StockDayRepository extends BaseRepository<TStockDay> {
     @Resource
     private MyStockDayMapper myStockDayMapper;
 
+    @Resource
+    private DateUtil dateUtil;
+
     public StockDayRepository() {
         init("stockDay::");
     }
 
-    public TStockDay find(int sid, int id, Date date) {
+    public TStockDay find(int sid, int ctype, int id, Date date) {
         TStockDayExample example = new TStockDayExample();
-        example.or().andSidEqualTo(sid).andCidEqualTo(id).andCdateEqualTo(date);
+        example.or().andSidEqualTo(sid).andCtypeEqualTo(ctype).andCidEqualTo(id).andCdateEqualTo(date);
         return stockDayMapper.selectOneByExample(example);
+    }
+
+    public TStockDay findByYesterday(int sid, int ctype, int cid) {
+        Date yesterday = dateUtil.addOneDay(new Date(), -1);
+        return find(sid, ctype, cid, yesterday);
     }
 
     public List<MyStockReport> findReport(int gid, int sid, int ctype, Date start, Date end) {
@@ -45,29 +55,46 @@ public class StockDayRepository extends BaseRepository<TStockDay> {
 
     public int total(int gid, int sid, int ctype, Date date, String search) {
         if (null != search) {
-            return myStockDayMapper.count(gid, sid, ctype, new java.sql.Date(date.getTime()), "%" + search + "%");
+            switch (CommodityType.valueOf(ctype)) {
+                case COMMODITY:
+                    return myStockDayMapper.count_commodity(gid, sid, new java.sql.Date(date.getTime()), "%" + search + "%");
+                case HALFGOOD:
+                    return myStockDayMapper.count_halfgood(gid, sid, new java.sql.Date(date.getTime()), "%" + search + "%");
+                case ORIGINAL:
+                    return myStockDayMapper.count_original(gid, sid, new java.sql.Date(date.getTime()), "%" + search + "%");
+                case STANDARD:
+                    return myStockDayMapper.count_standard(gid, sid, new java.sql.Date(date.getTime()), "%" + search + "%");
+                default:
+                    return 0;
+            }
         } else {
             TStockDayExample example = new TStockDayExample();
-            if (0 == ctype) {
-                example.or().andSidEqualTo(sid).andCdateEqualTo(date);
-            } else {
-                example.or().andSidEqualTo(sid).andCtypeEqualTo(ctype).andCdateEqualTo(date);
-            }
+            example.or().andSidEqualTo(sid).andCtypeEqualTo(ctype).andCdateEqualTo(date);
             return (int) stockDayMapper.countByExample(example);
         }
     }
 
     public List<MyStockCommodity> pagination(int gid, int sid, int page, int limit, int ctype, Date date, String search) {
+        String key = null;
         if (null != search) {
-            return myStockDayMapper.pagination((page - 1) * limit, limit, gid, sid, ctype, new java.sql.Date(date.getTime()), "%" + search + "%");
-        } else {
-            return myStockDayMapper.pagination((page - 1) * limit, limit, gid, sid, ctype, new java.sql.Date(date.getTime()), null);
+            key = "%" + search + "%";
+        }
+        switch (CommodityType.valueOf(ctype)) {
+            case COMMODITY:
+                return myStockDayMapper.pagination_commodity((page - 1) * limit, limit, gid, sid, new java.sql.Date(date.getTime()), key);
+            case HALFGOOD:
+                return myStockDayMapper.pagination_halfgood((page - 1) * limit, limit, gid, sid, new java.sql.Date(date.getTime()), key);
+            case ORIGINAL:
+                return myStockDayMapper.pagination_original((page - 1) * limit, limit, gid, sid, new java.sql.Date(date.getTime()), key);
+            case STANDARD:
+                return myStockDayMapper.pagination_standard((page - 1) * limit, limit, gid, sid, new java.sql.Date(date.getTime()), key);
+            default:
+                return null;
         }
     }
 
-    public boolean insert(int id, int gid, int sid, int ctype, int cid, BigDecimal price, int weight, int value, Date cdate) {
+    public boolean insert(int gid, int sid, int ctype, int cid, BigDecimal price, int weight, int value, Date cdate) {
         TStockDay row = new TStockDay();
-        row.setId(id);
         row.setGid(gid);
         row.setSid(sid);
         row.setCtype(ctype);
@@ -77,11 +104,5 @@ public class StockDayRepository extends BaseRepository<TStockDay> {
         row.setValue(value);
         row.setCdate(cdate);
         return stockDayMapper.insert(row) > 0;
-    }
-
-    public boolean delete(int sid, Date date) {
-        TStockDayExample example = new TStockDayExample();
-        example.or().andSidEqualTo(sid).andCdateGreaterThanOrEqualTo(date);
-        return stockDayMapper.deleteByExample(example) > 0;
     }
 }

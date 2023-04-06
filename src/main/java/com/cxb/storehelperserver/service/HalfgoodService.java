@@ -135,11 +135,14 @@ public class HalfgoodService {
             return RestResult.fail(msg);
         }
 
-        if (!halfgoodOriginalRepository.delete(halfgood.getGid(), halfgood.getId())) {
+        if (!halfgoodOriginalRepository.delete(hid)) {
             return RestResult.fail("删除半成品关联原料失败");
         }
-        if (!halfgoodAttrRepository.delete(halfgood.getId())) {
+        if (!halfgoodAttrRepository.delete(hid)) {
             return RestResult.fail("删除半成品属性失败");
+        }
+        if (!halfgoodStorageRepository.delete(hid)) {
+            return RestResult.fail("删除半成品仓库信息失败");
         }
         if (!halfgoodRepository.delete(hid)) {
             return RestResult.fail("删除半成品信息失败");

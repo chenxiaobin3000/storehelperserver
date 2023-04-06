@@ -141,11 +141,17 @@ public class CommodityService {
             return RestResult.fail(msg);
         }
 
-        if (!commodityOriginalRepository.delete(commodity.getId())) {
+        if (!commodityOriginalRepository.delete(cid)) {
             return RestResult.fail("删除商品关联原料失败");
         }
-        if (!commodityAttrRepository.delete(commodity.getId())) {
+        if (!commodityAttrRepository.delete(cid)) {
             return RestResult.fail("删除商品属性失败");
+        }
+        if (!commodityStorageRepository.delete(cid)) {
+            return RestResult.fail("删除商品仓库信息失败");
+        }
+        if (!commodityCloudRepository.delete(cid)) {
+            return RestResult.fail("删除商品云仓信息失败");
         }
         if (!commodityRepository.delete(cid)) {
             return RestResult.fail("删除商品信息失败");

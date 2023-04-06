@@ -2,7 +2,7 @@ package com.cxb.storehelperserver.controller;
 
 import com.cxb.storehelperserver.controller.request.stock.*;
 import com.cxb.storehelperserver.service.CloudStockService;
-import com.cxb.storehelperserver.service.StorageStockService;
+import com.cxb.storehelperserver.service.StockService;
 import com.cxb.storehelperserver.util.DateUtil;
 import com.cxb.storehelperserver.util.RestResult;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +27,7 @@ import java.util.Date;
 @RequestMapping("/api/stock")
 public class StockController {
     @Resource
-    private StorageStockService storageStockService;
+    private StockService stockService;
 
     @Resource
     private CloudStockService cloudStockService;
@@ -37,7 +37,14 @@ public class StockController {
 
     @PostMapping("/getStockList")
     public RestResult getStockList(@Validated @RequestBody GetStockListValid req) {
-        return storageStockService.getStockList(req.getId(), req.getSid(), req.getCtype(), req.getPage(), req.getLimit(), req.getSearch());
+        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
+        Date date = null;
+        try {
+            date = simpleDateFormat.parse(req.getDate() + " 00:00:00");
+        } catch (ParseException e) {
+            return RestResult.fail("查询日期转换失败");
+        }
+        return stockService.getStockList(req.getId(), req.getSid(), req.getCtype(), req.getPage(), req.getLimit(), date, req.getSearch());
     }
 
     @PostMapping("/getStockDetail")
@@ -51,22 +58,29 @@ public class StockController {
         } catch (ParseException e) {
             return RestResult.fail("查询日期转换失败");
         }
-        return storageStockService.getStockDetail(req.getId(), req.getSid(), req.getCtype(), req.getPage(), req.getLimit(), start, end, req.getSearch());
+        return stockService.getStockDetail(req.getId(), req.getSid(), req.getCtype(), req.getPage(), req.getLimit(), start, end, req.getSearch());
     }
 
     @PostMapping("/getStockDay")
     public RestResult getStockDay(@Validated @RequestBody GetStockDayValid req) {
-        return storageStockService.getStockDay(req.getId(), req.getGid(), req.getSid(), req.getCtype());
+        return stockService.getStockDay(req.getId(), req.getGid(), req.getSid(), req.getCtype());
     }
 
     @PostMapping("/getStockWeek")
     public RestResult getStockWeek(@Validated @RequestBody GetStockWeekValid req) {
-        return storageStockService.getStockWeek(req.getId(), req.getGid(), req.getSid(), req.getCtype());
+        return stockService.getStockWeek(req.getId(), req.getGid(), req.getSid(), req.getCtype());
     }
 
     @PostMapping("/getCloudList")
     public RestResult getCloudList(@Validated @RequestBody GetCloudListValid req) {
-        return cloudStockService.getStockList(req.getId(), req.getSid(), req.getCtype(), req.getPage(), req.getLimit(), req.getSearch());
+        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
+        Date date = null;
+        try {
+            date = simpleDateFormat.parse(req.getDate() + " 00:00:00");
+        } catch (ParseException e) {
+            return RestResult.fail("查询日期转换失败");
+        }
+        return cloudStockService.getStockList(req.getId(), req.getSid(), req.getCtype(), req.getPage(), req.getLimit(), date, req.getSearch());
     }
 
     @PostMapping("/getCloudDetail")
