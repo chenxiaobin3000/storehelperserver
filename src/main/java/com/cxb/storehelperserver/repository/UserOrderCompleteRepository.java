@@ -57,31 +57,26 @@ public class UserOrderCompleteRepository extends BaseRepository<TUserOrderComple
 
     public List<MyUserOrderComplete> findByAgreement(int gid, int sid, Date start, Date end) {
         return myUserOrderCompleteMapper.selectByAgreement(gid, sid, AGREEMENT_SHIPPED_ORDER.getValue(),
-                AGREEMENT_RETURN_ORDER.getValue(), new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
-    }
-
-    public List<MyUserOrderComplete> findByCloud(int gid, int sid, Date start, Date end) {
-        return myUserOrderCompleteMapper.selectByCloud(gid, sid, CLOUD_PURCHASE_ORDER.getValue(),
-                CLOUD_PURCHASE2_ORDER.getValue(), new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
+                AGREEMENT_AGAIN_ORDER.getValue(), new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
     }
 
     public List<MyUserOrderComplete> findByProduct(int gid, int sid, Date start, Date end) {
-        return myUserOrderCompleteMapper.selectByProduct(gid, sid, PRODUCT_PROCESS_ORDER.getValue(),
-                PRODUCT_LOSS_ORDER.getValue(), new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
+        return myUserOrderCompleteMapper.selectByProduct(gid, sid, PRODUCT_COLLECT_ORDER.getValue(),
+                PRODUCT_COLLECT_ORDER.getValue(), new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
     }
 
     public List<MyUserOrderComplete> findByPurchase(int gid, int sid, Date start, Date end) {
         return myUserOrderCompleteMapper.selectByPurchase(gid, sid, PURCHASE_PURCHASE_ORDER.getValue(),
-                PURCHASE_RETURN2_ORDER.getValue(), new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
+                PURCHASE_RETURN_ORDER.getValue(), new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
     }
 
     public List<MyUserOrderComplete> findByStorage(int gid, int sid, Date start, Date end) {
         return myUserOrderCompleteMapper.selectByStorage(gid, sid, STORAGE_PURCHASE_ORDER.getValue(),
-                STORAGE_AGREEMENT_ORDER.getValue(), new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
+                STORAGE_LOSS_ORDER.getValue(), new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
     }
 
     public List<MyUserOrderComplete> findBySale(int gid, int sid, Date start, Date end) {
-        return myUserOrderCompleteMapper.selectBySale(gid, sid, SALE_OFFLINE_ORDER.getValue(),
+        return myUserOrderCompleteMapper.selectBySale(gid, sid, SALE_AFTER_ORDER.getValue(),
                 SALE_RETURN_ORDER.getValue(), new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
     }
 

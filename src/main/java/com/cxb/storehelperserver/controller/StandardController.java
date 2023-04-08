@@ -68,13 +68,8 @@ public class StandardController {
         return standardService.getGroupAllStandard(req.getId());
     }
 
-    @PostMapping("/setStandardCloud")
-    public RestResult setStandardCloud(@Validated @RequestBody SetStandardCloudValid req) {
-        return standardService.setStandardCloud(req.getId(), req.getGid(), req.getCid(), req.getSids());
-    }
-
     @PostMapping("/setStandardStorage")
-    public RestResult setStandardStorage(@Validated @RequestBody SetStandardCloudValid req) {
+    public RestResult setStandardStorage(@Validated @RequestBody SetStandardStorageValid req) {
         return standardService.setStandardStorage(req.getId(), req.getGid(), req.getCid(), req.getSids());
     }
 }

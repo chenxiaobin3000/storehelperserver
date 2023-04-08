@@ -1,10 +1,10 @@
 package com.cxb.storehelperserver.repository;
 
 import com.cxb.storehelperserver.mapper.TMarketStandardMapper;
-import com.cxb.storehelperserver.mapper.TStandardCloudMapper;
+import com.cxb.storehelperserver.mapper.TStandardStorageMapper;
 import com.cxb.storehelperserver.model.TMarketStandard;
 import com.cxb.storehelperserver.model.TMarketStandardExample;
-import com.cxb.storehelperserver.model.TStandardCloudExample;
+import com.cxb.storehelperserver.model.TStandardStorageExample;
 import com.cxb.storehelperserver.repository.mapper.MyMarketStandardMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
@@ -24,7 +24,7 @@ public class MarketStandardRepository extends BaseRepository<TMarketStandard> {
     private TMarketStandardMapper marketStandardMapper;
 
     @Resource
-    private TStandardCloudMapper standardCloudMapper;
+    private TStandardStorageMapper standardStorageMapper;
 
     @Resource
     private MyMarketStandardMapper myMarketStandardMapper;
@@ -53,9 +53,9 @@ public class MarketStandardRepository extends BaseRepository<TMarketStandard> {
         if (null != search) {
             return myMarketStandardMapper.count(sid, "%" + search + "%");
         } else {
-            TStandardCloudExample example = new TStandardCloudExample();
+            TStandardStorageExample example = new TStandardStorageExample();
             example.or().andSidEqualTo(sid);
-            return (int) standardCloudMapper.countByExample(example);
+            return (int) standardStorageMapper.countByExample(example);
         }
     }
 

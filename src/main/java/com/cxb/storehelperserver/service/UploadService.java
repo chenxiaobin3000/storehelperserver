@@ -41,9 +41,6 @@ public class UploadService {
     private AgreementAttachmentRepository agreementAttachmentRepository;
 
     @Resource
-    private CloudAttachmentRepository cloudAttachmentRepository;
-
-    @Resource
     private SaleAttachmentRepository saleAttachmentRepository;
 
     @Resource
@@ -91,19 +88,15 @@ public class UploadService {
                 break;
             case STORAGE_PURCHASE_ORDER:
             case STORAGE_DISPATCH_ORDER:
-            case STORAGE_PURCHASE2_ORDER:
             case STORAGE_LOSS_ORDER:
             case STORAGE_RETURN_ORDER:
-            case STORAGE_AGREEMENT_ORDER:
                 TStorageAttachment storageAttachment = storageAttachmentRepository.insert(0, imagesrc, path, name);
                 if (null == storageAttachment) {
                     return RestResult.fail("写入数据失败，请联系管理员");
                 }
                 data.put("id", storageAttachment.getId());
                 break;
-            case PRODUCT_PROCESS_ORDER:
-            case PRODUCT_COMPLETE_ORDER:
-            case PRODUCT_LOSS_ORDER:
+            case PRODUCT_COLLECT_ORDER:
                 TProductAttachment productAttachment = productAttachmentRepository.insert(0, imagesrc, path, name);
                 if (null == productAttachment) {
                     return RestResult.fail("写入数据失败，请联系管理员");
@@ -112,25 +105,15 @@ public class UploadService {
                 break;
             case AGREEMENT_SHIPPED_ORDER:
             case AGREEMENT_RETURN_ORDER:
+            case AGREEMENT_AGAIN_ORDER:
                 TAgreementAttachment agreementAttachment = agreementAttachmentRepository.insert(0, imagesrc, path, name);
                 if (null == agreementAttachment) {
                     return RestResult.fail("写入数据失败，请联系管理员");
                 }
                 data.put("id", agreementAttachment.getId());
                 break;
-            case CLOUD_PURCHASE_ORDER:
-            case CLOUD_RETURN_ORDER:
-            case CLOUD_LOSS_ORDER:
-            case CLOUD_BACK_ORDER:
-            case CLOUD_AGREEMENT_ORDER:
-            case CLOUD_DISPATCH_ORDER:
-            case CLOUD_PURCHASE2_ORDER:
-                TCloudAttachment cloudAttachment = cloudAttachmentRepository.insert(0, imagesrc, path, name);
-                if (null == cloudAttachment) {
-                    return RestResult.fail("写入数据失败，请联系管理员");
-                }
-                data.put("id", cloudAttachment.getId());
-                break;
+            case SALE_AFTER_ORDER:
+            case SALE_LOSS_ORDER:
             case SALE_OFFLINE_ORDER:
             case SALE_RETURN_ORDER:
                 TSaleAttachment saleAttachment = saleAttachmentRepository.insert(0, imagesrc, path, name);

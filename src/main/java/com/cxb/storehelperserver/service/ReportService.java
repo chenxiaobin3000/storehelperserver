@@ -203,29 +203,6 @@ public class ReportService {
         return RestResult.ok(new PageData(0, list));
     }
 
-    public RestResult getCloudReport(int id, int gid, int sid, ReportCycleType cycle) {
-        // 验证公司
-        String msg = checkService.checkGroup(id, gid);
-        if (null != msg) {
-            return RestResult.fail(msg);
-        }
-
-        SimpleDateFormat dateFormat = dateUtil.getSimpleDateFormat();
-        Date end = dateUtil.getStartTime(new Date());
-        Date start = dateUtil.addOneDay(end, -6);
-        val orders = userOrderCompleteRepository.findByCloud(gid, sid, start, end);
-        val list = new ArrayList<HashMap<String, Object>>();
-        for (MyUserOrderComplete order : orders) {
-            val tmp = new HashMap<String, Object>();
-            tmp.put("num", order.getCnum());
-            tmp.put("total", order.getCtotal());
-            tmp.put("type", order.getOtype());
-            tmp.put("date", dateFormat.format(order.getCdate()));
-            list.add(tmp);
-        }
-        return RestResult.ok(new PageData(0, list));
-    }
-
     public RestResult getProductReport(int id, int gid, int sid, ReportCycleType cycle) {
         // 验证公司
         String msg = checkService.checkGroup(id, gid);

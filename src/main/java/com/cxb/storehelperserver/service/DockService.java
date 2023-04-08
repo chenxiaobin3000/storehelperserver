@@ -2,7 +2,7 @@ package com.cxb.storehelperserver.service;
 
 import com.cxb.storehelperserver.model.*;
 import com.cxb.storehelperserver.repository.*;
-import com.cxb.storehelperserver.repository.model.MyMarketCloud;
+import com.cxb.storehelperserver.repository.model.MyMarketStorage;
 import com.cxb.storehelperserver.service.model.PageData;
 import com.cxb.storehelperserver.util.DateUtil;
 import com.cxb.storehelperserver.util.RestResult;
@@ -34,13 +34,13 @@ public class DockService {
     private MarketManyRepository marketManyRepository;
 
     @Resource
-    private MarketCloudRepository marketCloudRepository;
+    private MarketStorageRepository marketStorageRepository;
 
     @Resource
     private GroupMarketRepository groupMarketRepository;
 
     @Resource
-    private CloudRepository cloudRepository;
+    private StorageRepository storageRepository;
 
     @Resource
     private UserGroupRepository userGroupRepository;
@@ -92,7 +92,7 @@ public class DockService {
         if (marketManyRepository.check(aid)) {
             return RestResult.fail("存在关联子账号，不能删除账号");
         }
-        if (marketCloudRepository.check(aid)) {
+        if (marketStorageRepository.check(aid)) {
             return RestResult.fail("存在关联云仓，不能删除账号");
         }
         if (!marketAccountRepository.delete(aid)) {
@@ -144,17 +144,17 @@ public class DockService {
         return RestResult.ok(datas);
     }
 
-    public RestResult getMarketCloudAccount(int id, int gid, int cid) {
+    public RestResult getMarketStorageAccount(int id, int gid, int cid) {
         // 验证公司
         String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
             return RestResult.fail(msg);
         }
-        MyMarketCloud cloud = marketCloudRepository.find(cid);
-        if (null == cloud) {
+        MyMarketStorage storage = marketStorageRepository.find(cid);
+        if (null == storage) {
             return RestResult.fail("未查询到账号信息");
         }
-        return RestResult.ok(cloud);
+        return RestResult.ok(storage);
     }
 
     public RestResult getMarketSubAccount(int id, int gid, int aid) {
@@ -217,7 +217,7 @@ public class DockService {
         if (null != msg) {
             return RestResult.fail(msg);
         }
-        if (marketCloudRepository.check(aid)) {
+        if (marketStorageRepository.check(aid)) {
             return RestResult.fail("存在关联云仓，不能删除账号");
         }
         if (!marketManyRepository.delete(sub)) {
@@ -259,48 +259,48 @@ public class DockService {
         return RestResult.ok(new PageData(total, datas));
     }
 
-    public RestResult setMarketCloud(int id, int gid, int aid, int cid) {
+    public RestResult setMarketStorage(int id, int gid, int aid, int cid) {
         // 验证公司
         String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
             return RestResult.fail(msg);
         }
-        if (null == cloudRepository.find(cid)) {
-            return RestResult.fail("未查询到云仓信息");
+        if (null == storageRepository.find(cid)) {
+            return RestResult.fail("未查询到仓库信息");
         }
         if (null == marketAccountRepository.find(aid)) {
             return RestResult.fail("未查询到主账号信息");
         }
-        MyMarketCloud cloud = marketCloudRepository.find(cid);
-        if (null == cloud) {
-            if (!marketCloudRepository.insert(aid, cid)) {
-                return RestResult.fail("修改关联云仓信息失败");
+        MyMarketStorage storage = marketStorageRepository.find(cid);
+        if (null == storage) {
+            if (!marketStorageRepository.insert(aid, cid)) {
+                return RestResult.fail("修改关联仓库信息失败");
             }
         } else {
-            TMarketCloud c = new TMarketCloud();
-            c.setId(cloud.getId());
-            c.setAid(aid);
-            c.setCid(cid);
-            if (!marketCloudRepository.update(c)) {
-                return RestResult.fail("修改关联云仓信息失败");
+            TMarketStorage s = new TMarketStorage();
+            s.setId(storage.getId());
+            s.setAid(aid);
+            s.setCid(cid);
+            if (!marketStorageRepository.update(s)) {
+                return RestResult.fail("修改关联仓库信息失败");
             }
         }
         return RestResult.ok();
     }
 
-    public RestResult delMarketCloud(int id, int gid, int cid) {
+    public RestResult delMarketStorage(int id, int gid, int cid) {
         // 验证公司
         String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
             return RestResult.fail(msg);
         }
-        if (!marketCloudRepository.delete(cid)) {
+        if (!marketStorageRepository.delete(cid)) {
             return RestResult.fail("删除账号信息失败");
         }
         return RestResult.ok();
     }
 
-    public RestResult getMarketCloudList(int id, int page, int limit, String search) {
+    public RestResult getMarketStorageList(int id, int page, int limit, String search) {
         // 验证公司
         TUserGroup group = userGroupRepository.find(id);
         if (null == group) {
@@ -308,25 +308,25 @@ public class DockService {
         }
         int gid = group.getGid();
 
-        int total = cloudRepository.total(gid, search);
+        int total = storageRepository.total(gid, search);
         if (0 == total) {
             return RestResult.ok(new PageData());
         }
 
         val datas = new ArrayList<HashMap<String, Object>>();
-        val list = cloudRepository.pagination(gid, page, limit, search);
-        for (TCloud c : list) {
+        val list = storageRepository.pagination(gid, page, limit, search);
+        for (TStorage s : list) {
             val tmp = new HashMap<String, Object>();
-            tmp.put("id", c.getId());
-            tmp.put("name", c.getName());
+            tmp.put("id", s.getId());
+            tmp.put("name", s.getName());
             datas.add(tmp);
 
-            MyMarketCloud cloud = marketCloudRepository.find(c.getId());
-            if (null != cloud) {
-                tmp.put("mid", cloud.getMid());
-                tmp.put("aid", cloud.getAid());
-                tmp.put("account", cloud.getAccount());
-                tmp.put("sub", marketManyRepository.findByAid(cloud.getAid()));
+            MyMarketStorage storage = marketStorageRepository.find(s.getId());
+            if (null != storage) {
+                tmp.put("mid", storage.getMid());
+                tmp.put("aid", storage.getAid());
+                tmp.put("account", storage.getAccount());
+                tmp.put("sub", marketManyRepository.findByAid(storage.getAid()));
             }
         }
         return RestResult.ok(new PageData(total, datas));

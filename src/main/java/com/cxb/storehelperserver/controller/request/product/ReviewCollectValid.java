@@ -1,10 +1,9 @@
-package com.cxb.storehelperserver.controller.request.storage;
+package com.cxb.storehelperserver.controller.request.product;
 
 import com.cxb.storehelperserver.controller.request.IValid;
 import lombok.Data;
 
 import javax.validation.constraints.Min;
-import java.math.BigDecimal;
 
 /**
  * desc:
@@ -12,16 +11,10 @@ import java.math.BigDecimal;
  * date: 2022/12/21
  */
 @Data
-public class DelDispatchInfoValid implements IValid {
+public class ReviewCollectValid implements IValid {
     @Min(value = 1, message = "账号错误")
     private int id;
 
     @Min(value = 1, message = "订单编号错误")
     private int oid;
-
-    @Min(value = 1, message = "运费编号错误")
-    private int fid;
-
-    @Min(value = 1, message = "备注编号错误")
-    private int rid;
 }

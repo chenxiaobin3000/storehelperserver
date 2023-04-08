@@ -31,11 +31,6 @@ public class OrderController {
         return orderService.getAgreementOrder(req.getId(), req.getType(), req.getPage(), req.getLimit(), ReviewType.valueOf(req.getReview()), req.getSearch());
     }
 
-    @PostMapping("/getCloudOrder")
-    public RestResult getCloudOrder(@Validated @RequestBody GetCloudOrderValid req) {
-        return orderService.getCloudOrder(req.getId(), req.getType(), req.getPage(), req.getLimit(), ReviewType.valueOf(req.getReview()), req.getSearch());
-    }
-
     @PostMapping("/getProductOrder")
     public RestResult getProductOrder(@Validated @RequestBody GetProductOrderValid req) {
         return orderService.getProductOrder(req.getId(), req.getType(), req.getPage(), req.getLimit(), ReviewType.valueOf(req.getReview()), req.getSearch());

@@ -17,8 +17,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import static com.cxb.storehelperserver.util.TypeDefine.OrderType.SALE_OFFLINE_ORDER;
-import static com.cxb.storehelperserver.util.TypeDefine.OrderType.SALE_RETURN_ORDER;
+import static com.cxb.storehelperserver.util.TypeDefine.OrderType.*;
 
 /**
  * desc: 销售接口
@@ -34,6 +33,112 @@ public class SaleController {
 
     @Resource
     private DateUtil dateUtil;
+
+    @PostMapping("/after")
+    public RestResult after(@Validated @RequestBody AfterValid req) {
+        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
+        TSaleOrder order = new TSaleOrder();
+        order.setGid(req.getGid());
+        order.setSid(req.getSid());
+        order.setOtype(SALE_AFTER_ORDER.getValue());
+        order.setApply(req.getId());
+        try {
+            order.setApplyTime(simpleDateFormat.parse(req.getDate()));
+        } catch (ParseException e) {
+            return RestResult.fail("订单制单日期转换失败");
+        }
+        return saleService.after(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
+    }
+
+    @PostMapping("/setAfter")
+    public RestResult setAfter(@Validated @RequestBody SetAfterValid req) {
+        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
+        Date applyTime = null;
+        try {
+            applyTime = simpleDateFormat.parse(req.getDate());
+        } catch (ParseException e) {
+            return RestResult.fail("订单制单日期转换失败");
+        }
+        return saleService.setAfter(req.getId(), req.getOid(), req.getSid(), applyTime, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
+    }
+
+    @PostMapping("/delAfter")
+    public RestResult delAfter(@Validated @RequestBody DelAfterValid req) {
+        return saleService.delAfter(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/reviewAfter")
+    public RestResult reviewAfter(@Validated @RequestBody ReviewAfterValid req) {
+        return saleService.reviewAfter(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/revokeAfter")
+    public RestResult revokeAfter(@Validated @RequestBody RevokeAfterValid req) {
+        return saleService.revokeAfter(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/addAfterInfo")
+    public RestResult addAfterInfo(@Validated @RequestBody AddAfterInfoValid req) {
+        return saleService.addAfterInfo(req.getId(), req.getOid(), req.getRemark());
+    }
+
+    @PostMapping("/delAfterInfo")
+    public RestResult delAfterInfo(@Validated @RequestBody DelAfterInfoValid req) {
+        return saleService.delAfterInfo(req.getId(), req.getOid(), req.getRid());
+    }
+
+    @PostMapping("/loss")
+    public RestResult loss(@Validated @RequestBody AfterValid req) {
+        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
+        TSaleOrder order = new TSaleOrder();
+        order.setGid(req.getGid());
+        order.setSid(req.getSid());
+        order.setOtype(SALE_LOSS_ORDER.getValue());
+        order.setApply(req.getId());
+        try {
+            order.setApplyTime(simpleDateFormat.parse(req.getDate()));
+        } catch (ParseException e) {
+            return RestResult.fail("订单制单日期转换失败");
+        }
+        return saleService.loss(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
+    }
+
+    @PostMapping("/setLoss")
+    public RestResult setLoss(@Validated @RequestBody SetAfterValid req) {
+        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
+        Date applyTime = null;
+        try {
+            applyTime = simpleDateFormat.parse(req.getDate());
+        } catch (ParseException e) {
+            return RestResult.fail("订单制单日期转换失败");
+        }
+        return saleService.setLoss(req.getId(), req.getOid(), req.getSid(), applyTime, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
+    }
+
+    @PostMapping("/delLoss")
+    public RestResult delLoss(@Validated @RequestBody DelAfterValid req) {
+        return saleService.delLoss(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/reviewLoss")
+    public RestResult reviewLoss(@Validated @RequestBody ReviewAfterValid req) {
+        return saleService.reviewLoss(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/revokeLoss")
+    public RestResult revokeLoss(@Validated @RequestBody RevokeAfterValid req) {
+        return saleService.revokeLoss(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/addLossInfo")
+    public RestResult addLossInfo(@Validated @RequestBody AddAfterInfoValid req) {
+        return saleService.addLossInfo(req.getId(), req.getOid(), req.getRemark());
+    }
+
+    @PostMapping("/delLossInfo")
+    public RestResult delLossInfo(@Validated @RequestBody DelAfterInfoValid req) {
+        return saleService.delLossInfo(req.getId(), req.getOid(), req.getRid());
+    }
 
     @PostMapping("/offLine")
     public RestResult offLine(@Validated @RequestBody ReturnValid req) {

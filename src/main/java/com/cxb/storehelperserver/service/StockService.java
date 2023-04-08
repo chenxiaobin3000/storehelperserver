@@ -19,6 +19,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static com.cxb.storehelperserver.util.TypeDefine.CommodityType;
+import static com.cxb.storehelperserver.util.TypeDefine.ProductType;
 
 /**
  * desc: 库存统计业务
@@ -39,9 +40,6 @@ public class StockService {
     private StockDayRepository stockDayRepository;
 
     @Resource
-    private StockMonthRepository stockMonthRepository;
-
-    @Resource
     private AgreementCommodityRepository agreementCommodityRepository;
 
     @Resource
@@ -49,6 +47,9 @@ public class StockService {
 
     @Resource
     private StorageCommodityRepository storageCommodityRepository;
+
+    @Resource
+    private SaleCommodityRepository saleCommodityRepository;
 
     @Resource
     private CommodityStorageRepository commodityStorageRepository;
@@ -212,6 +213,7 @@ public class StockService {
         Date cdate = new Date();
         int gid = order.getGid();
         int sid = order.getSid();
+        int sid2 = order.getSid2();
         for (TStorageCommodity storageCommodity : storageCommodities) {
             int ctype = storageCommodity.getCtype();
             int cid = storageCommodity.getCid();
@@ -220,15 +222,22 @@ public class StockService {
             int value = storageCommodity.getValue();
             if (!stockRepository.insert(gid, sid, order.getOtype(), order.getOid(), ctype, cid,
                     add ? price : price.negate(), add ? weight : -weight, add ? value : -value, cdate)) {
-                log.warn("增加库存明细信息失败");
+                log.warn("修改源库存明细信息失败");
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-                return "增加库存明细信息失败";
+                return "修改源库存明细信息失败";
+            }
+            // 跟仓库1相反
+            if (!stockRepository.insert(gid, sid2, order.getOtype(), order.getOid(), ctype, cid,
+                    add ? price.negate() : price, add ? -weight : weight, add ? -value : value, cdate)) {
+                log.warn("修改库存明细信息失败");
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                return "修改库存明细信息失败";
             }
         }
         return null;
     }
 
-    // 根据生产单修改库存
+    // 根据生产单修改库存，add为true是还原订单操作，false是执行订单操作
     public String handleProductStock(TProductOrder order, boolean add) {
         val productCommodities = productCommodityRepository.find(order.getId());
         if (null == productCommodities || productCommodities.isEmpty()) {
@@ -238,16 +247,31 @@ public class StockService {
         int gid = order.getGid();
         int sid = order.getSid();
         for (TProductCommodity productCommodity : productCommodities) {
+            int iotype = productCommodity.getIotype();
             int ctype = productCommodity.getCtype();
             int cid = productCommodity.getCid();
             BigDecimal price = productCommodity.getPrice();
             int weight = productCommodity.getWeight();
             int value = productCommodity.getValue();
-            if (!stockRepository.insert(gid, sid, order.getOtype(), order.getPid(), ctype, cid,
-                    add ? price : price.negate(), add ? weight : -weight, add ? value : -value, cdate)) {
-                log.warn("增加库存明细信息失败");
-                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-                return "增加库存明细信息失败";
+            switch (ProductType.valueOf(iotype)) {
+                case PRODUCT_OUT: // 出库生产，执行订单就扣，还原就加
+                    if (!stockRepository.insert(gid, sid, order.getOtype(), order.getPid(), ctype, cid,
+                            add ? price : price.negate(), add ? weight : -weight, add ? value : -value, cdate)) {
+                        log.warn("增加库存明细信息失败");
+                        TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                        return "增加库存明细信息失败";
+                    }
+                    break;
+                case PRODUCT_IN: // 生产完成，执行订单就加，还原就扣
+                    if (!stockRepository.insert(gid, sid, order.getOtype(), order.getPid(), ctype, cid,
+                            add ? price.negate() : price, add ? -weight : weight, add ? -value : value, cdate)) {
+                        log.warn("增加库存明细信息失败");
+                        TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                        return "增加库存明细信息失败";
+                    }
+                    break;
+                default:
+                    break;
             }
         }
         return null;
@@ -294,6 +318,31 @@ public class StockService {
             int weight = agreementCommodity.getWeight();
             int value = agreementCommodity.getValue();
             if (!stockRepository.insert(gid, sid, order.getOtype(), order.getRid(), ctype, cid,
+                    add ? price : price.negate(), add ? weight : -weight, add ? value : -value, cdate)) {
+                log.warn("增加库存明细信息失败");
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                return "增加库存明细信息失败";
+            }
+        }
+        return null;
+    }
+
+    // 根据销售售后单修改库存
+    public String handleSaleStock(TSaleOrder order, boolean add) {
+        val saleCommodities = saleCommodityRepository.find(order.getId());
+        if (null == saleCommodities || saleCommodities.isEmpty()) {
+            return "未查询到调度商品信息";
+        }
+        Date cdate = new Date();
+        int gid = order.getGid();
+        int sid = order.getSid();
+        for (TSaleCommodity saleCommodity : saleCommodities) {
+            int ctype = saleCommodity.getCtype();
+            int cid = saleCommodity.getCid();
+            BigDecimal price = saleCommodity.getPrice();
+            int weight = saleCommodity.getWeight();
+            int value = saleCommodity.getValue();
+            if (!stockRepository.insert(gid, sid, order.getOtype(), null, ctype, cid,
                     add ? price : price.negate(), add ? weight : -weight, add ? value : -value, cdate)) {
                 log.warn("增加库存明细信息失败");
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();

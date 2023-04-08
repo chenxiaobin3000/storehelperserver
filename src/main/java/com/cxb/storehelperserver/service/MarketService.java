@@ -2,7 +2,7 @@ package com.cxb.storehelperserver.service;
 
 import com.cxb.storehelperserver.model.*;
 import com.cxb.storehelperserver.repository.*;
-import com.cxb.storehelperserver.repository.model.MyMarketCloud;
+import com.cxb.storehelperserver.repository.model.MyMarketStorage;
 import com.cxb.storehelperserver.repository.model.MyMarketCommodity;
 import com.cxb.storehelperserver.repository.model.MyMarketSaleInfo;
 import com.cxb.storehelperserver.service.model.PageData;
@@ -50,7 +50,7 @@ public class MarketService {
     private MarketStandardDetailRepository marketStandardDetailRepository;
 
     @Resource
-    private MarketCloudRepository marketCloudRepository;
+    private MarketStorageRepository marketStorageRepository;
 
     @Resource
     private MarketAccountRepository marketAccountRepository;
@@ -62,25 +62,19 @@ public class MarketService {
     private CommodityRepository commodityRepository;
 
     @Resource
-    private CommodityCloudRepository commodityCloudRepository;
-
-    @Resource
     private CommodityAttrRepository commodityAttrRepository;
 
     @Resource
     private StandardRepository standardRepository;
 
     @Resource
-    private StandardCloudRepository standardCloudRepository;
-
-    @Resource
     private StandardAttrRepository standardAttrRepository;
 
     @Resource
-    private CloudRepository cloudRepository;
+    private StorageRepository storageRepository;
 
     @Resource
-    private CloudDayRepository cloudDayRepository;
+    private StockDayRepository stockDayRepository;
 
     @Resource
     private UserGroupRepository userGroupRepository;
@@ -174,10 +168,10 @@ public class MarketService {
             datas.add(tmp);
 
             if (null != sid2) {
-                // 云仓
-                TCloud cloud = cloudRepository.find(sid2);
-                if (null != cloud) {
-                    tmp.put("cloud", cloud.getName());
+                // 仓库
+                TStorage storage = storageRepository.find(sid2);
+                if (null != storage) {
+                    tmp.put("storage", storage.getName());
                 }
             }
 
@@ -199,7 +193,7 @@ public class MarketService {
             }
 
             // 库存价格
-            TCloudDay stock = cloudDayRepository.findByYesterday(sid, COMMODITY.getValue(), cid);
+            TStockDay stock = stockDayRepository.findByYesterday(sid, COMMODITY.getValue(), cid);
             if (null != stock) {
                 tmp.put("sprice", stock.getPrice());
                 tmp.put("svalue", stock.getValue());
@@ -306,10 +300,10 @@ public class MarketService {
             datas.add(tmp);
 
             if (null != sid2) {
-                // 云仓
-                TCloud cloud = cloudRepository.find(sid2);
-                if (null != cloud) {
-                    tmp.put("cloud", cloud.getName());
+                // 仓库
+                TStorage storage = storageRepository.find(sid2);
+                if (null != storage) {
+                    tmp.put("storage", storage.getName());
                 }
             }
 
@@ -331,7 +325,7 @@ public class MarketService {
             }
 
             // 库存价格
-            TCloudDay stock = cloudDayRepository.findByYesterday(sid, STANDARD.getValue(), cid);
+            TStockDay stock = stockDayRepository.findByYesterday(sid, STANDARD.getValue(), cid);
             if (null != stock) {
                 tmp.put("sprice", stock.getPrice());
                 tmp.put("svalue", stock.getValue());
@@ -450,9 +444,9 @@ public class MarketService {
 
             // 平台账号
             if (null != sid2) {
-                MyMarketCloud marketCloud = marketCloudRepository.find(sid2);
-                if (null != marketCloud) {
-                    tmp.put("account", marketCloud.getAccount());
+                MyMarketStorage storage = marketStorageRepository.find(sid2);
+                if (null != storage) {
+                    tmp.put("account", storage.getAccount());
                 }
             }
 
@@ -466,7 +460,7 @@ public class MarketService {
             }
 
             // 库存价格
-            TCloudDay stock = cloudDayRepository.findByYesterday(sid, COMMODITY.getValue(), cid);
+            TStockDay stock = stockDayRepository.findByYesterday(sid, COMMODITY.getValue(), cid);
             if (null != stock) {
                 tmp.put("sprice", stock.getPrice());
                 tmp.put("svalue", stock.getValue());
@@ -575,9 +569,9 @@ public class MarketService {
 
             // 平台账号
             if (null != sid2) {
-                MyMarketCloud marketCloud = marketCloudRepository.find(sid2);
-                if (null != marketCloud) {
-                    tmp.put("account", marketCloud.getAccount());
+                MyMarketStorage storage = marketStorageRepository.find(sid2);
+                if (null != storage) {
+                    tmp.put("account", storage.getAccount());
                 }
             }
 
@@ -591,7 +585,7 @@ public class MarketService {
             }
 
             // 库存价格
-            TCloudDay stock = cloudDayRepository.findByYesterday(sid, STANDARD.getValue(), cid);
+            TStockDay stock = stockDayRepository.findByYesterday(sid, STANDARD.getValue(), cid);
             if (null != stock) {
                 tmp.put("sprice", stock.getPrice());
                 tmp.put("svalue", stock.getValue());

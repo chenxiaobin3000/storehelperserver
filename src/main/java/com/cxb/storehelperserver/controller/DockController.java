@@ -49,9 +49,9 @@ public class DockController {
         return dockService.getMarketAllAccount(req.getId(), req.getGid());
     }
 
-    @PostMapping("/getMarketCloudAccount")
-    public RestResult getMarketCloudAccount(@Validated @RequestBody GetMarketCloudAccountValid req) {
-        return dockService.getMarketCloudAccount(req.getId(), req.getGid(), req.getCid());
+    @PostMapping("/getMarketStorageAccount")
+    public RestResult getMarketStorageAccount(@Validated @RequestBody GetMarketStorageAccountValid req) {
+        return dockService.getMarketStorageAccount(req.getId(), req.getGid(), req.getCid());
     }
 
     @PostMapping("/getMarketSubAccount")
@@ -79,18 +79,18 @@ public class DockController {
         return dockService.getMarketManyList(req.getId(), req.getGid(), req.getPage(), req.getLimit());
     }
 
-    @PostMapping("/setMarketCloud")
-    public RestResult setMarketCloud(@Validated @RequestBody SetMarketCloudValid req) {
-        return dockService.setMarketCloud(req.getId(), req.getGid(), req.getAid(), req.getCid());
+    @PostMapping("/setMarketStorage")
+    public RestResult setMarketStorage(@Validated @RequestBody SetMarketStorageValid req) {
+        return dockService.setMarketStorage(req.getId(), req.getGid(), req.getAid(), req.getCid());
     }
 
-    @PostMapping("/delMarketCloud")
-    public RestResult delMarketCloud(@Validated @RequestBody DelMarketCloudValid req) {
-        return dockService.delMarketCloud(req.getId(), req.getGid(), req.getCid());
+    @PostMapping("/delMarketStorage")
+    public RestResult delMarketStorage(@Validated @RequestBody DelMarketStorageValid req) {
+        return dockService.delMarketStorage(req.getId(), req.getGid(), req.getCid());
     }
 
-    @PostMapping("/getMarketCloudList")
-    public RestResult getMarketCloudList(@Validated @RequestBody GetMarketCloudListValid req) {
-        return dockService.getMarketCloudList(req.getId(), req.getPage(), req.getLimit(), req.getSearch());
+    @PostMapping("/getMarketStorageList")
+    public RestResult getMarketStorageList(@Validated @RequestBody GetMarketStorageListValid req) {
+        return dockService.getMarketStorageList(req.getId(), req.getPage(), req.getLimit(), req.getSearch());
     }
 }

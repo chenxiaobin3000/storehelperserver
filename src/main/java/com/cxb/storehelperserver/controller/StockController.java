@@ -1,7 +1,6 @@
 package com.cxb.storehelperserver.controller;
 
 import com.cxb.storehelperserver.controller.request.stock.*;
-import com.cxb.storehelperserver.service.CloudStockService;
 import com.cxb.storehelperserver.service.StockService;
 import com.cxb.storehelperserver.util.DateUtil;
 import com.cxb.storehelperserver.util.RestResult;
@@ -28,9 +27,6 @@ import java.util.Date;
 public class StockController {
     @Resource
     private StockService stockService;
-
-    @Resource
-    private CloudStockService cloudStockService;
 
     @Resource
     private DateUtil dateUtil;
@@ -69,41 +65,5 @@ public class StockController {
     @PostMapping("/getStockWeek")
     public RestResult getStockWeek(@Validated @RequestBody GetStockWeekValid req) {
         return stockService.getStockWeek(req.getId(), req.getGid(), req.getSid(), req.getCtype());
-    }
-
-    @PostMapping("/getCloudList")
-    public RestResult getCloudList(@Validated @RequestBody GetCloudListValid req) {
-        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
-        Date date = null;
-        try {
-            date = simpleDateFormat.parse(req.getDate() + " 00:00:00");
-        } catch (ParseException e) {
-            return RestResult.fail("查询日期转换失败");
-        }
-        return cloudStockService.getStockList(req.getId(), req.getSid(), req.getCtype(), req.getPage(), req.getLimit(), date, req.getSearch());
-    }
-
-    @PostMapping("/getCloudDetail")
-    public RestResult getCloudDetail(@Validated @RequestBody GetCloudDetailValid req) {
-        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
-        Date start = null;
-        Date end = null;
-        try {
-            start = simpleDateFormat.parse(req.getDate() + " 00:00:00");
-            end = simpleDateFormat.parse(req.getDate() + " 23:59:59");
-        } catch (ParseException e) {
-            return RestResult.fail("查询日期转换失败");
-        }
-        return cloudStockService.getStockDetail(req.getId(), req.getSid(), req.getCtype(), req.getPage(), req.getLimit(), start, end, req.getSearch());
-    }
-
-    @PostMapping("/getCloudDay")
-    public RestResult getCloudDay(@Validated @RequestBody GetCloudDayValid req) {
-        return cloudStockService.getStockDay(req.getId(), req.getGid(), req.getSid(), req.getCtype());
-    }
-
-    @PostMapping("/getCloudWeek")
-    public RestResult getCloudWeek(@Validated @RequestBody GetCloudWeekValid req) {
-        return cloudStockService.getStockWeek(req.getId(), req.getGid(), req.getSid(), req.getCtype());
     }
 }

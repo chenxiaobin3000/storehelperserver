@@ -34,13 +34,13 @@ public class ProductController {
     @Resource
     private DateUtil dateUtil;
 
-    @PostMapping("/process")
-    public RestResult process(@Validated @RequestBody ProcessValid req) {
+    @PostMapping("/collect")
+    public RestResult collect(@Validated @RequestBody CollectValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
         TProductOrder order = new TProductOrder();
         order.setGid(req.getGid());
         order.setSid(req.getSid());
-        order.setOtype(PRODUCT_PROCESS_ORDER.getValue());
+        order.setOtype(PRODUCT_COLLECT_ORDER.getValue());
         order.setApply(req.getId());
         order.setComplete(new Byte("0"));
         try {
@@ -48,11 +48,12 @@ public class ProductController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return productService.process(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
+        return productService.collect(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getTypes2(), req.getCommoditys2(),
+                req.getPrices2(), req.getWeights2(), req.getValues2(), req.getTypes3(), req.getCommoditys3(), req.getWeights3(), req.getValues3(), req.getAttrs());
     }
 
-    @PostMapping("/setProcess")
-    public RestResult setProcess(@Validated @RequestBody SetProcessValid req) {
+    @PostMapping("/setCollect")
+    public RestResult setCollect(@Validated @RequestBody SetCollectValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
         Date applyTime = null;
         try {
@@ -60,138 +61,32 @@ public class ProductController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return productService.setProcess(req.getId(), req.getOid(), req.getSid(), applyTime, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
+        return productService.setCollect(req.getId(), req.getOid(), req.getSid(), applyTime, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getTypes2(),
+                req.getCommoditys2(), req.getPrices2(), req.getWeights2(), req.getValues2(), req.getTypes3(), req.getCommoditys3(), req.getWeights3(), req.getValues3(), req.getAttrs());
     }
 
-    @PostMapping("/delProcess")
-    public RestResult delProcess(@Validated @RequestBody DelProcessValid req) {
-        return productService.delProcess(req.getId(), req.getOid());
+    @PostMapping("/delCollect")
+    public RestResult delCollect(@Validated @RequestBody DelCollectValid req) {
+        return productService.delCollect(req.getId(), req.getOid());
     }
 
-    @PostMapping("/reviewProcess")
-    public RestResult reviewProcess(@Validated @RequestBody ReviewProcessValid req) {
-        return productService.reviewProcess(req.getId(), req.getOid());
+    @PostMapping("/reviewCollect")
+    public RestResult reviewCollect(@Validated @RequestBody ReviewCollectValid req) {
+        return productService.reviewCollect(req.getId(), req.getOid());
     }
 
-    @PostMapping("/revokeProcess")
-    public RestResult revokeProcess(@Validated @RequestBody RevokeProcessValid req) {
-        return productService.revokeProcess(req.getId(), req.getOid());
+    @PostMapping("/revokeCollect")
+    public RestResult revokeCollect(@Validated @RequestBody RevokeCollectValid req) {
+        return productService.revokeCollect(req.getId(), req.getOid());
     }
 
-    @PostMapping("/addProcessInfo")
-    public RestResult addProcessInfo(@Validated @RequestBody AddProcessInfoValid req) {
-        return productService.addProcessInfo(req.getId(), req.getOid(), req.getRemark());
+    @PostMapping("/addCollectInfo")
+    public RestResult addCollectInfo(@Validated @RequestBody AddCollectInfoValid req) {
+        return productService.addCollectInfo(req.getId(), req.getOid(), req.getRemark());
     }
 
-    @PostMapping("/delProcessInfo")
-    public RestResult delProcessInfo(@Validated @RequestBody DelProcessInfoValid req) {
-        return productService.delProcessInfo(req.getId(), req.getOid(), req.getRid());
-    }
-
-    @PostMapping("/complete")
-    public RestResult complete(@Validated @RequestBody CompleteValid req) {
-        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
-        TProductOrder order = new TProductOrder();
-        order.setOtype(PRODUCT_COMPLETE_ORDER.getValue());
-        order.setApply(req.getId());
-        order.setPid(req.getPid());
-        order.setComplete(new Byte("0"));
-        try {
-            order.setApplyTime(simpleDateFormat.parse(req.getDate()));
-        } catch (ParseException e) {
-            return RestResult.fail("订单制单日期转换失败");
-        }
-        return productService.complete(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
-    }
-
-    @PostMapping("/setComplete")
-    public RestResult setComplete(@Validated @RequestBody SetCompleteValid req) {
-        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
-        Date applyTime = null;
-        try {
-            applyTime = simpleDateFormat.parse(req.getDate());
-        } catch (ParseException e) {
-            return RestResult.fail("订单制单日期转换失败");
-        }
-        return productService.setComplete(req.getId(), req.getOid(), applyTime, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
-    }
-
-    @PostMapping("/delComplete")
-    public RestResult delComplete(@Validated @RequestBody DelCompleteValid req) {
-        return productService.delComplete(req.getId(), req.getOid());
-    }
-
-    @PostMapping("/reviewComplete")
-    public RestResult reviewComplete(@Validated @RequestBody ReviewCompleteValid req) {
-        return productService.reviewComplete(req.getId(), req.getOid());
-    }
-
-    @PostMapping("/revokeComplete")
-    public RestResult revokeComplete(@Validated @RequestBody RevokeCompleteValid req) {
-        return productService.revokeComplete(req.getId(), req.getOid());
-    }
-
-    @PostMapping("/addCompleteInfo")
-    public RestResult addCompleteInfo(@Validated @RequestBody AddProcessInfoValid req) {
-        return productService.addCompleteInfo(req.getId(), req.getOid(), req.getRemark());
-    }
-
-    @PostMapping("/delCompleteInfo")
-    public RestResult delCompleteInfo(@Validated @RequestBody DelProcessInfoValid req) {
-        return productService.delCompleteInfo(req.getId(), req.getOid(), req.getRid());
-    }
-
-    @PostMapping("/loss")
-    public RestResult loss(@Validated @RequestBody LossValid req) {
-        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
-        TProductOrder order = new TProductOrder();
-        order.setGid(req.getGid());
-        order.setSid(req.getSid());
-        order.setOtype(PRODUCT_LOSS_ORDER.getValue());
-        order.setApply(req.getId());
-        order.setComplete(new Byte("0"));
-        try {
-            order.setApplyTime(simpleDateFormat.parse(req.getDate()));
-        } catch (ParseException e) {
-            return RestResult.fail("订单制单日期转换失败");
-        }
-        return productService.loss(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
-    }
-
-    @PostMapping("/setLoss")
-    public RestResult setLoss(@Validated @RequestBody SetLossValid req) {
-        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
-        Date applyTime = null;
-        try {
-            applyTime = simpleDateFormat.parse(req.getDate());
-        } catch (ParseException e) {
-            return RestResult.fail("订单制单日期转换失败");
-        }
-        return productService.setLoss(req.getId(), req.getOid(), req.getSid(), applyTime, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
-    }
-
-    @PostMapping("/delLoss")
-    public RestResult delLoss(@Validated @RequestBody DelLossValid req) {
-        return productService.delLoss(req.getId(), req.getOid());
-    }
-
-    @PostMapping("/reviewLoss")
-    public RestResult reviewLoss(@Validated @RequestBody ReviewLossValid req) {
-        return productService.reviewLoss(req.getId(), req.getOid());
-    }
-
-    @PostMapping("/revokeLoss")
-    public RestResult revokeLoss(@Validated @RequestBody RevokeLossValid req) {
-        return productService.revokeLoss(req.getId(), req.getOid());
-    }
-
-    @PostMapping("/addLossInfo")
-    public RestResult addLossInfo(@Validated @RequestBody AddProcessInfoValid req) {
-        return productService.addLossInfo(req.getId(), req.getOid(), req.getRemark());
-    }
-
-    @PostMapping("/delLossInfo")
-    public RestResult delLossInfo(@Validated @RequestBody DelProcessInfoValid req) {
-        return productService.delLossInfo(req.getId(), req.getOid(), req.getRid());
+    @PostMapping("/delCollectInfo")
+    public RestResult delCollectInfo(@Validated @RequestBody DelCollectInfoValid req) {
+        return productService.delCollectInfo(req.getId(), req.getOid(), req.getRid());
     }
 }

@@ -26,8 +26,8 @@ public class ShippedValid implements IValid {
     @Min(value = 1, message = "仓库账号错误")
     private int sid;
 
-    @Min(value = 1, message = "云仓账号错误")
-    private int cid;
+    @Min(value = 1, message = "平台账号错误")
+    private int aid;
 
     @NotEmpty(message = "请输入订单制单日期")
     @Length(min = 19, max = 19, message = "订单制单日期格式错误")

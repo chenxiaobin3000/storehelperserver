@@ -17,8 +17,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import static com.cxb.storehelperserver.util.TypeDefine.OrderType.AGREEMENT_RETURN_ORDER;
-import static com.cxb.storehelperserver.util.TypeDefine.OrderType.AGREEMENT_SHIPPED_ORDER;
+import static com.cxb.storehelperserver.util.TypeDefine.OrderType.*;
 
 /**
  * desc: 履约接口
@@ -142,5 +141,58 @@ public class AgreementController {
     @PostMapping("/delReturnInfo")
     public RestResult delReturnInfo(@Validated @RequestBody DelShippedInfoValid req) {
         return agreementService.delReturnInfo(req.getId(), req.getOid(), req.getFid(), req.getRid());
+    }
+
+    @PostMapping("/again")
+    public RestResult again(@Validated @RequestBody ReturnValid req) {
+        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
+        TAgreementOrder order = new TAgreementOrder();
+        order.setOtype(AGREEMENT_AGAIN_ORDER.getValue());
+        order.setApply(req.getId());
+        order.setRid(req.getRid());
+        order.setComplete(new Byte("0"));
+        try {
+            order.setApplyTime(simpleDateFormat.parse(req.getDate()));
+        } catch (ParseException e) {
+            return RestResult.fail("订单制单日期转换失败");
+        }
+        return agreementService.again(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
+    }
+
+    @PostMapping("/setAgain")
+    public RestResult setAgain(@Validated @RequestBody SetReturnValid req) {
+        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
+        Date applyTime = null;
+        try {
+            applyTime = simpleDateFormat.parse(req.getDate());
+        } catch (ParseException e) {
+            return RestResult.fail("订单制单日期转换失败");
+        }
+        return agreementService.setAgain(req.getId(), req.getOid(), applyTime, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
+    }
+
+    @PostMapping("/delAgain")
+    public RestResult delAgain(@Validated @RequestBody DelReturnValid req) {
+        return agreementService.delAgain(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/reviewAgain")
+    public RestResult reviewAgain(@Validated @RequestBody ReviewReturnValid req) {
+        return agreementService.reviewAgain(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/revokeAgain")
+    public RestResult revokeAgain(@Validated @RequestBody RevokeReturnValid req) {
+        return agreementService.revokeAgain(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/addAgainInfo")
+    public RestResult addAgainInfo(@Validated @RequestBody AddShippedInfoValid req) {
+        return agreementService.addAgainInfo(req.getId(), req.getOid(), req.getFare(), req.getRemark());
+    }
+
+    @PostMapping("/delAgainInfo")
+    public RestResult delAgainInfo(@Validated @RequestBody DelShippedInfoValid req) {
+        return agreementService.delAgainInfo(req.getId(), req.getOid(), req.getFid(), req.getRid());
     }
 }

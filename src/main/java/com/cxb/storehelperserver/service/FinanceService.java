@@ -205,18 +205,6 @@ public class FinanceService {
             case FINANCE_PURCHASE_FARE2:
                 data.put("action", "采购仓储退货运费");
                 break;
-            case FINANCE_PURCHASE2_PAY:
-                data.put("action", "采购云仓进货");
-                break;
-            case FINANCE_PURCHASE2_FARE:
-                data.put("action", "采购云仓进货运费");
-                break;
-            case FINANCE_PURCHASE2_RET:
-                data.put("action", "采购云仓退货");
-                break;
-            case FINANCE_PURCHASE2_FARE2:
-                data.put("action", "采购云仓退货运费");
-                break;
 
             case FINANCE_STORAGE_MGR:
                 data.put("action", "仓储管理费");
@@ -224,21 +212,9 @@ public class FinanceService {
             case FINANCE_STORAGE_FARE:
                 data.put("action", "仓储调度运费");
                 break;
-            case FINANCE_STORAGE_RET:
-                data.put("action", "采购退货");
-                break;
-            case FINANCE_STORAGE_FARE2:
-                data.put("action", "采购退货运费");
-                break;
 
-            case FINANCE_PRODUCT_WRAP:
-                data.put("action", "包装费");
-                break;
-            case FINANCE_PRODUCT_MAN:
-                data.put("action", "人工费用");
-                break;
-            case FINANCE_PRODUCT_OUT:
-                data.put("action", "外厂费用");
+            case FINANCE_PRODUCT_PAY:
+                data.put("action", "生产费用");
                 break;
 
             case FINANCE_AGREEMENT_FARE:
@@ -246,19 +222,6 @@ public class FinanceService {
                 break;
             case FINANCE_AGREEMENT_FARE2:
                 data.put("action", "履约退款物流");
-                break;
-
-            case FINANCE_CLOUD_RET:
-                data.put("action", "云仓采购退货");
-                break;
-            case FINANCE_CLOUD_FARE:
-                data.put("action", "云仓采购退货运费");
-                break;
-            case FINANCE_CLOUD_BACK:
-                data.put("action", "云仓履约退货");
-                break;
-            case FINANCE_CLOUD_FARE2:
-                data.put("action", "云仓履约退货运费");
                 break;
 
             case FINANCE_MARKET_SALE:

@@ -41,11 +41,6 @@ public class ReportController {
         return reportService.getAgreementReport(req.getId(), req.getGid(), req.getSid(), ReportCycleType.valueOf(req.getCycle()));
     }
 
-    @PostMapping("/getCloudReport")
-    public RestResult getCloudReport(@Validated @RequestBody getCloudReportValid req) {
-        return reportService.getCloudReport(req.getId(), req.getGid(), req.getSid(), ReportCycleType.valueOf(req.getCycle()));
-    }
-
     @PostMapping("/getProductReport")
     public RestResult getProductReport(@Validated @RequestBody getProductReportValid req) {
         return reportService.getProductReport(req.getId(), req.getGid(), req.getSid(), ReportCycleType.valueOf(req.getCycle()));

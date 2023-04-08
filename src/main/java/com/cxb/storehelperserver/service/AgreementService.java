@@ -15,6 +15,7 @@ import java.math.RoundingMode;
 import java.util.*;
 
 import static com.cxb.storehelperserver.util.Permission.*;
+import static com.cxb.storehelperserver.util.TypeDefine.OrderType.AGREEMENT_AGAIN_ORDER;
 import static com.cxb.storehelperserver.util.TypeDefine.OrderType.AGREEMENT_SHIPPED_ORDER;
 
 /**
@@ -57,10 +58,10 @@ public class AgreementService {
     private AgreementRemarkRepository agreementRemarkRepository;
 
     @Resource
-    private AgreementReturnRepository agreementReturnRepository;
+    private AgreementAgainRepository agreementAgainRepository;
 
     @Resource
-    private CloudAgreementRepository cloudAgreementRepository;
+    private AgreementReturnRepository agreementReturnRepository;
 
     @Resource
     private PurchaseOrderRepository purchaseOrderRepository;
@@ -344,9 +345,6 @@ public class AgreementService {
         if (null == agreement.getReview()) {
             return RestResult.fail("履约单未审核通过，不能进行入库");
         }
-        if (cloudAgreementRepository.checkByAid(rid)) {
-            return RestResult.fail("履约商品已入库，请使用云仓退货单");
-        }
 
         order.setGid(agreement.getGid());
         order.setSid(agreement.getSid());
@@ -524,7 +522,17 @@ public class AgreementService {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
-        // TODO 还原扣除的采购单数量
+        // 还原扣除的采购单数量
+        TAgreementOrder agreement = agreementOrderRepository.find(order.getRid());
+        if (null == agreement) {
+            return RestResult.fail("未查询到对应的发货单");
+        }
+        agreement.setCurUnit(agreement.getCurUnit() + order.getUnit());
+        agreement.setCurPrice(agreement.getCurPrice().add(order.getPrice()));
+        agreement.setComplete(new Byte("0"));
+        if (!agreementOrderRepository.update(agreement)) {
+            return RestResult.fail("修改发货单数据失败");
+        }
 
         RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApply(), mp_agreement_return_review);
         if (null != ret) {
@@ -554,6 +562,230 @@ public class AgreementService {
     }
 
     public RestResult delReturnInfo(int id, int oid, int fid, int rid) {
+        return delShippedInfo(id, oid, fid, rid);
+    }
+
+    /**
+     * desc: 履约退转入
+     */
+    public RestResult again(int id, TAgreementOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
+        // 发货单未审核，已入库都不能退货
+        int rid = order.getRid();
+        TAgreementOrder agreement = agreementOrderRepository.find(rid);
+        if (null == agreement) {
+            return RestResult.fail("未查询到履约单");
+        }
+        if (!agreement.getOtype().equals(AGREEMENT_AGAIN_ORDER.getValue())) {
+            return RestResult.fail("进货单据类型异常");
+        }
+        if (null == agreement.getReview()) {
+            return RestResult.fail("履约单未审核通过，不能进行入库");
+        }
+
+        order.setGid(agreement.getGid());
+        order.setSid(agreement.getSid());
+        order.setCid(agreement.getCid());
+        val reviews = new ArrayList<Integer>();
+        RestResult ret = check(id, order, mp_agreement_again_apply, mp_agreement_again_review, reviews);
+        if (null != ret) {
+            return ret;
+        }
+
+        // 生成退货单
+        val comms = new ArrayList<TAgreementCommodity>();
+        ret = createReturnComms(order, order.getRid(), types, commoditys, weights, values, comms);
+        if (null != ret) {
+            return ret;
+        }
+
+        // 生成退货单批号
+        String batch = dateUtil.createBatch(order.getOtype());
+        order.setBatch(batch);
+        if (!agreementOrderRepository.insert(order)) {
+            return RestResult.fail("生成退货订单失败");
+        }
+        int oid = order.getId();
+        String msg = agreementOrderService.update(oid, comms, attrs);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+        return reviewService.apply(id, order.getGid(), order.getSid(), order.getOtype(), oid, batch, reviews);
+    }
+
+    /**
+     * desc: 履约退转入修改
+     */
+    public RestResult setAgain(int id, int oid, Date applyTime, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
+        // 已经审核的订单不能修改
+        TAgreementOrder order = agreementOrderRepository.find(oid);
+        if (null == order) {
+            return RestResult.fail("未查询到要删除的订单");
+        }
+        if (null != order.getReview()) {
+            return RestResult.fail("已审核的订单不能修改");
+        }
+        if (!order.getApply().equals(id)) {
+            return RestResult.fail("只能修改自己的订单");
+        }
+
+        order.setApplyTime(applyTime);
+        val reviews = new ArrayList<Integer>();
+        RestResult ret = check(id, order, mp_agreement_again_apply, mp_agreement_again_review, reviews);
+        if (null != ret) {
+            return ret;
+        }
+
+        // 生成退货单
+        val comms = new ArrayList<TAgreementCommodity>();
+        ret = createReturnComms(order, order.getRid(), types, commoditys, weights, values, comms);
+        if (null != ret) {
+            return ret;
+        }
+        if (!agreementOrderRepository.update(order)) {
+            return RestResult.fail("生成退货订单失败");
+        }
+        String msg = agreementOrderService.update(oid, comms, attrs);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+        return RestResult.ok();
+    }
+
+    public RestResult delAgain(int id, int oid) {
+        TAgreementOrder order = agreementOrderRepository.find(oid);
+        if (null == order) {
+            return RestResult.fail("未查询到要删除的订单");
+        }
+
+        // 校验是否订单提交人，已经审核的订单不能删除
+        Integer review = order.getReview();
+        if (null != review) {
+            return RestResult.fail("已审核的订单不能删除");
+        }
+        if (!order.getApply().equals(id)) {
+            return RestResult.fail("订单必须由申请人删除");
+        }
+
+        // 删除商品附件数据
+        agreementAttachmentRepository.deleteByOid(oid);
+        if (!agreementCommodityRepository.delete(oid)) {
+            return RestResult.fail("删除关联商品失败");
+        }
+        if (!agreementOrderRepository.delete(oid)) {
+            return RestResult.fail("删除订单失败");
+        }
+        return reviewService.delete(review, order.getOtype(), oid);
+    }
+
+    public RestResult reviewAgain(int id, int oid) {
+        // 获取公司信息
+        TUserGroup group = userGroupRepository.find(id);
+        if (null == group) {
+            return RestResult.fail("获取公司信息失败");
+        }
+        int gid = group.getGid();
+
+        // 校验审核人员信息
+        TAgreementOrder order = agreementOrderRepository.find(oid);
+        if (null == order) {
+            return RestResult.fail("未查询到要审核的订单");
+        }
+        if (!reviewService.checkReview(id, order.getOtype(), oid)) {
+            return RestResult.fail("您没有审核权限");
+        }
+
+        // 校验退货订单总价格和总量不能超出采购单
+        TAgreementOrder agreement = agreementOrderRepository.find(order.getRid());
+        if (null == agreement) {
+            return RestResult.fail("未查询到对应的发货单");
+        }
+        int unit = agreement.getCurUnit() - order.getUnit();
+        if (unit < 0) {
+            return RestResult.fail("退货商品总量不能超出发货订单总量");
+        }
+        BigDecimal price = agreement.getCurPrice().subtract(order.getPrice());
+        if (price.compareTo(BigDecimal.ZERO) < 0) {
+            return RestResult.fail("退货商品总价不能超出发货订单总价");
+        }
+        if (0 == unit) {
+            agreement.setComplete(new Byte("1"));
+        }
+        agreement.setCurUnit(unit);
+        agreement.setCurPrice(price);
+        if (!agreementOrderRepository.update(agreement)) {
+            return RestResult.fail("修改发货单数据失败");
+        }
+
+        // 添加审核信息
+        Date reviewTime = new Date();
+        order.setReview(id);
+        order.setReviewTime(reviewTime);
+        if (!agreementOrderRepository.update(order)) {
+            return RestResult.fail("审核用户订单信息失败");
+        }
+
+        // 添加关联
+        if (!agreementAgainRepository.insert(oid, order.getRid())) {
+            return RestResult.fail("添加履约退货信息失败");
+        }
+        return reviewService.review(order.getApply(), id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
+    }
+
+    public RestResult revokeAgain(int id, int oid) {
+        TAgreementOrder order = agreementOrderRepository.find(oid);
+        if (null == order) {
+            return RestResult.fail("未查询到要撤销的订单");
+        }
+        if (null == order.getReview()) {
+            return RestResult.fail("未审核的订单不能撤销");
+        }
+
+        // 验证公司
+        int gid = order.getGid();
+        String msg = checkService.checkGroup(id, gid);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+
+        // 校验申请订单权限
+        if (!checkService.checkRolePermission(id, agreement_again)) {
+            return RestResult.fail("本账号没有相关的权限，请联系管理员");
+        }
+
+        // 还原扣除的采购单数量
+        TAgreementOrder agreement = agreementOrderRepository.find(order.getRid());
+        if (null == agreement) {
+            return RestResult.fail("未查询到对应的发货单");
+        }
+        agreement.setCurUnit(agreement.getCurUnit() + order.getUnit());
+        agreement.setCurPrice(agreement.getCurPrice().add(order.getPrice()));
+        agreement.setComplete(new Byte("0"));
+        if (!agreementOrderRepository.update(agreement)) {
+            return RestResult.fail("修改发货单数据失败");
+        }
+
+        RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApply(), mp_agreement_again_review);
+        if (null != ret) {
+            return ret;
+        }
+
+        // 撤销审核人信息
+        if (!agreementOrderRepository.setReviewNull(oid)) {
+            return RestResult.fail("撤销订单审核信息失败");
+        }
+
+        // 删除关联
+        if (!agreementAgainRepository.delete(oid, order.getRid())) {
+            return RestResult.fail("删除采购退货信息失败");
+        }
+        return RestResult.ok();
+    }
+
+    public RestResult addAgainInfo(int id, int oid, BigDecimal fare, String remark) {
+        return addShippedInfo(id, oid, fare, remark);
+    }
+
+    public RestResult delAgainInfo(int id, int oid, int fid, int rid) {
         return delShippedInfo(id, oid, fid, rid);
     }
 
