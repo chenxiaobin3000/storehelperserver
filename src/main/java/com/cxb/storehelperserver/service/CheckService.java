@@ -86,6 +86,7 @@ public class CheckService {
     }
 
     public boolean checkRolePermissionMp(int uid, int permission) {
+        log.info("------" + uid + "," + permission);
         TUserRoleMp userRoleMp = userRoleMpRepository.find(uid);
         if (null == userRoleMp) {
             return false;

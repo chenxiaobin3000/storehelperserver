@@ -65,7 +65,7 @@ public class CommodityController {
 
     @PostMapping("/getStorageCommodity")
     public RestResult getStorageCommodity(@Validated @RequestBody GetStorageCommodityValid req) {
-        return commodityService.getStorageCommodity(req.getId(), req.getPage(), req.getLimit(), req.getSearch());
+        return commodityService.getStorageCommodity(req.getId(), req.getSid(), req.getPage(), req.getLimit(), req.getSearch());
     }
 
     @PostMapping("/setCommodityOriginal")

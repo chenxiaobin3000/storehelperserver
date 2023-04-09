@@ -65,7 +65,7 @@ public class StandardController {
 
     @PostMapping("/getStorageStandard")
     public RestResult getStorageStandard(@Validated @RequestBody GetStorageStandardValid req) {
-        return standardService.getStorageStandard(req.getId(), req.getPage(), req.getLimit(), req.getSearch());
+        return standardService.getStorageStandard(req.getId(), req.getSid(), req.getPage(), req.getLimit(), req.getSearch());
     }
 
     @PostMapping("/setStandardStorage")

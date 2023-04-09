@@ -247,11 +247,17 @@ public class HalfgoodService {
         return RestResult.ok(new PageData(total, datas));
     }
 
-    public RestResult getStorageHalfgood(int id, int page, int limit, String search) {
-        // 获取公司信息
+    public RestResult getStorageHalfgood(int id, int sid, int page, int limit, String search) {
         TUserGroup group = userGroupRepository.find(id);
         if (null == group) {
             return RestResult.fail("获取公司信息失败");
+        }
+        TStorage storage = storageRepository.find(sid);
+        if (null == storage) {
+            return RestResult.fail("获取仓库信息失败");
+        }
+        if (!group.getGid().equals(storage.getGid())) {
+            return RestResult.fail("只能获取本公司信息");
         }
 
         int gid = group.getGid();
@@ -275,23 +281,6 @@ public class HalfgoodService {
             tmp.put("cid", c.getCid());
             tmp.put("remark", c.getRemark());
             datas.add(tmp);
-
-            // 仓库
-            val storages = halfgoodStorageRepository.find(cid);
-            if (null != storages && !storages.isEmpty()) {
-                val list2 = new ArrayList<HashMap<String, Object>>();
-                tmp.put("storages", list2);
-                for (THalfgoodStorage ss : storages) {
-                    val tmp2 = new HashMap<String, Object>();
-                    int sid = ss.getSid();
-                    tmp2.put("sid", sid);
-                    TStorage storage = storageRepository.find(sid);
-                    if (null != storage) {
-                        tmp2.put("name", storage.getName());
-                    }
-                    list2.add(tmp2);
-                }
-            }
 
             // 属性
             List<THalfgoodAttr> attrs = halfgoodAttrRepository.find(c.getId());

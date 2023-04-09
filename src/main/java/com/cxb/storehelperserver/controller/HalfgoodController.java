@@ -65,7 +65,7 @@ public class HalfgoodController {
 
     @PostMapping("/getStorageHalfgood")
     public RestResult getStorageHalfgood(@Validated @RequestBody GetStorageHalfgoodValid req) {
-        return halfgoodService.getStorageHalfgood(req.getId(), req.getPage(), req.getLimit(), req.getSearch());
+        return halfgoodService.getStorageHalfgood(req.getId(), req.getSid(), req.getPage(), req.getLimit(), req.getSearch());
     }
 
     @PostMapping("/setHalfgoodOriginal")

@@ -65,7 +65,7 @@ public class OriginalController {
 
     @PostMapping("/getStorageOriginal")
     public RestResult getStorageOriginal(@Validated @RequestBody GetStorageOriginalValid req) {
-        return originalService.getStorageOriginal(req.getId(), req.getPage(), req.getLimit(), req.getSearch());
+        return originalService.getStorageOriginal(req.getId(), req.getSid(), req.getPage(), req.getLimit(), req.getSearch());
     }
 
     @PostMapping("/setOriginalStorage")
