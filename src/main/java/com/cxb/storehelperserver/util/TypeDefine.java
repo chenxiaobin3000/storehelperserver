@@ -15,13 +15,13 @@ public class TypeDefine {
         STORAGE_RETURN_ORDER(11),       // 仓储采购退货订单
         STORAGE_DISPATCH_ORDER(12),     // 仓储调度订单
         STORAGE_LOSS_ORDER(13),         // 仓储损耗订单
+        STORAGE_OFFLINE_ORDER(14),      // 线下销售订单
+        STORAGE_BACK_ORDER(15),         // 线下销售退货订单
         AGREEMENT_SHIPPED_ORDER(20),    // 履约发货订单
         AGREEMENT_RETURN_ORDER(21),     // 履约退货订单
-        AGREEMENT_AGAIN_ORDER(21),      // 履约退转入订单
+        AGREEMENT_AGAIN_ORDER(22),      // 履约退转入订单
         SALE_AFTER_ORDER(30),           // 线上售后订单
-        SALE_LOSS_ORDER(31),            // 线上损耗订单
-        SALE_OFFLINE_ORDER(32),         // 线下销售订单
-        SALE_RETURN_ORDER(33);          // 线下销售退货订单
+        SALE_LOSS_ORDER(31);            // 线上损耗订单
 
         private int value = 0;
 
@@ -45,6 +45,10 @@ public class TypeDefine {
                     return STORAGE_DISPATCH_ORDER;
                 case 13:
                     return STORAGE_LOSS_ORDER;
+                case 14:
+                    return STORAGE_OFFLINE_ORDER;
+                case 15:
+                    return STORAGE_BACK_ORDER;
                 case 20:
                     return AGREEMENT_SHIPPED_ORDER;
                 case 21:
@@ -53,12 +57,8 @@ public class TypeDefine {
                     return AGREEMENT_AGAIN_ORDER;
                 case 30:
                     return SALE_AFTER_ORDER;
-                case 31:
-                    return SALE_LOSS_ORDER;
-                case 32:
-                    return SALE_OFFLINE_ORDER;
             }
-            return SALE_RETURN_ORDER;
+            return SALE_LOSS_ORDER;
         }
 
         public int getValue() {
@@ -75,13 +75,17 @@ public class TypeDefine {
 
         FINANCE_STORAGE_MGR(10),        // 仓储管理费
         FINANCE_STORAGE_FARE(11),       // 仓储调度运费
+        FINANCE_STORAGE_OFFLINE(12),    // 线下销售
+        FINANCE_STORAGE_FARE2(13),      // 线下运费
+        FINANCE_STORAGE_BACK(14),       // 线下销售退货
+        FINANCE_STORAGE_FARE3(15),      // 线下退货运费
 
         FINANCE_PRODUCT_PAY(20),        // 生产成本
 
         FINANCE_AGREEMENT_FARE(30),     // 履约发货物流
         FINANCE_AGREEMENT_FARE2(31),    // 履约退款物流
 
-        FINANCE_MARKET_SALE(40),        // 销售平台
+        FINANCE_MARKET_SALE(40),        // 线上销售
 
         FINANCE_GROUP_OTHER(50);        // 经营费用
 
@@ -106,6 +110,14 @@ public class TypeDefine {
                     return FINANCE_STORAGE_MGR;
                 case 11:
                     return FINANCE_STORAGE_FARE;
+                case 12:
+                    return FINANCE_STORAGE_OFFLINE;
+                case 13:
+                    return FINANCE_STORAGE_FARE2;
+                case 14:
+                    return FINANCE_STORAGE_BACK;
+                case 15:
+                    return FINANCE_STORAGE_FARE3;
 
                 case 20:
                     return FINANCE_PRODUCT_PAY;

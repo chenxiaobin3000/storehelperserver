@@ -1,8 +1,10 @@
 package com.cxb.storehelperserver.repository;
 
 import com.cxb.storehelperserver.mapper.THalfgoodStorageMapper;
+import com.cxb.storehelperserver.model.THalfgood;
 import com.cxb.storehelperserver.model.THalfgoodStorage;
 import com.cxb.storehelperserver.model.THalfgoodStorageExample;
+import com.cxb.storehelperserver.repository.mapper.MyStorageCommodityMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
@@ -19,6 +21,9 @@ import java.util.List;
 public class HalfgoodStorageRepository extends BaseRepository<List> {
     @Resource
     private THalfgoodStorageMapper halfgoodStorageMapper;
+
+    @Resource
+    private MyStorageCommodityMapper myStorageCommodityMapper;
 
     public HalfgoodStorageRepository() {
         init("halfStorage::");
@@ -44,6 +49,22 @@ public class HalfgoodStorageRepository extends BaseRepository<List> {
         THalfgoodStorageExample example = new THalfgoodStorageExample();
         example.or().andSidEqualTo(sid);
         return halfgoodStorageMapper.selectByExample(example);
+    }
+
+    public int total(int sid, String search) {
+        if (null != search) {
+            return myStorageCommodityMapper.count_halfgood(sid, "%" + search + "%");
+        } else {
+            return myStorageCommodityMapper.count_halfgood(sid, null);
+        }
+    }
+
+    public List<THalfgood> pagination(int sid, int page, int limit, String search) {
+        if (null != search) {
+            return myStorageCommodityMapper.pagination_halfgood((page - 1) * limit, limit, sid, "%" + search + "%");
+        } else {
+            return myStorageCommodityMapper.pagination_halfgood((page - 1) * limit, limit, sid, null);
+        }
     }
 
     public boolean update(int cid, List<Integer> sids) {

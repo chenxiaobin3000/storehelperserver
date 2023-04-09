@@ -93,7 +93,7 @@ public class DockService {
             return RestResult.fail("存在关联子账号，不能删除账号");
         }
         if (marketStorageRepository.check(aid)) {
-            return RestResult.fail("存在关联云仓，不能删除账号");
+            return RestResult.fail("存在关联仓库，不能删除账号");
         }
         if (!marketAccountRepository.delete(aid)) {
             return RestResult.fail("删除账号信息失败");
@@ -218,7 +218,7 @@ public class DockService {
             return RestResult.fail(msg);
         }
         if (marketStorageRepository.check(aid)) {
-            return RestResult.fail("存在关联云仓，不能删除账号");
+            return RestResult.fail("存在关联仓库，不能删除账号");
         }
         if (!marketManyRepository.delete(sub)) {
             return RestResult.fail("删除账号信息失败");

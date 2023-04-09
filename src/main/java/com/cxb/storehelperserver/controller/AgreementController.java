@@ -40,7 +40,7 @@ public class AgreementController {
         TAgreementOrder order = new TAgreementOrder();
         order.setGid(req.getGid());
         order.setSid(req.getSid());
-        order.setCid(req.getCid());
+        order.setAid(req.getAid());
         order.setOtype(AGREEMENT_SHIPPED_ORDER.getValue());
         order.setApply(req.getId());
         order.setComplete(new Byte("0"));
@@ -61,7 +61,7 @@ public class AgreementController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return agreementService.setShipped(req.getId(), req.getOid(), req.getSid(), req.getCid(), applyTime, req.getTypes(),
+        return agreementService.setShipped(req.getId(), req.getOid(), req.getSid(), req.getAid(), applyTime, req.getTypes(),
                 req.getCommoditys(), req.getWeights(), req.getNorms(), req.getValues(), req.getAttrs());
     }
 

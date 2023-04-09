@@ -294,4 +294,112 @@ public class StorageController {
     public RestResult delLossInfo(@Validated @RequestBody DelPurchaseInfoValid req) {
         return storageService.delLossInfo(req.getId(), req.getOid(), req.getRid());
     }
+/*
+    @PostMapping("/offline")
+    public RestResult offline(@Validated @RequestBody LossValid req) {
+        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
+        TStorageOrder order = new TStorageOrder();
+        order.setGid(req.getGid());
+        order.setSid(req.getSid());
+        order.setOtype(STORAGE_LOSS_ORDER.getValue());
+        order.setApply(req.getId());
+        order.setComplete(new Byte("0"));
+        try {
+            order.setApplyTime(simpleDateFormat.parse(req.getDate()));
+        } catch (ParseException e) {
+            return RestResult.fail("订单制单日期转换失败");
+        }
+        return storageService.offline(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
+    }
+
+    @PostMapping("/setOffline")
+    public RestResult setOffline(@Validated @RequestBody SetLossValid req) {
+        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
+        Date applyTime = null;
+        try {
+            applyTime = simpleDateFormat.parse(req.getDate());
+        } catch (ParseException e) {
+            return RestResult.fail("订单制单日期转换失败");
+        }
+        return storageService.setOffline(req.getId(), req.getOid(), req.getSid(), applyTime, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
+    }
+
+    @PostMapping("/delOffline")
+    public RestResult delOffline(@Validated @RequestBody DelLossValid req) {
+        return storageService.delOffline(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/reviewOffline")
+    public RestResult reviewOffline(@Validated @RequestBody ReviewLossValid req) {
+        return storageService.reviewOffline(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/revokeOffline")
+    public RestResult revokeOffline(@Validated @RequestBody RevokeLossValid req) {
+        return storageService.revokeOffline(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/addOfflineInfo")
+    public RestResult addOfflineInfo(@Validated @RequestBody AddPurchaseInfoValid req) {
+        return storageService.addOfflineInfo(req.getId(), req.getOid(), req.getRemark());
+    }
+
+    @PostMapping("/delOfflineInfo")
+    public RestResult delOfflineInfo(@Validated @RequestBody DelPurchaseInfoValid req) {
+        return storageService.delOfflineInfo(req.getId(), req.getOid(), req.getRid());
+    }
+
+    @PostMapping("/backc")
+    public RestResult backc(@Validated @RequestBody LossValid req) {
+        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
+        TStorageOrder order = new TStorageOrder();
+        order.setGid(req.getGid());
+        order.setSid(req.getSid());
+        order.setOtype(STORAGE_LOSS_ORDER.getValue());
+        order.setApply(req.getId());
+        order.setComplete(new Byte("0"));
+        try {
+            order.setApplyTime(simpleDateFormat.parse(req.getDate()));
+        } catch (ParseException e) {
+            return RestResult.fail("订单制单日期转换失败");
+        }
+        return storageService.backc(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
+    }
+
+    @PostMapping("/setBack")
+    public RestResult setBack(@Validated @RequestBody SetLossValid req) {
+        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
+        Date applyTime = null;
+        try {
+            applyTime = simpleDateFormat.parse(req.getDate());
+        } catch (ParseException e) {
+            return RestResult.fail("订单制单日期转换失败");
+        }
+        return storageService.setBack(req.getId(), req.getOid(), req.getSid(), applyTime, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
+    }
+
+    @PostMapping("/delBack")
+    public RestResult delBack(@Validated @RequestBody DelLossValid req) {
+        return storageService.delBack(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/reviewBack")
+    public RestResult reviewBack(@Validated @RequestBody ReviewLossValid req) {
+        return storageService.reviewBack(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/revokeBack")
+    public RestResult revokeBack(@Validated @RequestBody RevokeLossValid req) {
+        return storageService.revokeBack(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/addBackInfo")
+    public RestResult addBackInfo(@Validated @RequestBody AddPurchaseInfoValid req) {
+        return storageService.addBackInfo(req.getId(), req.getOid(), req.getRemark());
+    }
+
+    @PostMapping("/delBackInfo")
+    public RestResult delBackInfo(@Validated @RequestBody DelPurchaseInfoValid req) {
+        return storageService.delBackInfo(req.getId(), req.getOid(), req.getRid());
+    }*/
 }

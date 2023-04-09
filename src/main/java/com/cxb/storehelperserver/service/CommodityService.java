@@ -247,7 +247,7 @@ public class CommodityService {
         return RestResult.ok(new PageData(total, datas));
     }
 
-    public RestResult getGroupAllCommodity(int id) {
+    public RestResult getStorageCommodity(int id, int page, int limit, String search) {
         // 获取公司信息
         TUserGroup group = userGroupRepository.find(id);
         if (null == group) {
@@ -255,25 +255,43 @@ public class CommodityService {
         }
 
         int gid = group.getGid();
-        int total = commodityRepository.total(gid, null);
+        int total = commodityStorageRepository.total(gid, search);
         if (0 == total) {
             return RestResult.ok(new PageData());
         }
 
-        val commodities = commodityRepository.pagination(gid, 1, total, null);
+        val commodities = commodityStorageRepository.pagination(gid, page, limit, search);
         if (null == commodities) {
             return RestResult.fail("获取商品信息失败");
         }
 
         val datas = new ArrayList<HashMap<String, Object>>();
         for (TCommodity c : commodities) {
+            int cid = c.getId();
             val tmp = new HashMap<String, Object>();
-            tmp.put("id", c.getId());
+            tmp.put("id", cid);
             tmp.put("code", c.getCode());
             tmp.put("name", c.getName());
             tmp.put("cid", c.getCid());
             tmp.put("remark", c.getRemark());
             datas.add(tmp);
+
+            // 仓库
+            val storages = commodityStorageRepository.find(cid);
+            if (null != storages && !storages.isEmpty()) {
+                val list2 = new ArrayList<HashMap<String, Object>>();
+                tmp.put("storages", list2);
+                for (TCommodityStorage ss : storages) {
+                    val tmp2 = new HashMap<String, Object>();
+                    int sid = ss.getSid();
+                    tmp2.put("sid", sid);
+                    TStorage storage = storageRepository.find(sid);
+                    if (null != storage) {
+                        tmp2.put("name", storage.getName());
+                    }
+                    list2.add(tmp2);
+                }
+            }
 
             // 属性
             List<TCommodityAttr> attrs = commodityAttrRepository.find(c.getId());

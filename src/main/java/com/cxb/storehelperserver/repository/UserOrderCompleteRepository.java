@@ -72,12 +72,12 @@ public class UserOrderCompleteRepository extends BaseRepository<TUserOrderComple
 
     public List<MyUserOrderComplete> findByStorage(int gid, int sid, Date start, Date end) {
         return myUserOrderCompleteMapper.selectByStorage(gid, sid, STORAGE_PURCHASE_ORDER.getValue(),
-                STORAGE_LOSS_ORDER.getValue(), new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
+                STORAGE_BACK_ORDER.getValue(), new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
     }
 
     public List<MyUserOrderComplete> findBySale(int gid, int sid, Date start, Date end) {
         return myUserOrderCompleteMapper.selectBySale(gid, sid, SALE_AFTER_ORDER.getValue(),
-                SALE_RETURN_ORDER.getValue(), new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
+                SALE_LOSS_ORDER.getValue(), new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
     }
 
     public int total(int aid, int cid, String search) {

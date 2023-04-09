@@ -74,6 +74,9 @@ public class OrderService {
     private StorageRepository storageRepository;
 
     @Resource
+    private MarketAccountRepository marketAccountRepository;
+
+    @Resource
     private UserRepository userRepository;
 
     @Resource
@@ -100,7 +103,7 @@ public class OrderService {
         val list = agreementOrderRepository.pagination(group.getGid(), type, page, limit, review, search);
         if (null != list && !list.isEmpty()) {
             for (TAgreementOrder o : list) {
-                val ret = createOrder(o.getOtype(), o.getId(), o.getBatch(), o.getSid(), o.getCid(), o.getRid(), o.getUnit(), o.getCurUnit(), o.getPrice(), o.getCurPrice(), null, o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(), null == o.getReview() ? null : dateFormat.format(o.getReviewTime()), o.getComplete());
+                val ret = createOrder(o.getOtype(), o.getId(), o.getBatch(), o.getSid(), o.getAid(), o.getRid(), o.getUnit(), o.getCurUnit(), o.getPrice(), o.getCurPrice(), null, o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(), null == o.getReview() ? null : dateFormat.format(o.getReviewTime()), o.getComplete());
                 HashMap<String, Object> datas = agreementOrderService.find(o.getId());
                 if (null != datas) {
                     ret.put("comms", datas.get("comms"));
@@ -277,7 +280,9 @@ public class OrderService {
                     case STORAGE_PURCHASE_ORDER:
                     case STORAGE_DISPATCH_ORDER:
                     case STORAGE_LOSS_ORDER:
-                    case STORAGE_RETURN_ORDER: {
+                    case STORAGE_RETURN_ORDER:
+                    case STORAGE_OFFLINE_ORDER:
+                    case STORAGE_BACK_ORDER: {
                         TStorageOrder o = storageOrderRepository.find(oa.getOid());
                         val ret = createOrder(oa.getOtype(), o.getId(), o.getBatch(), o.getSid(), null, o.getOid(), o.getUnit(), o.getCurUnit(), o.getPrice(), o.getCurPrice(), null, o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(), null == o.getReview() ? null : dateFormat.format(o.getReviewTime()), o.getComplete());
                         HashMap<String, Object> datas = storageOrderService.find(o.getId());
@@ -308,7 +313,7 @@ public class OrderService {
                     case AGREEMENT_RETURN_ORDER:
                     case AGREEMENT_AGAIN_ORDER: {
                         TAgreementOrder o = agreementOrderRepository.find(oa.getOid());
-                        val ret = createOrder(oa.getOtype(), o.getId(), o.getBatch(), o.getSid(), o.getCid(), o.getRid(), o.getUnit(), o.getCurUnit(), o.getPrice(), o.getCurPrice(), null, o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(), null == o.getReview() ? null : dateFormat.format(o.getReviewTime()), o.getComplete());
+                        val ret = createOrder(oa.getOtype(), o.getId(), o.getBatch(), o.getSid(), o.getAid(), o.getRid(), o.getUnit(), o.getCurUnit(), o.getPrice(), o.getCurPrice(), null, o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(), null == o.getReview() ? null : dateFormat.format(o.getReviewTime()), o.getComplete());
                         HashMap<String, Object> datas = agreementOrderService.find(o.getId());
                         if (null != datas) {
                             ret.put("comms", datas.get("comms"));
@@ -321,9 +326,7 @@ public class OrderService {
                         break;
                     }
                     case SALE_AFTER_ORDER:
-                    case SALE_LOSS_ORDER:
-                    case SALE_OFFLINE_ORDER:
-                    case SALE_RETURN_ORDER: {
+                    case SALE_LOSS_ORDER: {
                         TSaleOrder o = saleOrderRepository.find(oa.getOid());
                         val ret = createOrder(oa.getOtype(), o.getId(), o.getBatch(), o.getSid(), null, null, o.getUnit(), o.getCurUnit(), o.getPrice(), o.getCurPrice(), o.getPayPrice(), o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(), null == o.getReview() ? null : dateFormat.format(o.getReviewTime()), null);
                         HashMap<String, Object> datas = saleOrderService.find(o.getId());
@@ -376,7 +379,9 @@ public class OrderService {
                     case STORAGE_PURCHASE_ORDER:
                     case STORAGE_DISPATCH_ORDER:
                     case STORAGE_LOSS_ORDER:
-                    case STORAGE_RETURN_ORDER: {
+                    case STORAGE_RETURN_ORDER:
+                    case STORAGE_OFFLINE_ORDER:
+                    case STORAGE_BACK_ORDER: {
                         TStorageOrder o = storageOrderRepository.find(or.getOid());
                         val ret = createOrder(or.getOtype(), o.getId(), o.getBatch(), o.getSid(), null, o.getOid(), o.getUnit(), o.getCurUnit(), o.getPrice(), o.getCurPrice(), null, o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(), null == o.getReview() ? null : dateFormat.format(o.getReviewTime()), o.getComplete());
                         HashMap<String, Object> datas = storageOrderService.find(o.getId());
@@ -407,7 +412,7 @@ public class OrderService {
                     case AGREEMENT_RETURN_ORDER:
                     case AGREEMENT_AGAIN_ORDER: {
                         TAgreementOrder o = agreementOrderRepository.find(or.getOid());
-                        val ret = createOrder(or.getOtype(), o.getId(), o.getBatch(), o.getSid(), o.getCid(), o.getRid(), o.getUnit(), o.getCurUnit(), o.getPrice(), o.getCurPrice(), null, o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(), null == o.getReview() ? null : dateFormat.format(o.getReviewTime()), o.getComplete());
+                        val ret = createOrder(or.getOtype(), o.getId(), o.getBatch(), o.getSid(), o.getAid(), o.getRid(), o.getUnit(), o.getCurUnit(), o.getPrice(), o.getCurPrice(), null, o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(), null == o.getReview() ? null : dateFormat.format(o.getReviewTime()), o.getComplete());
                         HashMap<String, Object> datas = agreementOrderService.find(o.getId());
                         if (null != datas) {
                             ret.put("comms", datas.get("comms"));
@@ -420,9 +425,7 @@ public class OrderService {
                         break;
                     }
                     case SALE_AFTER_ORDER:
-                    case SALE_LOSS_ORDER:
-                    case SALE_OFFLINE_ORDER:
-                    case SALE_RETURN_ORDER: {
+                    case SALE_LOSS_ORDER: {
                         TSaleOrder o = saleOrderRepository.find(or.getOid());
                         val ret = createOrder(or.getOtype(), o.getId(), o.getBatch(), o.getSid(), null, null, o.getUnit(), o.getCurUnit(), o.getPrice(), o.getCurPrice(), o.getPayPrice(), o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(), null == o.getReview() ? null : dateFormat.format(o.getReviewTime()), null);
                         HashMap<String, Object> datas = saleOrderService.find(o.getId());
@@ -476,7 +479,9 @@ public class OrderService {
                     case STORAGE_PURCHASE_ORDER:
                     case STORAGE_DISPATCH_ORDER:
                     case STORAGE_LOSS_ORDER:
-                    case STORAGE_RETURN_ORDER: {
+                    case STORAGE_RETURN_ORDER:
+                    case STORAGE_OFFLINE_ORDER:
+                    case STORAGE_BACK_ORDER: {
                         TStorageOrder o = storageOrderRepository.find(oc.getOid());
                         val ret = createOrder(oc.getOtype(), o.getId(), o.getBatch(), o.getSid(), null, o.getOid(), o.getUnit(), o.getCurUnit(), o.getPrice(), o.getCurPrice(), null, o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(), null == o.getReview() ? null : dateFormat.format(o.getReviewTime()), o.getComplete());
                         HashMap<String, Object> datas = storageOrderService.find(o.getId());
@@ -507,7 +512,7 @@ public class OrderService {
                     case AGREEMENT_RETURN_ORDER:
                     case AGREEMENT_AGAIN_ORDER: {
                         TAgreementOrder o = agreementOrderRepository.find(oc.getOid());
-                        val ret = createOrder(oc.getOtype(), o.getId(), o.getBatch(), o.getSid(), o.getCid(), o.getRid(), o.getUnit(), o.getCurUnit(), o.getPrice(), o.getCurPrice(), null, o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(), null == o.getReview() ? null : dateFormat.format(o.getReviewTime()), o.getComplete());
+                        val ret = createOrder(oc.getOtype(), o.getId(), o.getBatch(), o.getSid(), o.getAid(), o.getRid(), o.getUnit(), o.getCurUnit(), o.getPrice(), o.getCurPrice(), null, o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(), null == o.getReview() ? null : dateFormat.format(o.getReviewTime()), o.getComplete());
                         HashMap<String, Object> datas = agreementOrderService.find(o.getId());
                         if (null != datas) {
                             ret.put("comms", datas.get("comms"));
@@ -520,9 +525,7 @@ public class OrderService {
                         break;
                     }
                     case SALE_AFTER_ORDER:
-                    case SALE_LOSS_ORDER:
-                    case SALE_OFFLINE_ORDER:
-                    case SALE_RETURN_ORDER: {
+                    case SALE_LOSS_ORDER: {
                         TSaleOrder o = saleOrderRepository.find(oc.getOid());
                         val ret = createOrder(oc.getOtype(), o.getId(), o.getBatch(), o.getSid(), null, null, o.getUnit(), o.getCurUnit(), o.getPrice(), o.getCurPrice(), o.getPayPrice(), o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(), null == o.getReview() ? null : dateFormat.format(o.getReviewTime()), null);
                         HashMap<String, Object> datas = saleOrderService.find(o.getId());
@@ -563,6 +566,8 @@ public class OrderService {
             case STORAGE_DISPATCH_ORDER:
             case STORAGE_LOSS_ORDER:
             case STORAGE_RETURN_ORDER:
+            case STORAGE_OFFLINE_ORDER:
+            case STORAGE_BACK_ORDER:
                 val storageOrder = storageOrderRepository.find(oid);
                 if (null != storageOrder && storageOrder.getGid().equals(group.getGid())) {
                     return RestResult.ok(storageOrder);
@@ -582,7 +587,8 @@ public class OrderService {
                     return RestResult.ok(agreementOrder);
                 }
                 break;
-            case SALE_RETURN_ORDER:
+            case SALE_AFTER_ORDER:
+            case SALE_LOSS_ORDER:
                 val saleOrder = saleOrderRepository.find(oid);
                 if (null != saleOrder && saleOrder.getGid().equals(group.getGid())) {
                     return RestResult.ok(saleOrder);
@@ -594,7 +600,7 @@ public class OrderService {
         return RestResult.fail("未查询到订单信息");
     }
 
-    private HashMap<String, Object> createOrder(int type, int id, String batch, int sid, Integer cid, Integer rid, int unit, int curUnit, BigDecimal price,
+    private HashMap<String, Object> createOrder(int type, int id, String batch, int sid, Integer aid, Integer rid, int unit, int curUnit, BigDecimal price,
                                                 BigDecimal curPrice, BigDecimal pay, int apply, String applyTime, Integer review, String reviewTime, Byte complete) {
         val ret = new HashMap<String, Object>();
         ret.put("type", type);
@@ -624,14 +630,16 @@ public class OrderService {
                     ret.put("obatch", agreement.getBatch());
                 }
                 break;
-            case SALE_RETURN_ORDER: // 线下退货单
-                TSaleOrder sale = saleOrderRepository.find(rid);
-                if (null != sale) {
-                    ret.put("obatch", sale.getBatch());
-                }
-                break;
             default:
                 break;
+        }
+
+        // 获取平台账号信息
+        if (null != aid) {
+            TMarketAccount account = marketAccountRepository.find(aid);
+            if (null != account) {
+                ret.put("maccount", account.getAccount());
+            }
         }
 
         // 获取仓库信息

@@ -9,7 +9,7 @@ import java.sql.Date;
 import java.util.List;
 
 /**
- * desc: 市场对接云仓标品查询
+ * desc: 市场对接仓库标品查询
  * auth: cxb
  * date: 2023/1/23
  */

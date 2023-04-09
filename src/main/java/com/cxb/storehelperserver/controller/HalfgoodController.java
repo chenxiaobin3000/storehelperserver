@@ -63,9 +63,9 @@ public class HalfgoodController {
         return halfgoodService.getGroupHalfgood(req.getId(), req.getPage(), req.getLimit(), req.getSearch());
     }
 
-    @PostMapping("/getGroupAllHalfgood")
-    public RestResult getGroupAllHalfgood(@Validated @RequestBody GetGroupAllHalfgoodValid req) {
-        return halfgoodService.getGroupAllHalfgood(req.getId());
+    @PostMapping("/getStorageHalfgood")
+    public RestResult getStorageHalfgood(@Validated @RequestBody GetStorageHalfgoodValid req) {
+        return halfgoodService.getStorageHalfgood(req.getId(), req.getPage(), req.getLimit(), req.getSearch());
     }
 
     @PostMapping("/setHalfgoodOriginal")

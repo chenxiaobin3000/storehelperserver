@@ -15,6 +15,8 @@ import java.math.RoundingMode;
 import java.util.*;
 
 import static com.cxb.storehelperserver.util.Permission.*;
+import static com.cxb.storehelperserver.util.TypeDefine.FinanceAction.FINANCE_AGREEMENT_FARE;
+import static com.cxb.storehelperserver.util.TypeDefine.FinanceAction.FINANCE_STORAGE_FARE;
 import static com.cxb.storehelperserver.util.TypeDefine.OrderType.AGREEMENT_AGAIN_ORDER;
 import static com.cxb.storehelperserver.util.TypeDefine.OrderType.AGREEMENT_SHIPPED_ORDER;
 
@@ -109,7 +111,7 @@ public class AgreementService {
     /**
      * desc: 履约发货修改
      */
-    public RestResult setShipped(int id, int oid, int sid, int cid, Date applyTime, List<Integer> types, List<Integer> commoditys,
+    public RestResult setShipped(int id, int oid, int sid, int aid, Date applyTime, List<Integer> types, List<Integer> commoditys,
                                  List<Integer> weights, List<Integer> norms, List<Integer> values, List<Integer> attrs) {
         // 已经审核的订单不能修改
         TAgreementOrder order = agreementOrderRepository.find(oid);
@@ -123,7 +125,7 @@ public class AgreementService {
             return RestResult.fail("只能修改自己的订单");
         }
 
-        order.setCid(cid);
+        order.setAid(aid);
         order.setApplyTime(applyTime);
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_agreement_shipped_apply, mp_agreement_shipped_review, reviews);
@@ -212,6 +214,22 @@ public class AgreementService {
         if (null != msg) {
             return RestResult.fail(msg);
         }
+        // 财务记录
+        val fares = agreementFareRepository.findByOid(oid);
+        if (null != fares && !fares.isEmpty()) {
+            for (TAgreementFare fare : fares) {
+                if (null == fare.getReview()) {
+                    fare.setReview(id);
+                    fare.setReviewTime(reviewTime);
+                    if (!agreementFareRepository.update(fare)) {
+                        return RestResult.fail("更新运费信息失败");
+                    }
+                    if (!financeService.insertRecord(id, gid, FINANCE_AGREEMENT_FARE, oid, fare.getFare().negate())) {
+                        return RestResult.fail("添加运费记录失败");
+                    }
+                }
+            }
+        }
         return reviewService.review(order.getApply(), id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
     }
 
@@ -250,6 +268,20 @@ public class AgreementService {
         msg = stockService.handleAgreementStock(order, true);
         if (null != msg) {
             return RestResult.fail(msg);
+        }
+        // 财务记录
+        val fares = agreementFareRepository.findByOid(oid);
+        if (null != fares && !fares.isEmpty()) {
+            for (TAgreementFare fare : fares) {
+                if (null != fare.getReview()) {
+                    if (!financeService.insertRecord(id, gid, FINANCE_AGREEMENT_FARE, oid, fare.getFare())) {
+                        return RestResult.fail("添加运费记录失败");
+                    }
+                }
+            }
+            if (!agreementFareRepository.setReviewNull(oid)) {
+                return RestResult.fail("更新运费信息失败");
+            }
         }
         return RestResult.ok();
     }
@@ -348,7 +380,7 @@ public class AgreementService {
 
         order.setGid(agreement.getGid());
         order.setSid(agreement.getSid());
-        order.setCid(agreement.getCid());
+        order.setAid(agreement.getAid());
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_agreement_return_apply, mp_agreement_return_review, reviews);
         if (null != ret) {
@@ -584,7 +616,7 @@ public class AgreementService {
 
         order.setGid(agreement.getGid());
         order.setSid(agreement.getSid());
-        order.setCid(agreement.getCid());
+        order.setAid(agreement.getAid());
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_agreement_again_apply, mp_agreement_again_review, reviews);
         if (null != ret) {

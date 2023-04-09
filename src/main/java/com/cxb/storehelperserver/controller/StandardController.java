@@ -63,9 +63,9 @@ public class StandardController {
         return standardService.getGroupStandard(req.getId(), req.getPage(), req.getLimit(), req.getSearch());
     }
 
-    @PostMapping("/getGroupAllStandard")
-    public RestResult getGroupAllStandard(@Validated @RequestBody GetGroupAllStandardValid req) {
-        return standardService.getGroupAllStandard(req.getId());
+    @PostMapping("/getStorageStandard")
+    public RestResult getStorageStandard(@Validated @RequestBody GetStorageStandardValid req) {
+        return standardService.getStorageStandard(req.getId(), req.getPage(), req.getLimit(), req.getSearch());
     }
 
     @PostMapping("/setStandardStorage")

@@ -1,8 +1,10 @@
 package com.cxb.storehelperserver.repository;
 
 import com.cxb.storehelperserver.mapper.TStandardStorageMapper;
+import com.cxb.storehelperserver.model.TStandard;
 import com.cxb.storehelperserver.model.TStandardStorage;
 import com.cxb.storehelperserver.model.TStandardStorageExample;
+import com.cxb.storehelperserver.repository.mapper.MyStorageCommodityMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
@@ -19,6 +21,9 @@ import java.util.List;
 public class StandardStorageRepository extends BaseRepository<List> {
     @Resource
     private TStandardStorageMapper standardStorageMapper;
+
+    @Resource
+    private MyStorageCommodityMapper myStorageCommodityMapper;
 
     public StandardStorageRepository() {
         init("stanStorage::");
@@ -44,6 +49,22 @@ public class StandardStorageRepository extends BaseRepository<List> {
         TStandardStorageExample example = new TStandardStorageExample();
         example.or().andSidEqualTo(sid);
         return standardStorageMapper.selectByExample(example);
+    }
+
+    public int total(int sid, String search) {
+        if (null != search) {
+            return myStorageCommodityMapper.count_standard(sid, "%" + search + "%");
+        } else {
+            return myStorageCommodityMapper.count_standard(sid, null);
+        }
+    }
+
+    public List<TStandard> pagination(int sid, int page, int limit, String search) {
+        if (null != search) {
+            return myStorageCommodityMapper.pagination_standard((page - 1) * limit, limit, sid, "%" + search + "%");
+        } else {
+            return myStorageCommodityMapper.pagination_standard((page - 1) * limit, limit, sid, null);
+        }
     }
 
     public boolean update(int cid, List<Integer> sids) {

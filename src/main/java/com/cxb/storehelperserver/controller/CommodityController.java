@@ -63,9 +63,9 @@ public class CommodityController {
         return commodityService.getGroupCommodity(req.getId(), req.getPage(), req.getLimit(), req.getSearch());
     }
 
-    @PostMapping("/getGroupAllCommodity")
-    public RestResult getGroupAllCommodity(@Validated @RequestBody GetGroupAllCommodityValid req) {
-        return commodityService.getGroupAllCommodity(req.getId());
+    @PostMapping("/getStorageCommodity")
+    public RestResult getStorageCommodity(@Validated @RequestBody GetStorageCommodityValid req) {
+        return commodityService.getStorageCommodity(req.getId(), req.getPage(), req.getLimit(), req.getSearch());
     }
 
     @PostMapping("/setCommodityOriginal")

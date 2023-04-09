@@ -9,20 +9,20 @@ import java.sql.Date;
 import java.util.List;
 
 /**
- * desc: 市场对接云仓商品查询
+ * desc: 市场对接仓库商品查询
  * auth: cxb
  * date: 2023/1/23
  */
 @Mapper
 public interface MyMarketCommodityMapper {
     @Select({"<script>",
-            "select count(id) from t_commodity_cloud t1 left join t_market_commodity t2 on t1.cid = t2.cid",
+            "select count(id) from t_commodity_storage t1 left join t_market_commodity t2 on t1.cid = t2.cid",
             "and t1.sid = t2.sid where t1.sid = #{sid} <if test='null != search'>and t2.code like #{search}</if>",
             "</script>"})
     int count(int sid, String search);
 
     @Select({"<script>",
-            "select t2.id, t2.sid, t2.mid, t2.aid, t2.asid, t1.cid, t2.code, t2.name, t2.remark, t2.price from t_commodity_cloud t1",
+            "select t2.id, t2.sid, t2.mid, t2.aid, t2.asid, t1.cid, t2.code, t2.name, t2.remark, t2.price from t_commodity_storage t1",
             "left join (select id, sid, mid, aid, asid, cid, code, name, remark, price from t_market_commodity where sid = #{sid}",
             "<if test='0 != aid'>and aid = #{aid}</if> <if test='0 != asid'>and asid = #{asid}</if>) t2 on t1.cid = t2.cid and t1.sid = t2.sid",
             "where t1.sid = #{sid} <if test='null != search'>and t2.code like #{search}</if> limit #{offset}, #{limit}",

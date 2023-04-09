@@ -63,9 +63,9 @@ public class OriginalController {
         return originalService.getGroupOriginal(req.getId(), req.getPage(), req.getLimit(), req.getSearch());
     }
 
-    @PostMapping("/getGroupAllOriginal")
-    public RestResult getGroupAllOriginal(@Validated @RequestBody GetGroupAllOriginalValid req) {
-        return originalService.getGroupAllOriginal(req.getId());
+    @PostMapping("/getStorageOriginal")
+    public RestResult getStorageOriginal(@Validated @RequestBody GetStorageOriginalValid req) {
+        return originalService.getStorageOriginal(req.getId(), req.getPage(), req.getLimit(), req.getSearch());
     }
 
     @PostMapping("/setOriginalStorage")

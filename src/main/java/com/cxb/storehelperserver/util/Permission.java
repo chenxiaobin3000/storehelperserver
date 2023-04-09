@@ -19,6 +19,8 @@ public class Permission {
     static public final int mp_storage_return_apply = 22;
     static public final int mp_storage_dispatch_apply = 23;
     static public final int mp_storage_loss_apply = 24;
+    static public final int mp_storage_offline_apply = 25;
+    static public final int mp_storage_back_apply = 26;
     static public final int mp_agreement_apply = 30;
     static public final int mp_agreement_shipped_apply = 31;
     static public final int mp_agreement_return_apply = 32;
@@ -26,8 +28,6 @@ public class Permission {
     static public final int mp_sale_apply = 40;
     static public final int mp_sale_after_apply = 41;
     static public final int mp_sale_loss_apply = 42;
-    static public final int mp_sale_offline_apply = 43;
-    //static public final int mp_sale_return_apply = 44;
     static public final int mp_end_apply = 50;
 
     static public final int mp_purchase_review = 51;
@@ -40,6 +40,8 @@ public class Permission {
     static public final int mp_storage_return_review = 62;
     static public final int mp_storage_dispatch_review = 63;
     static public final int mp_storage_loss_review = 64;
+    static public final int mp_storage_offline_review = 65;
+    static public final int mp_storage_back_review = 66;
     static public final int mp_agreement_review = 70;
     static public final int mp_agreement_shipped_review = 71;
     static public final int mp_agreement_return_review = 72;
@@ -47,8 +49,6 @@ public class Permission {
     static public final int mp_sale_review = 80;
     static public final int mp_sale_after_review = 81;
     static public final int mp_sale_loss_review = 82;
-    static public final int mp_sale_offline_review = 83;
-    //static public final int mp_sale_return_review = 84;
     static public final int mp_end_review = 90;
 
     // 管理后台
@@ -96,8 +96,7 @@ public class Permission {
     static public final int market_input = 503;
     static public final int market_after = 504;
     static public final int market_loss = 505;
-    static public final int market_offline = 506;
-    static public final int market_return = 507;
+    static public final int market_apply = 506;
 
     static public final int product = 600;
     static public final int product_report = 601;
@@ -111,7 +110,6 @@ public class Permission {
     static public final int report_product = 704;
     static public final int report_storage = 705;
     static public final int report_stock = 706;
-    static public final int report_loss = 707;
 
     static public final int storage = 800;
     static public final int storage_report = 801;
@@ -119,6 +117,9 @@ public class Permission {
     static public final int storage_return = 803;
     static public final int storage_dispatch = 804;
     static public final int storage_loss = 805;
+    static public final int storage_offline = 806;
+    static public final int storage_back = 807;
+    static public final int storage_apply = 808;
 
     static public final int stock = 850;
     static public final int stock_storage = 851;
