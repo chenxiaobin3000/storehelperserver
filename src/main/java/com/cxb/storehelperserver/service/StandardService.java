@@ -240,12 +240,12 @@ public class StandardService {
             return RestResult.fail("只能获取本公司信息");
         }
 
-        int total = standardStorageRepository.total(group.getGid(), search);
+        int total = standardStorageRepository.total(sid, search);
         if (0 == total) {
             return RestResult.ok(new PageData());
         }
 
-        val commodities = standardStorageRepository.pagination(group.getGid(), page, limit, search);
+        val commodities = standardStorageRepository.pagination(sid, page, limit, search);
         if (null == commodities) {
             return RestResult.fail("获取标品信息失败");
         }

@@ -16,16 +16,19 @@ public class MyMarketStorage {
 
     private String account;
 
+    private String remark;
+
     private Integer cid;
 
-    public MyMarketStorage(TMarketStorage cloud, TMarketAccount account) {
-        this.id = cloud.getId();
-        this.cid = cloud.getCid();
+    public MyMarketStorage(TMarketStorage storage, TMarketAccount account) {
+        this.id = storage.getId();
+        this.cid = storage.getCid();
         if (null != account) {
             this.gid = account.getGid();
             this.mid = account.getMid();
-            this.aid = cloud.getAid();
+            this.aid = storage.getAid();
             this.account = account.getAccount();
+            this.remark = account.getRemark();
         }
     }
 }

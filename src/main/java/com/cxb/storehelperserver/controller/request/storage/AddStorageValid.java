@@ -41,4 +41,7 @@ public class AddStorageValid implements IValid {
     @Length(min = 4, message = "仓库地址长度不能小于4个字符")
     @Length(max = 32, message = "仓库地址长度不能大于32个字符")
     private String address;
+
+    @Length(max = 16, message = "商品备注长度不能大于16个字符")
+    private String remark;
 }

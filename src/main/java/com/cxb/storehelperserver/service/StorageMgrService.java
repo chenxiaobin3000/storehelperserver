@@ -139,6 +139,7 @@ public class StorageMgrService {
                 storage.put("address", g.getAddress());
                 storage.put("contact", g.getContact());
                 storage.put("phone", g.getPhone());
+                storage.put("remark", g.getRemark());
                 list2.add(storage);
             }
         }
@@ -169,6 +170,7 @@ public class StorageMgrService {
                 storage.put("address", s.getAddress());
                 storage.put("contact", s.getContact());
                 storage.put("phone", s.getPhone());
+                storage.put("remark", s.getRemark());
                 list2.add(storage);
             }
         }

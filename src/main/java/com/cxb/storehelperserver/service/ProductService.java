@@ -15,8 +15,6 @@ import java.math.RoundingMode;
 import java.util.*;
 
 import static com.cxb.storehelperserver.util.Permission.*;
-import static com.cxb.storehelperserver.util.TypeDefine.CommodityType.*;
-import static com.cxb.storehelperserver.util.TypeDefine.OrderType.PRODUCT_COLLECT_ORDER;
 import static com.cxb.storehelperserver.util.TypeDefine.ProductType.*;
 
 /**

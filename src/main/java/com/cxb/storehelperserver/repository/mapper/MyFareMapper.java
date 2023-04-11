@@ -13,12 +13,6 @@ public interface MyFareMapper {
     @Update({"<script>update t_agreement_fare set review = null, review_time = null where oid = #{oid}</script>"})
     int setAgreementFareReviewNull(int oid);
 
-    @Update({"<script>update t_cloud_fare set review = null, review_time = null where oid = #{oid}</script>"})
-    int setCloudFareReviewNull(int oid);
-
-    @Update({"<script>update t_product_fare set review = null, review_time = null where oid = #{oid}</script>"})
-    int setProductFareReviewNull(int oid);
-
     @Update({"<script>update t_purchase_fare set review = null, review_time = null where oid = #{oid}</script>"})
     int setPurchaseFareReviewNull(int oid);
 

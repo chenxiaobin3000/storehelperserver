@@ -49,6 +49,7 @@ public class StorageController {
         storage.setContact(req.getContact());
         storage.setPhone(req.getPhone());
         storage.setAddress(req.getAddress());
+        storage.setRemark(req.getRemark());
         return storageMgrService.addStorage(req.getId(), storage);
     }
 
@@ -62,6 +63,7 @@ public class StorageController {
         storage.setContact(req.getContact());
         storage.setPhone(req.getPhone());
         storage.setAddress(req.getAddress());
+        storage.setRemark(req.getRemark());
         return storageMgrService.setStorage(req.getId(), storage);
     }
 
@@ -87,6 +89,7 @@ public class StorageController {
         order.setOtype(STORAGE_PURCHASE_ORDER.getValue());
         order.setApply(req.getId());
         order.setOid(req.getPid());
+        order.setSid2(0);
         order.setComplete(new Byte("0"));
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));
@@ -140,6 +143,7 @@ public class StorageController {
         order.setOtype(STORAGE_RETURN_ORDER.getValue());
         order.setApply(req.getId());
         order.setOid(req.getRid());
+        order.setSid2(0);
         order.setComplete(new Byte("0"));
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));
@@ -247,6 +251,7 @@ public class StorageController {
         TStorageOrder order = new TStorageOrder();
         order.setGid(req.getGid());
         order.setSid(req.getSid());
+        order.setSid2(0);
         order.setOtype(STORAGE_LOSS_ORDER.getValue());
         order.setApply(req.getId());
         order.setComplete(new Byte("0"));
@@ -301,6 +306,7 @@ public class StorageController {
         TStorageOrder order = new TStorageOrder();
         order.setGid(req.getGid());
         order.setSid(req.getSid());
+        order.setSid2(0);
         order.setOtype(STORAGE_LOSS_ORDER.getValue());
         order.setApply(req.getId());
         order.setComplete(new Byte("0"));
@@ -355,6 +361,7 @@ public class StorageController {
         TStorageOrder order = new TStorageOrder();
         order.setGid(req.getGid());
         order.setSid(req.getSid());
+        order.setSid2(0);
         order.setOtype(STORAGE_LOSS_ORDER.getValue());
         order.setApply(req.getId());
         order.setComplete(new Byte("0"));

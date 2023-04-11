@@ -261,12 +261,12 @@ public class HalfgoodService {
         }
 
         int gid = group.getGid();
-        int total = halfgoodStorageRepository.total(gid, search);
+        int total = halfgoodStorageRepository.total(sid, search);
         if (0 == total) {
             return RestResult.ok(new PageData());
         }
 
-        val commodities = halfgoodStorageRepository.pagination(gid, page, limit, search);
+        val commodities = halfgoodStorageRepository.pagination(sid, page, limit, search);
         if (null == commodities) {
             return RestResult.fail("获取半成品信息失败");
         }

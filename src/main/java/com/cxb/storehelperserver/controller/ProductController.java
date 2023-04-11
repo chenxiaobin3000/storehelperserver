@@ -42,7 +42,6 @@ public class ProductController {
         order.setSid(req.getSid());
         order.setOtype(PRODUCT_COLLECT_ORDER.getValue());
         order.setApply(req.getId());
-        order.setComplete(new Byte("0"));
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));
         } catch (ParseException e) {

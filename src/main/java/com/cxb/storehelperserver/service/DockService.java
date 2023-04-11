@@ -254,6 +254,7 @@ public class DockService {
             if (null != account) {
                 tmp.put("mmid", account.getMid());
                 tmp.put("maccount", account.getAccount());
+                tmp.put("mremark", account.getRemark());
             }
         }
         return RestResult.ok(new PageData(total, datas));
@@ -326,6 +327,7 @@ public class DockService {
                 tmp.put("mid", storage.getMid());
                 tmp.put("aid", storage.getAid());
                 tmp.put("account", storage.getAccount());
+                tmp.put("remark", storage.getRemark());
                 tmp.put("sub", marketManyRepository.findByAid(storage.getAid()));
             }
         }

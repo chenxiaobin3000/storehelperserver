@@ -65,9 +65,9 @@ public class Permission {
 
     static public final int purchase = 250;
     static public final int purchase_report = 251;
-    static public final int purchase_purchase = 252;
-    static public final int purchase_return = 253;
-    static public final int purchase_apply = 254;
+    static public final int purchase_getlist = 252;
+    static public final int purchase_purchase = 253;
+    static public final int purchase_return = 254;
 
     static public final int commodity = 300;
     static public final int commodity_report = 301;
@@ -113,13 +113,13 @@ public class Permission {
 
     static public final int storage = 800;
     static public final int storage_report = 801;
-    static public final int storage_purchase = 802;
-    static public final int storage_return = 803;
-    static public final int storage_dispatch = 804;
-    static public final int storage_loss = 805;
-    static public final int storage_offline = 806;
-    static public final int storage_back = 807;
-    static public final int storage_apply = 808;
+    static public final int storage_getlist = 802;
+    static public final int storage_purchase = 803;
+    static public final int storage_return = 804;
+    static public final int storage_dispatch = 805;
+    static public final int storage_loss = 806;
+    static public final int storage_offline = 807;
+    static public final int storage_back = 808;
 
     static public final int stock = 850;
     static public final int stock_storage = 851;

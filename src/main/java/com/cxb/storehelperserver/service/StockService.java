@@ -83,24 +83,41 @@ public class StockService {
             return ret;
         }
 
+        log.info("-------------" + date);
         // 获取公司信息
         TUserGroup group = userGroupRepository.find(id);
         if (null == group) {
             return RestResult.fail("获取公司信息失败");
         }
 
+        // 当日数据取库存
         val data = new HashMap<String, Object>();
-        int total = stockDayRepository.total(group.getGid(), sid, ctype, date, search);
-        if (0 == total) {
-            return RestResult.ok(new PageData());
+        date = dateUtil.getStartTime(date);
+        Date today = dateUtil.getStartTime(new Date());
+        if (today.equals(date)) {
+            int total = stockRepository.total(group.getGid(), sid, ctype, date, dateUtil.getEndTime(date), search);
+            if (0 == total) {
+                return RestResult.ok(new PageData());
+            }
+            val commodities = stockRepository.pagination(group.getGid(), sid, page, limit, ctype, date, dateUtil.getEndTime(date), search);
+            if (null == commodities) {
+                return RestResult.fail("获取商品信息失败");
+            }
+            data.put("total", total);
+            data.put("list", commodities);
+        } else {
+            // 往期数据取快照
+            int total = stockDayRepository.total(group.getGid(), sid, ctype, date, search);
+            if (0 == total) {
+                return RestResult.ok(new PageData());
+            }
+            val commodities = stockDayRepository.pagination(group.getGid(), sid, page, limit, ctype, date, search);
+            if (null == commodities) {
+                return RestResult.fail("获取商品信息失败");
+            }
+            data.put("total", total);
+            data.put("list", commodities);
         }
-
-        val commodities = stockDayRepository.pagination(group.getGid(), sid, page, limit, ctype, date, search);
-        if (null == commodities) {
-            return RestResult.fail("获取商品信息失败");
-        }
-        data.put("total", total);
-        data.put("list", commodities);
         return RestResult.ok(data);
     }
 
