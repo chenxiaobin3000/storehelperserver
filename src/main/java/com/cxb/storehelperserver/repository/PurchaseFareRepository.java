@@ -50,10 +50,14 @@ public class PurchaseFareRepository extends BaseRepository<List> {
         return purchaseFares;
     }
 
-    public boolean insert(int oid, BigDecimal fare, Date cdate) {
+    public boolean insert(int oid, String ship, String code, String phone, BigDecimal fare, String remark, Date cdate) {
         TPurchaseFare row = new TPurchaseFare();
         row.setOid(oid);
+        row.setShip(ship);
+        row.setCode(code);
+        row.setPhone(phone);
         row.setFare(fare);
+        row.setRemark(remark);
         row.setCdate(cdate);
         if (purchaseFareMapper.insert(row) > 0) {
             delCache(oid);

@@ -113,11 +113,6 @@ public class GroupService {
         if (!checkService.checkRolePermission(id, admin_grouplist)) {
             return RestResult.fail("本账号没有管理员权限");
         }
-        TGroup group1 = groupRepository.find(group.getId());
-        if (null == group1) {
-            return RestResult.fail("获取公司信息失败");
-        }
-        group.setMoney(group1.getMoney());
         if (!groupRepository.update(group)) {
             return RestResult.fail("修改公司信息失败");
         }
@@ -166,7 +161,6 @@ public class GroupService {
         data.put("name", group.getName());
         data.put("area", String.valueOf(group.getArea()));
         data.put("address", group.getAddress());
-        data.put("money", group.getMoney());
 
         TUser user = userRepository.find(group.getContact());
         if (null == user) {
@@ -202,7 +196,6 @@ public class GroupService {
             group.put("name", g.getName());
             group.put("address", g.getAddress());
             group.put("contact", userRepository.find(g.getContact()));
-            group.put("money", g.getMoney());
             group.put("market", groupMarketRepository.find(g.getId()));
             list2.add(group);
         }

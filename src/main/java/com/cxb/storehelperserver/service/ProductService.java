@@ -298,54 +298,6 @@ public class ProductService {
         return RestResult.ok();
     }
 
-    public RestResult addCollectInfo(int id, int oid, String remark) {
-        // 验证公司
-        TProductOrder order = productOrderRepository.find(oid);
-        if (null == order) {
-            return RestResult.fail("未查询到订单信息");
-        }
-        String msg = checkService.checkGroup(id, order.getGid());
-        if (null != msg) {
-            return RestResult.fail(msg);
-        }
-        if (!order.getApply().equals(id)) {
-            return RestResult.fail("只能由申请人添加信息");
-        }
-        productOrderService.clean(oid);
-
-        // 备注
-        if (null != remark && remark.length() > 0) {
-            if (!productRemarkRepository.insert(oid, remark, new Date())) {
-                return RestResult.fail("添加备注失败");
-            }
-        }
-        return RestResult.ok();
-    }
-
-    public RestResult delCollectInfo(int id, int oid, int rid) {
-        // 验证公司
-        TProductOrder order = productOrderRepository.find(oid);
-        if (null == order) {
-            return RestResult.fail("未查询到订单信息");
-        }
-        String msg = checkService.checkGroup(id, order.getGid());
-        if (null != msg) {
-            return RestResult.fail(msg);
-        }
-        productOrderService.clean(oid);
-
-        // 备注由审核人删
-        if (0 != rid) {
-            if (!order.getReview().equals(rid)) {
-                RestResult.fail("要删除备注，请联系订单审核人");
-            }
-            if (!productRemarkRepository.delete(rid)) {
-                return RestResult.fail("删除备注信息失败");
-            }
-        }
-        return RestResult.ok();
-    }
-
     private RestResult check(int id, TProductOrder order, int applyPerm, int reviewPerm, List<Integer> reviews) {
         // 验证公司
         int gid = order.getGid();

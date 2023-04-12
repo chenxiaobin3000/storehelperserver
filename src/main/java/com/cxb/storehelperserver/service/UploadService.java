@@ -61,7 +61,6 @@ public class UploadService {
         }
         SimpleDateFormat simpleDateFormat = dateUtil.getSimpleDateFormat();
         String path = imagepath + simpleDateFormat.format(new Date());
-        log.info(uploadpath + path + '/' + name);
         File dest = new File(uploadpath + path + '/' + name);
         if (!dest.getParentFile().exists()) {
             if (!dest.getParentFile().mkdirs()) {

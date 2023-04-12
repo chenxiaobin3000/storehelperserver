@@ -237,14 +237,6 @@ public class SaleService {
         return RestResult.ok();
     }
 
-    public RestResult addAfterInfo(int id, int oid, String remark) {
-        return addAfterInfo(id, oid, remark);
-    }
-
-    public RestResult delAfterInfo(int id, int oid, int rid) {
-        return delAfterInfo(id, oid, rid);
-    }
-
     /**
      * desc: 云仓损耗
      */
@@ -420,14 +412,6 @@ public class SaleService {
             return RestResult.fail(msg);
         }
         return RestResult.ok();
-    }
-
-    public RestResult addLossInfo(int id, int oid, String remark) {
-        return addAfterInfo(id, oid, remark);
-    }
-
-    public RestResult delLossInfo(int id, int oid, int rid) {
-        return delAfterInfo(id, oid, rid);
     }
 
     private RestResult check(int id, TSaleOrder order, int applyPerm, int reviewPerm, List<Integer> reviews) {

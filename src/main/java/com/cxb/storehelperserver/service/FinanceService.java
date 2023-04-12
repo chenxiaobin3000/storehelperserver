@@ -77,7 +77,6 @@ public class FinanceService {
         for (TGroupDetail detail : list) {
             val tmp = new HashMap<String, Object>();
             tmp.put("value", detail.getValue());
-            tmp.put("now", detail.getOld().add(detail.getValue()));
             tmp.put("time", dateFormat.format(detail.getCdate()));
 
             TUser user = userRepository.find(detail.getUid());
@@ -93,7 +92,7 @@ public class FinanceService {
         return RestResult.ok(new PageData(total, tmps));
     }
 
-    public boolean insertRecord(int id, int gid, FinanceAction action, int aid, BigDecimal value) {
+    /*public boolean insertRecord(int id, int gid, FinanceAction action, int aid, BigDecimal value) {
         TGroupDetail groupDetail = new TGroupDetail();
         groupDetail.setGid(gid);
         groupDetail.setUid(id);
@@ -101,21 +100,8 @@ public class FinanceService {
         groupDetail.setAction(action.getValue());
         groupDetail.setAid(aid);
         groupDetail.setCdate(new Date());
-        synchronized (lock) {
-            TGroup group = groupRepository.find(gid);
-            if (null == group) {
-                return false;
-            }
-            BigDecimal old = group.getMoney();
-            groupDetail.setOld(old);
-            if (!groupDetailRepository.insert(groupDetail)) {
-                return false;
-            }
-            group.setMoney(old.add(value));
-            log.info("finance:" + id + ", gid:" + gid + ", action:" + action + ", aid:" + aid + ", old:" + old + ", value:" + value);
-            return groupRepository.update(group);
-        }
-    }
+        return groupDetailRepository.insert(groupDetail);
+    }*/
 
     public RestResult getLabelList(int id, int page, int limit, int action, Date date) {
         // 获取公司信息
@@ -138,10 +124,9 @@ public class FinanceService {
         for (TFinanceDetail detail : list) {
             val tmp = new HashMap<String, Object>();
             tmp.put("value", detail.getValue());
-            tmp.put("now", detail.getOld().add(detail.getValue()));
             tmp.put("aid", detail.getAid());
             tmp.put("remark", detail.getRemark());
-            tmp.put("time", dateFormat.format(detail.getCdate()).substring(0,10));
+            tmp.put("time", dateFormat.format(detail.getCdate()).substring(0, 10));
 
             TUser user = userRepository.find(detail.getUid());
             if (null == user) {
@@ -171,24 +156,10 @@ public class FinanceService {
         detail.setAid(aid);
         detail.setRemark(remark);
         detail.setCdate(date);
-        synchronized (lock) {
-            TGroup group = groupRepository.find(gid);
-            if (null == group) {
-                return RestResult.fail("未查询到关联公司信息");
-            }
-            BigDecimal old = group.getMoney();
-            detail.setOld(old);
-            if (!financeDetailRepository.insert(detail)) {
-                return RestResult.fail("添加财务记录失败");
-            }
-            group.setMoney(old.add(value));
-            log.info("finance:" + id + ", gid:" + gid + ", action:" + action + ", aid:" + aid + ", old:" + old + ", value:" + value);
-            if (!groupRepository.update(group)) {
-                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-                return RestResult.fail("更新公司信息失败");
-            }
-            return RestResult.ok();
+        if (!financeDetailRepository.insert(detail)) {
+            return RestResult.fail("添加财务记录失败");
         }
+        return RestResult.ok();
     }
 
     private void explainAction(FinanceAction action, HashMap<String, Object> data) {

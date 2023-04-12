@@ -77,16 +77,6 @@ public class SaleController {
         return saleService.revokeAfter(req.getId(), req.getOid());
     }
 
-    @PostMapping("/addAfterInfo")
-    public RestResult addAfterInfo(@Validated @RequestBody AddAfterInfoValid req) {
-        return saleService.addAfterInfo(req.getId(), req.getOid(), req.getRemark());
-    }
-
-    @PostMapping("/delAfterInfo")
-    public RestResult delAfterInfo(@Validated @RequestBody DelAfterInfoValid req) {
-        return saleService.delAfterInfo(req.getId(), req.getOid(), req.getRid());
-    }
-
     @PostMapping("/loss")
     public RestResult loss(@Validated @RequestBody AfterValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
@@ -128,15 +118,5 @@ public class SaleController {
     @PostMapping("/revokeLoss")
     public RestResult revokeLoss(@Validated @RequestBody RevokeAfterValid req) {
         return saleService.revokeLoss(req.getId(), req.getOid());
-    }
-
-    @PostMapping("/addLossInfo")
-    public RestResult addLossInfo(@Validated @RequestBody AddAfterInfoValid req) {
-        return saleService.addLossInfo(req.getId(), req.getOid(), req.getRemark());
-    }
-
-    @PostMapping("/delLossInfo")
-    public RestResult delLossInfo(@Validated @RequestBody DelAfterInfoValid req) {
-        return saleService.delLossInfo(req.getId(), req.getOid(), req.getRid());
     }
 }

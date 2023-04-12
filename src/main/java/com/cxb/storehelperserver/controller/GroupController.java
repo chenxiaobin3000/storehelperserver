@@ -29,7 +29,6 @@ public class GroupController {
         group.setArea(Long.valueOf(req.getArea()));
         group.setName(req.getName());
         group.setAddress(req.getAddress());
-        group.setMoney(new BigDecimal(0));
         return groupService.addGroup(req.getId(), req.getAccount(), req.getPhone(), group, req.getMarkets());
     }
 

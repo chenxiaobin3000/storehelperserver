@@ -82,14 +82,9 @@ public class PurchaseController {
         return purchaseService.revokePurchase(req.getId(), req.getOid());
     }
 
-    @PostMapping("/addPurchaseInfo")
-    public RestResult addPurchaseInfo(@Validated @RequestBody AddPurchaseInfoValid req) {
-        return purchaseService.addPurchaseInfo(req.getId(), req.getOid(), req.getFare(), req.getRemark());
-    }
-
-    @PostMapping("/delPurchaseInfo")
-    public RestResult delPurchaseInfo(@Validated @RequestBody DelPurchaseInfoValid req) {
-        return purchaseService.delPurchaseInfo(req.getId(), req.getOid(), req.getFid(), req.getRid());
+    @PostMapping("/setPurchasePay")
+    public RestResult setPurchasePay(@Validated @RequestBody SetPurchasePayValid req) {
+        return purchaseService.setPurchasePay(req.getId(), req.getOid(), req.getPay());
     }
 
     @PostMapping("/returnc")
@@ -134,15 +129,5 @@ public class PurchaseController {
     @PostMapping("/revokeReturn")
     public RestResult revokeReturn(@Validated @RequestBody RevokeReturnValid req) {
         return purchaseService.revokeReturn(req.getId(), req.getOid());
-    }
-
-    @PostMapping("/addReturnInfo")
-    public RestResult addReturnInfo(@Validated @RequestBody AddPurchaseInfoValid req) {
-        return purchaseService.addReturnInfo(req.getId(), req.getOid(), req.getFare(), req.getRemark());
-    }
-
-    @PostMapping("/delReturnInfo")
-    public RestResult delReturnInfo(@Validated @RequestBody DelPurchaseInfoValid req) {
-        return purchaseService.delReturnInfo(req.getId(), req.getOid(), req.getFid(), req.getRid());
     }
 }

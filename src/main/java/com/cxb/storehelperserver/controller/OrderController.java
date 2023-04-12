@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 
+import static com.cxb.storehelperserver.util.TypeDefine.BusinessType;
 import static com.cxb.storehelperserver.util.TypeDefine.ReviewType;
 
 /**
@@ -25,6 +26,27 @@ import static com.cxb.storehelperserver.util.TypeDefine.ReviewType;
 public class OrderController {
     @Resource
     private OrderService orderService;
+
+    @PostMapping("/addOrderFare")
+    public RestResult addOrderFare(@Validated @RequestBody AddOrderFareValid req) {
+        return orderService.addOrderFare(req.getId(), BusinessType.valueOf(req.getOtype()), req.getOid(), req.getShip(),
+                req.getCode(), req.getPhone(), req.getFare(), req.getRemark());
+    }
+
+    @PostMapping("/delOrderFare")
+    public RestResult delOrderFare(@Validated @RequestBody DelOrderFareValid req) {
+        return orderService.delOrderFare(req.getId(), BusinessType.valueOf(req.getOtype()), req.getOid(), req.getFid());
+    }
+
+    @PostMapping("/addOrderRemark")
+    public RestResult addOrderRemark(@Validated @RequestBody AddOrderRemarkValid req) {
+        return orderService.addOrderRemark(req.getId(), BusinessType.valueOf(req.getOtype()), req.getOid(), req.getRemark());
+    }
+
+    @PostMapping("/delOrderRemark")
+    public RestResult delOrderRemark(@Validated @RequestBody DelOrderRemarkValid req) {
+        return orderService.delOrderRemark(req.getId(), BusinessType.valueOf(req.getOtype()), req.getOid(), req.getRid());
+    }
 
     @PostMapping("/getAgreementOrder")
     public RestResult getAgreementOrder(@Validated @RequestBody GetAgreementOrderValid req) {

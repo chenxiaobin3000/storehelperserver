@@ -134,7 +134,11 @@ public class StorageOrderService extends BaseService<HashMap> {
                 val tmp = new HashMap<String, Object>();
                 total = total.add(fare.getFare());
                 tmp.put("id", fare.getId());
+                tmp.put("ship", fare.getShip());
+                tmp.put("code", fare.getCode());
+                tmp.put("phone", fare.getPhone());
                 tmp.put("fare", fare.getFare());
+                tmp.put("remark", fare.getRemark());
                 tmp.put("cdate", dateFormat.format(fare.getCdate()));
                 tmps.add(tmp);
             }

@@ -39,9 +39,6 @@ public class AgreementService {
     private ReviewService reviewService;
 
     @Resource
-    private FinanceService financeService;
-
-    @Resource
     private StockService stockService;
 
     @Resource
@@ -52,12 +49,6 @@ public class AgreementService {
 
     @Resource
     private AgreementAttachmentRepository agreementAttachmentRepository;
-
-    @Resource
-    private AgreementFareRepository agreementFareRepository;
-
-    @Resource
-    private AgreementRemarkRepository agreementRemarkRepository;
 
     @Resource
     private AgreementAgainRepository agreementAgainRepository;
@@ -214,22 +205,6 @@ public class AgreementService {
         if (null != msg) {
             return RestResult.fail(msg);
         }
-        // 财务记录
-        val fares = agreementFareRepository.findByOid(oid);
-        if (null != fares && !fares.isEmpty()) {
-            for (TAgreementFare fare : fares) {
-                if (null == fare.getReview()) {
-                    fare.setReview(id);
-                    fare.setReviewTime(reviewTime);
-                    if (!agreementFareRepository.update(fare)) {
-                        return RestResult.fail("更新运费信息失败");
-                    }
-                    if (!financeService.insertRecord(id, gid, FINANCE_AGREEMENT_FARE, oid, fare.getFare().negate())) {
-                        return RestResult.fail("添加运费记录失败");
-                    }
-                }
-            }
-        }
         return reviewService.review(order.getApply(), id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
     }
 
@@ -268,95 +243,6 @@ public class AgreementService {
         msg = stockService.handleAgreementStock(order, true);
         if (null != msg) {
             return RestResult.fail(msg);
-        }
-        // 财务记录
-        val fares = agreementFareRepository.findByOid(oid);
-        if (null != fares && !fares.isEmpty()) {
-            for (TAgreementFare fare : fares) {
-                if (null != fare.getReview()) {
-                    if (!financeService.insertRecord(id, gid, FINANCE_AGREEMENT_FARE, oid, fare.getFare())) {
-                        return RestResult.fail("添加运费记录失败");
-                    }
-                }
-            }
-            if (!agreementFareRepository.setReviewNull(oid)) {
-                return RestResult.fail("更新运费信息失败");
-            }
-        }
-        return RestResult.ok();
-    }
-
-    public RestResult addShippedInfo(int id, int oid, BigDecimal fare, String remark) {
-        // 验证公司
-        TAgreementOrder order = agreementOrderRepository.find(oid);
-        if (null == order) {
-            return RestResult.fail("未查询到订单信息");
-        }
-        String msg = checkService.checkGroup(id, order.getGid());
-        if (null != msg) {
-            return RestResult.fail(msg);
-        }
-        if (!order.getApply().equals(id)) {
-            return RestResult.fail("只能由申请人添加信息");
-        }
-        agreementOrderService.clean(oid);
-
-        // 运费
-        if (null != fare && fare.compareTo(BigDecimal.ZERO) > 0) {
-            if (!agreementFareRepository.insert(oid, fare, new Date())) {
-                return RestResult.fail("添加物流费用失败");
-            }
-        }
-
-        // 备注
-        if (null != remark && remark.length() > 0) {
-            if (!agreementRemarkRepository.insert(oid, remark, new Date())) {
-                return RestResult.fail("添加备注失败");
-            }
-        }
-        return RestResult.ok();
-    }
-
-    public RestResult delShippedInfo(int id, int oid, int fid, int rid) {
-        // 验证公司
-        TAgreementOrder order = agreementOrderRepository.find(oid);
-        if (null == order) {
-            return RestResult.fail("未查询到订单信息");
-        }
-        String msg = checkService.checkGroup(id, order.getGid());
-        if (null != msg) {
-            return RestResult.fail(msg);
-        }
-        agreementOrderService.clean(oid);
-
-        // 运费由申请人删，已审核由审核人删，备注由审核人删
-        if (0 != fid) {
-            TAgreementFare fare = agreementFareRepository.find(fid);
-            if (null == fare) {
-                return RestResult.fail("未查询到运费信息");
-            }
-            if (null != fare.getReview()) {
-                if (!fare.getReview().equals(id)) {
-                    return RestResult.fail("要删除已审核信息，请联系审核人");
-                }
-            } else {
-                if (!order.getApply().equals(id)) {
-                    return RestResult.fail("只能由申请人删除信息");
-                }
-            }
-            if (!agreementFareRepository.delete(fid)) {
-                return RestResult.fail("删除运费信息失败");
-            }
-        }
-
-        // 备注由审核人删
-        if (0 != rid) {
-            if (!order.getReview().equals(rid)) {
-                RestResult.fail("要删除备注，请联系订单审核人");
-            }
-            if (!agreementRemarkRepository.delete(rid)) {
-                return RestResult.fail("删除备注信息失败");
-            }
         }
         return RestResult.ok();
     }
@@ -589,14 +475,6 @@ public class AgreementService {
         return RestResult.ok();
     }
 
-    public RestResult addReturnInfo(int id, int oid, BigDecimal fare, String remark) {
-        return addShippedInfo(id, oid, fare, remark);
-    }
-
-    public RestResult delReturnInfo(int id, int oid, int fid, int rid) {
-        return delShippedInfo(id, oid, fid, rid);
-    }
-
     /**
      * desc: 履约退转入
      */
@@ -811,14 +689,6 @@ public class AgreementService {
             return RestResult.fail("删除采购退货信息失败");
         }
         return RestResult.ok();
-    }
-
-    public RestResult addAgainInfo(int id, int oid, BigDecimal fare, String remark) {
-        return addShippedInfo(id, oid, fare, remark);
-    }
-
-    public RestResult delAgainInfo(int id, int oid, int fid, int rid) {
-        return delShippedInfo(id, oid, fid, rid);
     }
 
     private RestResult check(int id, TAgreementOrder order, int applyPerm, int reviewPerm, List<Integer> reviews) {

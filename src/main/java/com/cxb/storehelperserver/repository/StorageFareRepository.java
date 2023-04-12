@@ -50,10 +50,14 @@ public class StorageFareRepository extends BaseRepository<List> {
         return storageFares;
     }
 
-    public boolean insert(int oid, BigDecimal fare, Date cdate) {
+    public boolean insert(int oid, String ship, String code, String phone, BigDecimal fare, String remark, Date cdate) {
         TStorageFare row = new TStorageFare();
         row.setOid(oid);
+        row.setShip(ship);
+        row.setCode(code);
+        row.setPhone(phone);
         row.setFare(fare);
+        row.setRemark(remark);
         row.setCdate(cdate);
         if (storageFareMapper.insert(row) > 0) {
             delCache(oid);

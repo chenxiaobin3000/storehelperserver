@@ -37,9 +37,6 @@ public class StorageService {
     private ReviewService reviewService;
 
     @Resource
-    private FinanceService financeService;
-
-    @Resource
     private StockService stockService;
 
     @Resource
@@ -55,19 +52,7 @@ public class StorageService {
     private StoragePurchaseRepository storagePurchaseRepository;
 
     @Resource
-    private StorageFareRepository storageFareRepository;
-
-    @Resource
-    private StorageRemarkRepository storageRemarkRepository;
-
-    @Resource
     private StorageReturnRepository storageReturnRepository;
-
-    @Resource
-    private AgreementOrderRepository agreementOrderRepository;
-
-    @Resource
-    private AgreementCommodityRepository agreementCommodityRepository;
 
     @Resource
     private PurchaseOrderRepository purchaseOrderRepository;
@@ -305,54 +290,6 @@ public class StorageService {
         return RestResult.ok();
     }
 
-    public RestResult addPurchaseInfo(int id, int oid, String remark) {
-        // 验证公司
-        TStorageOrder order = storageOrderRepository.find(oid);
-        if (null == order) {
-            return RestResult.fail("未查询到订单信息");
-        }
-        String msg = checkService.checkGroup(id, order.getGid());
-        if (null != msg) {
-            return RestResult.fail(msg);
-        }
-        if (!order.getApply().equals(id)) {
-            return RestResult.fail("只能由申请人添加信息");
-        }
-        storageOrderService.clean(oid);
-
-        // 备注
-        if (null != remark && remark.length() > 0) {
-            if (!storageRemarkRepository.insert(oid, remark, new Date())) {
-                return RestResult.fail("添加备注失败");
-            }
-        }
-        return RestResult.ok();
-    }
-
-    public RestResult delPurchaseInfo(int id, int oid, int rid) {
-        // 验证公司
-        TStorageOrder order = storageOrderRepository.find(oid);
-        if (null == order) {
-            return RestResult.fail("未查询到订单信息");
-        }
-        String msg = checkService.checkGroup(id, order.getGid());
-        if (null != msg) {
-            return RestResult.fail(msg);
-        }
-        storageOrderService.clean(oid);
-
-        // 备注由审核人删
-        if (0 != rid) {
-            if (!order.getReview().equals(rid)) {
-                RestResult.fail("要删除备注，请联系订单审核人");
-            }
-            if (!storageRemarkRepository.delete(rid)) {
-                return RestResult.fail("删除备注信息失败");
-            }
-        }
-        return RestResult.ok();
-    }
-
     /**
      * desc: 仓储退货
      */
@@ -565,14 +502,6 @@ public class StorageService {
         return RestResult.ok();
     }
 
-    public RestResult addReturnInfo(int id, int oid, String remark) {
-        return addPurchaseInfo(id, oid, remark);
-    }
-
-    public RestResult delReturnInfo(int id, int oid, int rid) {
-        return delPurchaseInfo(id, oid, rid);
-    }
-
     /**
      * desc: 仓储调度出库
      */
@@ -709,22 +638,6 @@ public class StorageService {
         if (null != msg) {
             return RestResult.fail(msg);
         }
-        // 财务记录
-        val fares = storageFareRepository.findByOid(oid);
-        if (null != fares && !fares.isEmpty()) {
-            for (TStorageFare fare : fares) {
-                if (null == fare.getReview()) {
-                    fare.setReview(id);
-                    fare.setReviewTime(reviewTime);
-                    if (!storageFareRepository.update(fare)) {
-                        return RestResult.fail("更新运费信息失败");
-                    }
-                    if (!financeService.insertRecord(id, gid, FINANCE_STORAGE_FARE, oid, fare.getFare().negate())) {
-                        return RestResult.fail("添加运费记录失败");
-                    }
-                }
-            }
-        }
         return reviewService.review(order.getApply(), id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
     }
 
@@ -763,95 +676,6 @@ public class StorageService {
         msg = stockService.handleStorageStock(order, true);
         if (null != msg) {
             return RestResult.fail(msg);
-        }
-        // 财务记录
-        val fares = storageFareRepository.findByOid(oid);
-        if (null != fares && !fares.isEmpty()) {
-            for (TStorageFare fare : fares) {
-                if (null != fare.getReview()) {
-                    if (!financeService.insertRecord(id, gid, FINANCE_STORAGE_FARE, oid, fare.getFare())) {
-                        return RestResult.fail("添加运费记录失败");
-                    }
-                }
-            }
-            if (!storageFareRepository.setReviewNull(oid)) {
-                return RestResult.fail("更新运费信息失败");
-            }
-        }
-        return RestResult.ok();
-    }
-
-    public RestResult addDispatchInfo(int id, int oid, BigDecimal fare, String remark) {
-        // 验证公司
-        TStorageOrder order = storageOrderRepository.find(oid);
-        if (null == order) {
-            return RestResult.fail("未查询到订单信息");
-        }
-        String msg = checkService.checkGroup(id, order.getGid());
-        if (null != msg) {
-            return RestResult.fail(msg);
-        }
-        if (!order.getApply().equals(id)) {
-            return RestResult.fail("只能由申请人添加信息");
-        }
-        storageOrderService.clean(oid);
-
-        // 运费
-        if (null != fare && fare.compareTo(BigDecimal.ZERO) > 0) {
-            if (!storageFareRepository.insert(oid, fare, new Date())) {
-                return RestResult.fail("添加物流费用失败");
-            }
-        }
-
-        // 备注
-        if (null != remark && remark.length() > 0) {
-            if (!storageRemarkRepository.insert(oid, remark, new Date())) {
-                return RestResult.fail("添加备注失败");
-            }
-        }
-        return RestResult.ok();
-    }
-
-    public RestResult delDispatchInfo(int id, int oid, int fid, int rid) {
-        // 验证公司
-        TStorageOrder order = storageOrderRepository.find(oid);
-        if (null == order) {
-            return RestResult.fail("未查询到订单信息");
-        }
-        String msg = checkService.checkGroup(id, order.getGid());
-        if (null != msg) {
-            return RestResult.fail(msg);
-        }
-        storageOrderService.clean(oid);
-
-        // 运费由申请人删，已审核由审核人删，备注由审核人删
-        if (0 != fid) {
-            TStorageFare fare = storageFareRepository.find(fid);
-            if (null == fare) {
-                return RestResult.fail("未查询到运费信息");
-            }
-            if (null != fare.getReview()) {
-                if (!fare.getReview().equals(id)) {
-                    return RestResult.fail("要删除已审核信息，请联系审核人");
-                }
-            } else {
-                if (!order.getApply().equals(id)) {
-                    return RestResult.fail("只能由申请人删除信息");
-                }
-            }
-            if (!storageFareRepository.delete(fid)) {
-                return RestResult.fail("删除运费信息失败");
-            }
-        }
-
-        // 备注由审核人删
-        if (0 != rid) {
-            if (!order.getReview().equals(rid)) {
-                RestResult.fail("要删除备注，请联系订单审核人");
-            }
-            if (!storageRemarkRepository.delete(rid)) {
-                return RestResult.fail("删除备注信息失败");
-            }
         }
         return RestResult.ok();
     }
@@ -1033,14 +857,6 @@ public class StorageService {
         return RestResult.ok();
     }
 
-    public RestResult addLossInfo(int id, int oid, String remark) {
-        return addPurchaseInfo(id, oid, remark);
-    }
-
-    public RestResult delLossInfo(int id, int oid, int rid) {
-        return delPurchaseInfo(id, oid, rid);
-    }
-
     /**
      * desc: 线下销售
      */
@@ -1178,22 +994,6 @@ public class StorageService {
         if (null != msg) {
             return RestResult.fail(msg);
         }
-        // 财务记录
-        val fares = storageFareRepository.findByOid(oid);
-        if (null != fares && !fares.isEmpty()) {
-            for (TStorageFare fare : fares) {
-                if (null == fare.getReview()) {
-                    fare.setReview(id);
-                    fare.setReviewTime(reviewTime);
-                    if (!storageFareRepository.update(fare)) {
-                        return RestResult.fail("更新运费信息失败");
-                    }
-                    if (!financeService.insertRecord(id, gid, FINANCE_AGREEMENT_FARE, oid, fare.getFare().negate())) {
-                        return RestResult.fail("添加运费记录失败");
-                    }
-                }
-            }
-        }
         return reviewService.review(order.getApply(), id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
     }
 
@@ -1232,20 +1032,6 @@ public class StorageService {
         msg = stockService.handleStorageStock(order, true);
         if (null != msg) {
             return RestResult.fail(msg);
-        }
-        // 财务记录
-        val fares = storageFareRepository.findByOid(oid);
-        if (null != fares && !fares.isEmpty()) {
-            for (TStorageFare fare : fares) {
-                if (null != fare.getReview()) {
-                    if (!financeService.insertRecord(id, gid, FINANCE_AGREEMENT_FARE, oid, fare.getFare())) {
-                        return RestResult.fail("添加运费记录失败");
-                    }
-                }
-            }
-            if (!storageFareRepository.setReviewNull(oid)) {
-                return RestResult.fail("更新运费信息失败");
-            }
         }
         return RestResult.ok();
     }

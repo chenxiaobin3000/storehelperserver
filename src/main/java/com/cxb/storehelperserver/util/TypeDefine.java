@@ -6,6 +6,39 @@ package com.cxb.storehelperserver.util;
  * date: 2023/1/11
  */
 public class TypeDefine {
+    // 业务类型
+    public enum BusinessType {
+        BUSINESS_PURCHASE(1),   // 采购
+        BUSINESS_STORAGE(2),    // 仓储
+        BUSINESS_PRODUCT(3),    // 生产
+        BUSINESS_AGREEMENT(4),  // 履约
+        BUSINESS_SALE(5);       // 销售
+
+        private int value = 0;
+
+        private BusinessType(int v) {
+            this.value = v;
+        }
+
+        public static BusinessType valueOf(int v) {
+            switch (v) {
+                case 1:
+                    return BUSINESS_PURCHASE;
+                case 2:
+                    return BUSINESS_STORAGE;
+                case 3:
+                    return BUSINESS_PRODUCT;
+                case 4:
+                    return BUSINESS_AGREEMENT;
+            }
+            return BUSINESS_SALE;
+        }
+
+        public int getValue() {
+            return value;
+        }
+    }
+
     // 订单类型
     public enum OrderType {
         PURCHASE_PURCHASE_ORDER(1),     // 采购进货订单

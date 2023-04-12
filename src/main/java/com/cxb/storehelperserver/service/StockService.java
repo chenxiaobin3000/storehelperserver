@@ -83,7 +83,6 @@ public class StockService {
             return ret;
         }
 
-        log.info("-------------" + date);
         // 获取公司信息
         TUserGroup group = userGroupRepository.find(id);
         if (null == group) {
@@ -121,34 +120,6 @@ public class StockService {
         return RestResult.ok(data);
     }
 
-    // 废弃
-    public RestResult getStockDetail(int id, int sid, int ctype, int page, int limit, Date start, Date end, String search) {
-        RestResult ret = check(id, sid);
-        if (null != ret) {
-            return ret;
-        }
-
-        // 获取公司信息
-        TUserGroup group = userGroupRepository.find(id);
-        if (null == group) {
-            return RestResult.fail("获取公司信息失败");
-        }
-
-        val data = new HashMap<String, Object>();
-        int total = stockRepository.total(group.getGid(), sid, ctype, start, end, search);
-        if (0 == total) {
-            return RestResult.ok(new PageData());
-        }
-
-        val commodities = stockRepository.pagination(group.getGid(), sid, page, limit, ctype, start, end, search);
-        if (null == commodities) {
-            return RestResult.fail("获取商品信息失败");
-        }
-        data.put("total", total);
-        data.put("list", commodities);
-        return RestResult.ok(data);
-    }
-
     public RestResult getStockDay(int id, int gid, int sid, int ctype) {
         // 验证公司
         String msg = checkService.checkGroup(id, gid);
@@ -174,21 +145,6 @@ public class StockService {
         }
         data.put("list", list);
         data.put("today", stockRepository.findReport(gid, sid, ctype, dateUtil.getStartTime(new Date()), end));
-        if (list.isEmpty()) {
-            if (0 == sid) {
-                int total = storageRepository.total(gid, null);
-                if (0 != total) {
-                    val list2 = storageRepository.pagination(gid, 1, total, null);
-                    if (null != list2 && !list2.isEmpty()) {
-                        for (TStorage s : list2) {
-                            countStockDay(gid, s.getId(), ctype, end);
-                        }
-                    }
-                }
-            } else {
-                countStockDay(gid, sid, ctype, end);
-            }
-        }
         return RestResult.ok(data);
     }
 
@@ -294,31 +250,6 @@ public class StockService {
         return null;
     }
 
-    // 根据完成单修改库存
-    public String handleCompleteStock(TProductOrder order, boolean add) {
-        val productCommodities = productCommodityRepository.find(order.getId());
-        if (null == productCommodities || productCommodities.isEmpty()) {
-            return "未查询到商品信息";
-        }
-        Date cdate = new Date();
-        int gid = order.getGid();
-        int sid = order.getSid();
-        for (TProductCommodity productCommodity : productCommodities) {
-            int ctype = productCommodity.getCtype();
-            int cid = productCommodity.getCid();
-            BigDecimal price = productCommodity.getPrice();
-            int weight = productCommodity.getWeight();
-            int value = productCommodity.getValue();
-            if (!stockRepository.insert(gid, sid, order.getOtype(), order.getPid(), ctype, cid,
-                    add ? price : price.negate(), add ? weight : -weight, add ? value : -value, cdate)) {
-                log.warn("增加库存明细信息失败");
-                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-                return "增加库存明细信息失败";
-            }
-        }
-        return null;
-    }
-
     // 根据履约单修改库存
     public String handleAgreementStock(TAgreementOrder order, boolean add) {
         val agreementCommodities = agreementCommodityRepository.find(order.getId());
@@ -369,25 +300,8 @@ public class StockService {
         return null;
     }
 
-    private RestResult check(int id, int sid) {
-        // 获取公司信息
-        TUserGroup group = userGroupRepository.find(id);
-        if (null == group) {
-            return RestResult.fail("获取公司信息失败");
-        }
-
-        TStorage storage = storageRepository.find(sid);
-        if (null == storage) {
-            return RestResult.fail("获取仓库信息失败");
-        }
-        if (!group.getGid().equals(storage.getGid())) {
-            return RestResult.fail("只能获取本公司信息");
-        }
-        return null;
-    }
-
     // 计算库存
-    private void countStockDay(int gid, int sid, int ctype, Date date) {
+    public void countStockDay(int gid, int sid, int ctype, Date date) {
         // 获取注册仓库的商品id
         val ids = new ArrayList<Integer>();
         switch (CommodityType.valueOf(ctype)) {
@@ -424,6 +338,7 @@ public class StockService {
         synchronized (lock) {
             // 获取历史记录，没有就补
             for (int cid : ids) {
+                // 查找商品在周期内的销售数据, 没数据的直接忽略, 默认没有库存
                 val commodities = stockRepository.findHistory(gid, sid, ctype, cid, start, date);
                 if (null == commodities || commodities.isEmpty()) {
                     continue;
@@ -433,6 +348,7 @@ public class StockService {
                 yesterday.setWeight(0);
                 yesterday.setValue(0);
                 while (tmp.before(date)) {
+                    // 已有数据就忽略
                     val day = stockDayRepository.find(sid, ctype, cid, tmp);
                     if (null != day) {
                         continue;
@@ -444,7 +360,6 @@ public class StockService {
                             yesterday.setWeight(yesterday.getWeight() + c.getWeight());
                             yesterday.setValue(yesterday.getValue() + c.getValue());
                             stockDayRepository.insert(gid, sid, ctype, cid, yesterday.getPrice(), yesterday.getWeight(), yesterday.getValue(), tmp);
-
                             find = true;
                             break;
                         }
@@ -461,5 +376,22 @@ public class StockService {
     // 计算库存月快照
     private void countStockMonth(int sid, int ctype, Date date) {
 
+    }
+
+    private RestResult check(int id, int sid) {
+        // 获取公司信息
+        TUserGroup group = userGroupRepository.find(id);
+        if (null == group) {
+            return RestResult.fail("获取公司信息失败");
+        }
+
+        TStorage storage = storageRepository.find(sid);
+        if (null == storage) {
+            return RestResult.fail("获取仓库信息失败");
+        }
+        if (!group.getGid().equals(storage.getGid())) {
+            return RestResult.fail("只能获取本公司信息");
+        }
+        return null;
     }
 }

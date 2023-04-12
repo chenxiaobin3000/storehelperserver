@@ -80,16 +80,6 @@ public class AgreementController {
         return agreementService.revokeShipped(req.getId(), req.getOid());
     }
 
-    @PostMapping("/addShippedInfo")
-    public RestResult addShippedInfo(@Validated @RequestBody AddShippedInfoValid req) {
-        return agreementService.addShippedInfo(req.getId(), req.getOid(), req.getFare(), req.getRemark());
-    }
-
-    @PostMapping("/delShippedInfo")
-    public RestResult delShippedInfo(@Validated @RequestBody DelShippedInfoValid req) {
-        return agreementService.delShippedInfo(req.getId(), req.getOid(), req.getFid(), req.getRid());
-    }
-
     @PostMapping("/returnc")
     public RestResult returnc(@Validated @RequestBody ReturnValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
@@ -133,16 +123,6 @@ public class AgreementController {
         return agreementService.revokeReturn(req.getId(), req.getOid());
     }
 
-    @PostMapping("/addReturnInfo")
-    public RestResult addReturnInfo(@Validated @RequestBody AddShippedInfoValid req) {
-        return agreementService.addReturnInfo(req.getId(), req.getOid(), req.getFare(), req.getRemark());
-    }
-
-    @PostMapping("/delReturnInfo")
-    public RestResult delReturnInfo(@Validated @RequestBody DelShippedInfoValid req) {
-        return agreementService.delReturnInfo(req.getId(), req.getOid(), req.getFid(), req.getRid());
-    }
-
     @PostMapping("/again")
     public RestResult again(@Validated @RequestBody ReturnValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
@@ -184,15 +164,5 @@ public class AgreementController {
     @PostMapping("/revokeAgain")
     public RestResult revokeAgain(@Validated @RequestBody RevokeReturnValid req) {
         return agreementService.revokeAgain(req.getId(), req.getOid());
-    }
-
-    @PostMapping("/addAgainInfo")
-    public RestResult addAgainInfo(@Validated @RequestBody AddShippedInfoValid req) {
-        return agreementService.addAgainInfo(req.getId(), req.getOid(), req.getFare(), req.getRemark());
-    }
-
-    @PostMapping("/delAgainInfo")
-    public RestResult delAgainInfo(@Validated @RequestBody DelShippedInfoValid req) {
-        return agreementService.delAgainInfo(req.getId(), req.getOid(), req.getFid(), req.getRid());
     }
 }

@@ -78,14 +78,4 @@ public class ProductController {
     public RestResult revokeCollect(@Validated @RequestBody RevokeCollectValid req) {
         return productService.revokeCollect(req.getId(), req.getOid());
     }
-
-    @PostMapping("/addCollectInfo")
-    public RestResult addCollectInfo(@Validated @RequestBody AddCollectInfoValid req) {
-        return productService.addCollectInfo(req.getId(), req.getOid(), req.getRemark());
-    }
-
-    @PostMapping("/delCollectInfo")
-    public RestResult delCollectInfo(@Validated @RequestBody DelCollectInfoValid req) {
-        return productService.delCollectInfo(req.getId(), req.getOid(), req.getRid());
-    }
 }

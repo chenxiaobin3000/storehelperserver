@@ -43,20 +43,6 @@ public class StockController {
         return stockService.getStockList(req.getId(), req.getSid(), req.getCtype(), req.getPage(), req.getLimit(), date, req.getSearch());
     }
 
-    @PostMapping("/getStockDetail")
-    public RestResult getStockList(@Validated @RequestBody GetStockDetailValid req) {
-        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
-        Date start = null;
-        Date end = null;
-        try {
-            start = simpleDateFormat.parse(req.getDate() + " 00:00:00");
-            end = simpleDateFormat.parse(req.getDate() + " 23:59:59");
-        } catch (ParseException e) {
-            return RestResult.fail("查询日期转换失败");
-        }
-        return stockService.getStockDetail(req.getId(), req.getSid(), req.getCtype(), req.getPage(), req.getLimit(), start, end, req.getSearch());
-    }
-
     @PostMapping("/getStockDay")
     public RestResult getStockDay(@Validated @RequestBody GetStockDayValid req) {
         return stockService.getStockDay(req.getId(), req.getGid(), req.getSid(), req.getCtype());

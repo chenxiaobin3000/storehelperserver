@@ -30,7 +30,7 @@ public class AddLabelDetailValid implements IValid {
     @Min(value = 1, message = "财务价格错误")
     private BigDecimal value;
 
-    @Length(max = 32, message = "备注字数不能超过32")
+    @Length(max = 32, message = "备注长度不能大于32个字符")
     private String remark;
 
     @NotEmpty(message = "请输入录入日期")

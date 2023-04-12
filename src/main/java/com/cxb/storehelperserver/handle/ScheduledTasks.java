@@ -1,8 +1,18 @@
 package com.cxb.storehelperserver.handle;
 
+import com.cxb.storehelperserver.model.TGroup;
+import com.cxb.storehelperserver.model.TStorage;
+import com.cxb.storehelperserver.repository.GroupRepository;
+import com.cxb.storehelperserver.repository.StorageRepository;
+import com.cxb.storehelperserver.service.StockService;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+import java.util.Date;
 
 /**
  * desc:
@@ -12,8 +22,38 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class ScheduledTasks {
-    @Scheduled(cron = "1 0 0 * * ?")
+    @Resource
+    private StockService stockService;
+
+    @Resource
+    private GroupRepository groupRepository;
+
+    @Resource
+    private StorageRepository storageRepository;
+
+    // 2:00执行
+    @Scheduled(cron = "0 0 2 * * ?")
     private void scheduledStock() {
         log.info("scheduled stock");
+        Date today = new Date();
+        int total = groupRepository.total(null);
+        val groups = groupRepository.pagination(1, total, null);
+        for (TGroup group : groups) {
+            int gid = group.getId();
+            int total2 = storageRepository.total(gid, null);
+            val list2 = storageRepository.pagination(gid, 1, total2, null);
+            if (null != list2 && !list2.isEmpty()) {
+                for (TStorage s : list2) {
+                    for (int i = 1; i < 5; i++) {
+                        stockService.countStockDay(gid, s.getId(), i, today);
+                        try {
+                            Thread.sleep(200);
+                        } catch (InterruptedException e) {
+                            log.error(e.toString());
+                        }
+                    }
+                }
+            }
+        }
     }
 }

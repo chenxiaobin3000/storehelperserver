@@ -126,16 +126,6 @@ public class StorageController {
         return storageService.revokePurchase(req.getId(), req.getOid());
     }
 
-    @PostMapping("/addPurchaseInfo")
-    public RestResult addPurchaseInfo(@Validated @RequestBody AddPurchaseInfoValid req) {
-        return storageService.addPurchaseInfo(req.getId(), req.getOid(), req.getRemark());
-    }
-
-    @PostMapping("/delPurchaseInfo")
-    public RestResult delPurchaseInfo(@Validated @RequestBody DelPurchaseInfoValid req) {
-        return storageService.delPurchaseInfo(req.getId(), req.getOid(), req.getRid());
-    }
-
     @PostMapping("/returnc")
     public RestResult returnc(@Validated @RequestBody ReturnValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
@@ -178,16 +168,6 @@ public class StorageController {
     @PostMapping("/revokeReturn")
     public RestResult revokeReturn(@Validated @RequestBody RevokeReturnValid req) {
         return storageService.revokeReturn(req.getId(), req.getOid());
-    }
-
-    @PostMapping("/addReturnInfo")
-    public RestResult addReturnInfo(@Validated @RequestBody AddDispatchInfoValid req) {
-        return storageService.addReturnInfo(req.getId(), req.getOid(), req.getRemark());
-    }
-
-    @PostMapping("/delReturnInfo")
-    public RestResult delReturnInfo(@Validated @RequestBody DelDispatchInfoValid req) {
-        return storageService.delReturnInfo(req.getId(), req.getOid(), req.getRid());
     }
 
     @PostMapping("/dispatch")
@@ -235,16 +215,6 @@ public class StorageController {
         return storageService.revokeDispatch(req.getId(), req.getOid());
     }
 
-    @PostMapping("/addDispatchInfo")
-    public RestResult addDispatchInfo(@Validated @RequestBody AddDispatchInfoValid req) {
-        return storageService.addDispatchInfo(req.getId(), req.getOid(), req.getFare(), req.getRemark());
-    }
-
-    @PostMapping("/delDispatchInfo")
-    public RestResult delDispatchInfo(@Validated @RequestBody DelDispatchInfoValid req) {
-        return storageService.delDispatchInfo(req.getId(), req.getOid(), req.getFid(), req.getRid());
-    }
-
     @PostMapping("/loss")
     public RestResult loss(@Validated @RequestBody LossValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
@@ -290,15 +260,6 @@ public class StorageController {
         return storageService.revokeLoss(req.getId(), req.getOid());
     }
 
-    @PostMapping("/addLossInfo")
-    public RestResult addLossInfo(@Validated @RequestBody AddPurchaseInfoValid req) {
-        return storageService.addLossInfo(req.getId(), req.getOid(), req.getRemark());
-    }
-
-    @PostMapping("/delLossInfo")
-    public RestResult delLossInfo(@Validated @RequestBody DelPurchaseInfoValid req) {
-        return storageService.delLossInfo(req.getId(), req.getOid(), req.getRid());
-    }
 /*
     @PostMapping("/offline")
     public RestResult offline(@Validated @RequestBody LossValid req) {
@@ -345,16 +306,6 @@ public class StorageController {
         return storageService.revokeOffline(req.getId(), req.getOid());
     }
 
-    @PostMapping("/addOfflineInfo")
-    public RestResult addOfflineInfo(@Validated @RequestBody AddPurchaseInfoValid req) {
-        return storageService.addOfflineInfo(req.getId(), req.getOid(), req.getRemark());
-    }
-
-    @PostMapping("/delOfflineInfo")
-    public RestResult delOfflineInfo(@Validated @RequestBody DelPurchaseInfoValid req) {
-        return storageService.delOfflineInfo(req.getId(), req.getOid(), req.getRid());
-    }
-
     @PostMapping("/backc")
     public RestResult backc(@Validated @RequestBody LossValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
@@ -398,15 +349,5 @@ public class StorageController {
     @PostMapping("/revokeBack")
     public RestResult revokeBack(@Validated @RequestBody RevokeLossValid req) {
         return storageService.revokeBack(req.getId(), req.getOid());
-    }
-
-    @PostMapping("/addBackInfo")
-    public RestResult addBackInfo(@Validated @RequestBody AddPurchaseInfoValid req) {
-        return storageService.addBackInfo(req.getId(), req.getOid(), req.getRemark());
-    }
-
-    @PostMapping("/delBackInfo")
-    public RestResult delBackInfo(@Validated @RequestBody DelPurchaseInfoValid req) {
-        return storageService.delBackInfo(req.getId(), req.getOid(), req.getRid());
     }*/
 }
