@@ -231,15 +231,36 @@ public class PurchaseService {
         return RestResult.ok();
     }
 
-    public RestResult setPurchasePay(int id, int oid, BigDecimal pay){
+    public RestResult setPurchasePay(int id, int oid, BigDecimal pay) {
         // 校验审核人员信息
         TPurchaseOrder order = purchaseOrderRepository.find(oid);
         if (null == order) {
             return RestResult.fail("未查询到要审核的订单");
         }
+        String msg = checkService.checkGroup(id, order.getGid());
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
         order.setPayPrice(pay);
         if (!purchaseOrderRepository.update(order)) {
-            return RestResult.fail("更新已付款失败");
+            return RestResult.fail("更新已付款信息失败");
+        }
+        return RestResult.ok();
+    }
+
+    public RestResult setPurchaseSupplier(int id, int oid, int sid) {
+        // 校验审核人员信息
+        TPurchaseOrder order = purchaseOrderRepository.find(oid);
+        if (null == order) {
+            return RestResult.fail("未查询到要审核的订单");
+        }
+        String msg = checkService.checkGroup(id, order.getGid());
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+        order.setSupplier(sid);
+        if (!purchaseOrderRepository.update(order)) {
+            return RestResult.fail("更新供应商信息失败");
         }
         return RestResult.ok();
     }

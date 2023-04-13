@@ -121,6 +121,12 @@ public class PurchaseOrderRepository extends BaseRepository<TPurchaseOrder> {
         return null != purchaseOrderMapper.selectOneByExample(example);
     }
 
+    public boolean checkBySupplier(int sid) {
+        TPurchaseOrderExample example = new TPurchaseOrderExample();
+        example.or().andSupplierEqualTo(sid);
+        return null != purchaseOrderMapper.selectOneByExample(example);
+    }
+
     public boolean insert(TPurchaseOrder row) {
         if (purchaseOrderMapper.insert(row) > 0) {
             setCache(row.getId(), row);

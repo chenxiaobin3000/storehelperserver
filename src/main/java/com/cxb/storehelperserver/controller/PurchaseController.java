@@ -45,6 +45,7 @@ public class PurchaseController {
         order.setApply(req.getId());
         order.setPayPrice(new BigDecimal(0));
         order.setComplete(new Byte("0"));
+        order.setSupplier(0);
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));
         } catch (ParseException e) {
@@ -85,6 +86,11 @@ public class PurchaseController {
     @PostMapping("/setPurchasePay")
     public RestResult setPurchasePay(@Validated @RequestBody SetPurchasePayValid req) {
         return purchaseService.setPurchasePay(req.getId(), req.getOid(), req.getPay());
+    }
+
+    @PostMapping("/setPurchaseSupplier")
+    public RestResult setPurchaseSupplier(@Validated @RequestBody SetPurchaseSupplierValid req) {
+        return purchaseService.setPurchaseSupplier(req.getId(), req.getOid(), req.getSid());
     }
 
     @PostMapping("/returnc")

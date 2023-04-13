@@ -138,9 +138,10 @@ public class Permission {
     static public final int system_alarm = 1101;
     static public final int system_groupinfo = 1102;
     static public final int system_department = 1107;
-    static public final int system_storageaddress = 1103;
+    static public final int system_storage = 1103;
     static public final int system_rolelist = 1104;
     static public final int system_mprolelist = 1105;
+    static public final int system_supplier = 1106;
 
     static public final int admin = 8888;
     static public final int admin_changegroup = 8889;

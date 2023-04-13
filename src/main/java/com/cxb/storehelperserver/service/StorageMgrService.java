@@ -42,9 +42,6 @@ public class StorageMgrService {
     private StorageOrderRepository storageOrderRepository;
 
     @Resource
-    private UserRepository userRepository;
-
-    @Resource
     private UserGroupRepository userGroupRepository;
 
     public RestResult addStorage(int id, TStorage storage) {
@@ -84,8 +81,8 @@ public class StorageMgrService {
     }
 
     public RestResult delStorage(int id, int gid, int sid) {
-        // 权限校验，必须admin
-        if (!checkService.checkRolePermission(id, system_storageaddress)) {
+        // 权限校验
+        if (!checkService.checkRolePermission(id, system_storage)) {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 

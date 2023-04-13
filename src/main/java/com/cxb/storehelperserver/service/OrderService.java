@@ -100,6 +100,9 @@ public class OrderService {
     private StorageRepository storageRepository;
 
     @Resource
+    private SupplierRepository supplierRepository;
+
+    @Resource
     private MarketAccountRepository marketAccountRepository;
 
     @Resource
@@ -565,7 +568,6 @@ public class OrderService {
                 if (null != datas) {
                     ret.put("comms", datas.get("comms"));
                     ret.put("attrs", datas.get("attrs"));
-                    ret.put("fares", datas.get("fares"));
                     ret.put("remarks", datas.get("remarks"));
                 }
                 list2.add(ret);
@@ -601,6 +603,15 @@ public class OrderService {
                     ret.put("total", datas.get("total"));
                     ret.put("remarks", datas.get("remarks"));
                 }
+
+                // 供货商
+                int sid = o.getSupplier();
+                if (0 != sid) {
+                    TSupplier supplier = supplierRepository.find(sid);
+                    if (null != supplier) {
+                        ret.put("supplier", supplier);
+                    }
+                }
                 list2.add(ret);
             }
         }
@@ -634,6 +645,15 @@ public class OrderService {
                     ret.put("total", datas.get("total"));
                     ret.put("remarks", datas.get("remarks"));
                 }
+
+                // 供货商
+                int sid = o.getSupplier();
+                if (0 != sid) {
+                    TSupplier supplier = supplierRepository.find(sid);
+                    if (null != supplier) {
+                        ret.put("supplier", supplier);
+                    }
+                }
                 list2.add(ret);
             }
         }
@@ -663,7 +683,6 @@ public class OrderService {
                 if (null != datas) {
                     ret.put("comms", datas.get("comms"));
                     ret.put("attrs", datas.get("attrs"));
-                    ret.put("fares", datas.get("fares"));
                     ret.put("total", datas.get("total"));
                     ret.put("remarks", datas.get("remarks"));
                 }

@@ -91,6 +91,7 @@ public class StorageController {
         order.setOid(req.getPid());
         order.setSid2(0);
         order.setComplete(new Byte("0"));
+        order.setSupplier(0);
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));
         } catch (ParseException e) {
