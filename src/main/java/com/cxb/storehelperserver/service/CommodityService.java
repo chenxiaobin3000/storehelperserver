@@ -13,9 +13,9 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 
 import static com.cxb.storehelperserver.util.TypeDefine.CommodityType;
+import static com.cxb.storehelperserver.util.TypeDefine.CommodityType.COMMODITY;
 
 /**
  * desc: 商品业务
@@ -28,6 +28,9 @@ import static com.cxb.storehelperserver.util.TypeDefine.CommodityType;
 public class CommodityService {
     @Resource
     private CheckService checkService;
+
+    @Resource
+    private StockService stockService;
 
     @Resource
     private CommodityRepository commodityRepository;
@@ -254,11 +257,12 @@ public class CommodityService {
         if (null == group) {
             return RestResult.fail("获取公司信息失败");
         }
+        int gid = group.getGid();
         TStorage storage = storageRepository.find(sid);
         if (null == storage) {
             return RestResult.fail("获取仓库信息失败");
         }
-        if (!group.getGid().equals(storage.getGid())) {
+        if (!storage.getGid().equals(gid)) {
             return RestResult.fail("只能获取本公司信息");
         }
 
@@ -291,6 +295,14 @@ public class CommodityService {
                 for (TCommodityAttr attr : attrs) {
                     list.add(attr.getValue());
                 }
+            }
+
+            // 库存
+            TStockDay stock = stockService.getStockCommodity(gid, sid, COMMODITY.getValue(), cid);
+            if (null != stock) {
+                tmp.put("sprice", stock.getPrice());
+                tmp.put("sweight", stock.getWeight());
+                tmp.put("svalue", stock.getValue());
             }
 
             // 关联来源

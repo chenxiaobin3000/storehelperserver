@@ -5,7 +5,6 @@ import com.cxb.storehelperserver.model.TStorage;
 import com.cxb.storehelperserver.repository.GroupRepository;
 import com.cxb.storehelperserver.repository.StorageRepository;
 import com.cxb.storehelperserver.service.StockService;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -31,8 +30,8 @@ public class ScheduledTasks {
     @Resource
     private StorageRepository storageRepository;
 
-    // 2:00执行
-    @Scheduled(cron = "0 0 2 * * ?")
+    // 2:05执行
+    @Scheduled(cron = "0 5 2 * * ?")
     private void scheduledStock() {
         log.info("scheduled stock");
         Date today = new Date();

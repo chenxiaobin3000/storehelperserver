@@ -64,9 +64,6 @@ public class StorageService {
     private UserGroupRepository userGroupRepository;
 
     @Resource
-    private StockDayRepository stockDayRepository;
-
-    @Resource
     private DateUtil dateUtil;
 
     /**
@@ -1091,6 +1088,7 @@ public class StorageService {
         return reviewService.apply(id, order.getGid(), order.getSid(), order.getOtype(), oid, batch, reviews);
     }
 */
+
     /**
      * desc: 履约退货修改
      */
@@ -1416,7 +1414,7 @@ public class StorageService {
             int cid = commoditys.get(i);
             int weight = weights.get(i);
             int value = values.get(i);
-            TStockDay stock = stockDayRepository.findByYesterday(sid, ctype, cid);
+            TStockDay stock = stockService.getStockCommodity(order.getGid(), sid, ctype, cid);
             if (null == stock) {
                 return RestResult.fail("未查询到库存类型:" + ctype + ",商品:" + cid);
             }

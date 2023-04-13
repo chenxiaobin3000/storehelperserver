@@ -100,8 +100,8 @@ public class Permission {
 
     static public final int product = 600;
     static public final int product_report = 601;
-    static public final int product_collect = 602;
-    static public final int product_apply = 603;
+    static public final int product_getlist = 602;
+    static public final int product_collect = 603;
 
     static public final int report = 700;
     static public final int report_market = 701;

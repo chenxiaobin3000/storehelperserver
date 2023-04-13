@@ -38,15 +38,10 @@ public class StockDayRepository extends BaseRepository<TStockDay> {
         init("stockDay::");
     }
 
-    public TStockDay find(int sid, int ctype, int id, Date date) {
+    public TStockDay find(int sid, int ctype, int cid, Date date) {
         TStockDayExample example = new TStockDayExample();
-        example.or().andSidEqualTo(sid).andCtypeEqualTo(ctype).andCidEqualTo(id).andCdateEqualTo(date);
+        example.or().andSidEqualTo(sid).andCtypeEqualTo(ctype).andCidEqualTo(cid).andCdateEqualTo(date);
         return stockDayMapper.selectOneByExample(example);
-    }
-
-    public TStockDay findByYesterday(int sid, int ctype, int cid) {
-        Date yesterday = dateUtil.addOneDay(new Date(), -1);
-        return find(sid, ctype, cid, yesterday);
     }
 
     public List<MyStockReport> findReport(int gid, int sid, int ctype, Date start, Date end) {

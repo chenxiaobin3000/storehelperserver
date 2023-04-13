@@ -38,6 +38,9 @@ public class MarketService {
     private CheckService checkService;
 
     @Resource
+    private StockService stockService;
+
+    @Resource
     private MarketCommodityRepository marketCommodityRepository;
 
     @Resource
@@ -72,9 +75,6 @@ public class MarketService {
 
     @Resource
     private StorageRepository storageRepository;
-
-    @Resource
-    private StockDayRepository stockDayRepository;
 
     @Resource
     private UserGroupRepository userGroupRepository;
@@ -193,7 +193,7 @@ public class MarketService {
             }
 
             // 库存价格
-            TStockDay stock = stockDayRepository.findByYesterday(sid, COMMODITY.getValue(), cid);
+            TStockDay stock = stockService.getStockCommodity(gid, sid, COMMODITY.getValue(), cid);
             if (null != stock) {
                 tmp.put("sprice", stock.getPrice());
                 tmp.put("svalue", stock.getValue());
@@ -325,7 +325,7 @@ public class MarketService {
             }
 
             // 库存价格
-            TStockDay stock = stockDayRepository.findByYesterday(sid, STANDARD.getValue(), cid);
+            TStockDay stock = stockService.getStockCommodity(gid, sid, STANDARD.getValue(), cid);
             if (null != stock) {
                 tmp.put("sprice", stock.getPrice());
                 tmp.put("svalue", stock.getValue());
@@ -460,7 +460,7 @@ public class MarketService {
             }
 
             // 库存价格
-            TStockDay stock = stockDayRepository.findByYesterday(sid, COMMODITY.getValue(), cid);
+            TStockDay stock = stockService.getStockCommodity(gid, sid, COMMODITY.getValue(), cid);
             if (null != stock) {
                 tmp.put("sprice", stock.getPrice());
                 tmp.put("svalue", stock.getValue());
@@ -585,7 +585,7 @@ public class MarketService {
             }
 
             // 库存价格
-            TStockDay stock = stockDayRepository.findByYesterday(sid, STANDARD.getValue(), cid);
+            TStockDay stock = stockService.getStockCommodity(gid, sid, STANDARD.getValue(), cid);
             if (null != stock) {
                 tmp.put("sprice", stock.getPrice());
                 tmp.put("svalue", stock.getValue());

@@ -75,7 +75,27 @@ public class StockService {
     @Value("${store-app.config.stockday}")
     private int stockday;
 
-    private static final Object lock = new Object();
+    public TStockDay getStockCommodity(int gid, int sid, int ctype, int cid) {
+        Date today = dateUtil.getStartTime(new Date());
+        Date yesterday = dateUtil.addOneDay(today, -1);
+        Date tomorrow = dateUtil.addOneDay(today, 1);
+        TStockDay day = stockDayRepository.find(sid, ctype, cid, yesterday);
+        if (null == day) {
+            day = new TStockDay();
+            day.setPrice(new BigDecimal(0));
+            day.setWeight(0);
+            day.setValue(0);
+        }
+        val commodities = stockRepository.findHistory(gid, sid, ctype, cid, today, tomorrow);
+        if (null != commodities && !commodities.isEmpty()) {
+            for (MyStockCommodity c : commodities) {
+                day.setPrice(day.getPrice().add(c.getPrice()));
+                day.setWeight(day.getWeight() + c.getWeight());
+                day.setValue(day.getValue() + c.getValue());
+            }
+        }
+        return day;
+    }
 
     public RestResult getStockList(int id, int sid, int ctype, int page, int limit, Date date, String search) {
         RestResult ret = check(id, sid);
@@ -88,29 +108,44 @@ public class StockService {
         if (null == group) {
             return RestResult.fail("获取公司信息失败");
         }
+        int gid = group.getGid();
 
         // 当日数据取库存
         val data = new HashMap<String, Object>();
         date = dateUtil.getStartTime(date);
         Date today = dateUtil.getStartTime(new Date());
         if (today.equals(date)) {
-            int total = stockRepository.total(group.getGid(), sid, ctype, date, dateUtil.getEndTime(date), search);
+            // 昨日数据
+            Date yesterday = dateUtil.addOneDay(today, -1);
+            int total = stockDayRepository.total(gid, sid, ctype, yesterday, search);
             if (0 == total) {
                 return RestResult.ok(new PageData());
             }
-            val commodities = stockRepository.pagination(group.getGid(), sid, page, limit, ctype, date, dateUtil.getEndTime(date), search);
+            val commodities = stockDayRepository.pagination(gid, sid, page, limit, ctype, yesterday, search);
             if (null == commodities) {
                 return RestResult.fail("获取商品信息失败");
+            }
+            // 加上今日变化量
+            Date tomorrow = dateUtil.addOneDay(today, 1);
+            for (MyStockCommodity c : commodities) {
+                val commodities2 = stockRepository.findHistory(gid, sid, ctype, c.getCid(), today, tomorrow);
+                if (null != commodities2 && !commodities2.isEmpty()) {
+                    for (MyStockCommodity c2 : commodities2) {
+                        c.setPrice(c.getPrice().add(c2.getPrice()));
+                        c.setWeight(c.getWeight() + c2.getWeight());
+                        c.setValue(c.getValue() + c2.getValue());
+                    }
+                }
             }
             data.put("total", total);
             data.put("list", commodities);
         } else {
             // 往期数据取快照
-            int total = stockDayRepository.total(group.getGid(), sid, ctype, date, search);
+            int total = stockDayRepository.total(gid, sid, ctype, date, search);
             if (0 == total) {
                 return RestResult.ok(new PageData());
             }
-            val commodities = stockDayRepository.pagination(group.getGid(), sid, page, limit, ctype, date, search);
+            val commodities = stockDayRepository.pagination(gid, sid, page, limit, ctype, date, search);
             if (null == commodities) {
                 return RestResult.fail("获取商品信息失败");
             }
@@ -335,47 +370,41 @@ public class StockService {
 
         MyStockCommodity yesterday = new MyStockCommodity();
         Date start = dateUtil.addOneDay(date, -stockday);
-        synchronized (lock) {
-            // 获取历史记录，没有就补
-            for (int cid : ids) {
-                // 查找商品在周期内的销售数据, 没数据的直接忽略, 默认没有库存
-                val commodities = stockRepository.findHistory(gid, sid, ctype, cid, start, date);
-                if (null == commodities || commodities.isEmpty()) {
+        Date stop = dateUtil.addOneDay(date, -1);
+        // 获取历史记录，没有就补
+        for (int cid : ids) {
+            // 查找商品在周期内的销售数据, 没数据的直接忽略, 默认没有库存
+            val commodities = stockRepository.findHistory(gid, sid, ctype, cid, start, date);
+            if (null == commodities || commodities.isEmpty()) {
+                continue;
+            }
+            Date tmp = dateUtil.getStartTime(start);
+            yesterday.setPrice(new BigDecimal(0));
+            yesterday.setWeight(0);
+            yesterday.setValue(0);
+            while (tmp.before(stop)) {
+                // 已有数据就忽略
+                val day = stockDayRepository.find(sid, ctype, cid, tmp);
+                if (null != day) {
+                    yesterday.setPrice(day.getPrice());
+                    yesterday.setWeight(day.getWeight());
+                    yesterday.setValue(day.getValue());
+                    tmp = dateUtil.addOneDay(tmp, 1);
                     continue;
                 }
-                Date tmp = start;
-                yesterday.setPrice(new BigDecimal(0));
-                yesterday.setWeight(0);
-                yesterday.setValue(0);
-                while (tmp.before(date)) {
-                    // 已有数据就忽略
-                    val day = stockDayRepository.find(sid, ctype, cid, tmp);
-                    if (null != day) {
-                        continue;
+                // 昨日库存数 + 当日所有库存
+                for (MyStockCommodity c : commodities) {
+                    if (c.getDate().equals(tmp)) {
+                        yesterday.setPrice(yesterday.getPrice().add(c.getPrice()));
+                        yesterday.setWeight(yesterday.getWeight() + c.getWeight());
+                        yesterday.setValue(yesterday.getValue() + c.getValue());
                     }
-                    boolean find = false;
-                    for (MyStockCommodity c : commodities) {
-                        if (c.getDate().equals(tmp)) {
-                            yesterday.setPrice(yesterday.getPrice().add(c.getPrice()));
-                            yesterday.setWeight(yesterday.getWeight() + c.getWeight());
-                            yesterday.setValue(yesterday.getValue() + c.getValue());
-                            stockDayRepository.insert(gid, sid, ctype, cid, yesterday.getPrice(), yesterday.getWeight(), yesterday.getValue(), tmp);
-                            find = true;
-                            break;
-                        }
-                    }
-                    if (!find) {
-                        stockDayRepository.insert(gid, sid, ctype, cid, yesterday.getPrice(), yesterday.getWeight(), yesterday.getValue(), tmp);
-                    }
-                    tmp = dateUtil.addOneDay(tmp, 1);
                 }
+                // 添加库存数据
+                stockDayRepository.insert(gid, sid, ctype, cid, yesterday.getPrice(), yesterday.getWeight(), yesterday.getValue(), tmp);
+                tmp = dateUtil.addOneDay(tmp, 1);
             }
         }
-    }
-
-    // 计算库存月快照
-    private void countStockMonth(int sid, int ctype, Date date) {
-
     }
 
     private RestResult check(int id, int sid) {

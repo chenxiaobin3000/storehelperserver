@@ -54,8 +54,6 @@ public class FinanceService {
     @Resource
     private DateUtil dateUtil;
 
-    private static final Object lock = new Object();
-
     public RestResult getFinance(int id, int page, int limit, int action) {
         // 获取公司信息
         TUserGroup group = userGroupRepository.find(id);
