@@ -34,6 +34,18 @@ public class SaleController {
     @Resource
     private DateUtil dateUtil;
 
+    @PostMapping("/sale")
+    public RestResult sale(@Validated @RequestBody SaleValid req) {
+        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
+        Date date = null;
+        try {
+            date = simpleDateFormat.parse(req.getDate());
+        } catch (ParseException e) {
+            return RestResult.fail("订单制单日期转换失败");
+        }
+        return saleService.sale(req.getId(), req.getGid(), req.getSid(), req.getPid(), date);
+    }
+
     @PostMapping("/after")
     public RestResult after(@Validated @RequestBody AfterValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();

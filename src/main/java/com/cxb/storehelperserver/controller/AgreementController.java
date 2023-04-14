@@ -41,6 +41,7 @@ public class AgreementController {
         order.setGid(req.getGid());
         order.setSid(req.getSid());
         order.setAid(req.getAid());
+        order.setAsid(req.getAsid());
         order.setOtype(AGREEMENT_SHIPPED_ORDER.getValue());
         order.setApply(req.getId());
         order.setComplete(new Byte("0"));

@@ -15,7 +15,6 @@ import java.util.*;
 
 import static com.cxb.storehelperserver.util.Permission.*;
 import static com.cxb.storehelperserver.util.TypeDefine.CommodityType;
-import static com.cxb.storehelperserver.util.TypeDefine.FinanceAction.*;
 import static com.cxb.storehelperserver.util.TypeDefine.OrderType.PURCHASE_PURCHASE_ORDER;
 
 /**
@@ -205,6 +204,10 @@ public class PurchaseService {
         }
         if (null == order.getReview()) {
             return RestResult.fail("未审核的订单不能撤销");
+        }
+        // 已入库或退货的不能撤销
+        if (order.getUnit() > order.getCurUnit()) {
+            return RestResult.fail("已入库或退货的订单不能撤销");
         }
 
         // 验证公司

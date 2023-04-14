@@ -90,8 +90,6 @@ public class StorageController {
         order.setApply(req.getId());
         order.setOid(req.getPid());
         order.setSid2(0);
-        order.setComplete(new Byte("0"));
-        order.setSupplier(0);
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));
         } catch (ParseException e) {
@@ -135,7 +133,6 @@ public class StorageController {
         order.setApply(req.getId());
         order.setOid(req.getRid());
         order.setSid2(0);
-        order.setComplete(new Byte("0"));
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));
         } catch (ParseException e) {
@@ -180,7 +177,6 @@ public class StorageController {
         order.setSid2(req.getSid2());
         order.setOtype(STORAGE_DISPATCH_ORDER.getValue());
         order.setApply(req.getId());
-        order.setComplete(new Byte("0"));
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));
         } catch (ParseException e) {
@@ -225,7 +221,6 @@ public class StorageController {
         order.setSid2(0);
         order.setOtype(STORAGE_LOSS_ORDER.getValue());
         order.setApply(req.getId());
-        order.setComplete(new Byte("0"));
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));
         } catch (ParseException e) {

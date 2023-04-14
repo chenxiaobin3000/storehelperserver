@@ -2,6 +2,7 @@ package com.cxb.storehelperserver.service;
 
 import com.cxb.storehelperserver.model.*;
 import com.cxb.storehelperserver.repository.*;
+import com.cxb.storehelperserver.repository.model.MyMarketCommodity;
 import com.cxb.storehelperserver.util.DateUtil;
 import com.cxb.storehelperserver.util.RestResult;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ import java.util.Date;
 import java.util.List;
 
 import static com.cxb.storehelperserver.util.Permission.*;
+import static com.cxb.storehelperserver.util.TypeDefine.OrderType.SALE_SALE_ORDER;
 
 /**
  * desc: 销售业务
@@ -37,9 +39,6 @@ public class SaleService {
     private ReviewService reviewService;
 
     @Resource
-    private StockService stockService;
-
-    @Resource
     private SaleOrderRepository saleOrderRepository;
 
     @Resource
@@ -52,10 +51,82 @@ public class SaleService {
     private SaleRemarkRepository saleRemarkRepository;
 
     @Resource
+    private AgreementOrderRepository agreementOrderRepository;
+
+    @Resource
+    private MarketCommodityDetailRepository marketCommodityDetailRepository;
+
+    @Resource
+    private MarketStandardDetailRepository marketStandardDetailRepository;
+
+    @Resource
     private UserGroupRepository userGroupRepository;
 
     @Resource
     private DateUtil dateUtil;
+
+    public RestResult sale(int id, int gid, int sid, int pid, Date date) {
+        // 查找履约单
+        TAgreementOrder agreement = agreementOrderRepository.find(pid);
+        if (null == agreement) {
+            return RestResult.fail("未查询到履约单信息");
+        }
+        int aid = agreement.getAid();
+        int asid = agreement.getAsid();
+
+        TSaleOrder order = new TSaleOrder();
+        order.setGid(gid);
+        order.setSid(sid);
+        order.setPid(pid);
+        order.setAid(aid);
+        order.setAsid(asid);
+        order.setOtype(SALE_SALE_ORDER.getValue());
+        order.setApply(id);
+        val reviews = new ArrayList<Integer>();
+        RestResult ret = check(id, order, mp_sale_sale_apply, mp_sale_sale_review, reviews);
+        if (null != ret) {
+            return ret;
+        }
+
+        // 生成销售单
+        val comms = new ArrayList<TSaleCommodity>();
+        int total = marketCommodityDetailRepository.total(sid, aid, asid, null);
+        if (0 != total) {
+            val list = marketCommodityDetailRepository.pagination(sid, aid, asid, 1, total, date, null);
+            if (null == list) {
+                return RestResult.fail("未查询到销售信息");
+            }
+            for (MyMarketCommodity commodity : list) {
+                TSaleCommodity c = new TSaleCommodity();
+                comms.add(c);
+            }
+        }
+
+        total = marketStandardDetailRepository.total(sid, aid, asid, null);
+        if (0 != total) {
+            val list = marketStandardDetailRepository.pagination(sid, aid, asid, 1, total, date, null);
+            if (null == list) {
+                return RestResult.fail("未查询到销售信息");
+            }
+            for (MyMarketCommodity commodity : list) {
+                TSaleCommodity c = new TSaleCommodity();
+                comms.add(c);
+            }
+        }
+
+        // 生成售后单批号
+        String batch = dateUtil.createBatch(order.getOtype());
+        order.setBatch(batch);
+        if (!saleOrderRepository.insert(order)) {
+            return RestResult.fail("生成售后订单失败");
+        }
+        int oid = order.getId();
+        String msg = saleOrderService.update(oid, comms, null);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+        return reviewService.apply(id, order.getGid(), order.getSid(), order.getOtype(), oid, batch, reviews);
+    }
 
     /**
      * desc: 销售售后
@@ -186,12 +257,6 @@ public class SaleService {
         if (!saleOrderRepository.update(order)) {
             return RestResult.fail("审核用户订单信息失败");
         }
-
-        // 减少库存
-        String msg = stockService.handleSaleStock(order, false);
-        if (null != msg) {
-            return RestResult.fail(msg);
-        }
         return reviewService.review(order.getApply(), id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
     }
 
@@ -224,12 +289,6 @@ public class SaleService {
         // 撤销审核人信息
         if (!saleOrderRepository.setReviewNull(oid)) {
             return RestResult.fail("撤销订单审核信息失败");
-        }
-
-        // 增加库存
-        msg = stockService.handleSaleStock(order, true);
-        if (null != msg) {
-            return RestResult.fail(msg);
         }
         return RestResult.ok();
     }
@@ -363,12 +422,6 @@ public class SaleService {
         if (!saleOrderRepository.update(order)) {
             return RestResult.fail("审核用户订单信息失败");
         }
-
-        // 减少库存
-        String msg = stockService.handleSaleStock(order, false);
-        if (null != msg) {
-            return RestResult.fail(msg);
-        }
         return reviewService.review(order.getApply(), id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
     }
 
@@ -402,12 +455,6 @@ public class SaleService {
         if (!saleOrderRepository.setReviewNull(oid)) {
             return RestResult.fail("撤销订单审核信息失败");
         }
-
-        // 增加库存
-        msg = stockService.handleSaleStock(order, true);
-        if (null != msg) {
-            return RestResult.fail(msg);
-        }
         return RestResult.ok();
     }
 
@@ -429,6 +476,10 @@ public class SaleService {
         if (size != types.size() || size != weights.size() || size != values.size()) {
             return RestResult.fail("商品信息异常");
         }
+        /*val agreementCommodities = agreementCommodityRepository.find(aid);
+        if (null == agreementCommodities || agreementCommodities.isEmpty()) {
+            return RestResult.fail("未查询到履约商品信息");
+        }
         int sid = order.getSid();
         int total = 0;
         BigDecimal price = new BigDecimal(0);
@@ -437,16 +488,6 @@ public class SaleService {
             int cid = commoditys.get(i);
             int weight = weights.get(i);
             int value = values.get(i);
-            TStockDay stock = stockService.getStockCommodity(order.getGid(), sid, ctype, cid);
-            if (null == stock) {
-                return RestResult.fail("未查询到库存类型:" + ctype + ",商品:" + cid);
-            }
-            if (weight > stock.getWeight()) {
-                return RestResult.fail("库存商品重量不足:" + ctype + ",商品:" + cid);
-            }
-            if (value > stock.getValue()) {
-                return RestResult.fail("库存商品件数不足:" + ctype + ",商品:" + cid);
-            }
 
             TSaleCommodity c = new TSaleCommodity();
             c.setCtype(ctype);
@@ -464,9 +505,7 @@ public class SaleService {
             price = price.add(c.getPrice());
         }
         order.setUnit(total);
-        order.setPrice(price);
-        order.setCurUnit(total);
-        order.setCurPrice(price);
+        order.setPrice(price);*/
         return null;
     }
 }

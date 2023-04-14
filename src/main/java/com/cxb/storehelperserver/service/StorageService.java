@@ -15,7 +15,6 @@ import java.math.RoundingMode;
 import java.util.*;
 
 import static com.cxb.storehelperserver.util.Permission.*;
-import static com.cxb.storehelperserver.util.TypeDefine.FinanceAction.*;
 import static com.cxb.storehelperserver.util.TypeDefine.OrderType.*;
 
 /**
@@ -74,7 +73,7 @@ public class StorageService {
         int rid = order.getOid();
         TPurchaseOrder purchaseOrder = purchaseOrderRepository.find(rid);
         if (null == purchaseOrder) {
-            return RestResult.fail("未查询到采购单");
+            return RestResult.fail("未查询到采购单信息");
         }
         if (!purchaseOrder.getOtype().equals(PURCHASE_PURCHASE_ORDER.getValue())) {
             return RestResult.fail("进货单据类型异常");
@@ -295,7 +294,7 @@ public class StorageService {
         int rid = order.getOid();
         TPurchaseOrder purchaseOrder = purchaseOrderRepository.find(rid);
         if (null == purchaseOrder) {
-            return RestResult.fail("未查询到采购单");
+            return RestResult.fail("未查询到采购单信息");
         }
         if (!purchaseOrder.getOtype().equals(PURCHASE_PURCHASE_ORDER.getValue())) {
             return RestResult.fail("进货单据类型异常");
@@ -1342,8 +1341,6 @@ public class StorageService {
         }
         order.setUnit(total);
         order.setPrice(price);
-        order.setCurUnit(total);
-        order.setCurPrice(price);
         return null;
     }
 
@@ -1395,8 +1392,6 @@ public class StorageService {
         }
         order.setUnit(total);
         order.setPrice(price);
-        order.setCurUnit(total);
-        order.setCurPrice(price);
         return null;
     }
 
@@ -1443,8 +1438,6 @@ public class StorageService {
         }
         order.setUnit(total);
         order.setPrice(price);
-        order.setCurUnit(total);
-        order.setCurPrice(price);
         return null;
     }
 }

@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableScheduling
 @EnableTransactionManagement
 public class StorehelperserverApplication extends SpringBootServletInitializer {
-	public static void main(String[] args) {
-		SpringApplication.run(StorehelperserverApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(StorehelperserverApplication.class, args);
+    }
 }

@@ -67,7 +67,7 @@ public class OrderController {
     @PostMapping("/getStorageOrder")
     public RestResult getStorageOrder(@Validated @RequestBody GetStorageOrderValid req) {
         return orderService.getStorageOrder(req.getId(), req.getType(), req.getPage(), req.getLimit(),
-                ReviewType.valueOf(req.getReview()), req.getComplete(), req.getSearch());
+                ReviewType.valueOf(req.getReview()), req.getSearch());
     }
 
     @PostMapping("/getSaleOrder")

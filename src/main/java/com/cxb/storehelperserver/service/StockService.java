@@ -193,7 +193,6 @@ public class StockService {
         if (null == storageCommodities || storageCommodities.isEmpty()) {
             return "未查询到商品信息";
         }
-        Date cdate = new Date();
         int gid = order.getGid();
         int sid = order.getSid();
         for (TStorageCommodity storageCommodity : storageCommodities) {
@@ -203,7 +202,7 @@ public class StockService {
             int weight = storageCommodity.getWeight();
             int value = storageCommodity.getValue();
             if (!stockRepository.insert(gid, sid, order.getOtype(), order.getOid(), ctype, cid,
-                    add ? price : price.negate(), add ? weight : -weight, add ? value : -value, cdate)) {
+                    add ? price : price.negate(), add ? weight : -weight, add ? value : -value, order.getApplyTime())) {
                 log.warn("增加库存明细信息失败");
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                 return "增加库存明细信息失败";
@@ -251,7 +250,6 @@ public class StockService {
         if (null == productCommodities || productCommodities.isEmpty()) {
             return "未查询到商品信息";
         }
-        Date cdate = new Date();
         int gid = order.getGid();
         int sid = order.getSid();
         for (TProductCommodity productCommodity : productCommodities) {
@@ -263,16 +261,16 @@ public class StockService {
             int value = productCommodity.getValue();
             switch (ProductType.valueOf(iotype)) {
                 case PRODUCT_OUT: // 出库生产，执行订单就扣，还原就加
-                    if (!stockRepository.insert(gid, sid, order.getOtype(), order.getPid(), ctype, cid,
-                            add ? price : price.negate(), add ? weight : -weight, add ? value : -value, cdate)) {
+                    if (!stockRepository.insert(gid, sid, order.getOtype(), order.getId(), ctype, cid,
+                            add ? price : price.negate(), add ? weight : -weight, add ? value : -value, order.getApplyTime())) {
                         log.warn("增加库存明细信息失败");
                         TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                         return "增加库存明细信息失败";
                     }
                     break;
                 case PRODUCT_IN: // 生产完成，执行订单就加，还原就扣
-                    if (!stockRepository.insert(gid, sid, order.getOtype(), order.getPid(), ctype, cid,
-                            add ? price.negate() : price, add ? -weight : weight, add ? -value : value, cdate)) {
+                    if (!stockRepository.insert(gid, sid, order.getOtype(), order.getId(), ctype, cid,
+                            add ? price.negate() : price, add ? -weight : weight, add ? -value : value, order.getApplyTime())) {
                         log.warn("增加库存明细信息失败");
                         TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                         return "增加库存明细信息失败";
@@ -291,7 +289,6 @@ public class StockService {
         if (null == agreementCommodities || agreementCommodities.isEmpty()) {
             return "未查询到商品信息";
         }
-        Date cdate = new Date();
         int gid = order.getGid();
         int sid = order.getSid();
         for (TAgreementCommodity agreementCommodity : agreementCommodities) {
@@ -301,7 +298,7 @@ public class StockService {
             int weight = agreementCommodity.getWeight();
             int value = agreementCommodity.getValue();
             if (!stockRepository.insert(gid, sid, order.getOtype(), order.getRid(), ctype, cid,
-                    add ? price : price.negate(), add ? weight : -weight, add ? value : -value, cdate)) {
+                    add ? price : price.negate(), add ? weight : -weight, add ? value : -value, order.getApplyTime())) {
                 log.warn("增加库存明细信息失败");
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                 return "增加库存明细信息失败";
@@ -316,7 +313,6 @@ public class StockService {
         if (null == saleCommodities || saleCommodities.isEmpty()) {
             return "未查询到调度商品信息";
         }
-        Date cdate = new Date();
         int gid = order.getGid();
         int sid = order.getSid();
         for (TSaleCommodity saleCommodity : saleCommodities) {
@@ -326,7 +322,7 @@ public class StockService {
             int weight = saleCommodity.getWeight();
             int value = saleCommodity.getValue();
             if (!stockRepository.insert(gid, sid, order.getOtype(), null, ctype, cid,
-                    add ? price : price.negate(), add ? weight : -weight, add ? value : -value, cdate)) {
+                    add ? price : price.negate(), add ? weight : -weight, add ? value : -value, order.getApplyTime())) {
                 log.warn("增加库存明细信息失败");
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                 return "增加库存明细信息失败";

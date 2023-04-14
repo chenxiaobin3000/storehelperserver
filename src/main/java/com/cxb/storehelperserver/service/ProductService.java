@@ -352,8 +352,6 @@ public class ProductService {
         }
         order.setUnit(total);
         order.setPrice(price);
-        order.setCurUnit(total);
-        order.setCurPrice(price);
         return null;
     }
 }

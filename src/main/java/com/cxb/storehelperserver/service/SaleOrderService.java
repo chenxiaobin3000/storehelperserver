@@ -126,6 +126,11 @@ public class SaleOrderService extends BaseService<HashMap> {
             return "生成订单商品信息失败";
         }
 
+        // 没有附件直接返回
+        if (null == attrs) {
+            return null;
+        }
+
         // 删除多余附件
         val saleAttachments = saleAttachmentRepository.findByOid(oid);
         if (null != saleAttachments) {

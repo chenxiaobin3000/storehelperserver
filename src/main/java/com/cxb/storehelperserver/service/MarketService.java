@@ -196,6 +196,7 @@ public class MarketService {
             TStockDay stock = stockService.getStockCommodity(gid, sid, COMMODITY.getValue(), cid);
             if (null != stock) {
                 tmp.put("sprice", stock.getPrice());
+                tmp.put("sweight", stock.getWeight());
                 tmp.put("svalue", stock.getValue());
             }
 
@@ -209,9 +210,7 @@ public class MarketService {
                 }
             }
         }
-        return RestResult.ok(new
-
-                PageData(total, datas));
+        return RestResult.ok(new PageData(total, datas));
     }
 
     public RestResult setMarketStandard(int id, int gid, int sid, int aid, int asid, int cid, String code, String name, String remark, BigDecimal price) {
@@ -328,6 +327,7 @@ public class MarketService {
             TStockDay stock = stockService.getStockCommodity(gid, sid, STANDARD.getValue(), cid);
             if (null != stock) {
                 tmp.put("sprice", stock.getPrice());
+                tmp.put("sweight", stock.getWeight());
                 tmp.put("svalue", stock.getValue());
             }
 

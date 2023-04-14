@@ -30,8 +30,8 @@ public class ScheduledTasks {
     @Resource
     private StorageRepository storageRepository;
 
-    // 2:05执行
-    @Scheduled(cron = "0 5 2 * * ?")
+    // 00:01:00执行
+    @Scheduled(cron = "0 1 0 * * ?")
     private void scheduledStock() {
         log.info("scheduled stock");
         Date today = new Date();

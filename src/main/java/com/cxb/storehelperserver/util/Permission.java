@@ -26,8 +26,9 @@ public class Permission {
     static public final int mp_agreement_return_apply = 32;
     static public final int mp_agreement_again_apply = 33;
     static public final int mp_sale_apply = 40;
-    static public final int mp_sale_after_apply = 41;
-    static public final int mp_sale_loss_apply = 42;
+    static public final int mp_sale_sale_apply = 41;
+    static public final int mp_sale_after_apply = 42;
+    static public final int mp_sale_loss_apply = 43;
     static public final int mp_end_apply = 50;
 
     static public final int mp_purchase_review = 51;
@@ -47,8 +48,9 @@ public class Permission {
     static public final int mp_agreement_return_review = 72;
     static public final int mp_agreement_again_review = 73;
     static public final int mp_sale_review = 80;
-    static public final int mp_sale_after_review = 81;
-    static public final int mp_sale_loss_review = 82;
+    static public final int mp_sale_sale_review = 81;
+    static public final int mp_sale_after_review = 82;
+    static public final int mp_sale_loss_review = 83;
     static public final int mp_end_review = 90;
 
     // 管理后台
@@ -58,10 +60,10 @@ public class Permission {
 
     static public final int agreement = 200;
     static public final int agreement_report = 201;
-    static public final int agreement_shipped = 202;
-    static public final int agreement_return = 203;
-    static public final int agreement_again = 204;
-    static public final int agreement_apply = 205;
+    static public final int agreement_getlist = 202;
+    static public final int agreement_shipped = 203;
+    static public final int agreement_return = 204;
+    static public final int agreement_again = 205;
 
     static public final int purchase = 250;
     static public final int purchase_report = 251;

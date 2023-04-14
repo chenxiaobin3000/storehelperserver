@@ -11,7 +11,6 @@ import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
 
-import static com.cxb.storehelperserver.util.TypeDefine.CompleteType;
 import static com.cxb.storehelperserver.util.TypeDefine.ReviewType;
 
 /**
@@ -46,21 +45,11 @@ public class StorageOrderRepository extends BaseRepository<TStorageOrder> {
         return storageOrder;
     }
 
-    public int total(int gid, int type, ReviewType review, int complete, String search) {
+    public int total(int gid, int type, ReviewType review, String search) {
         // 包含搜索的不缓存
         TStorageOrderExample example = new TStorageOrderExample();
         TStorageOrderExample.Criteria criteria = example.createCriteria();
         criteria.andGidEqualTo(gid).andOtypeEqualTo(type);
-        switch (CompleteType.valueOf(complete)) {
-            case COMPLETE_HAS:
-                criteria.andCompleteEqualTo(new Byte("1"));
-                break;
-            case COMPLETE_NOT:
-                criteria.andCompleteEqualTo(new Byte("0"));
-                break;
-            default:
-                break;
-        }
         if (null != search) {
             criteria.andBatchLike("%" + search + "%");
         }
@@ -77,20 +66,10 @@ public class StorageOrderRepository extends BaseRepository<TStorageOrder> {
         return (int) storageOrderMapper.countByExample(example);
     }
 
-    public List<TStorageOrder> pagination(int gid, int type, int page, int limit, ReviewType review, int complete, String search) {
+    public List<TStorageOrder> pagination(int gid, int type, int page, int limit, ReviewType review, String search) {
         TStorageOrderExample example = new TStorageOrderExample();
         TStorageOrderExample.Criteria criteria = example.createCriteria();
         criteria.andGidEqualTo(gid).andOtypeEqualTo(type);
-        switch (CompleteType.valueOf(complete)) {
-            case COMPLETE_HAS:
-                criteria.andCompleteEqualTo(new Byte("1"));
-                break;
-            case COMPLETE_NOT:
-                criteria.andCompleteEqualTo(new Byte("0"));
-                break;
-            default:
-                break;
-        }
         if (null != search) {
             criteria.andBatchLike("%" + search + "%");
         }
@@ -124,7 +103,7 @@ public class StorageOrderRepository extends BaseRepository<TStorageOrder> {
 
     public boolean checkBySupplier(int sid) {
         TStorageOrderExample example = new TStorageOrderExample();
-        example.or().andSupplierEqualTo(sid);
+        example.or().andSid2EqualTo(sid);
         return null != storageOrderMapper.selectOneByExample(example);
     }
 
