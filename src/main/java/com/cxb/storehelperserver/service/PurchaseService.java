@@ -358,29 +358,7 @@ public class PurchaseService {
     }
 
     public RestResult delReturn(int id, int oid) {
-        TPurchaseOrder order = purchaseOrderRepository.find(oid);
-        if (null == order) {
-            return RestResult.fail("未查询到要删除的订单");
-        }
-
-        // 校验是否订单提交人，已经审核的订单不能删除
-        Integer review = order.getReview();
-        if (null != review) {
-            return RestResult.fail("已审核的订单不能删除");
-        }
-        if (!order.getApply().equals(id)) {
-            return RestResult.fail("订单必须由申请人删除");
-        }
-
-        // 删除商品附件数据
-        purchaseAttachmentRepository.deleteByOid(oid);
-        if (!purchaseCommodityRepository.delete(oid)) {
-            return RestResult.fail("删除关联商品失败");
-        }
-        if (!purchaseOrderRepository.delete(oid)) {
-            return RestResult.fail("删除订单失败");
-        }
-        return reviewService.delete(review, order.getOtype(), oid);
+        return delPurchase(id, oid);
     }
 
     public RestResult reviewReturn(int id, int oid) {

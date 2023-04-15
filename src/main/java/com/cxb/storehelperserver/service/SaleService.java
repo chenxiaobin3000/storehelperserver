@@ -18,6 +18,8 @@ import java.util.Date;
 import java.util.List;
 
 import static com.cxb.storehelperserver.util.Permission.*;
+import static com.cxb.storehelperserver.util.TypeDefine.CommodityType.COMMODITY;
+import static com.cxb.storehelperserver.util.TypeDefine.CommodityType.STANDARD;
 import static com.cxb.storehelperserver.util.TypeDefine.OrderType.SALE_SALE_ORDER;
 
 /**
@@ -52,6 +54,9 @@ public class SaleService {
 
     @Resource
     private AgreementOrderRepository agreementOrderRepository;
+
+    @Resource
+    private AgreementCommodityRepository agreementCommodityRepository;
 
     @Resource
     private MarketCommodityDetailRepository marketCommodityDetailRepository;
@@ -97,8 +102,14 @@ public class SaleService {
                 return RestResult.fail("未查询到销售信息");
             }
             for (MyMarketCommodity commodity : list) {
+                //if (commodity.getPrice().compareTo(BigDecimal.ZERO) > 0) {
                 TSaleCommodity c = new TSaleCommodity();
                 comms.add(c);
+                c.setCtype(COMMODITY.getValue());
+                c.setCid(commodity.getCid());
+                c.setPrice(commodity.getPrice());
+                c.setValue(commodity.getValue());
+                //}
             }
         }
 
@@ -109,8 +120,32 @@ public class SaleService {
                 return RestResult.fail("未查询到销售信息");
             }
             for (MyMarketCommodity commodity : list) {
+                //if (commodity.getPrice().compareTo(BigDecimal.ZERO) > 0) {
                 TSaleCommodity c = new TSaleCommodity();
                 comms.add(c);
+                c.setCtype(COMMODITY.getValue());
+                c.setCid(commodity.getCid());
+                c.setPrice(commodity.getPrice().multiply(new BigDecimal(c.getValue())));
+                c.setValue(commodity.getValue());
+                //}
+            }
+        }
+
+        // 从履约单获取数据
+        val agreementCommodities = agreementCommodityRepository.find(aid);
+        if (null == agreementCommodities || agreementCommodities.isEmpty()) {
+            return RestResult.fail("未查询到履约商品信息");
+        }
+        for (TSaleCommodity c : comms) {
+            for (TAgreementCommodity c2 : agreementCommodities) {
+                if (c.getCid().equals(c2.getCid())) {
+                    if (c.getValue().equals(c2.getValue())) {
+                        c.setWeight(c2.getWeight());
+                    } else {
+                        c.setWeight(c2.getWeight() * c.getValue() / c2.getValue());
+                    }
+                    break;
+                }
             }
         }
 
@@ -126,6 +161,122 @@ public class SaleService {
             return RestResult.fail(msg);
         }
         return reviewService.apply(id, order.getGid(), order.getSid(), order.getOtype(), oid, batch, reviews);
+    }
+
+    public RestResult delSale(int id, int oid) {
+        TSaleOrder order = saleOrderRepository.find(oid);
+        if (null == order) {
+            return RestResult.fail("未查询到要删除的订单");
+        }
+
+        // 校验是否订单提交人，已经审核的订单不能删除
+        Integer review = order.getReview();
+        if (null != review) {
+            return RestResult.fail("已审核的订单不能删除");
+        }
+        if (!order.getApply().equals(id)) {
+            return RestResult.fail("订单必须由申请人删除");
+        }
+
+        // 删除商品附件数据
+        saleAttachmentRepository.deleteByOid(oid);
+        if (!saleCommodityRepository.delete(oid)) {
+            return RestResult.fail("删除关联商品失败");
+        }
+        if (!saleOrderRepository.delete(oid)) {
+            return RestResult.fail("删除订单失败");
+        }
+        return reviewService.delete(review, order.getOtype(), oid);
+    }
+
+    public RestResult reviewSale(int id, int oid) {
+        // 获取公司信息
+        TUserGroup group = userGroupRepository.find(id);
+        if (null == group) {
+            return RestResult.fail("获取公司信息失败");
+        }
+        int gid = group.getGid();
+
+        // 校验审核人员信息
+        TSaleOrder order = saleOrderRepository.find(oid);
+        if (null == order) {
+            return RestResult.fail("未查询到要审核的订单");
+        }
+        if (!reviewService.checkReview(id, order.getOtype(), oid)) {
+            return RestResult.fail("您没有审核权限");
+        }
+
+        // 校验退货订单总件数不能超出采购单
+        TAgreementOrder agreement = agreementOrderRepository.find(order.getPid());
+        if (null == agreement) {
+            return RestResult.fail("未查询到对应的履约单");
+        }
+        int value = agreement.getCurValue() - order.getValue();
+        if (value < 0) {
+            return RestResult.fail("销售商品总量不能超出履约订单总量");
+        }
+        if (0 == value) {
+            agreement.setComplete(new Byte("1"));
+        }
+        agreement.setCurValue(value);
+        agreement.setCurPrice(agreement.getCurPrice().subtract(order.getPrice()));
+        if (!agreementOrderRepository.update(agreement)) {
+            return RestResult.fail("修改履约单数据失败");
+        }
+
+        // 添加审核信息
+        Date reviewTime = new Date();
+        order.setReview(id);
+        order.setReviewTime(reviewTime);
+        if (!saleOrderRepository.update(order)) {
+            return RestResult.fail("审核用户订单信息失败");
+        }
+        return reviewService.review(order.getApply(), id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
+    }
+
+    public RestResult revokeSale(int id, int oid) {
+        TSaleOrder order = saleOrderRepository.find(oid);
+        if (null == order) {
+            return RestResult.fail("未查询到要撤销的订单");
+        }
+        if (null == order.getReview()) {
+            return RestResult.fail("未审核的订单不能撤销");
+        }
+
+        // 验证公司
+        int gid = order.getGid();
+        String msg = checkService.checkGroup(id, gid);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+
+        // 校验申请订单权限
+        if (!checkService.checkRolePermission(id, market_input)) {
+            return RestResult.fail("本账号没有相关的权限，请联系管理员");
+        }
+
+        // 还原扣除的履约单数量
+        TAgreementOrder agreement = agreementOrderRepository.find(order.getPid());
+        if (null == agreement) {
+            return RestResult.fail("未查询到对应的履约单");
+        }
+        agreement.setCurValue(agreement.getCurValue() + order.getValue());
+        agreement.setCurPrice(agreement.getCurPrice().add(order.getPrice()));
+        agreement.setComplete(new Byte("0"));
+        if (!agreementOrderRepository.update(agreement)) {
+            return RestResult.fail("修改履约单数据失败");
+        }
+
+        RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApply(), mp_sale_sale_review);
+        if (null != ret) {
+            return ret;
+        }
+
+        // 撤销审核人信息
+        if (!saleOrderRepository.setReviewNull(oid)) {
+            return RestResult.fail("撤销订单审核信息失败");
+        }
+        return RestResult.ok();
     }
 
     /**
@@ -208,29 +359,7 @@ public class SaleService {
     }
 
     public RestResult delAfter(int id, int oid) {
-        TSaleOrder order = saleOrderRepository.find(oid);
-        if (null == order) {
-            return RestResult.fail("未查询到要删除的订单");
-        }
-
-        // 校验是否订单提交人，已经审核的订单不能删除
-        Integer review = order.getReview();
-        if (null != review) {
-            return RestResult.fail("已审核的订单不能删除");
-        }
-        if (!order.getApply().equals(id)) {
-            return RestResult.fail("订单必须由申请人删除");
-        }
-
-        // 删除商品附件数据
-        saleAttachmentRepository.deleteByOid(oid);
-        if (!saleCommodityRepository.delete(oid)) {
-            return RestResult.fail("删除关联商品失败");
-        }
-        if (!saleOrderRepository.delete(oid)) {
-            return RestResult.fail("删除订单失败");
-        }
-        return reviewService.delete(review, order.getOtype(), oid);
+        return delSale(id, oid);
     }
 
     public RestResult reviewAfter(int id, int oid) {
@@ -373,29 +502,7 @@ public class SaleService {
     }
 
     public RestResult delLoss(int id, int oid) {
-        TSaleOrder order = saleOrderRepository.find(oid);
-        if (null == order) {
-            return RestResult.fail("未查询到要删除的订单");
-        }
-
-        // 校验是否订单提交人，已经审核的订单不能删除
-        Integer review = order.getReview();
-        if (null != review) {
-            return RestResult.fail("已审核的订单不能删除");
-        }
-        if (!order.getApply().equals(id)) {
-            return RestResult.fail("订单必须由申请人删除");
-        }
-
-        // 删除商品附件数据
-        saleAttachmentRepository.deleteByOid(oid);
-        if (!saleCommodityRepository.delete(oid)) {
-            return RestResult.fail("删除关联商品失败");
-        }
-        if (!saleOrderRepository.delete(oid)) {
-            return RestResult.fail("删除订单失败");
-        }
-        return reviewService.delete(review, order.getOtype(), oid);
+        return delSale(id, oid);
     }
 
     public RestResult reviewLoss(int id, int oid) {

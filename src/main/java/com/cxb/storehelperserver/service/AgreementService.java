@@ -212,7 +212,7 @@ public class AgreementService {
             return RestResult.fail("未审核的订单不能撤销");
         }
         // 已销售或退货的不能撤销
-        if (order.getUnit() > order.getCurUnit()) {
+        if (order.getValue() > order.getCurValue()) {
             return RestResult.fail("已销售或退货的订单不能撤销");
         }
 
@@ -334,29 +334,7 @@ public class AgreementService {
     }
 
     public RestResult delReturn(int id, int oid) {
-        TAgreementOrder order = agreementOrderRepository.find(oid);
-        if (null == order) {
-            return RestResult.fail("未查询到要删除的订单");
-        }
-
-        // 校验是否订单提交人，已经审核的订单不能删除
-        Integer review = order.getReview();
-        if (null != review) {
-            return RestResult.fail("已审核的订单不能删除");
-        }
-        if (!order.getApply().equals(id)) {
-            return RestResult.fail("订单必须由申请人删除");
-        }
-
-        // 删除商品附件数据
-        agreementAttachmentRepository.deleteByOid(oid);
-        if (!agreementCommodityRepository.delete(oid)) {
-            return RestResult.fail("删除关联商品失败");
-        }
-        if (!agreementOrderRepository.delete(oid)) {
-            return RestResult.fail("删除订单失败");
-        }
-        return reviewService.delete(review, order.getOtype(), oid);
+        return delShipped(id, oid);
     }
 
     public RestResult reviewReturn(int id, int oid) {
@@ -381,18 +359,18 @@ public class AgreementService {
         if (null == agreement) {
             return RestResult.fail("未查询到对应的履约单");
         }
-        int unit = agreement.getCurUnit() - order.getUnit();
-        if (unit < 0) {
-            return RestResult.fail("退货商品总量不能超出履约订单总量");
+        int value = agreement.getCurValue() - order.getValue();
+        if (value < 0) {
+            return RestResult.fail("退货商品总件数不能超出履约订单总件数");
         }
         BigDecimal price = agreement.getCurPrice().subtract(order.getPrice());
         if (price.compareTo(BigDecimal.ZERO) < 0) {
             return RestResult.fail("退货商品总价不能超出履约订单总价");
         }
-        if (0 == unit) {
+        if (0 == value) {
             agreement.setComplete(new Byte("1"));
         }
-        agreement.setCurUnit(unit);
+        agreement.setCurValue(value);
         agreement.setCurPrice(price);
         if (!agreementOrderRepository.update(agreement)) {
             return RestResult.fail("修改履约单数据失败");
@@ -446,7 +424,7 @@ public class AgreementService {
         if (null == agreement) {
             return RestResult.fail("未查询到对应的履约单");
         }
-        agreement.setCurUnit(agreement.getCurUnit() + order.getUnit());
+        agreement.setCurValue(agreement.getCurValue() + order.getValue());
         agreement.setCurPrice(agreement.getCurPrice().add(order.getPrice()));
         agreement.setComplete(new Byte("0"));
         if (!agreementOrderRepository.update(agreement)) {
@@ -564,29 +542,7 @@ public class AgreementService {
     }
 
     public RestResult delAgain(int id, int oid) {
-        TAgreementOrder order = agreementOrderRepository.find(oid);
-        if (null == order) {
-            return RestResult.fail("未查询到要删除的订单");
-        }
-
-        // 校验是否订单提交人，已经审核的订单不能删除
-        Integer review = order.getReview();
-        if (null != review) {
-            return RestResult.fail("已审核的订单不能删除");
-        }
-        if (!order.getApply().equals(id)) {
-            return RestResult.fail("订单必须由申请人删除");
-        }
-
-        // 删除商品附件数据
-        agreementAttachmentRepository.deleteByOid(oid);
-        if (!agreementCommodityRepository.delete(oid)) {
-            return RestResult.fail("删除关联商品失败");
-        }
-        if (!agreementOrderRepository.delete(oid)) {
-            return RestResult.fail("删除订单失败");
-        }
-        return reviewService.delete(review, order.getOtype(), oid);
+        return delShipped(id, oid);
     }
 
     public RestResult reviewAgain(int id, int oid) {
@@ -611,18 +567,18 @@ public class AgreementService {
         if (null == agreement) {
             return RestResult.fail("未查询到对应的履约单");
         }
-        int unit = agreement.getCurUnit() - order.getUnit();
-        if (unit < 0) {
+        int value = agreement.getCurValue() - order.getValue();
+        if (value < 0) {
             return RestResult.fail("退货商品总量不能超出履约订单总量");
         }
         BigDecimal price = agreement.getCurPrice().subtract(order.getPrice());
         if (price.compareTo(BigDecimal.ZERO) < 0) {
             return RestResult.fail("退货商品总价不能超出履约订单总价");
         }
-        if (0 == unit) {
+        if (0 == value) {
             agreement.setComplete(new Byte("1"));
         }
-        agreement.setCurUnit(unit);
+        agreement.setCurValue(value);
         agreement.setCurPrice(price);
         if (!agreementOrderRepository.update(agreement)) {
             return RestResult.fail("修改履约单数据失败");
@@ -670,7 +626,7 @@ public class AgreementService {
         if (null == agreement) {
             return RestResult.fail("未查询到对应的履约单");
         }
-        agreement.setCurUnit(agreement.getCurUnit() + order.getUnit());
+        agreement.setCurValue(agreement.getCurValue() + order.getValue());
         agreement.setCurPrice(agreement.getCurPrice().add(order.getPrice()));
         agreement.setComplete(new Byte("0"));
         if (!agreementOrderRepository.update(agreement)) {
@@ -714,6 +670,7 @@ public class AgreementService {
         }
         int sid = order.getSid();
         int total = 0;
+        int all = 0;
         BigDecimal price = new BigDecimal(0);
         for (int i = 0; i < size; i++) {
             // 获取商品单位信息
@@ -746,11 +703,13 @@ public class AgreementService {
             list.add(c);
 
             total = total + weight;
+            all = all + value;
             price = price.add(c.getPrice());
         }
         order.setUnit(total);
+        order.setValue(all);
         order.setPrice(price);
-        order.setCurUnit(total);
+        order.setCurValue(all);
         order.setCurPrice(price);
         return null;
     }
@@ -766,6 +725,7 @@ public class AgreementService {
             return RestResult.fail("未查询到履约商品信息");
         }
         int total = 0;
+        int all = 0;
         BigDecimal price = new BigDecimal(0);
         for (int i = 0; i < size; i++) {
             boolean find = false;
@@ -797,6 +757,7 @@ public class AgreementService {
                     list.add(c);
 
                     total = total + weight;
+                    all = all + value;
                     price = price.add(c.getPrice());
                     break;
                 }
@@ -806,8 +767,9 @@ public class AgreementService {
             }
         }
         order.setUnit(total);
+        order.setValue(all);
         order.setPrice(price);
-        order.setCurUnit(total);
+        order.setCurValue(all);
         order.setCurPrice(price);
         return null;
     }

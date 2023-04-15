@@ -46,6 +46,21 @@ public class SaleController {
         return saleService.sale(req.getId(), req.getGid(), req.getSid(), req.getPid(), date);
     }
 
+    @PostMapping("/delSale")
+    public RestResult delSale(@Validated @RequestBody DelAfterValid req) {
+        return saleService.delSale(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/reviewSale")
+    public RestResult reviewSale(@Validated @RequestBody ReviewAfterValid req) {
+        return saleService.reviewSale(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/revokeSale")
+    public RestResult revokeSale(@Validated @RequestBody RevokeAfterValid req) {
+        return saleService.revokeSale(req.getId(), req.getOid());
+    }
+
     @PostMapping("/after")
     public RestResult after(@Validated @RequestBody AfterValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();

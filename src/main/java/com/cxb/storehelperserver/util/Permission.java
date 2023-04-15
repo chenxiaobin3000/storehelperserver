@@ -98,7 +98,6 @@ public class Permission {
     static public final int market_input = 503;
     static public final int market_after = 504;
     static public final int market_loss = 505;
-    static public final int market_apply = 506;
 
     static public final int product = 600;
     static public final int product_report = 601;
