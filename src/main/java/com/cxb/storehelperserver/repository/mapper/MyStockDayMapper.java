@@ -18,32 +18,32 @@ public interface MyStockDayMapper {
     @Select({"<script>",
             "select t2.id, t2.gid, t2.sid, t1.cid, t2.price, t2.weight, t2.value, t3.code, t3.name, t3.cid as ctid, t3.remark",
             "from t_commodity_storage t1 left join (select id, gid, sid, ctype, cid, price, weight, value, cdate from t_stock_day",
-            "where ctype = 1 and cdate = #{date}) t2 on t1.cid = t2.cid left join t_commodity t3 on t1.cid = t3.id where t1.sid = #{sid}",
-            "<if test='null != search'>and t3.name like #{search}</if> order by weight desc limit #{offset}, #{limit}",
+            "where sid = #{sid} and ctype = 1 and cdate = #{date}) t2 on t1.cid = t2.cid left join t_commodity t3 on t1.cid = t3.id where t1.sid = #{sid}",
+            "<if test='null != search'>and t3.name like #{search}</if> order by t2.weight desc limit #{offset}, #{limit}",
             "</script>"})
     List<MyStockCommodity> pagination_commodity(int offset, int limit, int sid, Date date, String search);
 
     @Select({"<script>",
             "select t2.id, t2.gid, t2.sid, t1.cid, t2.price, t2.weight, t2.value, t3.code, t3.name, t3.cid as ctid, t3.remark",
             "from t_halfgood_storage t1 left join (select id, gid, sid, ctype, cid, price, weight, value, cdate from t_stock_day",
-            "where ctype = 2 and cdate = #{date}) t2 on t1.cid = t2.cid left join t_halfgood t3 on t1.cid = t3.id where t1.sid = #{sid}",
-            "<if test='null != search'>and t3.name like #{search}</if> order by weight desc limit #{offset}, #{limit}",
+            "where sid = #{sid} and ctype = 2 and cdate = #{date}) t2 on t1.cid = t2.cid left join t_halfgood t3 on t1.cid = t3.id where t1.sid = #{sid}",
+            "<if test='null != search'>and t3.name like #{search}</if> order by t2.weight desc limit #{offset}, #{limit}",
             "</script>"})
     List<MyStockCommodity> pagination_halfgood(int offset, int limit, int sid, Date date, String search);
 
     @Select({"<script>",
             "select t2.id, t2.gid, t2.sid, t1.cid, t2.price, t2.weight, t2.value, t3.code, t3.name, t3.cid as ctid, t3.remark",
             "from t_original_storage t1 left join (select id, gid, sid, ctype, cid, price, weight, value, cdate from t_stock_day",
-            "where ctype = 3 and cdate = #{date}) t2 on t1.cid = t2.cid left join t_original t3 on t1.cid = t3.id where t1.sid = #{sid}",
-            "<if test='null != search'>and t3.name like #{search}</if> order by weight desc limit #{offset}, #{limit}",
+            "where sid = #{sid} and ctype = 3 and cdate = #{date}) t2 on t1.cid = t2.cid left join t_original t3 on t1.cid = t3.id where t1.sid = #{sid}",
+            "<if test='null != search'>and t3.name like #{search}</if> order by t2.weight desc limit #{offset}, #{limit}",
             "</script>"})
     List<MyStockCommodity> pagination_original(int offset, int limit, int sid, Date date, String search);
 
     @Select({"<script>",
             "select t2.id, t2.gid, t2.sid, t1.cid, t2.price, t2.weight, t2.value, t3.code, t3.name, t3.cid as ctid, t3.remark",
             "from t_standard_storage t1 left join (select id, gid, sid, ctype, cid, price, weight, value, cdate from t_stock_day",
-            "where ctype = 4 and cdate = #{date}) t2 on t1.cid = t2.cid left join t_standard t3 on t1.cid = t3.id where t1.sid = #{sid}",
-            "<if test='null != search'>and t3.name like #{search}</if> order by weight desc limit #{offset}, #{limit}",
+            "where sid = #{sid} and ctype = 4 and cdate = #{date}) t2 on t1.cid = t2.cid left join t_standard t3 on t1.cid = t3.id where t1.sid = #{sid}",
+            "<if test='null != search'>and t3.name like #{search}</if> order by t2.weight desc limit #{offset}, #{limit}",
             "</script>"})
     List<MyStockCommodity> pagination_standard(int offset, int limit, int sid, Date date, String search);
 

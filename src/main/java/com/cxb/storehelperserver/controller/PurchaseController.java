@@ -102,6 +102,7 @@ public class PurchaseController {
         order.setRid(req.getRid());
         order.setPayPrice(new BigDecimal(0));
         order.setComplete(new Byte("0"));
+        order.setSupplier(0);
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));
         } catch (ParseException e) {

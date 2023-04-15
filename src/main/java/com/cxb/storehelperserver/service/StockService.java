@@ -138,27 +138,21 @@ public class StockService {
             // 加上今日变化量
             Date tomorrow = dateUtil.addOneDay(today, 1);
             for (MyStockCommodity c : commodities) {
+                if (null == c.getPrice()) {
+                    c.setPrice(new BigDecimal(0));
+                }
+                if (null == c.getWeight()) {
+                    c.setWeight(0);
+                }
+                if (null == c.getValue()) {
+                    c.setValue(0);
+                }
                 val commodities2 = stockRepository.findHistory(gid, sid, ctype, c.getCid(), today, tomorrow);
                 if (null != commodities2 && !commodities2.isEmpty()) {
                     for (MyStockCommodity c2 : commodities2) {
-                        BigDecimal price = c.getPrice();
-                        if (null == price) {
-                            c.setPrice(null == c2.getPrice() ? new BigDecimal(0) : c2.getPrice());
-                        } else {
-                            c.setPrice(c.getPrice().add(c2.getPrice()));
-                        }
-                        Integer weight = c.getWeight();
-                        if (null == weight) {
-                            c.setWeight(null == c2.getWeight() ? 0 : c2.getWeight());
-                        } else {
-                            c.setWeight(c.getWeight() + c2.getWeight());
-                        }
-                        Integer value = c.getValue();
-                        if (null == value) {
-                            c.setValue(null == c2.getValue() ? 0 : c2.getValue());
-                        } else {
-                            c.setValue(c.getValue() + c2.getValue());
-                        }
+                        c.setPrice(c.getPrice().add(c2.getPrice()));
+                        c.setWeight(c.getWeight() + c2.getWeight());
+                        c.setValue(c.getValue() + c2.getValue());
                     }
                 }
             }
@@ -236,8 +230,7 @@ public class StockService {
             BigDecimal price = storageCommodity.getPrice();
             int weight = storageCommodity.getWeight();
             int value = storageCommodity.getValue();
-            if (!stockRepository.insert(gid, sid, order.getOtype(), order.getOid(), ctype, cid,
-                    add ? price : price.negate(), add ? weight : -weight, add ? value : -value, order.getApplyTime())) {
+            if (!stockRepository.insert(gid, sid, order.getOtype(), order.getOid(), ctype, cid, add ? price : price.negate(), add ? weight : -weight, add ? value : -value, order.getApplyTime())) {
                 log.warn("增加库存明细信息失败");
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                 return "增加库存明细信息失败";
@@ -262,15 +255,13 @@ public class StockService {
             BigDecimal price = storageCommodity.getPrice();
             int weight = storageCommodity.getWeight();
             int value = storageCommodity.getValue();
-            if (!stockRepository.insert(gid, sid, order.getOtype(), order.getOid(), ctype, cid,
-                    add ? price : price.negate(), add ? weight : -weight, add ? value : -value, cdate)) {
+            if (!stockRepository.insert(gid, sid, order.getOtype(), order.getOid(), ctype, cid, add ? price : price.negate(), add ? weight : -weight, add ? value : -value, cdate)) {
                 log.warn("修改源库存明细信息失败");
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                 return "修改源库存明细信息失败";
             }
             // 跟仓库1相反
-            if (!stockRepository.insert(gid, sid2, order.getOtype(), order.getOid(), ctype, cid,
-                    add ? price.negate() : price, add ? -weight : weight, add ? -value : value, cdate)) {
+            if (!stockRepository.insert(gid, sid2, order.getOtype(), order.getOid(), ctype, cid, add ? price.negate() : price, add ? -weight : weight, add ? -value : value, cdate)) {
                 log.warn("修改库存明细信息失败");
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                 return "修改库存明细信息失败";
@@ -296,16 +287,14 @@ public class StockService {
             int value = productCommodity.getValue();
             switch (ProductType.valueOf(iotype)) {
                 case PRODUCT_OUT: // 出库生产，执行订单就扣，还原就加
-                    if (!stockRepository.insert(gid, sid, order.getOtype(), order.getId(), ctype, cid,
-                            add ? price : price.negate(), add ? weight : -weight, add ? value : -value, order.getApplyTime())) {
+                    if (!stockRepository.insert(gid, sid, order.getOtype(), order.getId(), ctype, cid, add ? price : price.negate(), add ? weight : -weight, add ? value : -value, order.getApplyTime())) {
                         log.warn("增加库存明细信息失败");
                         TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                         return "增加库存明细信息失败";
                     }
                     break;
                 case PRODUCT_IN: // 生产完成，执行订单就加，还原就扣
-                    if (!stockRepository.insert(gid, sid, order.getOtype(), order.getId(), ctype, cid,
-                            add ? price.negate() : price, add ? -weight : weight, add ? -value : value, order.getApplyTime())) {
+                    if (!stockRepository.insert(gid, sid, order.getOtype(), order.getId(), ctype, cid, add ? price.negate() : price, add ? -weight : weight, add ? -value : value, order.getApplyTime())) {
                         log.warn("增加库存明细信息失败");
                         TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                         return "增加库存明细信息失败";
@@ -332,8 +321,7 @@ public class StockService {
             BigDecimal price = agreementCommodity.getPrice();
             int weight = agreementCommodity.getWeight();
             int value = agreementCommodity.getValue();
-            if (!stockRepository.insert(gid, sid, order.getOtype(), order.getRid(), ctype, cid,
-                    add ? price : price.negate(), add ? weight : -weight, add ? value : -value, order.getApplyTime())) {
+            if (!stockRepository.insert(gid, sid, order.getOtype(), order.getRid(), ctype, cid, add ? price : price.negate(), add ? weight : -weight, add ? value : -value, order.getApplyTime())) {
                 log.warn("增加库存明细信息失败");
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                 return "增加库存明细信息失败";
@@ -356,8 +344,7 @@ public class StockService {
             BigDecimal price = saleCommodity.getPrice();
             int weight = saleCommodity.getWeight();
             int value = saleCommodity.getValue();
-            if (!stockRepository.insert(gid, sid, order.getOtype(), null, ctype, cid,
-                    add ? price : price.negate(), add ? weight : -weight, add ? value : -value, order.getApplyTime())) {
+            if (!stockRepository.insert(gid, sid, order.getOtype(), null, ctype, cid, add ? price : price.negate(), add ? weight : -weight, add ? value : -value, order.getApplyTime())) {
                 log.warn("增加库存明细信息失败");
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                 return "增加库存明细信息失败";

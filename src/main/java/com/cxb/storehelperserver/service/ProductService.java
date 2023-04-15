@@ -15,6 +15,7 @@ import java.math.RoundingMode;
 import java.util.*;
 
 import static com.cxb.storehelperserver.util.Permission.*;
+import static com.cxb.storehelperserver.util.TypeDefine.ProductType;
 import static com.cxb.storehelperserver.util.TypeDefine.ProductType.*;
 
 /**
@@ -74,21 +75,6 @@ public class ProductService {
             return ret;
         }
 
-        // 校验完成商品关联生产原料
-        int weight = 0;
-        for (Integer w : weights) {
-            weight += w;
-        }
-        for (Integer w : weights2) {
-            weight -= w;
-        }
-        for (Integer w : weights3) {
-            weight -= w;
-        }
-        if (0 != weight) {
-            return RestResult.fail("出入库总重量必须相等");
-        }
-
         // 生成生产单
         val comms = new ArrayList<TProductCommodity>();
         ret = createCollectComms(order, PRODUCT_OUT.getValue(), types, commoditys, null, weights, values, comms);
@@ -112,6 +98,9 @@ public class ProductService {
                 return ret;
             }
             comms.addAll(comms3);
+        }
+        if (order.getUnit() != order.getUnit2() + order.getUnit3()) {
+            return RestResult.fail("出入库总重量必须相等");
         }
 
         // 生成生产单批号
@@ -324,14 +313,16 @@ public class ProductService {
             int weight = weights.get(i);
             int value = values.get(i);
             TStockDay stock = stockService.getStockCommodity(order.getGid(), sid, ctype, cid);
-            if (null == stock) {
-                return RestResult.fail("未查询到库存类型:" + types.get(i) + ",商品:" + commoditys.get(i));
-            }
-            if (weight > stock.getWeight()) {
-                return RestResult.fail("库存商品重量不足:" + ctype + ",商品:" + cid);
-            }
-            if (value > stock.getValue()) {
-                return RestResult.fail("库存商品件数不足:" + ctype + ",商品:" + cid);
+            if (PRODUCT_OUT.getValue() == iotype) {
+                if (null == stock) {
+                    return RestResult.fail("未查询到库存类型:" + types.get(i) + ",商品:" + commoditys.get(i));
+                }
+                if (weight > stock.getWeight()) {
+                    return RestResult.fail("库存商品重量不足:" + ctype + ",商品:" + cid);
+                }
+                if (value > stock.getValue()) {
+                    return RestResult.fail("库存商品件数不足:" + ctype + ",商品:" + cid);
+                }
             }
 
             TProductCommodity c = new TProductCommodity();
@@ -350,8 +341,22 @@ public class ProductService {
             total = total + weight;
             price = price.add(c.getPrice());
         }
-        order.setUnit(total);
-        order.setPrice(price);
+        switch (ProductType.valueOf(iotype)) {
+            case PRODUCT_OUT:
+                order.setUnit(total);
+                order.setPrice(price);
+                break;
+            case PRODUCT_IN:
+                order.setUnit2(total);
+                order.setPrice2(price);
+                break;
+            case PRODUCT_LOSS:
+                order.setUnit3(total);
+                order.setPrice3(price);
+                break;
+            default:
+                break;
+        }
         return null;
     }
 }
