@@ -201,10 +201,15 @@ public class StorageService {
         if (unit < 0) {
             return RestResult.fail("入库商品总量不能超出采购订单总量");
         }
+        BigDecimal price = purchase.getCurPrice().subtract(order.getPrice());
+        if (price.compareTo(BigDecimal.ZERO) < 0) {
+            return RestResult.fail("退货商品总价不能超出采购订单总价");
+        }
         if (0 == unit) {
             purchase.setComplete(new Byte("1"));
         }
         purchase.setCurUnit(unit);
+        purchase.setCurPrice(price);
         if (!purchaseOrderRepository.update(purchase)) {
             return RestResult.fail("修改进货单数据失败");
         }

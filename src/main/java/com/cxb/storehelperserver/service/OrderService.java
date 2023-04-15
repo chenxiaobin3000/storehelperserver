@@ -533,7 +533,7 @@ public class OrderService {
         val list = agreementOrderRepository.pagination(group.getGid(), type, page, limit, review, search);
         if (null != list && !list.isEmpty()) {
             for (TAgreementOrder o : list) {
-                val ret = createOrder(o.getOtype(), o.getId(), o.getBatch(), o.getSid(), o.getAid(), o.getAsid(), o.getRid(), o.getUnit(), o.getCurUnit(), o.getPrice(), o.getCurPrice(), null, o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(), null == o.getReview() ? null : dateFormat.format(o.getReviewTime()), null);
+                val ret = createOrder(o.getOtype(), o.getId(), o.getBatch(), o.getSid(), o.getAid(), o.getAsid(), o.getRid(), o.getUnit(), o.getCurUnit(), o.getPrice(), o.getCurPrice(), null, o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(), null == o.getReview() ? null : dateFormat.format(o.getReviewTime()), o.getComplete());
                 HashMap<String, Object> datas = agreementOrderService.find(o.getId());
                 if (null != datas) {
                     ret.put("comms", datas.get("comms"));
@@ -770,7 +770,7 @@ public class OrderService {
                     case AGREEMENT_RETURN_ORDER:
                     case AGREEMENT_AGAIN_ORDER: {
                         TAgreementOrder o = agreementOrderRepository.find(oa.getOid());
-                        val ret = createOrder(oa.getOtype(), o.getId(), o.getBatch(), o.getSid(), o.getAid(), o.getAsid(), o.getRid(), o.getUnit(), o.getCurUnit(), o.getPrice(), o.getCurPrice(), null, o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(), null == o.getReview() ? null : dateFormat.format(o.getReviewTime()), null);
+                        val ret = createOrder(oa.getOtype(), o.getId(), o.getBatch(), o.getSid(), o.getAid(), o.getAsid(), o.getRid(), o.getUnit(), o.getCurUnit(), o.getPrice(), o.getCurPrice(), null, o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(), null == o.getReview() ? null : dateFormat.format(o.getReviewTime()), o.getComplete());
                         HashMap<String, Object> datas = agreementOrderService.find(o.getId());
                         if (null != datas) {
                             ret.put("comms", datas.get("comms"));
@@ -869,7 +869,7 @@ public class OrderService {
                     case AGREEMENT_RETURN_ORDER:
                     case AGREEMENT_AGAIN_ORDER: {
                         TAgreementOrder o = agreementOrderRepository.find(or.getOid());
-                        val ret = createOrder(or.getOtype(), o.getId(), o.getBatch(), o.getSid(), o.getAid(), o.getAsid(), o.getRid(), o.getUnit(), o.getCurUnit(), o.getPrice(), o.getCurPrice(), null, o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(), null == o.getReview() ? null : dateFormat.format(o.getReviewTime()), null);
+                        val ret = createOrder(or.getOtype(), o.getId(), o.getBatch(), o.getSid(), o.getAid(), o.getAsid(), o.getRid(), o.getUnit(), o.getCurUnit(), o.getPrice(), o.getCurPrice(), null, o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(), null == o.getReview() ? null : dateFormat.format(o.getReviewTime()), o.getComplete());
                         HashMap<String, Object> datas = agreementOrderService.find(o.getId());
                         if (null != datas) {
                             ret.put("comms", datas.get("comms"));
@@ -969,7 +969,7 @@ public class OrderService {
                     case AGREEMENT_RETURN_ORDER:
                     case AGREEMENT_AGAIN_ORDER: {
                         TAgreementOrder o = agreementOrderRepository.find(oc.getOid());
-                        val ret = createOrder(oc.getOtype(), o.getId(), o.getBatch(), o.getSid(), o.getAid(), o.getAsid(), o.getRid(), o.getUnit(), o.getCurUnit(), o.getPrice(), o.getCurPrice(), null, o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(), null == o.getReview() ? null : dateFormat.format(o.getReviewTime()), null);
+                        val ret = createOrder(oc.getOtype(), o.getId(), o.getBatch(), o.getSid(), o.getAid(), o.getAsid(), o.getRid(), o.getUnit(), o.getCurUnit(), o.getPrice(), o.getCurPrice(), null, o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(), null == o.getReview() ? null : dateFormat.format(o.getReviewTime()), o.getComplete());
                         HashMap<String, Object> datas = agreementOrderService.find(o.getId());
                         if (null != datas) {
                             ret.put("comms", datas.get("comms"));

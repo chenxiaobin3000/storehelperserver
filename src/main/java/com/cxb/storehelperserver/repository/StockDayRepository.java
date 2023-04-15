@@ -48,41 +48,20 @@ public class StockDayRepository extends BaseRepository<TStockDay> {
         return myStockDayMapper.selectReport(gid, sid, ctype, new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
     }
 
-    public int total(int gid, int sid, int ctype, Date date, String search) {
-        if (null != search) {
-            switch (CommodityType.valueOf(ctype)) {
-                case COMMODITY:
-                    return myStockDayMapper.count_commodity(gid, sid, new java.sql.Date(date.getTime()), "%" + search + "%");
-                case HALFGOOD:
-                    return myStockDayMapper.count_halfgood(gid, sid, new java.sql.Date(date.getTime()), "%" + search + "%");
-                case ORIGINAL:
-                    return myStockDayMapper.count_original(gid, sid, new java.sql.Date(date.getTime()), "%" + search + "%");
-                case STANDARD:
-                    return myStockDayMapper.count_standard(gid, sid, new java.sql.Date(date.getTime()), "%" + search + "%");
-                default:
-                    return 0;
-            }
-        } else {
-            TStockDayExample example = new TStockDayExample();
-            example.or().andSidEqualTo(sid).andCtypeEqualTo(ctype).andCdateEqualTo(date);
-            return (int) stockDayMapper.countByExample(example);
-        }
-    }
-
-    public List<MyStockCommodity> pagination(int gid, int sid, int page, int limit, int ctype, Date date, String search) {
+    public List<MyStockCommodity> pagination(int sid, int page, int limit, int ctype, Date date, String search) {
         String key = null;
         if (null != search) {
             key = "%" + search + "%";
         }
         switch (CommodityType.valueOf(ctype)) {
             case COMMODITY:
-                return myStockDayMapper.pagination_commodity((page - 1) * limit, limit, gid, sid, new java.sql.Date(date.getTime()), key);
+                return myStockDayMapper.pagination_commodity((page - 1) * limit, limit, sid, new java.sql.Date(date.getTime()), key);
             case HALFGOOD:
-                return myStockDayMapper.pagination_halfgood((page - 1) * limit, limit, gid, sid, new java.sql.Date(date.getTime()), key);
+                return myStockDayMapper.pagination_halfgood((page - 1) * limit, limit, sid, new java.sql.Date(date.getTime()), key);
             case ORIGINAL:
-                return myStockDayMapper.pagination_original((page - 1) * limit, limit, gid, sid, new java.sql.Date(date.getTime()), key);
+                return myStockDayMapper.pagination_original((page - 1) * limit, limit, sid, new java.sql.Date(date.getTime()), key);
             case STANDARD:
-                return myStockDayMapper.pagination_standard((page - 1) * limit, limit, gid, sid, new java.sql.Date(date.getTime()), key);
+                return myStockDayMapper.pagination_standard((page - 1) * limit, limit, sid, new java.sql.Date(date.getTime()), key);
             default:
                 return null;
         }

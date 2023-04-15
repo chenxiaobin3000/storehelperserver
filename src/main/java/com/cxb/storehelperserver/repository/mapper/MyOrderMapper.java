@@ -10,13 +10,13 @@ import org.apache.ibatis.annotations.Update;
  */
 @Mapper
 public interface MyOrderMapper {
-    @Update({"<script>update t_agreement_order set review = null, review_time = null where id = #{id}</script>"})
+    @Update({"<script>update t_agreement_order set review = null, review_time = null, complete = 0 where id = #{id}</script>"})
     int setAgreementReviewNull(int id);
 
     @Update({"<script>update t_product_order set review = null, review_time = null where id = #{id}</script>"})
     int setProductReviewNull(int id);
 
-    @Update({"<script>update t_purchase_order set review = null, review_time = null where id = #{id}</script>"})
+    @Update({"<script>update t_purchase_order set review = null, review_time = null, complete = 0 where id = #{id}</script>"})
     int setPurchaseReviewNull(int id);
 
     @Update({"<script>update t_sale_order set review = null, review_time = null where id = #{id}</script>"})

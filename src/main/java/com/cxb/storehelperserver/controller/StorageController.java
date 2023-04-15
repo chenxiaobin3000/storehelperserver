@@ -256,8 +256,7 @@ public class StorageController {
         return storageService.revokeLoss(req.getId(), req.getOid());
     }
 
-/*
-    @PostMapping("/offline")
+    /*@PostMapping("/offline")
     public RestResult offline(@Validated @RequestBody LossValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
         TStorageOrder order = new TStorageOrder();

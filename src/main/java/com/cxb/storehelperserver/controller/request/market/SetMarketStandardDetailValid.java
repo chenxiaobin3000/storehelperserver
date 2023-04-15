@@ -39,7 +39,7 @@ public class SetMarketStandardDetailValid implements IValid {
     @Min(value = 1, message = "标品数量错误")
     private int value;
 
-    @Min(value = 1, message = "标品价格错误")
+    @Min(value = 0, message = "标品价格错误")
     private BigDecimal price;
 
     @NotEmpty(message = "请输入查询日期")

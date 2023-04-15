@@ -116,12 +116,22 @@ public class StockService {
         Date today = dateUtil.getStartTime(new Date());
         if (today.equals(date)) {
             // 昨日数据
-            Date yesterday = dateUtil.addOneDay(today, -1);
-            int total = stockDayRepository.total(gid, sid, ctype, yesterday, search);
+            int total = 0;
+            switch (CommodityType.valueOf(ctype)) {
+                case COMMODITY:
+                    total = commodityStorageRepository.total(sid, search);
+                    break;
+                case STANDARD:
+                    total = standardStorageRepository.total(sid, search);
+                    break;
+                default:
+                    break;
+            }
             if (0 == total) {
                 return RestResult.ok(new PageData());
             }
-            val commodities = stockDayRepository.pagination(gid, sid, page, limit, ctype, yesterday, search);
+            Date yesterday = dateUtil.addOneDay(today, -1);
+            val commodities = stockDayRepository.pagination(sid, page, limit, ctype, yesterday, search);
             if (null == commodities) {
                 return RestResult.fail("获取商品信息失败");
             }
@@ -131,9 +141,24 @@ public class StockService {
                 val commodities2 = stockRepository.findHistory(gid, sid, ctype, c.getCid(), today, tomorrow);
                 if (null != commodities2 && !commodities2.isEmpty()) {
                     for (MyStockCommodity c2 : commodities2) {
-                        c.setPrice(c.getPrice().add(c2.getPrice()));
-                        c.setWeight(c.getWeight() + c2.getWeight());
-                        c.setValue(c.getValue() + c2.getValue());
+                        BigDecimal price = c.getPrice();
+                        if (null == price) {
+                            c.setPrice(null == c2.getPrice() ? new BigDecimal(0) : c2.getPrice());
+                        } else {
+                            c.setPrice(c.getPrice().add(c2.getPrice()));
+                        }
+                        Integer weight = c.getWeight();
+                        if (null == weight) {
+                            c.setWeight(null == c2.getWeight() ? 0 : c2.getWeight());
+                        } else {
+                            c.setWeight(c.getWeight() + c2.getWeight());
+                        }
+                        Integer value = c.getValue();
+                        if (null == value) {
+                            c.setValue(null == c2.getValue() ? 0 : c2.getValue());
+                        } else {
+                            c.setValue(c.getValue() + c2.getValue());
+                        }
                     }
                 }
             }
@@ -141,11 +166,21 @@ public class StockService {
             data.put("list", commodities);
         } else {
             // 往期数据取快照
-            int total = stockDayRepository.total(gid, sid, ctype, date, search);
+            int total = 0;
+            switch (CommodityType.valueOf(ctype)) {
+                case COMMODITY:
+                    total = commodityStorageRepository.total(sid, search);
+                    break;
+                case STANDARD:
+                    total = standardStorageRepository.total(sid, search);
+                    break;
+                default:
+                    break;
+            }
             if (0 == total) {
                 return RestResult.ok(new PageData());
             }
-            val commodities = stockDayRepository.pagination(gid, sid, page, limit, ctype, date, search);
+            val commodities = stockDayRepository.pagination(sid, page, limit, ctype, date, search);
             if (null == commodities) {
                 return RestResult.fail("获取商品信息失败");
             }

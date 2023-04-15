@@ -369,9 +369,9 @@ public class MarketService {
         detail.setMid(mid);
 
         // 只处理当天信息
-        Date today = dateUtil.getEndTime(dateUtil.addOneDay(new Date(), -2));
+        Date today = dateUtil.getEndTime(dateUtil.addOneDay(new Date(), -8));
         if (detail.getCdate().before(today)) {
-            return RestResult.fail("只能更新当日销售信息");
+            return RestResult.fail("只能更新7日内销售信息");
         }
 
         if (null == detail.getId()) {
@@ -398,9 +398,9 @@ public class MarketService {
             return RestResult.fail("未查询到商品销售信息");
         }
         // 只处理当天信息
-        Date today = dateUtil.getEndTime(dateUtil.addOneDay(new Date(), -2));
+        Date today = dateUtil.getEndTime(dateUtil.addOneDay(new Date(), -8));
         if (detail.getCdate().before(today)) {
-            return RestResult.fail("只能更新当日信息");
+            return RestResult.fail("只能更新7日内信息");
         }
         if (!marketCommodityDetailRepository.delete(did)) {
             return RestResult.fail("删除商品销售信息失败");
@@ -494,9 +494,9 @@ public class MarketService {
         detail.setMid(mid);
 
         // 只处理当天信息
-        Date today = dateUtil.getEndTime(dateUtil.addOneDay(new Date(), -2));
+        Date today = dateUtil.getEndTime(dateUtil.addOneDay(new Date(), -8));
         if (detail.getCdate().before(today)) {
-            return RestResult.fail("只能更新当日销售信息");
+            return RestResult.fail("只能更新7日内销售信息");
         }
 
         if (null == detail.getId()) {
@@ -523,9 +523,9 @@ public class MarketService {
             return RestResult.fail("未查询到商品销售信息");
         }
         // 只处理当天信息
-        Date today = dateUtil.getEndTime(dateUtil.addOneDay(new Date(), -2));
+        Date today = dateUtil.getEndTime(dateUtil.addOneDay(new Date(), -8));
         if (detail.getCdate().before(today)) {
-            return RestResult.fail("只能更新当日信息");
+            return RestResult.fail("只能更新7日内信息");
         }
         if (!marketStandardDetailRepository.delete(did)) {
             return RestResult.fail("删除商品销售信息失败");

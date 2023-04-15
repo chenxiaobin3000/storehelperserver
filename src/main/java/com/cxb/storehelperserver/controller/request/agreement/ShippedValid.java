@@ -29,7 +29,7 @@ public class ShippedValid implements IValid {
     @Min(value = 1, message = "平台账号错误")
     private int aid;
 
-    @Min(value = 1, message = "平台子账号错误")
+    @Min(value = 0, message = "平台子账号错误")
     private int asid;
 
     @NotEmpty(message = "请输入订单制单日期")

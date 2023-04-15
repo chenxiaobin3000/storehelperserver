@@ -114,18 +114,16 @@ public class Permission {
     static public final int report_stock = 706;
 
     static public final int storage = 800;
-    static public final int storage_report = 801;
-    static public final int storage_getlist = 802;
-    static public final int storage_purchase = 803;
-    static public final int storage_return = 804;
-    static public final int storage_dispatch = 805;
-    static public final int storage_loss = 806;
-    static public final int storage_offline = 807;
-    static public final int storage_back = 808;
-
-    static public final int stock = 850;
-    static public final int stock_storage = 851;
-    static public final int stock_storagelist = 852;
+    static public final int storage_stockreport = 801;
+    static public final int storage_stocklist = 802;
+    static public final int storage_report = 803;
+    static public final int storage_getlist = 804;
+    static public final int storage_purchase = 805;
+    static public final int storage_return = 806;
+    static public final int storage_dispatch = 807;
+    static public final int storage_loss = 808;
+    static public final int storage_offline = 809;
+    static public final int storage_back = 810;
 
     static public final int supplier = 900;
     static public final int supplier_getlist = 901;

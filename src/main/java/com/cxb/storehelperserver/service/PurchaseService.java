@@ -389,7 +389,6 @@ public class PurchaseService {
         if (null == group) {
             return RestResult.fail("获取公司信息失败");
         }
-        int gid = group.getGid();
 
         // 校验审核人员信息
         TPurchaseOrder order = purchaseOrderRepository.find(oid);
@@ -426,6 +425,7 @@ public class PurchaseService {
         Date reviewTime = new Date();
         order.setReview(id);
         order.setReviewTime(reviewTime);
+        order.setComplete(new Byte("1"));
         if (!purchaseOrderRepository.update(order)) {
             return RestResult.fail("审核用户订单信息失败");
         }

@@ -27,9 +27,6 @@ import static com.cxb.storehelperserver.util.TypeDefine.CommodityType;
 @Transactional(rollbackFor = Exception.class)
 public class AgreementOrderService extends BaseService<HashMap> {
     @Resource
-    private AgreementOrderRepository agreementOrderRepository;
-
-    @Resource
     private AgreementCommodityRepository agreementCommodityRepository;
 
     @Resource

@@ -211,6 +211,10 @@ public class AgreementService {
         if (null == order.getReview()) {
             return RestResult.fail("未审核的订单不能撤销");
         }
+        // 已销售或退货的不能撤销
+        if (order.getUnit() > order.getCurUnit()) {
+            return RestResult.fail("已销售或退货的订单不能撤销");
+        }
 
         // 验证公司
         int gid = order.getGid();
@@ -246,14 +250,14 @@ public class AgreementService {
      * desc: 履约退货
      */
     public RestResult returnc(int id, TAgreementOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
-        // 发货单未审核，已入库都不能退货
+        // 发货单未审核不能退货
         int rid = order.getRid();
         TAgreementOrder agreement = agreementOrderRepository.find(rid);
         if (null == agreement) {
             return RestResult.fail("未查询到履约单信息");
         }
         if (!agreement.getOtype().equals(AGREEMENT_SHIPPED_ORDER.getValue())) {
-            return RestResult.fail("进货单据类型异常");
+            return RestResult.fail("履约单据类型异常");
         }
         if (null == agreement.getReview()) {
             return RestResult.fail("履约单未审核通过，不能进行入库");
@@ -398,6 +402,7 @@ public class AgreementService {
         Date reviewTime = new Date();
         order.setReview(id);
         order.setReviewTime(reviewTime);
+        order.setComplete(new Byte("1"));
         if (!agreementOrderRepository.update(order)) {
             return RestResult.fail("审核用户订单信息失败");
         }
@@ -475,14 +480,14 @@ public class AgreementService {
      * desc: 履约退转入
      */
     public RestResult again(int id, TAgreementOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
-        // 发货单未审核，已入库都不能退货
+        // 发货单未审核不能退货
         int rid = order.getRid();
         TAgreementOrder agreement = agreementOrderRepository.find(rid);
         if (null == agreement) {
             return RestResult.fail("未查询到履约单信息");
         }
-        if (!agreement.getOtype().equals(AGREEMENT_AGAIN_ORDER.getValue())) {
-            return RestResult.fail("进货单据类型异常");
+        if (!agreement.getOtype().equals(AGREEMENT_SHIPPED_ORDER.getValue())) {
+            return RestResult.fail("履约单据类型异常");
         }
         if (null == agreement.getReview()) {
             return RestResult.fail("履约单未审核通过，不能进行入库");
@@ -491,6 +496,7 @@ public class AgreementService {
         order.setGid(agreement.getGid());
         order.setSid(agreement.getSid());
         order.setAid(agreement.getAid());
+        order.setAsid(agreement.getAsid());
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_agreement_again_apply, mp_agreement_again_review, reviews);
         if (null != ret) {
@@ -600,10 +606,33 @@ public class AgreementService {
             return RestResult.fail("您没有审核权限");
         }
 
+        // 校验退货订单总价格和总量不能超出采购单
+        TAgreementOrder agreement = agreementOrderRepository.find(order.getRid());
+        if (null == agreement) {
+            return RestResult.fail("未查询到对应的履约单");
+        }
+        int unit = agreement.getCurUnit() - order.getUnit();
+        if (unit < 0) {
+            return RestResult.fail("退货商品总量不能超出履约订单总量");
+        }
+        BigDecimal price = agreement.getCurPrice().subtract(order.getPrice());
+        if (price.compareTo(BigDecimal.ZERO) < 0) {
+            return RestResult.fail("退货商品总价不能超出履约订单总价");
+        }
+        if (0 == unit) {
+            agreement.setComplete(new Byte("1"));
+        }
+        agreement.setCurUnit(unit);
+        agreement.setCurPrice(price);
+        if (!agreementOrderRepository.update(agreement)) {
+            return RestResult.fail("修改履约单数据失败");
+        }
+
         // 添加审核信息
         Date reviewTime = new Date();
         order.setReview(id);
         order.setReviewTime(reviewTime);
+        order.setComplete(new Byte("1"));
         if (!agreementOrderRepository.update(order)) {
             return RestResult.fail("审核用户订单信息失败");
         }
@@ -634,6 +663,18 @@ public class AgreementService {
         // 校验申请订单权限
         if (!checkService.checkRolePermission(id, agreement_again)) {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
+        }
+
+        // 还原扣除的履约单数量
+        TAgreementOrder agreement = agreementOrderRepository.find(order.getRid());
+        if (null == agreement) {
+            return RestResult.fail("未查询到对应的履约单");
+        }
+        agreement.setCurUnit(agreement.getCurUnit() + order.getUnit());
+        agreement.setCurPrice(agreement.getCurPrice().add(order.getPrice()));
+        agreement.setComplete(new Byte("0"));
+        if (!agreementOrderRepository.update(agreement)) {
+            return RestResult.fail("修改履约单数据失败");
         }
 
         RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApply(), mp_agreement_again_review);
