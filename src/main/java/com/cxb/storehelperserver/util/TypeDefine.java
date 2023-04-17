@@ -52,7 +52,6 @@ public class TypeDefine {
         STORAGE_BACK_ORDER(15),         // 线下销售退货订单
         AGREEMENT_SHIPPED_ORDER(20),    // 履约发货订单
         AGREEMENT_RETURN_ORDER(21),     // 履约退货订单
-        AGREEMENT_AGAIN_ORDER(22),      // 履约退转入订单
         SALE_SALE_ORDER(30),            // 线上销售订单
         SALE_AFTER_ORDER(31),           // 线上售后订单
         SALE_LOSS_ORDER(32);            // 线上损耗订单
@@ -87,8 +86,6 @@ public class TypeDefine {
                     return AGREEMENT_SHIPPED_ORDER;
                 case 21:
                     return AGREEMENT_RETURN_ORDER;
-                case 22:
-                    return AGREEMENT_AGAIN_ORDER;
                 case 30:
                     return SALE_SALE_ORDER;
                 case 31:

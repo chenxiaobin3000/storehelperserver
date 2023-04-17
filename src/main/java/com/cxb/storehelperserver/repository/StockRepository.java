@@ -38,6 +38,21 @@ public class StockRepository extends BaseRepository<TStock> {
         return myStockMapper.selectReport(gid, sid, ctype, start, end);
     }
 
+    public List<MyStockCommodity> findHistoryAll(int gid, int sid, int ctype, Date start, Date end) {
+        switch (CommodityType.valueOf(ctype)) {
+            case COMMODITY:
+                return myStockMapper.selectHistory_commodity_all(gid, sid, new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
+            case HALFGOOD:
+                return myStockMapper.selectHistory_halfgood_all(gid, sid, new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
+            case ORIGINAL:
+                return myStockMapper.selectHistory_original_all(gid, sid, new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
+            case STANDARD:
+                return myStockMapper.selectHistory_standard_all(gid, sid, new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
+            default:
+                return null;
+        }
+    }
+
     public List<MyStockCommodity> findHistory(int gid, int sid, int ctype, int cid, Date start, Date end) {
         switch (CommodityType.valueOf(ctype)) {
             case COMMODITY:

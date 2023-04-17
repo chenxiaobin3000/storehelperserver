@@ -54,6 +54,12 @@ public class PurchaseService {
     private UserGroupRepository userGroupRepository;
 
     @Resource
+    private CommodityRepository commodityRepository;
+
+    @Resource
+    private HalfgoodRepository halfgoodRepository;
+
+    @Resource
     private OriginalRepository originalRepository;
 
     @Resource
@@ -238,7 +244,7 @@ public class PurchaseService {
         // 校验审核人员信息
         TPurchaseOrder order = purchaseOrderRepository.find(oid);
         if (null == order) {
-            return RestResult.fail("未查询到要审核的订单");
+            return RestResult.fail("未查询到要修改的订单");
         }
         String msg = checkService.checkGroup(id, order.getGid());
         if (null != msg) {
@@ -492,6 +498,18 @@ public class PurchaseService {
             int cid = commoditys.get(i);
             int weight = weights.get(i);
             switch (CommodityType.valueOf(ctype)) {
+                case COMMODITY:
+                    TCommodity commodity = commodityRepository.find(cid);
+                    if (null == commodity) {
+                        return RestResult.fail("未查询到商品：" + cid);
+                    }
+                    break;
+                case HALFGOOD:
+                    THalfgood halfgood = halfgoodRepository.find(cid);
+                    if (null == halfgood) {
+                        return RestResult.fail("未查询到半成品：" + cid);
+                    }
+                    break;
                 case ORIGINAL:
                     TOriginal original = originalRepository.find(cid);
                     if (null == original) {

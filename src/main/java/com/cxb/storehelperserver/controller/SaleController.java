@@ -1,5 +1,6 @@
 package com.cxb.storehelperserver.controller;
 
+import com.cxb.storehelperserver.controller.request.purchase.SetPurchasePayValid;
 import com.cxb.storehelperserver.controller.request.sale.*;
 import com.cxb.storehelperserver.model.TSaleOrder;
 import com.cxb.storehelperserver.service.SaleService;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -37,13 +39,19 @@ public class SaleController {
     @PostMapping("/sale")
     public RestResult sale(@Validated @RequestBody SaleValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
-        Date date = null;
+        TSaleOrder order = new TSaleOrder();
+        order.setGid(req.getGid());
+        order.setSid(req.getSid());
+        order.setPid(req.getPid());
+        order.setOtype(SALE_SALE_ORDER.getValue());
+        order.setPayPrice(new BigDecimal(0));
+        order.setApply(req.getId());
         try {
-            date = simpleDateFormat.parse(req.getDate());
+            order.setApplyTime(simpleDateFormat.parse(req.getDate()));
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return saleService.sale(req.getId(), req.getGid(), req.getSid(), req.getPid(), date);
+        return saleService.sale(req.getId(), order);
     }
 
     @PostMapping("/delSale")
@@ -59,6 +67,11 @@ public class SaleController {
     @PostMapping("/revokeSale")
     public RestResult revokeSale(@Validated @RequestBody RevokeAfterValid req) {
         return saleService.revokeSale(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/setSalePay")
+    public RestResult setSalePay(@Validated @RequestBody SetSalePayValid req) {
+        return saleService.setSalePay(req.getId(), req.getOid(), req.getPay());
     }
 
     @PostMapping("/after")

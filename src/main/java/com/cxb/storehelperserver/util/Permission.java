@@ -24,7 +24,6 @@ public class Permission {
     static public final int mp_agreement_apply = 30;
     static public final int mp_agreement_shipped_apply = 31;
     static public final int mp_agreement_return_apply = 32;
-    static public final int mp_agreement_again_apply = 33;
     static public final int mp_sale_apply = 40;
     static public final int mp_sale_sale_apply = 41;
     static public final int mp_sale_after_apply = 42;
@@ -46,7 +45,6 @@ public class Permission {
     static public final int mp_agreement_review = 70;
     static public final int mp_agreement_shipped_review = 71;
     static public final int mp_agreement_return_review = 72;
-    static public final int mp_agreement_again_review = 73;
     static public final int mp_sale_review = 80;
     static public final int mp_sale_sale_review = 81;
     static public final int mp_sale_after_review = 82;
@@ -63,7 +61,6 @@ public class Permission {
     static public final int agreement_getlist = 202;
     static public final int agreement_shipped = 203;
     static public final int agreement_return = 204;
-    static public final int agreement_again = 205;
 
     static public final int purchase = 250;
     static public final int purchase_report = 251;
@@ -95,7 +92,7 @@ public class Permission {
     static public final int market = 500;
     static public final int market_report = 501;
     static public final int market_getlist = 502;
-    static public final int market_input = 503;
+    static public final int market_sale = 503;
     static public final int market_after = 504;
     static public final int market_loss = 505;
 

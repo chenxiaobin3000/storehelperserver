@@ -43,6 +43,11 @@ public class StockController {
         return stockService.getStockList(req.getId(), req.getSid(), req.getCtype(), req.getPage(), req.getLimit(), date, req.getSearch());
     }
 
+    @PostMapping("/getTodayStockList")
+    public RestResult getTodayStockList(@Validated @RequestBody GetTodayStockListValid req) {
+        return stockService.getTodayStockList(req.getId(), req.getSid(), req.getCtype(), req.getPage(), req.getLimit(), req.getSearch());
+    }
+
     @PostMapping("/getStockDay")
     public RestResult getStockDay(@Validated @RequestBody GetStockDayValid req) {
         return stockService.getStockDay(req.getId(), req.getGid(), req.getSid(), req.getCtype());

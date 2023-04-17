@@ -9,8 +9,6 @@ import java.util.Date;
 public class MyMarketCommodity {
     private Integer id;
 
-    private Integer sid;
-
     private Integer mid;
 
     private Integer cid;
@@ -26,6 +24,4 @@ public class MyMarketCommodity {
     private BigDecimal price;
 
     private Integer value;
-
-    private Date cdate;
 }

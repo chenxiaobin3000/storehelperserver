@@ -229,6 +229,8 @@ public class ProductService {
             return RestResult.fail("您没有审核权限");
         }
 
+        // TODO 库存校验
+
         // 添加审核信息
         Date reviewTime = new Date();
         order.setReview(id);

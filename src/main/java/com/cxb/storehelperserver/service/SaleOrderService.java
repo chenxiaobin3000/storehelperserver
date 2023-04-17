@@ -64,7 +64,6 @@ public class SaleOrderService extends BaseService<HashMap> {
                 data.put("cid", sc.getCid());
                 data.put("ctype", sc.getCtype());
                 data.put("price", sc.getPrice());
-                data.put("weight", sc.getWeight());
                 data.put("value", sc.getValue());
                 commoditys.add(data);
 

@@ -106,7 +106,6 @@ public class UploadService {
                 break;
             case AGREEMENT_SHIPPED_ORDER:
             case AGREEMENT_RETURN_ORDER:
-            case AGREEMENT_AGAIN_ORDER:
                 TAgreementAttachment agreementAttachment = agreementAttachmentRepository.insert(0, imagesrc, path, name);
                 if (null == agreementAttachment) {
                     return RestResult.fail("写入数据失败，请联系管理员");

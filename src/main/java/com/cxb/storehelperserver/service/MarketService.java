@@ -38,9 +38,6 @@ public class MarketService {
     private CheckService checkService;
 
     @Resource
-    private StockService stockService;
-
-    @Resource
     private MarketCommodityRepository marketCommodityRepository;
 
     @Resource
@@ -192,14 +189,6 @@ public class MarketService {
                 tmp.put("cremark", commodity.getRemark());
             }
 
-            // 库存价格
-            TStockDay stock = stockService.getStockCommodity(gid, sid, COMMODITY.getValue(), cid);
-            if (null != stock) {
-                tmp.put("sprice", stock.getPrice());
-                tmp.put("sweight", stock.getWeight());
-                tmp.put("svalue", stock.getValue());
-            }
-
             // 商品属性
             val attrs = commodityAttrRepository.find(cid);
             if (null != attrs && !attrs.isEmpty()) {
@@ -323,14 +312,6 @@ public class MarketService {
                 tmp.put("cremark", standard.getRemark());
             }
 
-            // 库存价格
-            TStockDay stock = stockService.getStockCommodity(gid, sid, STANDARD.getValue(), cid);
-            if (null != stock) {
-                tmp.put("sprice", stock.getPrice());
-                tmp.put("sweight", stock.getWeight());
-                tmp.put("svalue", stock.getValue());
-            }
-
             // 商品属性
             val attrs = standardAttrRepository.find(cid);
             if (null != attrs && !attrs.isEmpty()) {
@@ -428,12 +409,9 @@ public class MarketService {
         val datas = new ArrayList<HashMap<String, Object>>();
         for (MyMarketCommodity c : list) {
             int cid = c.getCid();
-            Integer sid2 = c.getSid();
             val tmp = new HashMap<String, Object>();
             tmp.put("id", c.getId());
             tmp.put("cid", cid);
-            tmp.put("sid", sid2);
-            tmp.put("mid", c.getMid());
             tmp.put("mcode", c.getCode());
             tmp.put("mname", c.getName());
             tmp.put("mremark", c.getRemark());
@@ -442,14 +420,6 @@ public class MarketService {
             tmp.put("mvalue", c.getValue());
             datas.add(tmp);
 
-            // 平台账号
-            if (null != sid2) {
-                MyMarketStorage storage = marketStorageRepository.find(sid2);
-                if (null != storage) {
-                    tmp.put("account", storage.getAccount());
-                }
-            }
-
             // 商品信息
             val commodity = commodityRepository.find(cid);
             if (null != commodity) {
@@ -457,13 +427,6 @@ public class MarketService {
                 tmp.put("ccode", commodity.getCode());
                 tmp.put("cname", commodity.getName());
                 tmp.put("cremark", commodity.getRemark());
-            }
-
-            // 库存价格
-            TStockDay stock = stockService.getStockCommodity(gid, sid, COMMODITY.getValue(), cid);
-            if (null != stock) {
-                tmp.put("sprice", stock.getPrice());
-                tmp.put("svalue", stock.getValue());
             }
         }
         return RestResult.ok(new PageData(total, datas));
@@ -553,12 +516,9 @@ public class MarketService {
         val datas = new ArrayList<HashMap<String, Object>>();
         for (MyMarketCommodity c : list) {
             int cid = c.getCid();
-            Integer sid2 = c.getSid();
             val tmp = new HashMap<String, Object>();
             tmp.put("id", c.getId());
             tmp.put("cid", cid);
-            tmp.put("sid", sid2);
-            tmp.put("mid", c.getMid());
             tmp.put("mcode", c.getCode());
             tmp.put("mname", c.getName());
             tmp.put("mremark", c.getRemark());
@@ -566,14 +526,6 @@ public class MarketService {
             tmp.put("mprice", c.getPrice());
             tmp.put("mvalue", c.getValue());
             datas.add(tmp);
-
-            // 平台账号
-            if (null != sid2) {
-                MyMarketStorage storage = marketStorageRepository.find(sid2);
-                if (null != storage) {
-                    tmp.put("account", storage.getAccount());
-                }
-            }
 
             // 商品信息
             val standard = standardRepository.find(cid);
@@ -583,15 +535,55 @@ public class MarketService {
                 tmp.put("cname", standard.getName());
                 tmp.put("cremark", standard.getRemark());
             }
-
-            // 库存价格
-            TStockDay stock = stockService.getStockCommodity(gid, sid, STANDARD.getValue(), cid);
-            if (null != stock) {
-                tmp.put("sprice", stock.getPrice());
-                tmp.put("svalue", stock.getValue());
-            }
         }
         return RestResult.ok(new PageData(total, datas));
+    }
+
+    public RestResult getMarketSaleDetail(int id, int gid, int sid, int aid, int asid, Date date) {
+        // 验证公司
+        String msg = checkService.checkGroup(id, gid);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+
+        val list = marketCommodityDetailRepository.sale(sid, aid, asid, date);
+        if (null == list) {
+            return RestResult.fail("未查询到销售信息");
+        }
+
+        val list2 = marketStandardDetailRepository.sale(sid, aid, asid, date);
+        if (null == list2) {
+            return RestResult.fail("未查询到销售信息");
+        }
+
+        // 属性
+        val datas = new ArrayList<HashMap<String, Object>>();
+        for (MyMarketCommodity c : list) {
+            val tmp = new HashMap<String, Object>();
+            tmp.put("id", c.getId());
+            tmp.put("ctype", COMMODITY.getValue());
+            tmp.put("cid", c.getCid());
+            tmp.put("code", c.getCode());
+            tmp.put("name", c.getName());
+            tmp.put("remark", c.getRemark());
+            tmp.put("price", c.getPrice());
+            tmp.put("value", c.getValue());
+            datas.add(tmp);
+        }
+
+        for (MyMarketCommodity c : list2) {
+            val tmp = new HashMap<String, Object>();
+            tmp.put("id", c.getId());
+            tmp.put("ctype", STANDARD.getValue());
+            tmp.put("cid", c.getCid());
+            tmp.put("code", c.getCode());
+            tmp.put("name", c.getName());
+            tmp.put("remark", c.getRemark());
+            tmp.put("price", c.getPrice());
+            tmp.put("value", c.getValue());
+            datas.add(tmp);
+        }
+        return RestResult.ok(new PageData(0, datas));
     }
 
     public RestResult getCommoditySaleInfo(int id, int page, int limit, int mid, ReportCycleType cycle, String search) {

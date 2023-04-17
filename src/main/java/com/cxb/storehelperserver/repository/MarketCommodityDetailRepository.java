@@ -73,6 +73,10 @@ public class MarketCommodityDetailRepository extends BaseRepository<TMarketCommo
         }
     }
 
+    public List<MyMarketCommodity> sale(int sid, int aid, int asid, Date date) {
+        return myMarketCommodityMapper.sale(sid, aid, asid, new java.sql.Date(date.getTime()));
+    }
+
     public boolean insert(TMarketCommodityDetail row) {
         if (marketCommodityDetailMapper.insert(row) > 0) {
             setCache(row.getId(), row);

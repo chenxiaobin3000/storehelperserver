@@ -57,7 +57,7 @@ public class UserOrderCompleteRepository extends BaseRepository<TUserOrderComple
 
     public List<MyUserOrderComplete> findByAgreement(int gid, int sid, Date start, Date end) {
         return myUserOrderCompleteMapper.selectByAgreement(gid, sid, AGREEMENT_SHIPPED_ORDER.getValue(),
-                AGREEMENT_AGAIN_ORDER.getValue(), new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
+                AGREEMENT_RETURN_ORDER.getValue(), new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
     }
 
     public List<MyUserOrderComplete> findByProduct(int gid, int sid, Date start, Date end) {

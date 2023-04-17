@@ -71,6 +71,7 @@ public class AgreementOrderService extends BaseService<HashMap> {
                 data.put("weight", sc.getWeight());
                 data.put("norm", sc.getNorm());
                 data.put("value", sc.getValue());
+                data.put("curValue", sc.getCurValue());
                 commoditys.add(data);
 
                 // 获取商品单位信息
