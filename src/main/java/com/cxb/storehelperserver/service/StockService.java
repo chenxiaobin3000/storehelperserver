@@ -19,6 +19,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static com.cxb.storehelperserver.util.TypeDefine.CommodityType;
+import static com.cxb.storehelperserver.util.TypeDefine.CommodityType.COMMODITY;
 import static com.cxb.storehelperserver.util.TypeDefine.ProductType;
 
 /**
@@ -56,9 +57,6 @@ public class StockService {
 
     @Resource
     private OriginalStorageRepository originalStorageRepository;
-
-    @Resource
-    private StandardStorageRepository standardStorageRepository;
 
     @Resource
     private UserGroupRepository userGroupRepository;
@@ -118,8 +116,11 @@ public class StockService {
                 case COMMODITY:
                     total = commodityStorageRepository.total(sid, search);
                     break;
-                case STANDARD:
-                    total = standardStorageRepository.total(sid, search);
+                case HALFGOOD:
+                    total = halfgoodStorageRepository.total(sid, search);
+                    break;
+                case ORIGINAL:
+                    total = originalStorageRepository.total(sid, search);
                     break;
                 default:
                     break;
@@ -165,8 +166,11 @@ public class StockService {
                 case COMMODITY:
                     total = commodityStorageRepository.total(sid, search);
                     break;
-                case STANDARD:
-                    total = standardStorageRepository.total(sid, search);
+                case HALFGOOD:
+                    total = halfgoodStorageRepository.total(sid, search);
+                    break;
+                case ORIGINAL:
+                    total = originalStorageRepository.total(sid, search);
                     break;
                 default:
                     break;
@@ -373,12 +377,11 @@ public class StockService {
         int gid = order.getGid();
         int sid = order.getSid();
         for (TAgreementCommodity agreementCommodity : agreementCommodities) {
-            int ctype = agreementCommodity.getCtype();
             int cid = agreementCommodity.getCid();
             BigDecimal price = agreementCommodity.getPrice();
             int weight = agreementCommodity.getWeight();
             int value = agreementCommodity.getValue();
-            if (!stockRepository.insert(gid, sid, order.getOtype(), order.getRid(), ctype, cid, add ? price : price.negate(), add ? weight : -weight, add ? value : -value, order.getApplyTime())) {
+            if (!stockRepository.insert(gid, sid, order.getOtype(), order.getRid(), COMMODITY.getValue(), cid, add ? price : price.negate(), add ? weight : -weight, add ? value : -value, order.getApplyTime())) {
                 log.warn("增加库存明细信息失败");
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                 return "增加库存明细信息失败";
@@ -407,12 +410,6 @@ public class StockService {
             case ORIGINAL:
                 val originalStorages = originalStorageRepository.findBySid(sid);
                 for (TOriginalStorage c : originalStorages) {
-                    ids.add(c.getCid());
-                }
-                break;
-            case STANDARD:
-                val standardStorages = standardStorageRepository.findBySid(sid);
-                for (TStandardStorage c : standardStorages) {
                     ids.add(c.getCid());
                 }
                 break;

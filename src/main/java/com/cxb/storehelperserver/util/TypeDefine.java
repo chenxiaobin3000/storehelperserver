@@ -229,8 +229,7 @@ public class TypeDefine {
     public enum CommodityType {
         COMMODITY(1),   // 商品
         HALFGOOD(2),    // 半成品
-        ORIGINAL(3),    // 原料
-        STANDARD(4);    // 标品
+        ORIGINAL(3);    // 原料
 
         private int value = 0;
 
@@ -244,10 +243,8 @@ public class TypeDefine {
                     return COMMODITY;
                 case 2:
                     return HALFGOOD;
-                case 3:
-                    return ORIGINAL;
             }
-            return STANDARD;
+            return ORIGINAL;
         }
 
         public int getValue() {

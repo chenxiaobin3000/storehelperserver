@@ -38,9 +38,6 @@ public class ReportService {
     private MarketCommodityDetailRepository marketCommodityDetailRepository;
 
     @Resource
-    private MarketStandardDetailRepository marketStandardDetailRepository;
-
-    @Resource
     private AgreementOrderRepository agreementOrderRepository;
 
     @Resource
@@ -139,7 +136,7 @@ public class ReportService {
         return RestResult.ok(data);
     }
 
-    public RestResult getMarketReport(int id, int gid, int mid, int type, ReportCycleType cycle) {
+    public RestResult getMarketReport(int id, int gid, int mid, ReportCycleType cycle) {
         // 验证公司
         String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
@@ -149,22 +146,7 @@ public class ReportService {
         SimpleDateFormat dateFormat = dateUtil.getSimpleDateFormat();
         Date end = dateUtil.getStartTime(new Date());
         Date start = dateUtil.addOneDay(end, -6);
-        List<MyMarketReport> list = null;
-        if (COMMODITY.getValue() == type) {
-            list = marketCommodityDetailRepository.findByDate(gid, mid, start, end);
-        } else if (STANDARD.getValue() == type) {
-            list = marketStandardDetailRepository.findByDate(gid, mid, start, end);
-        } else {
-            list = marketCommodityDetailRepository.findByDate(gid, mid, start, end);
-            if (null == list || list.isEmpty()) {
-                list = marketStandardDetailRepository.findByDate(gid, mid, start, end);
-            } else {
-                val list2 = marketStandardDetailRepository.findByDate(gid, mid, start, end);
-                if (null != list2 && !list2.isEmpty()) {
-                    list.addAll(list2);
-                }
-            }
-        }
+        List<MyMarketReport> list = marketCommodityDetailRepository.findByDate(gid, mid, start, end);
         val list2 = new ArrayList<HashMap<String, Object>>();
         for (MyMarketReport detail : list) {
             val tmp = new HashMap<String, Object>();

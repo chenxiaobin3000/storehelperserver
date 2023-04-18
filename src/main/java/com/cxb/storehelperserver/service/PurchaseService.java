@@ -63,9 +63,6 @@ public class PurchaseService {
     private OriginalRepository originalRepository;
 
     @Resource
-    private StandardRepository standardRepository;
-
-    @Resource
     private DateUtil dateUtil;
 
     /**
@@ -514,12 +511,6 @@ public class PurchaseService {
                     TOriginal original = originalRepository.find(cid);
                     if (null == original) {
                         return RestResult.fail("未查询到原料：" + cid);
-                    }
-                    break;
-                case STANDARD:
-                    TStandard standard = standardRepository.find(cid);
-                    if (null == standard) {
-                        return RestResult.fail("未查询到标品：" + cid);
                     }
                     break;
                 default:

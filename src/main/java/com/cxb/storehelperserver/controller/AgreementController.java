@@ -50,7 +50,7 @@ public class AgreementController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return agreementService.shipped(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getNorms(), req.getValues(), req.getAttrs());
+        return agreementService.shipped(req.getId(), order, req.getCommoditys(), req.getWeights(), req.getNorms(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/setShipped")
@@ -62,8 +62,8 @@ public class AgreementController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return agreementService.setShipped(req.getId(), req.getOid(), req.getSid(), req.getAid(), applyTime, req.getTypes(),
-                req.getCommoditys(), req.getWeights(), req.getNorms(), req.getValues(), req.getAttrs());
+        return agreementService.setShipped(req.getId(), req.getOid(), req.getSid(), req.getAid(), applyTime, req.getCommoditys(),
+                req.getWeights(), req.getNorms(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/delShipped")
@@ -94,7 +94,7 @@ public class AgreementController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return agreementService.returnc(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
+        return agreementService.returnc(req.getId(), order, req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/setReturn")
@@ -106,7 +106,7 @@ public class AgreementController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return agreementService.setReturn(req.getId(), req.getOid(), applyTime, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
+        return agreementService.setReturn(req.getId(), req.getOid(), applyTime, req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/delReturn")

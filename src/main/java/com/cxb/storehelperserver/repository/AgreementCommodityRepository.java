@@ -24,11 +24,11 @@ public class AgreementCommodityRepository extends BaseRepository<List> {
         init("agreeComm::");
     }
 
-    public TAgreementCommodity findOne(int oid, int ctype, int cid) {
+    public TAgreementCommodity findOne(int oid, int cid) {
         List<TAgreementCommodity> agreementCommoditys = getCache(oid, List.class);
         if (null != agreementCommoditys) {
             for (TAgreementCommodity c : agreementCommoditys) {
-                if (c.getCtype() == ctype && c.getCid() == cid) {
+                if (c.getCid() == cid) {
                     return c;
                 }
             }
@@ -36,7 +36,7 @@ public class AgreementCommodityRepository extends BaseRepository<List> {
 
         // 缓存没有就查询数据库
         TAgreementCommodityExample example = new TAgreementCommodityExample();
-        example.or().andOidEqualTo(oid).andCtypeEqualTo(ctype).andCidEqualTo(cid);
+        example.or().andOidEqualTo(oid).andCidEqualTo(cid);
         return agreementCommodityMapper.selectOneByExample(example);
     }
 

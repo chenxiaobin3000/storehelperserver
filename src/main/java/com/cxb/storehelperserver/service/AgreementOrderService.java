@@ -42,9 +42,6 @@ public class AgreementOrderService extends BaseService<HashMap> {
     private CommodityRepository commodityRepository;
 
     @Resource
-    private StandardRepository standardRepository;
-
-    @Resource
     private DateUtil dateUtil;
 
     public AgreementOrderService() {
@@ -66,7 +63,6 @@ public class AgreementOrderService extends BaseService<HashMap> {
                 val data = new HashMap<String, Object>();
                 data.put("id", sc.getId());
                 data.put("cid", sc.getCid());
-                data.put("ctype", sc.getCtype());
                 data.put("price", sc.getPrice());
                 data.put("weight", sc.getWeight());
                 data.put("norm", sc.getNorm());
@@ -75,25 +71,10 @@ public class AgreementOrderService extends BaseService<HashMap> {
                 commoditys.add(data);
 
                 // 获取商品单位信息
-                CommodityType type = CommodityType.valueOf(sc.getCtype());
-                int cid = sc.getCid();
-                switch (type) {
-                    case COMMODITY:
-                        TCommodity find1 = commodityRepository.find(cid);
-                        if (null != find1) {
-                            data.put("code", find1.getCode());
-                            data.put("name", find1.getName());
-                        }
-                        break;
-                    case STANDARD:
-                        TStandard find4 = standardRepository.find(cid);
-                        if (null != find4) {
-                            data.put("code", find4.getCode());
-                            data.put("name", find4.getName());
-                        }
-                        break;
-                    default:
-                        break;
+                TCommodity find1 = commodityRepository.find(sc.getCid());
+                if (null != find1) {
+                    data.put("code", find1.getCode());
+                    data.put("name", find1.getName());
                 }
             }
         }

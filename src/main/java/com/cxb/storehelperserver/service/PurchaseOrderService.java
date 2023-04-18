@@ -39,10 +39,13 @@ public class PurchaseOrderService extends BaseService<HashMap> {
     private PurchaseRemarkRepository purchaseRemarkRepository;
 
     @Resource
-    private OriginalRepository originalRepository;
+    private CommodityRepository commodityRepository;
 
     @Resource
-    private StandardRepository standardRepository;
+    private HalfgoodRepository halfgoodRepository;
+
+    @Resource
+    private OriginalRepository originalRepository;
 
     @Resource
     private DateUtil dateUtil;
@@ -77,18 +80,25 @@ public class PurchaseOrderService extends BaseService<HashMap> {
                 CommodityType type = CommodityType.valueOf(sc.getCtype());
                 int cid = sc.getCid();
                 switch (type) {
+                    case COMMODITY:
+                        TCommodity find1 = commodityRepository.find(cid);
+                        if (null != find1) {
+                            data.put("code", find1.getCode());
+                            data.put("name", find1.getName());
+                        }
+                        break;
+                    case HALFGOOD:
+                        THalfgood find2 = halfgoodRepository.find(cid);
+                        if (null != find2) {
+                            data.put("code", find2.getCode());
+                            data.put("name", find2.getName());
+                        }
+                        break;
                     case ORIGINAL:
                         TOriginal find3 = originalRepository.find(cid);
                         if (null != find3) {
                             data.put("code", find3.getCode());
                             data.put("name", find3.getName());
-                        }
-                        break;
-                    case STANDARD:
-                        TStandard find4 = standardRepository.find(cid);
-                        if (null != find4) {
-                            data.put("code", find4.getCode());
-                            data.put("name", find4.getName());
                         }
                         break;
                     default:

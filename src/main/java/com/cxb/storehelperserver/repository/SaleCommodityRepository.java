@@ -24,11 +24,11 @@ public class SaleCommodityRepository extends BaseRepository<List> {
         init("saleComm::");
     }
 
-    public TSaleCommodity findOne(int oid, int ctype, int cid) {
+    public TSaleCommodity findOne(int oid, int cid) {
         List<TSaleCommodity> saleCommoditys = getCache(oid, List.class);
         if (null != saleCommoditys) {
             for (TSaleCommodity c : saleCommoditys) {
-                if (c.getCtype() == ctype && c.getCid() == cid) {
+                if (c.getCid() == cid) {
                     return c;
                 }
             }
@@ -36,7 +36,7 @@ public class SaleCommodityRepository extends BaseRepository<List> {
 
         // 缓存没有就查询数据库
         TSaleCommodityExample example = new TSaleCommodityExample();
-        example.or().andOidEqualTo(oid).andCtypeEqualTo(ctype).andCidEqualTo(cid);
+        example.or().andOidEqualTo(oid).andCidEqualTo(cid);
         return saleCommodityMapper.selectOneByExample(example);
     }
 

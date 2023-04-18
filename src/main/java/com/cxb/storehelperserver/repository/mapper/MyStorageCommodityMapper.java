@@ -32,12 +32,6 @@ public interface MyStorageCommodityMapper {
     int count_original(int sid, String search);
 
     @Select({"<script>",
-            "select count(t1.id) from t_standard_storage t1 left join t_standard t2 on t1.cid = t2.id",
-            "where t1.sid = #{sid} <if test='null != search'>and t2.name like #{search}</if>",
-            "</script>"})
-    int count_standard(int sid, String search);
-
-    @Select({"<script>",
             "select t2.id, t2.code, t2.name, t2.gid, t2.cid, t2.remark from t_commodity_storage t1",
             "left join t_commodity t2 on t1.cid = t2.id where t1.sid = #{sid}",
             "<if test='null != search'>and t2.name like #{search}</if> limit #{offset}, #{limit}",
@@ -57,11 +51,4 @@ public interface MyStorageCommodityMapper {
             "<if test='null != search'>and t2.name like #{search}</if> limit #{offset}, #{limit}",
             "</script>"})
     List<TOriginal> pagination_original(int offset, int limit, int sid, String search);
-
-    @Select({"<script>",
-            "select t2.id, t2.code, t2.name, t2.gid, t2.cid, t2.remark from t_standard_storage t1",
-            "left join t_standard t2 on t1.cid = t2.id where t1.sid = #{sid}",
-            "<if test='null != search'>and t2.name like #{search}</if> limit #{offset}, #{limit}",
-            "</script>"})
-    List<TStandard> pagination_standard(int offset, int limit, int sid, String search);
 }

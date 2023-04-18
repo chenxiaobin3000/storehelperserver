@@ -58,8 +58,6 @@ public class StockDayRepository extends BaseRepository<TStockDay> {
                     return myStockDayMapper.count_halfgood(sid, new java.sql.Date(date.getTime()), "%" + search + "%");
                 case ORIGINAL:
                     return myStockDayMapper.count_original(sid, new java.sql.Date(date.getTime()), "%" + search + "%");
-                case STANDARD:
-                    return myStockDayMapper.count_standard(sid, new java.sql.Date(date.getTime()), "%" + search + "%");
                 default:
                     return 0;
             }
@@ -83,8 +81,6 @@ public class StockDayRepository extends BaseRepository<TStockDay> {
                 return myStockDayMapper.pagination_halfgood((page - 1) * limit, limit, sid, new java.sql.Date(date.getTime()), key);
             case ORIGINAL:
                 return myStockDayMapper.pagination_original((page - 1) * limit, limit, sid, new java.sql.Date(date.getTime()), key);
-            case STANDARD:
-                return myStockDayMapper.pagination_standard((page - 1) * limit, limit, sid, new java.sql.Date(date.getTime()), key);
             default:
                 return null;
         }
@@ -103,8 +99,6 @@ public class StockDayRepository extends BaseRepository<TStockDay> {
                 return myStockDayMapper.pagination_halfgood_all((page - 1) * limit, limit, sid, new java.sql.Date(date.getTime()), key);
             case ORIGINAL:
                 return myStockDayMapper.pagination_original_all((page - 1) * limit, limit, sid, new java.sql.Date(date.getTime()), key);
-            case STANDARD:
-                return myStockDayMapper.pagination_standard_all((page - 1) * limit, limit, sid, new java.sql.Date(date.getTime()), key);
             default:
                 return null;
         }

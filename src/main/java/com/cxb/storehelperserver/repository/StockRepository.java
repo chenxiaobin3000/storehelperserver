@@ -46,8 +46,6 @@ public class StockRepository extends BaseRepository<TStock> {
                 return myStockMapper.selectHistory_halfgood_all(gid, sid, new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
             case ORIGINAL:
                 return myStockMapper.selectHistory_original_all(gid, sid, new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
-            case STANDARD:
-                return myStockMapper.selectHistory_standard_all(gid, sid, new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
             default:
                 return null;
         }
@@ -61,8 +59,6 @@ public class StockRepository extends BaseRepository<TStock> {
                 return myStockMapper.selectHistory_halfgood(gid, sid, cid, new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
             case ORIGINAL:
                 return myStockMapper.selectHistory_original(gid, sid, cid, new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
-            case STANDARD:
-                return myStockMapper.selectHistory_standard(gid, sid, cid, new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
             default:
                 return null;
         }
@@ -77,8 +73,6 @@ public class StockRepository extends BaseRepository<TStock> {
                     return myStockMapper.count_halfgood(gid, sid, start, end, "%" + search + "%");
                 case ORIGINAL:
                     return myStockMapper.count_original(gid, sid, start, end, "%" + search + "%");
-                case STANDARD:
-                    return myStockMapper.count_standard(gid, sid, start, end, "%" + search + "%");
                 default:
                     return 0;
             }
@@ -101,8 +95,6 @@ public class StockRepository extends BaseRepository<TStock> {
                 return myStockMapper.pagination_halfgood((page - 1) * limit, limit, gid, sid, start, end, key);
             case ORIGINAL:
                 return myStockMapper.pagination_original((page - 1) * limit, limit, gid, sid, start, end, key);
-            case STANDARD:
-                return myStockMapper.pagination_standard((page - 1) * limit, limit, gid, sid, start, end, key);
             default:
                 return null;
         }

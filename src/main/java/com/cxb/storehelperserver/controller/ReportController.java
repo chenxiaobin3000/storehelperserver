@@ -33,7 +33,7 @@ public class ReportController {
 
     @PostMapping("/getMarketReport")
     public RestResult getMarketReport(@Validated @RequestBody getMarketReportValid req) {
-        return reportService.getMarketReport(req.getId(), req.getGid(), req.getMid(), req.getCtype(), ReportCycleType.valueOf(req.getCycle()));
+        return reportService.getMarketReport(req.getId(), req.getGid(), req.getMid(), ReportCycleType.valueOf(req.getCycle()));
     }
 
     @PostMapping("/getAgreementReport")

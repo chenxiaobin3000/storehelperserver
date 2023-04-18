@@ -44,9 +44,6 @@ public class ProductOrderService extends BaseService<HashMap> {
     private OriginalRepository originalRepository;
 
     @Resource
-    private StandardRepository standardRepository;
-
-    @Resource
     private DateUtil dateUtil;
 
     public ProductOrderService() {
@@ -98,13 +95,6 @@ public class ProductOrderService extends BaseService<HashMap> {
                         if (null != find3) {
                             data.put("code", find3.getCode());
                             data.put("name", find3.getName());
-                        }
-                        break;
-                    case STANDARD:
-                        TStandard find4 = standardRepository.find(cid);
-                        if (null != find4) {
-                            data.put("code", find4.getCode());
-                            data.put("name", find4.getName());
                         }
                         break;
                     default:

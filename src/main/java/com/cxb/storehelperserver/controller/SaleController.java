@@ -87,7 +87,7 @@ public class SaleController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return saleService.after(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
+        return saleService.after(req.getId(), order, req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/setAfter")
@@ -99,7 +99,7 @@ public class SaleController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return saleService.setAfter(req.getId(), req.getOid(), req.getSid(), applyTime, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
+        return saleService.setAfter(req.getId(), req.getOid(), req.getSid(), applyTime, req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/delAfter")
@@ -130,7 +130,7 @@ public class SaleController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return saleService.loss(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
+        return saleService.loss(req.getId(), order, req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/setLoss")
@@ -142,7 +142,7 @@ public class SaleController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return saleService.setLoss(req.getId(), req.getOid(), req.getSid(), applyTime, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
+        return saleService.setLoss(req.getId(), req.getOid(), req.getSid(), applyTime, req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/delLoss")

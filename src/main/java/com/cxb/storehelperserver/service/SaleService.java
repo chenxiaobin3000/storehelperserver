@@ -18,7 +18,6 @@ import java.util.List;
 
 import static com.cxb.storehelperserver.util.Permission.*;
 import static com.cxb.storehelperserver.util.TypeDefine.CommodityType.COMMODITY;
-import static com.cxb.storehelperserver.util.TypeDefine.CommodityType.STANDARD;
 
 /**
  * desc: 销售业务
@@ -63,9 +62,6 @@ public class SaleService {
     private MarketCommodityDetailRepository marketCommodityDetailRepository;
 
     @Resource
-    private MarketStandardDetailRepository marketStandardDetailRepository;
-
-    @Resource
     private UserGroupRepository userGroupRepository;
 
     @Resource
@@ -100,20 +96,6 @@ public class SaleService {
         for (MyMarketCommodity commodity : list) {
             TSaleCommodity c = new TSaleCommodity();
             sales.add(c);
-            c.setCtype(COMMODITY.getValue());
-            c.setCid(commodity.getCid());
-            c.setPrice(commodity.getPrice());
-            c.setValue(commodity.getValue());
-        }
-
-        val list2 = marketStandardDetailRepository.sale(sid, aid, asid, date);
-        if (null == list2) {
-            return RestResult.fail("未查询到销售信息");
-        }
-        for (MyMarketCommodity commodity : list2) {
-            TSaleCommodity c = new TSaleCommodity();
-            sales.add(c);
-            c.setCtype(STANDARD.getValue());
             c.setCid(commodity.getCid());
             c.setPrice(commodity.getPrice());
             c.setValue(commodity.getValue());
@@ -130,7 +112,7 @@ public class SaleService {
         val comms = new ArrayList<TSaleCommodity>();
         for (TSaleCommodity c : sales) {
             for (TAgreementCommodity c2 : agreementCommodities) {
-                if (c.getCtype().equals(c2.getCtype()) && c.getCid().equals(c2.getCid())) {
+                if (c.getCid().equals(c2.getCid())) {
                     if (c2.getCurValue() < c.getValue()) {
                         c.setValue(c2.getCurValue());
                     }
@@ -234,7 +216,7 @@ public class SaleService {
         }
         for (TSaleCommodity sc : saleCommodities) {
             for (TAgreementCommodity ac : agreementCommodities) {
-                if (sc.getCtype().equals(ac.getCtype()) && sc.getCid().equals(ac.getCid())) {
+                if (sc.getCid().equals(ac.getCid())) {
                     ac.setCurValue(ac.getCurValue() - sc.getValue());
                 }
             }
@@ -298,7 +280,7 @@ public class SaleService {
         }
         for (TSaleCommodity sc : saleCommodities) {
             for (TAgreementCommodity ac : agreementCommodities) {
-                if (sc.getCtype().equals(ac.getCtype()) && sc.getCid().equals(ac.getCid())) {
+                if (sc.getCid().equals(ac.getCid())) {
                     ac.setCurValue(ac.getCurValue() + sc.getValue());
                 }
             }
@@ -338,7 +320,7 @@ public class SaleService {
     /**
      * desc: 销售售后
      */
-    public RestResult after(int id, TSaleOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
+    public RestResult after(int id, TSaleOrder order, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_sale_after_apply, mp_sale_after_review, reviews);
         if (null != ret) {
@@ -347,7 +329,7 @@ public class SaleService {
 
         // 生成售后单
         val comms = new ArrayList<TSaleCommodity>();
-        ret = createAfterComms(order, types, commoditys, weights, values, comms);
+        ret = createAfterComms(order, commoditys, weights, values, comms);
         if (null != ret) {
             return ret;
         }
@@ -369,7 +351,7 @@ public class SaleService {
     /**
      * desc: 销售售后修改
      */
-    public RestResult setAfter(int id, int oid, int sid, Date applyTime, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
+    public RestResult setAfter(int id, int oid, int sid, Date applyTime, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
         // 已经审核的订单不能修改
         TSaleOrder order = saleOrderRepository.find(oid);
         if (null == order) {
@@ -400,7 +382,7 @@ public class SaleService {
 
         // 生成售后单
         val comms = new ArrayList<TSaleCommodity>();
-        ret = createAfterComms(order, types, commoditys, weights, values, comms);
+        ret = createAfterComms(order, commoditys, weights, values, comms);
         if (null != ret) {
             return ret;
         }
@@ -481,7 +463,7 @@ public class SaleService {
     /**
      * desc: 云仓损耗
      */
-    public RestResult loss(int id, TSaleOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
+    public RestResult loss(int id, TSaleOrder order, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_sale_loss_apply, mp_sale_loss_review, reviews);
         if (null != ret) {
@@ -490,7 +472,7 @@ public class SaleService {
 
         // 生成损耗单
         val comms = new ArrayList<TSaleCommodity>();
-        ret = createAfterComms(order, types, commoditys, weights, values, comms);
+        ret = createAfterComms(order, commoditys, weights, values, comms);
         if (null != ret) {
             return ret;
         }
@@ -512,7 +494,7 @@ public class SaleService {
     /**
      * desc: 云仓损耗修改
      */
-    public RestResult setLoss(int id, int oid, int sid, Date applyTime, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
+    public RestResult setLoss(int id, int oid, int sid, Date applyTime, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
         // 已经审核的订单不能修改
         TSaleOrder order = saleOrderRepository.find(oid);
         if (null == order) {
@@ -543,7 +525,7 @@ public class SaleService {
 
         // 生成损耗单
         val comms = new ArrayList<TSaleCommodity>();
-        ret = createAfterComms(order, types, commoditys, weights, values, comms);
+        ret = createAfterComms(order, commoditys, weights, values, comms);
         if (null != ret) {
             return ret;
         }
@@ -633,10 +615,10 @@ public class SaleService {
         return reviewService.checkPerm(id, gid, applyPerm, reviewPerm, reviews);
     }
 
-    private RestResult createAfterComms(TSaleOrder order, List<Integer> types, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<TSaleCommodity> list) {
+    private RestResult createAfterComms(TSaleOrder order, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<TSaleCommodity> list) {
         // 生成售后单
         int size = commoditys.size();
-        if (size != types.size() || size != weights.size() || size != values.size()) {
+        if (size != weights.size() || size != values.size()) {
             return RestResult.fail("商品信息异常");
         }
 /*        val agreementCommodities = agreementCommodityRepository.find(aid);
