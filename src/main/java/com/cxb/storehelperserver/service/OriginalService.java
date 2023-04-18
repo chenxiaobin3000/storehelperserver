@@ -64,9 +64,6 @@ public class OriginalService {
         if (originalRepository.checkCode(original.getGid(), original.getCode(), 0)) {
             return RestResult.fail("原料编号已存在");
         }
-        if (originalRepository.checkName(original.getGid(), original.getName(), 0)) {
-            return RestResult.fail("原料名称已存在");
-        }
 
         // 检测属性数量是否匹配
         List<TAttributeTemplate> attributeTemplates = attributeTemplateRepository.find(original.getGid(), CommodityType.ORIGINAL.getValue());
@@ -97,9 +94,6 @@ public class OriginalService {
         // 原料名重名检测
         if (originalRepository.checkCode(original.getGid(), original.getCode(), original.getId())) {
             return RestResult.fail("原料编号已存在");
-        }
-        if (originalRepository.checkName(original.getGid(), original.getName(), original.getId())) {
-            return RestResult.fail("原料名称已存在");
         }
 
         // 检测属性数量是否匹配

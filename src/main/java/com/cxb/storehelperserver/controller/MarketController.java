@@ -49,6 +49,18 @@ public class MarketController {
         return marketService.getMarketCommodity(req.getId(), req.getGid(), req.getPage(), req.getLimit(), req.getSid(), req.getAid(), req.getAsid(), req.getSearch());
     }
 
+    @PostMapping("/setMarketCommList")
+    public RestResult setMarketCommList(@Validated @RequestBody SetMarketCommodityListValid req) {
+        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
+        Date date = null;
+        try {
+            date = simpleDateFormat.parse(req.getDate() + " 00:00:00");
+        } catch (ParseException e) {
+            return RestResult.fail("查询日期转换失败");
+        }
+        return marketService.setMarketCommodityList(req.getId(), req.getGid(), req.getSid(), req.getAid(), req.getAsid(), date, req.getCommoditys(), req.getPrices(), req.getValues());
+    }
+
     @PostMapping("/setMarketCommDetail")
     public RestResult setMarketCommDetail(@Validated @RequestBody SetMarketCommodityDetailValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();

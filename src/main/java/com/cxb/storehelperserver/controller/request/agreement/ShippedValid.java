@@ -43,7 +43,7 @@ public class ShippedValid implements IValid {
     private List<Integer> weights;
 
     @Size(min = 1, message = "商品规格不能为空")
-    private List<Integer> norms;
+    private List<String> norms;
 
     @Size(min = 1, message = "商品数量不能为空")
     private List<Integer> values;

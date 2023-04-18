@@ -62,7 +62,9 @@ public class ReviewService {
                 return RestResult.fail("添加用户订单审核信息失败");
             }
         }
-        return RestResult.ok();
+        val ret = new HashMap<String, Object>();
+        ret.put("id", oid);
+        return RestResult.ok(ret);
     }
 
     public RestResult update(int otype, int oid, int sid) {
@@ -136,7 +138,7 @@ public class ReviewService {
         return RestResult.ok();
     }
 
-    public RestResult revoke(int id, int gid, int sid, int otype, int oid, String batch, int aid,  int perm) {
+    public RestResult revoke(int id, int gid, int sid, int otype, int oid, String batch, int aid, int perm) {
         val orderReviewers = orderReviewerRepository.find(gid);
         if (null == orderReviewers || orderReviewers.isEmpty()) {
             return RestResult.fail("未设置订单审核人，请联系系统管理员");

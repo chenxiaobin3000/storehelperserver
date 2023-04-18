@@ -70,9 +70,6 @@ public class HalfgoodService {
         if (halfgoodRepository.checkCode(halfgood.getGid(), halfgood.getCode(), 0)) {
             return RestResult.fail("半成品编号已存在");
         }
-        if (halfgoodRepository.checkName(halfgood.getGid(), halfgood.getName(), 0)) {
-            return RestResult.fail("半成品名称已存在");
-        }
 
         // 检测属性数量是否匹配
         List<TAttributeTemplate> attributeTemplates = attributeTemplateRepository.find(halfgood.getGid(), CommodityType.HALFGOOD.getValue());
@@ -103,9 +100,6 @@ public class HalfgoodService {
         // 半成品名重名检测
         if (halfgoodRepository.checkCode(halfgood.getGid(), halfgood.getCode(), halfgood.getId())) {
             return RestResult.fail("半成品编号已存在");
-        }
-        if (halfgoodRepository.checkName(halfgood.getGid(), halfgood.getName(), halfgood.getId())) {
-            return RestResult.fail("半成品名称已存在");
         }
 
         // 检测属性数量是否匹配

@@ -1,4 +1,4 @@
-package com.cxb.storehelperserver.controller.request.purchase;
+package com.cxb.storehelperserver.controller.request.market;
 
 import com.cxb.storehelperserver.controller.request.IValid;
 import lombok.Data;
@@ -16,40 +16,32 @@ import java.util.List;
  * date: 2022/12/21
  */
 @Data
-public class SetPurchaseValid implements IValid {
+public class SetMarketCommodityListValid implements IValid {
     @Min(value = 1, message = "账号错误")
     private int id;
 
     @Min(value = 1, message = "公司账号错误")
     private int gid;
 
-    @Min(value = 1, message = "订单编号错误")
-    private int oid;
-
-    @Min(value = 1, message = "仓库账号错误")
+    @Min(value = 1, message = "云仓账号错误")
     private int sid;
 
-    @NotEmpty(message = "请输入订单制单日期")
-    @Length(min = 19, max = 19, message = "订单制单日期格式错误")
-    private String date;
+    @Min(value = 1, message = "平台账号错误")
+    private int aid;
 
-    @Size(min = 1, message = "商品类型不能为空")
-    private List<Integer> types;
+    @Min(value = 0, message = "平台子账号错误")
+    private int asid;
 
     @Size(min = 1, message = "商品id不能为空")
-    private List<Integer> commoditys;
+    private List<String> commoditys;
 
     @Size(min = 1, message = "商品单价不能为空")
     private List<BigDecimal> prices;
 
-    @Size(min = 1, message = "商品重量不能为空")
-    private List<Integer> weights;
-
-    @Size(min = 1, message = "商品规格不能为空")
-    private List<String> norms;
-
     @Size(min = 1, message = "商品件数不能为空")
     private List<Integer> values;
 
-    private List<Integer> attrs;
+    @NotEmpty(message = "请输入查询日期")
+    @Length(min = 10, max = 10, message = "查询日期格式错误")
+    private String date;
 }

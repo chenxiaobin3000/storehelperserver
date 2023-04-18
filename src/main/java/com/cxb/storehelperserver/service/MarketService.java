@@ -188,6 +188,72 @@ public class MarketService {
         return RestResult.ok(new PageData(total, datas));
     }
 
+    public RestResult setMarketCommodityList(int id, int gid, int sid, int aid, int asid, Date date, List<String> commoditys, List<BigDecimal> prices, List<Integer> values) {
+        int size = commoditys.size();
+        if (size != prices.size() || size != values.size()) {
+            return RestResult.fail("商品信息异常");
+        }
+
+        // 验证公司
+        String msg = checkService.checkGroup(id, gid);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+
+        // 模板数据
+        int mid = 0;
+        if (0 == asid) {
+            TMarketAccount account = marketAccountRepository.find(aid);
+            if (null == account) {
+                return RestResult.fail("未查询到账号信息");
+            }
+            mid = account.getMid();
+        } else {
+            TMarketMany many = marketManyRepository.find(asid);
+            if (null == many) {
+                return RestResult.fail("未查询到子账号信息");
+            }
+            mid = many.getMid();
+        }
+        TMarketCommodityDetail detail = new TMarketCommodityDetail();
+        detail.setGid(gid);
+        detail.setSid(sid);
+        detail.setMid(mid);
+        detail.setAid(aid);
+        detail.setAsid(asid);
+        detail.setCdate(date);
+
+        // 清空原有数据
+        val ids = marketCommodityDetailRepository.findIds(sid, aid, asid, date);
+        if (null != ids && !ids.isEmpty()) {
+            for (Integer v : ids) {
+                marketCommodityDetailRepository.delete(v);
+            }
+        }
+
+        // 获取商品列表
+        val list = marketCommodityRepository.findAll(sid, aid, asid);
+        if (null == list || list.isEmpty()) {
+            return RestResult.fail("未查询到上架商品信息");
+        }
+
+        for (int i = 0; i < size; i++) {
+            for (TMarketCommodity commodity : list) {
+                if (commodity.getCode().equals(commoditys.get(i))) {
+                    detail.setId(0);
+                    detail.setCid(commodity.getCid());
+                    detail.setPrice(prices.get(i));
+                    detail.setValue(values.get(i));
+                    if (!marketCommodityDetailRepository.insert(detail)) {
+                        return RestResult.fail("插入商品销售信息失败");
+                    }
+                    break;
+                }
+            }
+        }
+        return RestResult.ok();
+    }
+
     public RestResult setMarketCommodityDetail(int id, int gid, TMarketCommodityDetail detail) {
         // 验证公司
         String msg = checkService.checkGroup(id, gid);

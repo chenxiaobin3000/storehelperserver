@@ -70,9 +70,6 @@ public class CommodityService {
         if (commodityRepository.checkCode(commodity.getGid(), commodity.getCode(), 0)) {
             return RestResult.fail("商品编号已存在");
         }
-        if (commodityRepository.checkName(commodity.getGid(), commodity.getName(), 0)) {
-            return RestResult.fail("商品名称已存在");
-        }
 
         // 检测属性数量是否匹配
         List<TAttributeTemplate> attributeTemplates = attributeTemplateRepository.find(commodity.getGid(), CommodityType.COMMODITY.getValue());
@@ -103,9 +100,6 @@ public class CommodityService {
         // 商品名重名检测
         if (commodityRepository.checkCode(commodity.getGid(), commodity.getCode(), commodity.getId())) {
             return RestResult.fail("商品编号已存在");
-        }
-        if (commodityRepository.checkName(commodity.getGid(), commodity.getName(), commodity.getId())) {
-            return RestResult.fail("商品名称已存在");
         }
 
         // 检测属性数量是否匹配

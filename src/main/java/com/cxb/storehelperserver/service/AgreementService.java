@@ -63,7 +63,7 @@ public class AgreementService {
     /**
      * desc: 履约发货
      */
-    public RestResult shipped(int id, TAgreementOrder order, List<Integer> commoditys, List<Integer> weights, List<Integer> norms, List<Integer> values, List<Integer> attrs) {
+    public RestResult shipped(int id, TAgreementOrder order, List<Integer> commoditys, List<Integer> weights, List<String> norms, List<Integer> values, List<Integer> attrs) {
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_agreement_shipped_apply, mp_agreement_shipped_review, reviews);
         if (null != ret) {
@@ -95,7 +95,7 @@ public class AgreementService {
      * desc: 履约发货修改
      */
     public RestResult setShipped(int id, int oid, int sid, int aid, Date applyTime, List<Integer> commoditys, List<Integer> weights,
-                                 List<Integer> norms, List<Integer> values, List<Integer> attrs) {
+                                 List<String> norms, List<Integer> values, List<Integer> attrs) {
         // 已经审核的订单不能修改
         TAgreementOrder order = agreementOrderRepository.find(oid);
         if (null == order) {
@@ -465,7 +465,7 @@ public class AgreementService {
         return reviewService.checkPerm(id, gid, applyPerm, reviewPerm, reviews);
     }
 
-    private RestResult createShippedComms(TAgreementOrder order, List<Integer> commoditys, List<Integer> weights, List<Integer> norms, List<Integer> values, List<TAgreementCommodity> list) {
+    private RestResult createShippedComms(TAgreementOrder order, List<Integer> commoditys, List<Integer> weights, List<String> norms, List<Integer> values, List<TAgreementCommodity> list) {
         // 生成发货单
         int size = commoditys.size();
         if (size != weights.size() || size != norms.size() || size != values.size()) {

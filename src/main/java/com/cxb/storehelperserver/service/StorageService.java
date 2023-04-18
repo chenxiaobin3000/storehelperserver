@@ -1328,7 +1328,7 @@ public class StorageService {
                 c.setPrice(stock.getPrice().multiply(new BigDecimal(weight)).divide(new BigDecimal(stock.getWeight()), 2, RoundingMode.DOWN));
             }
             c.setWeight(weight);
-            c.setNorm(0);
+            c.setNorm("");
             c.setValue(value);
             list.add(c);
 

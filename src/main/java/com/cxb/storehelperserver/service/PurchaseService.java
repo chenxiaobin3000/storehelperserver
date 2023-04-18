@@ -69,7 +69,7 @@ public class PurchaseService {
      * desc: 采购仓储进货
      */
     public RestResult purchase(int id, TPurchaseOrder order, List<Integer> types, List<Integer> commoditys,
-                               List<BigDecimal> prices, List<Integer> weights, List<Integer> norms, List<Integer> values, List<Integer> attrs) {
+                               List<BigDecimal> prices, List<Integer> weights, List<String> norms, List<Integer> values, List<Integer> attrs) {
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_purchase_purchase_apply, mp_purchase_purchase_review, reviews);
         if (null != ret) {
@@ -101,7 +101,7 @@ public class PurchaseService {
      * desc: 原料采购仓储修改
      */
     public RestResult setPurchase(int id, int oid, int sid, Date applyTime, List<Integer> types, List<Integer> commoditys,
-                                  List<BigDecimal> prices, List<Integer> weights, List<Integer> norms, List<Integer> values, List<Integer> attrs) {
+                                  List<BigDecimal> prices, List<Integer> weights, List<String> norms, List<Integer> values, List<Integer> attrs) {
         // 已经审核的订单不能修改
         TPurchaseOrder order = purchaseOrderRepository.find(oid);
         if (null == order) {
@@ -481,7 +481,7 @@ public class PurchaseService {
     }
 
     private RestResult createPurchaseComms(TPurchaseOrder order, List<Integer> types, List<Integer> commoditys, List<BigDecimal> prices,
-                                           List<Integer> weights, List<Integer> norms, List<Integer> values, List<TPurchaseCommodity> list) {
+                                           List<Integer> weights, List<String> norms, List<Integer> values, List<TPurchaseCommodity> list) {
         // 生成采购单
         int size = commoditys.size();
         if (size != types.size() || size != prices.size() || size != weights.size() || size != norms.size() || size != values.size()) {

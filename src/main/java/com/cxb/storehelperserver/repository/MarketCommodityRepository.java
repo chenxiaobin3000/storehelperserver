@@ -49,6 +49,12 @@ public class MarketCommodityRepository extends BaseRepository<TMarketCommodity> 
         return marketCommodity;
     }
 
+    public List<TMarketCommodity> findAll(int sid, int aid, int asid) {
+        TMarketCommodityExample example = new TMarketCommodityExample();
+        example.or().andSidEqualTo(sid).andAidEqualTo(aid).andAsidEqualTo(asid);
+        return marketCommodityMapper.selectByExample(example);
+    }
+
     public int total(int sid, String search) {
         if (null != search) {
             return myMarketCommodityMapper.count(sid, "%" + search + "%");
@@ -59,6 +65,7 @@ public class MarketCommodityRepository extends BaseRepository<TMarketCommodity> 
         }
     }
 
+    // aid，asid是在子查询里使用，所以total不用
     public List<TMarketCommodity> pagination(int sid, int aid, int asid, int page, int limit, String search) {
         if (null != search) {
             return myMarketCommodityMapper.pagination((page - 1) * limit, limit, sid, aid, asid, "%" + search + "%");

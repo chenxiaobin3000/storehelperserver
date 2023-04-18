@@ -49,6 +49,10 @@ public class MarketCommodityDetailRepository extends BaseRepository<TMarketCommo
         return detail;
     }
 
+    public List<Integer> findIds(int sid, int aid, int asid, Date date) {
+        return myMarketCommodityMapper.findIds(sid, aid, asid, new java.sql.Date(date.getTime()));
+    }
+
     public List<MyMarketReport> findByDate(int gid, int mid, Date start, Date end) {
         return myMarketMapper.select(gid, mid, new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
     }
