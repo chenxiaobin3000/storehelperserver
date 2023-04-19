@@ -34,6 +34,9 @@ public class ScheduledTasks {
     @Scheduled(cron = "0 1 0 * * ?")
     private void scheduledStock() {
         log.info("scheduled stock");
+
+        // TODO 清7天之前销售数据
+
         Date today = new Date();
         int total = groupRepository.total(null);
         val groups = groupRepository.pagination(1, total, null);

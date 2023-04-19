@@ -68,8 +68,8 @@ public class PurchaseService {
     /**
      * desc: 采购仓储进货
      */
-    public RestResult purchase(int id, TPurchaseOrder order, List<Integer> types, List<Integer> commoditys,
-                               List<BigDecimal> prices, List<Integer> weights, List<String> norms, List<Integer> values, List<Integer> attrs) {
+    public RestResult purchase(int id, TPurchaseOrder order, List<Integer> types, List<Integer> commoditys, List<BigDecimal> prices,
+                               List<Integer> weights, List<String> norms, List<Integer> values, List<Integer> attrs) {
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_purchase_purchase_apply, mp_purchase_purchase_review, reviews);
         if (null != ret) {

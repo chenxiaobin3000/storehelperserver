@@ -59,6 +59,9 @@ public class StockService {
     private OriginalStorageRepository originalStorageRepository;
 
     @Resource
+    private CommodityAttrRepository commodityAttrRepository;
+
+    @Resource
     private UserGroupRepository userGroupRepository;
 
     @Resource
@@ -208,7 +211,7 @@ public class StockService {
         int total = stockDayRepository.total(sid, ctype, yesterday, search);
         List<MyStockCommodity> commodities = null;
         if (0 == total) {
-            commodities = new ArrayList<MyStockCommodity>();
+            commodities = new ArrayList<>();
         } else {
             commodities = stockDayRepository.pagination(sid, page, limit, ctype, yesterday, search);
             if (null == commodities) {
@@ -219,29 +222,46 @@ public class StockService {
         // 加上今日变化量
         Date tomorrow = dateUtil.addOneDay(today, 1);
         val commodities2 = stockRepository.findHistoryAll(gid, sid, ctype, today, tomorrow);
-        List<MyStockCommodity> tmp = new ArrayList<>();
+        List<HashMap<String, Object>> list = new ArrayList<>();
         if (null != commodities2 && !commodities2.isEmpty()) {
             for (MyStockCommodity c2 : commodities2) {
                 boolean find = false;
+                val tmp = new HashMap<String, Object>();
+                list.add(tmp);
+                tmp.put("id", c2.getCid());
+                tmp.put("code", c2.getCode());
+                tmp.put("name", c2.getName());
+                tmp.put("cid", c2.getCtid());
+                tmp.put("remark", c2.getRemark());
                 for (MyStockCommodity c : commodities) {
                     if (c2.getCid().equals(c.getCid())) {
-                        c.setPrice(c.getPrice().add(c2.getPrice()));
-                        c.setWeight(c.getWeight() + c2.getWeight());
-                        c.setValue(c.getValue() + c2.getValue());
+                        tmp.put("price", c.getPrice().add(c2.getPrice()));
+                        tmp.put("weight", c.getWeight() + c2.getWeight());
+                        tmp.put("value", c.getValue() + c2.getValue());
                         find = true;
                         break;
                     }
                 }
                 if (!find) {
-                    tmp.add(c2);
+                    tmp.put("price", c2.getPrice());
+                    tmp.put("weight", c2.getWeight());
+                    tmp.put("value", c2.getValue());
+                }
+
+                // 属性
+                List<TCommodityAttr> attrs = commodityAttrRepository.find(c2.getCid());
+                if (null != attrs && !attrs.isEmpty()) {
+                    val tmp2 = new ArrayList<String>();
+                    tmp.put("attrs", tmp2);
+                    for (TCommodityAttr attr : attrs) {
+                        tmp2.add(attr.getValue());
+                    }
                 }
             }
         }
-        if (!tmp.isEmpty()) {
-            commodities.addAll(tmp);
-        }
+
         data.put("total", total);
-        data.put("list", commodities);
+        data.put("list", list);
         return RestResult.ok(data);
     }
 
@@ -322,10 +342,12 @@ public class StockService {
                 return "修改源库存明细信息失败";
             }
             // 跟仓库1相反
-            if (!stockRepository.insert(gid, sid2, order.getOtype(), order.getOid(), ctype, cid, add ? price.negate() : price, add ? -weight : weight, add ? -value : value, cdate)) {
-                log.warn("修改库存明细信息失败");
-                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-                return "修改库存明细信息失败";
+            if (sid2 > 0) {
+                if (!stockRepository.insert(gid, sid2, order.getOtype(), order.getOid(), ctype, cid, add ? price.negate() : price, add ? -weight : weight, add ? -value : value, cdate)) {
+                    log.warn("修改库存明细信息失败");
+                    TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                    return "修改库存明细信息失败";
+                }
             }
         }
         return null;

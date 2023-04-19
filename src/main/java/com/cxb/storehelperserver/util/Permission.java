@@ -19,11 +19,11 @@ public class Permission {
     static public final int mp_storage_return_apply = 22;
     static public final int mp_storage_dispatch_apply = 23;
     static public final int mp_storage_loss_apply = 24;
-    static public final int mp_storage_offline_apply = 25;
-    static public final int mp_storage_back_apply = 26;
     static public final int mp_agreement_apply = 30;
     static public final int mp_agreement_shipped_apply = 31;
     static public final int mp_agreement_return_apply = 32;
+    static public final int mp_agreement_offline_apply = 33;
+    static public final int mp_agreement_back_apply = 34;
     static public final int mp_sale_apply = 40;
     static public final int mp_sale_sale_apply = 41;
     static public final int mp_sale_after_apply = 42;
@@ -40,11 +40,11 @@ public class Permission {
     static public final int mp_storage_return_review = 62;
     static public final int mp_storage_dispatch_review = 63;
     static public final int mp_storage_loss_review = 64;
-    static public final int mp_storage_offline_review = 65;
-    static public final int mp_storage_back_review = 66;
     static public final int mp_agreement_review = 70;
     static public final int mp_agreement_shipped_review = 71;
     static public final int mp_agreement_return_review = 72;
+    static public final int mp_agreement_offline_review = 65;
+    static public final int mp_agreement_back_review = 66;
     static public final int mp_sale_review = 80;
     static public final int mp_sale_sale_review = 81;
     static public final int mp_sale_after_review = 82;
@@ -61,6 +61,8 @@ public class Permission {
     static public final int agreement_getlist = 202;
     static public final int agreement_shipped = 203;
     static public final int agreement_return = 204;
+    static public final int agreement_offline = 205;
+    static public final int agreement_back = 206;
 
     static public final int purchase = 250;
     static public final int purchase_report = 251;
@@ -94,6 +96,7 @@ public class Permission {
     static public final int market_sale = 503;
     static public final int market_after = 504;
     static public final int market_loss = 505;
+    static public final int market_exception = 506;
 
     static public final int product = 600;
     static public final int product_report = 601;
@@ -117,8 +120,6 @@ public class Permission {
     static public final int storage_return = 806;
     static public final int storage_dispatch = 807;
     static public final int storage_loss = 808;
-    static public final int storage_offline = 809;
-    static public final int storage_back = 810;
 
     static public final int supplier = 900;
     static public final int supplier_getlist = 901;

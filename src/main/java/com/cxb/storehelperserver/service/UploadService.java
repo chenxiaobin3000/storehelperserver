@@ -89,8 +89,6 @@ public class UploadService {
             case STORAGE_DISPATCH_ORDER:
             case STORAGE_LOSS_ORDER:
             case STORAGE_RETURN_ORDER:
-            case STORAGE_OFFLINE_ORDER:
-            case STORAGE_BACK_ORDER:
                 TStorageAttachment storageAttachment = storageAttachmentRepository.insert(0, imagesrc, path, name);
                 if (null == storageAttachment) {
                     return RestResult.fail("写入数据失败，请联系管理员");
@@ -106,6 +104,8 @@ public class UploadService {
                 break;
             case AGREEMENT_SHIPPED_ORDER:
             case AGREEMENT_RETURN_ORDER:
+            case AGREEMENT_OFFLINE_ORDER:
+            case AGREEMENT_BACK_ORDER:
                 TAgreementAttachment agreementAttachment = agreementAttachmentRepository.insert(0, imagesrc, path, name);
                 if (null == agreementAttachment) {
                     return RestResult.fail("写入数据失败，请联系管理员");

@@ -39,7 +39,7 @@ public class SetPurchaseValid implements IValid {
     @Size(min = 1, message = "商品id不能为空")
     private List<Integer> commoditys;
 
-    @Size(min = 1, message = "商品单价不能为空")
+    @Size(min = 1, message = "商品总价不能为空")
     private List<BigDecimal> prices;
 
     @Size(min = 1, message = "商品重量不能为空")

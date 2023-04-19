@@ -48,13 +48,14 @@ public class TypeDefine {
         STORAGE_RETURN_ORDER(11),       // 仓储采购退货订单
         STORAGE_DISPATCH_ORDER(12),     // 仓储调度订单
         STORAGE_LOSS_ORDER(13),         // 仓储损耗订单
-        STORAGE_OFFLINE_ORDER(14),      // 线下销售订单
-        STORAGE_BACK_ORDER(15),         // 线下销售退货订单
         AGREEMENT_SHIPPED_ORDER(20),    // 履约发货订单
         AGREEMENT_RETURN_ORDER(21),     // 履约退货订单
+        AGREEMENT_OFFLINE_ORDER(22),    // 线下销售订单
+        AGREEMENT_BACK_ORDER(23),       // 线下销售退货订单
         SALE_SALE_ORDER(30),            // 线上销售订单
         SALE_AFTER_ORDER(31),           // 线上售后订单
-        SALE_LOSS_ORDER(32);            // 线上损耗订单
+        SALE_LOSS_ORDER(32),            // 线上损耗订单
+        SALE_EXCEPTION_ORDER(33);       // 线上异常订单
 
         private int value = 0;
 
@@ -78,20 +79,22 @@ public class TypeDefine {
                     return STORAGE_DISPATCH_ORDER;
                 case 13:
                     return STORAGE_LOSS_ORDER;
-                case 14:
-                    return STORAGE_OFFLINE_ORDER;
-                case 15:
-                    return STORAGE_BACK_ORDER;
                 case 20:
                     return AGREEMENT_SHIPPED_ORDER;
                 case 21:
                     return AGREEMENT_RETURN_ORDER;
+                case 22:
+                    return AGREEMENT_OFFLINE_ORDER;
+                case 23:
+                    return AGREEMENT_BACK_ORDER;
                 case 30:
                     return SALE_SALE_ORDER;
                 case 31:
                     return SALE_AFTER_ORDER;
+                case 32:
+                    return SALE_LOSS_ORDER;
             }
-            return SALE_LOSS_ORDER;
+            return SALE_EXCEPTION_ORDER;
         }
 
         public int getValue() {
