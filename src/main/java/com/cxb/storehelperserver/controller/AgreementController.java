@@ -94,7 +94,7 @@ public class AgreementController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return agreementService.returnc(req.getId(), order, req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
+        return agreementService.returnc(req.getId(), order, req.getCommoditys(), req.getPrices(), req.getWeights(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/setReturn")
@@ -106,7 +106,7 @@ public class AgreementController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return agreementService.setReturn(req.getId(), req.getOid(), applyTime, req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
+        return agreementService.setReturn(req.getId(), req.getOid(), applyTime, req.getCommoditys(), req.getPrices(), req.getWeights(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/delReturn")

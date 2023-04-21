@@ -134,12 +134,8 @@ public class CommodityService {
         }
 
         commodityStorageRepository.delete(cid);
-        if (!commodityOriginalRepository.delete(cid)) {
-            return RestResult.fail("删除商品关联原料失败");
-        }
-        if (!commodityAttrRepository.delete(cid)) {
-            return RestResult.fail("删除商品属性失败");
-        }
+        commodityOriginalRepository.delete(cid);
+        commodityAttrRepository.delete(cid);
         if (!commodityRepository.delete(cid)) {
             return RestResult.fail("删除商品信息失败");
         }

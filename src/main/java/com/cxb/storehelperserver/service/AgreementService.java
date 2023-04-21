@@ -251,7 +251,7 @@ public class AgreementService {
     /**
      * desc: 履约退货
      */
-    public RestResult returnc(int id, TAgreementOrder order, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
+    public RestResult returnc(int id, TAgreementOrder order, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
         // 发货单未审核不能退货
         int rid = order.getRid();
         TAgreementOrder agreement = agreementOrderRepository.find(rid);
@@ -277,7 +277,7 @@ public class AgreementService {
 
         // 生成退货单
         val comms = new ArrayList<TAgreementCommodity>();
-        ret = createReturnComms(order, order.getRid(), commoditys, weights, values, comms);
+        ret = createReturnComms(order, order.getRid(), commoditys, prices, weights, values, comms);
         if (null != ret) {
             return ret;
         }
@@ -299,7 +299,7 @@ public class AgreementService {
     /**
      * desc: 履约退货修改
      */
-    public RestResult setReturn(int id, int oid, Date applyTime, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
+    public RestResult setReturn(int id, int oid, Date applyTime, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
         // 已经审核的订单不能修改
         TAgreementOrder order = agreementOrderRepository.find(oid);
         if (null == order) {
@@ -321,7 +321,7 @@ public class AgreementService {
 
         // 生成退货单
         val comms = new ArrayList<TAgreementCommodity>();
-        ret = createReturnComms(order, order.getRid(), commoditys, weights, values, comms);
+        ret = createReturnComms(order, order.getRid(), commoditys, prices, weights, values, comms);
         if (null != ret) {
             return ret;
         }
@@ -356,7 +356,7 @@ public class AgreementService {
             return RestResult.fail("您没有审核权限");
         }
 
-        // 校验退货订单总价格和总量不能超出采购单
+        // 校验退货订单总价格和总量不能超出履约单
         TAgreementOrder agreement = agreementOrderRepository.find(order.getRid());
         if (null == agreement) {
             return RestResult.fail("未查询到对应的履约单");
@@ -881,7 +881,7 @@ public class AgreementService {
         return null;
     }
 
-    private RestResult createReturnComms(TAgreementOrder order, int aid, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<TAgreementCommodity> list) {
+    private RestResult createReturnComms(TAgreementOrder order, int aid, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<Integer> values, List<TAgreementCommodity> list) {
         // 生成发货单
         int size = commoditys.size();
         if (size != weights.size() || size != values.size()) {
@@ -911,11 +911,7 @@ public class AgreementService {
 
                     TAgreementCommodity c = new TAgreementCommodity();
                     c.setCid(cid);
-                    if (weight == ac.getWeight()) {
-                        c.setPrice(ac.getPrice());
-                    } else {
-                        c.setPrice(ac.getPrice().multiply(new BigDecimal(weight)).divide(new BigDecimal(ac.getWeight()), 2, RoundingMode.DOWN));
-                    }
+                    c.setPrice(prices.get(i));
                     c.setWeight(weight);
                     c.setNorm(ac.getNorm());
                     c.setValue(value);

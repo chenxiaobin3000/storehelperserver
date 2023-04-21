@@ -128,9 +128,7 @@ public class OriginalService {
         }
 
         originalStorageRepository.delete(oid);
-        if (!originalAttrRepository.delete(oid)) {
-            return RestResult.fail("删除原料属性失败");
-        }
+        originalAttrRepository.delete(oid);
         if (!originalRepository.delete(oid)) {
             return RestResult.fail("删除原料信息失败");
         }

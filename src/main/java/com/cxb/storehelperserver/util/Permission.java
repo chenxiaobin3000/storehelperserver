@@ -26,8 +26,7 @@ public class Permission {
     static public final int mp_agreement_back_apply = 34;
     static public final int mp_sale_apply = 40;
     static public final int mp_sale_sale_apply = 41;
-    static public final int mp_sale_after_apply = 42;
-    static public final int mp_sale_loss_apply = 43;
+    static public final int mp_sale_loss_apply = 42;
     static public final int mp_end_apply = 50;
 
     static public final int mp_purchase_review = 51;
@@ -47,8 +46,7 @@ public class Permission {
     static public final int mp_agreement_back_review = 66;
     static public final int mp_sale_review = 80;
     static public final int mp_sale_sale_review = 81;
-    static public final int mp_sale_after_review = 82;
-    static public final int mp_sale_loss_review = 83;
+    static public final int mp_sale_loss_review = 82;
     static public final int mp_end_review = 90;
 
     // 管理后台
@@ -94,9 +92,7 @@ public class Permission {
     static public final int market_report = 501;
     static public final int market_getlist = 502;
     static public final int market_sale = 503;
-    static public final int market_after = 504;
-    static public final int market_loss = 505;
-    static public final int market_exception = 506;
+    static public final int market_loss = 504;
 
     static public final int product = 600;
     static public final int product_report = 601;

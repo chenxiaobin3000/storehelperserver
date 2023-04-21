@@ -76,7 +76,7 @@ public class UserOrderCompleteRepository extends BaseRepository<TUserOrderComple
     }
 
     public List<MyUserOrderComplete> findBySale(int gid, int sid, Date start, Date end) {
-        return myUserOrderCompleteMapper.selectBySale(gid, sid, SALE_AFTER_ORDER.getValue(),
+        return myUserOrderCompleteMapper.selectBySale(gid, sid, SALE_SALE_ORDER.getValue(),
                 SALE_LOSS_ORDER.getValue(), new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
     }
 

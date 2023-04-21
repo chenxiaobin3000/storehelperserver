@@ -47,8 +47,8 @@ public class ProductController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return productService.collect(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getTypes2(), req.getCommoditys2(),
-                req.getPrices2(), req.getWeights2(), req.getValues2(), req.getTypes3(), req.getCommoditys3(), req.getWeights3(), req.getValues3(), req.getAttrs());
+        return productService.collect(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getPrices(), req.getWeights(), req.getValues(), req.getTypes2(), req.getCommoditys2(),
+                req.getPrices2(), req.getWeights2(), req.getValues2(), req.getTypes3(), req.getCommoditys3(), req.getPrices3(), req.getWeights3(), req.getValues3(), req.getAttrs());
     }
 
     @PostMapping("/setCollect")
@@ -60,8 +60,8 @@ public class ProductController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return productService.setCollect(req.getId(), req.getOid(), req.getSid(), applyTime, req.getTypes(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getTypes2(),
-                req.getCommoditys2(), req.getPrices2(), req.getWeights2(), req.getValues2(), req.getTypes3(), req.getCommoditys3(), req.getWeights3(), req.getValues3(), req.getAttrs());
+        return productService.setCollect(req.getId(), req.getOid(), req.getSid(), applyTime, req.getTypes(), req.getCommoditys(), req.getPrices(), req.getWeights(), req.getValues(), req.getTypes2(),
+                req.getCommoditys2(), req.getPrices2(), req.getWeights2(), req.getValues2(), req.getTypes3(), req.getCommoditys3(), req.getPrices3(), req.getWeights3(), req.getValues3(), req.getAttrs());
     }
 
     @PostMapping("/delCollect")

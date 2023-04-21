@@ -112,7 +112,7 @@ public class UploadService {
                 }
                 data.put("id", agreementAttachment.getId());
                 break;
-            case SALE_AFTER_ORDER:
+            case SALE_SALE_ORDER:
             case SALE_LOSS_ORDER:
                 TSaleAttachment saleAttachment = saleAttachmentRepository.insert(0, imagesrc, path, name);
                 if (null == saleAttachment) {

@@ -134,12 +134,8 @@ public class HalfgoodService {
         }
 
         halfgoodStorageRepository.delete(hid);
-        if (!halfgoodOriginalRepository.delete(hid)) {
-            return RestResult.fail("删除半成品关联原料失败");
-        }
-        if (!halfgoodAttrRepository.delete(hid)) {
-            return RestResult.fail("删除半成品属性失败");
-        }
+        halfgoodOriginalRepository.delete(hid);
+        halfgoodAttrRepository.delete(hid);
         if (!halfgoodRepository.delete(hid)) {
             return RestResult.fail("删除半成品信息失败");
         }

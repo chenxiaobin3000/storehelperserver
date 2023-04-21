@@ -36,6 +36,9 @@ public class SetCollectValid implements IValid {
     @Size(min = 1, message = "出库商品id不能为空")
     private List<Integer> commoditys;
 
+    @Size(min = 1, message = "出库商品价格不能为空")
+    private List<BigDecimal> prices;
+
     @Size(min = 1, message = "出库商品重量不能为空")
     private List<Integer> weights;
 
@@ -60,6 +63,8 @@ public class SetCollectValid implements IValid {
     private List<Integer> types3;
 
     private List<Integer> commoditys3;
+
+    private List<BigDecimal> prices3;
 
     private List<Integer> weights3;
 

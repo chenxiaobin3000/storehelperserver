@@ -210,6 +210,7 @@ public class StockService {
         Date yesterday = dateUtil.addOneDay(today, -1);
         int total = stockDayRepository.total(sid, ctype, yesterday, search);
         List<MyStockCommodity> commodities = null;
+        List<HashMap<String, Object>> list = new ArrayList<>();
         if (0 == total) {
             commodities = new ArrayList<>();
         } else {
@@ -217,44 +218,65 @@ public class StockService {
             if (null == commodities) {
                 return RestResult.fail("获取商品信息失败");
             }
-        }
-
-        // 加上今日变化量
-        Date tomorrow = dateUtil.addOneDay(today, 1);
-        val commodities2 = stockRepository.findHistoryAll(gid, sid, ctype, today, tomorrow);
-        List<HashMap<String, Object>> list = new ArrayList<>();
-        if (null != commodities2 && !commodities2.isEmpty()) {
-            for (MyStockCommodity c2 : commodities2) {
-                boolean find = false;
+            for (MyStockCommodity c : commodities) {
                 val tmp = new HashMap<String, Object>();
                 list.add(tmp);
-                tmp.put("id", c2.getCid());
-                tmp.put("code", c2.getCode());
-                tmp.put("name", c2.getName());
-                tmp.put("cid", c2.getCtid());
-                tmp.put("remark", c2.getRemark());
-                for (MyStockCommodity c : commodities) {
-                    if (c2.getCid().equals(c.getCid())) {
-                        tmp.put("price", c.getPrice().add(c2.getPrice()));
-                        tmp.put("weight", c.getWeight() + c2.getWeight());
-                        tmp.put("value", c.getValue() + c2.getValue());
-                        find = true;
-                        break;
-                    }
-                }
-                if (!find) {
-                    tmp.put("price", c2.getPrice());
-                    tmp.put("weight", c2.getWeight());
-                    tmp.put("value", c2.getValue());
-                }
+                tmp.put("id", c.getCid());
+                tmp.put("code", c.getCode());
+                tmp.put("name", c.getName());
+                tmp.put("cid", c.getCtid());
+                tmp.put("remark", c.getRemark());
+                tmp.put("price", c.getPrice());
+                tmp.put("weight", c.getWeight());
+                tmp.put("value", c.getValue());
 
                 // 属性
-                List<TCommodityAttr> attrs = commodityAttrRepository.find(c2.getCid());
+                List<TCommodityAttr> attrs = commodityAttrRepository.find(c.getCid());
                 if (null != attrs && !attrs.isEmpty()) {
                     val tmp2 = new ArrayList<String>();
                     tmp.put("attrs", tmp2);
                     for (TCommodityAttr attr : attrs) {
                         tmp2.add(attr.getValue());
+                    }
+                }
+            }
+        }
+
+        // 加上今日变化量
+        Date tomorrow = dateUtil.addOneDay(today, 1);
+        val commodities2 = stockRepository.findHistoryAll(gid, sid, ctype, today, tomorrow);
+        if (null != commodities2 && !commodities2.isEmpty()) {
+            for (MyStockCommodity c2 : commodities2) {
+                boolean find = false;
+                for (val c : list) {
+                    if (c2.getCid().equals(c.get("cid"))) {
+                        c.put("price", c2.getPrice().add((BigDecimal) c.get("price")));
+                        c.put("weight", c2.getWeight() + (int) c.get("weight"));
+                        c.put("value", c2.getValue() + (int) c.get("value"));
+                        find = true;
+                        break;
+                    }
+                }
+                if (!find) {
+                    val tmp = new HashMap<String, Object>();
+                    list.add(tmp);
+                    tmp.put("id", c2.getCid());
+                    tmp.put("code", c2.getCode());
+                    tmp.put("name", c2.getName());
+                    tmp.put("cid", c2.getCtid());
+                    tmp.put("remark", c2.getRemark());
+                    tmp.put("price", c2.getPrice());
+                    tmp.put("weight", c2.getWeight());
+                    tmp.put("value", c2.getValue());
+
+                    // 属性
+                    List<TCommodityAttr> attrs = commodityAttrRepository.find(c2.getCid());
+                    if (null != attrs && !attrs.isEmpty()) {
+                        val tmp2 = new ArrayList<String>();
+                        tmp.put("attrs", tmp2);
+                        for (TCommodityAttr attr : attrs) {
+                            tmp2.add(attr.getValue());
+                        }
                     }
                 }
             }

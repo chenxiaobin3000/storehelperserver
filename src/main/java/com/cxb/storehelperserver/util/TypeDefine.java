@@ -53,9 +53,7 @@ public class TypeDefine {
         AGREEMENT_OFFLINE_ORDER(22),    // 线下销售订单
         AGREEMENT_BACK_ORDER(23),       // 线下销售退货订单
         SALE_SALE_ORDER(30),            // 线上销售订单
-        SALE_AFTER_ORDER(31),           // 线上售后订单
-        SALE_LOSS_ORDER(32),            // 线上损耗订单
-        SALE_EXCEPTION_ORDER(33);       // 线上异常订单
+        SALE_LOSS_ORDER(31);            // 线上损耗订单
 
         private int value = 0;
 
@@ -89,12 +87,8 @@ public class TypeDefine {
                     return AGREEMENT_BACK_ORDER;
                 case 30:
                     return SALE_SALE_ORDER;
-                case 31:
-                    return SALE_AFTER_ORDER;
-                case 32:
-                    return SALE_LOSS_ORDER;
             }
-            return SALE_EXCEPTION_ORDER;
+            return SALE_LOSS_ORDER;
         }
 
         public int getValue() {
@@ -305,6 +299,33 @@ public class TypeDefine {
                     return PRODUCT_IN;
             }
             return PRODUCT_LOSS;
+        }
+
+        public int getValue() {
+            return value;
+        }
+    }
+
+    // 销售售后类型
+    public enum SaleType {
+        SALE_CONST(0),  // 不变
+        SALE_ADD(1),    // 增加
+        SALE_SUB(2);    // 减少
+
+        private int value = 0;
+
+        private SaleType(int v) {
+            this.value = v;
+        }
+
+        public static SaleType valueOf(int v) {
+            switch (v) {
+                case 0:
+                    return SALE_CONST;
+                case 1:
+                    return SALE_ADD;
+            }
+            return SALE_SUB;
         }
 
         public int getValue() {
