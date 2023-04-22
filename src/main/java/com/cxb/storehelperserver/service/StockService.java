@@ -249,7 +249,7 @@ public class StockService {
             for (MyStockCommodity c2 : commodities2) {
                 boolean find = false;
                 for (val c : list) {
-                    if (c2.getCid().equals(c.get("cid"))) {
+                    if (c2.getCid().equals(c.get("id"))) {
                         c.put("price", c2.getPrice().add((BigDecimal) c.get("price")));
                         c.put("weight", c2.getWeight() + (int) c.get("weight"));
                         c.put("value", c2.getValue() + (int) c.get("value"));

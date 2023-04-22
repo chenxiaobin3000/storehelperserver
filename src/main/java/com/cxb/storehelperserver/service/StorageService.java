@@ -16,6 +16,8 @@ import java.util.*;
 
 import static com.cxb.storehelperserver.util.Permission.*;
 import static com.cxb.storehelperserver.util.TypeDefine.OrderType.*;
+import static com.cxb.storehelperserver.util.TypeDefine.SaleType.SALE_CONST;
+import static com.cxb.storehelperserver.util.TypeDefine.SaleType.SALE_ADD;
 
 /**
  * desc: 仓库订单业务
@@ -54,6 +56,9 @@ public class StorageService {
     private StorageReturnRepository storageReturnRepository;
 
     @Resource
+    private StorageTypeRepository storageTypeRepository;
+
+    @Resource
     private PurchaseOrderRepository purchaseOrderRepository;
 
     @Resource
@@ -64,6 +69,12 @@ public class StorageService {
 
     @Resource
     private DateUtil dateUtil;
+
+    public RestResult getStorageType(int id, int gid) {
+        val data = new HashMap<String, Object>();
+        data.put("list", storageTypeRepository.findByGroup(gid));
+        return RestResult.ok(data);
+    }
 
     /**
      * desc: 仓储采购入库
@@ -651,6 +662,23 @@ public class StorageService {
             return ret;
         }
 
+        // 校验损耗类型
+        val losses = storageTypeRepository.findByGroup(order.getGid());
+        if (null == losses) {
+            return RestResult.fail("未查询到损耗类型信息");
+        }
+        int tid = order.getTid();
+        boolean find = false;
+        for (TStorageType loss : losses) {
+            if (loss.getId().equals(tid)) {
+                find = true;
+                break;
+            }
+        }
+        if (!find) {
+            return RestResult.fail("未查询到对应的损耗类型");
+        }
+
         // 生成损耗单
         val comms = new ArrayList<TStorageCommodity>();
         ret = createDispatchComms(order, types, commoditys, prices, weights, norms, values, comms);
@@ -741,6 +769,25 @@ public class StorageService {
             return RestResult.fail("您没有审核权限");
         }
 
+        // 损耗类型
+        val losses = storageTypeRepository.findByGroup(order.getGid());
+        if (null == losses) {
+            return RestResult.fail("未查询到损耗类型信息");
+        }
+        int tid = order.getTid();
+        boolean find = false;
+        int add = 0;
+        for (TStorageType loss : losses) {
+            if (loss.getId().equals(tid)) {
+                add = loss.getIsAdd();
+                find = true;
+                break;
+            }
+        }
+        if (!find) {
+            return RestResult.fail("未查询到对应的损耗类型");
+        }
+
         // TODO 库存校验
 
         // 添加审核信息
@@ -751,10 +798,12 @@ public class StorageService {
             return RestResult.fail("审核用户订单信息失败");
         }
 
-        // 减少库存
-        String msg = stockService.handleStorageStock(order, false);
-        if (null != msg) {
-            return RestResult.fail(msg);
+        // 操作库存
+        if (SALE_CONST.getValue() != add) {
+            String msg = stockService.handleStorageStock(order, SALE_ADD.getValue() == add);
+            if (null != msg) {
+                return RestResult.fail(msg);
+            }
         }
         return reviewService.review(order.getApply(), id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
     }
@@ -780,6 +829,25 @@ public class StorageService {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
+        // 损耗类型
+        val losses = storageTypeRepository.findByGroup(gid);
+        if (null == losses) {
+            return RestResult.fail("未查询到损耗类型信息");
+        }
+        int tid = order.getTid();
+        boolean find = false;
+        int add = 0;
+        for (TStorageType loss : losses) {
+            if (loss.getId().equals(tid)) {
+                add = loss.getIsAdd();
+                find = true;
+                break;
+            }
+        }
+        if (!find) {
+            return RestResult.fail("未查询到对应的损耗类型");
+        }
+
         RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApply(), mp_storage_loss_review);
         if (null != ret) {
             return ret;
@@ -790,10 +858,12 @@ public class StorageService {
             return RestResult.fail("撤销订单审核信息失败");
         }
 
-        // 增加库存
-        msg = stockService.handleStorageStock(order, true);
-        if (null != msg) {
-            return RestResult.fail(msg);
+        // 操作库存
+        if (SALE_CONST.getValue() != add) {
+            msg = stockService.handleStorageStock(order, SALE_ADD.getValue() != add);
+            if (null != msg) {
+                return RestResult.fail(msg);
+            }
         }
         return RestResult.ok();
     }

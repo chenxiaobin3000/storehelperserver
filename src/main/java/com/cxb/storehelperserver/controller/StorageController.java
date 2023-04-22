@@ -82,11 +82,17 @@ public class StorageController {
         return storageMgrService.getGroupAllStorage(req.getId());
     }
 
+    @PostMapping("/getStorageType")
+    public RestResult getStorageType(@Validated @RequestBody GetStorageTypeValid req) {
+        return storageService.getStorageType(req.getId(), req.getGid());
+    }
+
     @PostMapping("/purchase")
     public RestResult purchase(@Validated @RequestBody PurchaseValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
         TStorageOrder order = new TStorageOrder();
         order.setOtype(STORAGE_PURCHASE_ORDER.getValue());
+        order.setTid(0);
         order.setApply(req.getId());
         order.setOid(req.getPid());
         order.setSid2(0);
@@ -130,6 +136,7 @@ public class StorageController {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
         TStorageOrder order = new TStorageOrder();
         order.setOtype(STORAGE_RETURN_ORDER.getValue());
+        order.setTid(0);
         order.setApply(req.getId());
         order.setOid(req.getRid());
         order.setSid2(0);
@@ -176,6 +183,7 @@ public class StorageController {
         order.setSid(req.getSid());
         order.setSid2(req.getSid2());
         order.setOtype(STORAGE_DISPATCH_ORDER.getValue());
+        order.setTid(0);
         order.setApply(req.getId());
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));
@@ -220,6 +228,7 @@ public class StorageController {
         order.setSid(req.getSid());
         order.setSid2(0);
         order.setOtype(STORAGE_LOSS_ORDER.getValue());
+        order.setTid(req.getTid());
         order.setApply(req.getId());
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));

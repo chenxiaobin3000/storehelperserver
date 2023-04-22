@@ -23,7 +23,7 @@ public class LossValid implements IValid {
     @Min(value = 1, message = "履约单号错误")
     private int pid;
 
-    @Min(value = 1, message = "销售类型错误")
+    @Min(value = 1, message = "损耗类型错误")
     private int tid;
 
     @Min(value = 0, message = "罚款价格错误")

@@ -358,15 +358,15 @@ public class SaleService {
             return ret;
         }
 
-        // 销售类型
-        val types = saleTypeRepository.findByGroup(order.getGid());
-        if (null == types) {
+        // 校验损耗类型
+        val losses = saleTypeRepository.findByGroup(order.getGid());
+        if (null == losses) {
             return RestResult.fail("未查询到损耗类型信息");
         }
         int tid = order.getTid();
         boolean find = false;
-        for (TSaleType type : types) {
-            if (type.getId().equals(tid)) {
+        for (TSaleType loss : losses) {
+            if (loss.getId().equals(tid)) {
                 find = true;
                 break;
             }
@@ -457,17 +457,17 @@ public class SaleService {
         }
         int pid = order.getPid();
 
-        // 销售类型
-        val types = saleTypeRepository.findByGroup(order.getGid());
-        if (null == types) {
+        // 损耗类型
+        val losses = saleTypeRepository.findByGroup(order.getGid());
+        if (null == losses) {
             return RestResult.fail("未查询到损耗类型信息");
         }
         int tid = order.getTid();
         boolean find = false;
         int add = 0;
-        for (TSaleType type : types) {
-            if (type.getId().equals(tid)) {
-                add = type.getIsAdd();
+        for (TSaleType loss : losses) {
+            if (loss.getId().equals(tid)) {
+                add = loss.getIsAdd();
                 find = true;
                 break;
             }
@@ -561,17 +561,17 @@ public class SaleService {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
-        // 销售类型
-        val types = saleTypeRepository.findByGroup(gid);
-        if (null == types) {
+        // 损耗类型
+        val losses = saleTypeRepository.findByGroup(gid);
+        if (null == losses) {
             return RestResult.fail("未查询到损耗类型信息");
         }
         int tid = order.getTid();
         boolean find = false;
         int add = 0;
-        for (TSaleType type : types) {
-            if (type.getId().equals(tid)) {
-                add = type.getIsAdd();
+        for (TSaleType loss : losses) {
+            if (loss.getId().equals(tid)) {
+                add = loss.getIsAdd();
                 find = true;
                 break;
             }
