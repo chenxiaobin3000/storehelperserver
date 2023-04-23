@@ -539,6 +539,7 @@ public class OrderService {
                 val ret = createOrder(o.getOtype(), o.getId(), o.getBatch(), o.getSid(), o.getAid(), o.getAsid(), o.getRid(), o.getUnit(), null, o.getPrice(), o.getCurPrice(), o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(), null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));
                 ret.put("value", o.getValue());
                 ret.put("curValue", o.getCurValue());
+                ret.put("pay", o.getPayPrice());
                 ret.put("complete", o.getComplete());
                 HashMap<String, Object> datas = agreementOrderService.find(o.getId());
                 if (null != datas) {
@@ -555,7 +556,7 @@ public class OrderService {
                     case AGREEMENT_BACK_ORDER:
                         TSupplier supplier = supplierRepository.find(o.getAid());
                         if (null != supplier) {
-                            ret.put("supplier", supplier);
+                            ret.put("supplier", supplier.getName());
                         }
                         break;
                     default:
@@ -637,7 +638,7 @@ public class OrderService {
                 if (0 != sid) {
                     TSupplier supplier = supplierRepository.find(sid);
                     if (null != supplier) {
-                        ret.put("supplier", supplier);
+                        ret.put("supplier", supplier.getName());
                     }
                 }
                 list2.add(ret);
@@ -799,6 +800,7 @@ public class OrderService {
                         val ret = createOrder(oa.getOtype(), o.getId(), o.getBatch(), o.getSid(), o.getAid(), o.getAsid(), o.getRid(), o.getUnit(), null, o.getPrice(), o.getCurPrice(), o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(), null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));
                         ret.put("value", o.getValue());
                         ret.put("curValue", o.getCurValue());
+                        ret.put("pay", o.getPayPrice());
                         ret.put("complete", o.getComplete());
                         HashMap<String, Object> datas = agreementOrderService.find(o.getId());
                         if (null != datas) {
@@ -913,6 +915,7 @@ public class OrderService {
                         val ret = createOrder(or.getOtype(), o.getId(), o.getBatch(), o.getSid(), o.getAid(), o.getAsid(), o.getRid(), o.getUnit(), null, o.getPrice(), o.getCurPrice(), o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(), null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));
                         ret.put("value", o.getValue());
                         ret.put("curValue", o.getCurValue());
+                        ret.put("pay", o.getPayPrice());
                         ret.put("complete", o.getComplete());
                         HashMap<String, Object> datas = agreementOrderService.find(o.getId());
                         if (null != datas) {
@@ -1028,6 +1031,7 @@ public class OrderService {
                         val ret = createOrder(oc.getOtype(), o.getId(), o.getBatch(), o.getSid(), o.getAid(), o.getAsid(), o.getRid(), o.getUnit(), null, o.getPrice(), o.getCurPrice(), o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(), null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));
                         ret.put("value", o.getValue());
                         ret.put("curValue", o.getCurValue());
+                        ret.put("pay", o.getPayPrice());
                         ret.put("complete", o.getComplete());
                         HashMap<String, Object> datas = agreementOrderService.find(o.getId());
                         if (null != datas) {
@@ -1160,7 +1164,7 @@ public class OrderService {
                 case AGREEMENT_BACK_ORDER:
                     TSupplier supplier = supplierRepository.find(aid);
                     if (null != supplier) {
-                        ret.put("supplier", supplier);
+                        ret.put("supplier", supplier.getName());
                     }
                     break;
                 default:

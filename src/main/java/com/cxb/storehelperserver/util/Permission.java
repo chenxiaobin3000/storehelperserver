@@ -42,8 +42,8 @@ public class Permission {
     static public final int mp_agreement_review = 70;
     static public final int mp_agreement_shipped_review = 71;
     static public final int mp_agreement_return_review = 72;
-    static public final int mp_agreement_offline_review = 65;
-    static public final int mp_agreement_back_review = 66;
+    static public final int mp_agreement_offline_review = 73;
+    static public final int mp_agreement_back_review = 74;
     static public final int mp_sale_review = 80;
     static public final int mp_sale_sale_review = 81;
     static public final int mp_sale_loss_review = 82;

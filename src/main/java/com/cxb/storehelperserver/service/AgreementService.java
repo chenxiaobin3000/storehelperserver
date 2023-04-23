@@ -11,12 +11,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.*;
 
 import static com.cxb.storehelperserver.util.Permission.*;
 import static com.cxb.storehelperserver.util.TypeDefine.CommodityType.COMMODITY;
 import static com.cxb.storehelperserver.util.TypeDefine.OrderType.AGREEMENT_SHIPPED_ORDER;
+import static com.cxb.storehelperserver.util.TypeDefine.OrderType.AGREEMENT_OFFLINE_ORDER;
 
 /**
  * desc: 履约业务
@@ -615,6 +615,23 @@ public class AgreementService {
         return RestResult.ok();
     }
 
+    public RestResult setOfflinePay(int id, int oid, BigDecimal pay) {
+        // 校验审核人员信息
+        TAgreementOrder order = agreementOrderRepository.find(oid);
+        if (null == order) {
+            return RestResult.fail("未查询到要修改的订单");
+        }
+        String msg = checkService.checkGroup(id, order.getGid());
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+        order.setPayPrice(pay);
+        if (!agreementOrderRepository.update(order)) {
+            return RestResult.fail("更新已付款信息失败");
+        }
+        return RestResult.ok();
+    }
+
     /**
      * desc: 履约退货
      */
@@ -625,7 +642,7 @@ public class AgreementService {
         if (null == storage) {
             return RestResult.fail("未查询到履约单");
         }
-        if (!storage.getOtype().equals(AGREEMENT_SHIPPED_ORDER.getValue())) {
+        if (!storage.getOtype().equals(AGREEMENT_OFFLINE_ORDER.getValue())) {
             return RestResult.fail("进货单据类型异常");
         }
         if (null == storage.getReview()) {
@@ -635,6 +652,7 @@ public class AgreementService {
         order.setGid(storage.getGid());
         order.setSid(storage.getSid());
         order.setAid(storage.getAid());
+        order.setAsid(storage.getAsid());
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_agreement_back_apply, mp_agreement_back_review, reviews);
         if (null != ret) {
@@ -661,7 +679,6 @@ public class AgreementService {
         }
         return reviewService.apply(id, order.getGid(), order.getSid(), order.getOtype(), oid, batch, reviews);
     }
-
 
     /**
      * desc: 履约退货修改

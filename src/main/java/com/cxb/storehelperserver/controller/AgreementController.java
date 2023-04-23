@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -44,6 +45,7 @@ public class AgreementController {
         order.setAsid(req.getAsid());
         order.setOtype(AGREEMENT_SHIPPED_ORDER.getValue());
         order.setApply(req.getId());
+        order.setPayPrice(new BigDecimal(0));
         order.setComplete(new Byte("0"));
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));
@@ -88,6 +90,7 @@ public class AgreementController {
         order.setOtype(AGREEMENT_RETURN_ORDER.getValue());
         order.setApply(req.getId());
         order.setRid(req.getRid());
+        order.setPayPrice(new BigDecimal(0));
         order.setComplete(new Byte("0"));
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));
@@ -130,9 +133,12 @@ public class AgreementController {
         TAgreementOrder order = new TAgreementOrder();
         order.setGid(req.getGid());
         order.setSid(req.getSid());
-        order.setAid(req.getSid2());
+        order.setAid(req.getAid());
+        order.setAsid(0);
         order.setOtype(AGREEMENT_OFFLINE_ORDER.getValue());
         order.setApply(req.getId());
+        order.setPayPrice(new BigDecimal(0));
+        order.setComplete(new Byte("0"));
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));
         } catch (ParseException e) {
@@ -169,6 +175,11 @@ public class AgreementController {
         return agreementService.revokeOffline(req.getId(), req.getOid());
     }
 
+    @PostMapping("/setOfflinePay")
+    public RestResult setOfflinePay(@Validated @RequestBody SetOfflinePayValid req) {
+        return agreementService.setOfflinePay(req.getId(), req.getOid(), req.getPay());
+    }
+
     @PostMapping("/backc")
     public RestResult backc(@Validated @RequestBody BackValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
@@ -176,6 +187,8 @@ public class AgreementController {
         order.setRid(req.getRid());
         order.setOtype(AGREEMENT_BACK_ORDER.getValue());
         order.setApply(req.getId());
+        order.setPayPrice(new BigDecimal(0));
+        order.setComplete(new Byte("0"));
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));
         } catch (ParseException e) {

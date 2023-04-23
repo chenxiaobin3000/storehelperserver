@@ -27,7 +27,7 @@ public class OfflineValid implements IValid {
     private int sid;
 
     @Min(value = 1, message = "供应商账号错误")
-    private int sid2;
+    private int aid;
 
     @NotEmpty(message = "请输入订单制单日期")
     @Length(min = 19, max = 19, message = "订单制单日期格式错误")
