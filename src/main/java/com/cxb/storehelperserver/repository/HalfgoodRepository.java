@@ -38,6 +38,12 @@ public class HalfgoodRepository extends BaseRepository<THalfgood> {
         return halfgood;
     }
 
+    public THalfgood search(String name) {
+        THalfgoodExample example = new THalfgoodExample();
+        example.or().andNameLike("%" + name + "%");
+        return halfgoodMapper.selectOneByExample(example);
+    }
+
     public int total(int gid, String search) {
         // 包含搜索的不缓存
         if (null != search) {

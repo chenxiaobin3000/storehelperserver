@@ -71,7 +71,7 @@ public class DockController {
 
     @PostMapping("/delMarketMany")
     public RestResult delMarketMany(@Validated @RequestBody DelMarketManyValid req) {
-        return dockService.delMarketMany(req.getId(), req.getGid(), req.getAid(), req.getSub());
+        return dockService.delMarketMany(req.getId(), req.getGid(), req.getSub());
     }
 
     @PostMapping("/getMarketManyList")

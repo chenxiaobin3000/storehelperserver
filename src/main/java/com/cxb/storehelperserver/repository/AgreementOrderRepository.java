@@ -11,6 +11,7 @@ import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
 
+import static com.cxb.storehelperserver.util.TypeDefine.CompleteType;
 import static com.cxb.storehelperserver.util.TypeDefine.ReviewType;
 
 /**
@@ -45,10 +46,16 @@ public class AgreementOrderRepository extends BaseRepository<TAgreementOrder> {
         return agreementOrder;
     }
 
-    public int total(int gid, int type, ReviewType review, String search) {
+    public int total(int gid, int aid, int asid, int type, ReviewType review, CompleteType complete, String search) {
         TAgreementOrderExample example = new TAgreementOrderExample();
         TAgreementOrderExample.Criteria criteria = example.createCriteria();
         criteria.andGidEqualTo(gid).andOtypeEqualTo(type);
+        if (aid > 0) {
+            criteria.andAidEqualTo(aid);
+        }
+        if (asid > 0) {
+            criteria.andAsidEqualTo(asid);
+        }
         if (null != search) {
             criteria.andBatchLike("%" + search + "%");
         }
@@ -62,15 +69,31 @@ public class AgreementOrderRepository extends BaseRepository<TAgreementOrder> {
             default:
                 break;
         }
+        switch (complete) {
+            case COMPLETE_HAS:
+                criteria.andCompleteEqualTo(new Byte("1"));
+                break;
+            case COMPLETE_NOT:
+                criteria.andCompleteEqualTo(new Byte("0"));
+                break;
+            default:
+                break;
+        }
         return (int) agreementOrderMapper.countByExample(example);
     }
 
-    public List<TAgreementOrder> pagination(int gid, int type, int page, int limit, ReviewType review, String search) {
+    public List<TAgreementOrder> pagination(int gid, int aid, int asid, int type, int page, int limit, ReviewType review, CompleteType complete, String date) {
         TAgreementOrderExample example = new TAgreementOrderExample();
         TAgreementOrderExample.Criteria criteria = example.createCriteria();
         criteria.andGidEqualTo(gid).andOtypeEqualTo(type);
-        if (null != search) {
-            criteria.andBatchLike("%" + search + "%");
+        if (aid > 0) {
+            criteria.andAidEqualTo(aid);
+        }
+        if (asid > 0) {
+            criteria.andAsidEqualTo(asid);
+        }
+        if (null != date) {
+            criteria.andBatchLike("%" + date + "%");
         }
         switch (review) {
             case REVIEW_HAS:
@@ -78,6 +101,16 @@ public class AgreementOrderRepository extends BaseRepository<TAgreementOrder> {
                 break;
             case REVIEW_NOT:
                 criteria.andReviewIsNull();
+                break;
+            default:
+                break;
+        }
+        switch (complete) {
+            case COMPLETE_HAS:
+                criteria.andCompleteEqualTo(new Byte("1"));
+                break;
+            case COMPLETE_NOT:
+                criteria.andCompleteEqualTo(new Byte("0"));
                 break;
             default:
                 break;

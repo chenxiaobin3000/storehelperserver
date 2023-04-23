@@ -98,6 +98,9 @@ public class ProductService {
                 return ret;
             }
             comms.addAll(comms3);
+        } else {
+            order.setUnit3(0);
+            order.setPrice3(new BigDecimal(0));
         }
         if (order.getUnit() != order.getUnit2() + order.getUnit3()) {
             return RestResult.fail("出入库总重量必须相等");
@@ -174,6 +177,12 @@ public class ProductService {
                 return ret;
             }
             comms.addAll(comms3);
+        } else {
+            order.setUnit3(0);
+            order.setPrice3(new BigDecimal(0));
+        }
+        if (order.getUnit() != order.getUnit2() + order.getUnit3()) {
+            return RestResult.fail("出入库总重量必须相等");
         }
 
         if (!productOrderRepository.update(order)) {

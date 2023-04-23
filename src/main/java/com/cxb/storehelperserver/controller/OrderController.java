@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 
 import static com.cxb.storehelperserver.util.TypeDefine.BusinessType;
+import static com.cxb.storehelperserver.util.TypeDefine.CompleteType;
 import static com.cxb.storehelperserver.util.TypeDefine.ReviewType;
 
 /**
@@ -50,7 +51,8 @@ public class OrderController {
 
     @PostMapping("/getAgreementOrder")
     public RestResult getAgreementOrder(@Validated @RequestBody GetAgreementOrderValid req) {
-        return orderService.getAgreementOrder(req.getId(), req.getType(), req.getPage(), req.getLimit(), ReviewType.valueOf(req.getReview()), req.getSearch());
+        return orderService.getAgreementOrder(req.getId(), req.getAid(), req.getAsid(), req.getType(), req.getPage(),
+                req.getLimit(), ReviewType.valueOf(req.getReview()), CompleteType.valueOf(req.getComplete()), req.getDate(), req.getSearch());
     }
 
     @PostMapping("/getProductOrder")

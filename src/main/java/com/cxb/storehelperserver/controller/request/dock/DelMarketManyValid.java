@@ -18,9 +18,6 @@ public class DelMarketManyValid implements IValid {
     @Min(value = 1, message = "公司账号错误")
     private int gid;
 
-    @Min(value = 1, message = "主账号信息错误")
-    private int aid;
-
     @Min(value = 1, message = "子账号信息错误")
     private int sub;
 }

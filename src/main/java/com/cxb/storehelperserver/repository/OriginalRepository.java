@@ -38,6 +38,12 @@ public class OriginalRepository extends BaseRepository<TOriginal> {
         return original;
     }
 
+    public TOriginal search(String name) {
+        TOriginalExample example = new TOriginalExample();
+        example.or().andNameLike("%" + name + "%");
+        return originalMapper.selectOneByExample(example);
+    }
+
     public int total(int gid, String search) {
         // 包含搜索的不缓存
         if (null != search) {

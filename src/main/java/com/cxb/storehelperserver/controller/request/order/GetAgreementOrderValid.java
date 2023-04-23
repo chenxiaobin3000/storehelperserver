@@ -5,6 +5,7 @@ import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotEmpty;
 
 /**
  * desc:
@@ -15,6 +16,12 @@ import javax.validation.constraints.Min;
 public class GetAgreementOrderValid implements IValid {
     @Min(value = 1, message = "账号错误")
     private int id;
+
+    @Min(value = 0, message = "平台账号错误")
+    private int aid;
+
+    @Min(value = 0, message = "平台子账号错误")
+    private int asid;
 
     @Min(value = 1, message = "页面编号错误")
     private int page;
@@ -27,6 +34,12 @@ public class GetAgreementOrderValid implements IValid {
 
     @Min(value = 1, message = "审核标志错误")
     private int review;
+
+    @Min(value = 0, message = "完成状态错误")
+    private int complete;
+
+    @Length(max = 10, message = "订单制单日期格式错误")
+    private String date;
 
     @Length(max = 16, message = "搜索内容不能大于16个字符")
     private String search;

@@ -3,11 +3,15 @@ package com.cxb.storehelperserver.repository;
 import com.cxb.storehelperserver.mapper.TAgreementCommodityMapper;
 import com.cxb.storehelperserver.model.TAgreementCommodity;
 import com.cxb.storehelperserver.model.TAgreementCommodityExample;
+import com.cxb.storehelperserver.model.TAgreementOrder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
 import java.util.List;
+
+import static com.cxb.storehelperserver.util.TypeDefine.CompleteType;
+import static com.cxb.storehelperserver.util.TypeDefine.ReviewType;
 
 /**
  * desc: 履约出入库商品仓库
@@ -54,6 +58,14 @@ public class AgreementCommodityRepository extends BaseRepository<List> {
             setCache(oid, agreementCommoditys);
         }
         return agreementCommoditys;
+    }
+
+    public int total(int gid, int aid, int asid, int type, ReviewType review, CompleteType complete, String search, int cid) {
+        return 0;
+    }
+
+    public List<TAgreementOrder> pagination(int gid, int aid, int asid, int type, int page, int limit, ReviewType review, CompleteType complete, String date, int cid) {
+        return null;
     }
 
     // 注意：数据被缓存在AgreementCommodityService，所以不能直接调用该函数

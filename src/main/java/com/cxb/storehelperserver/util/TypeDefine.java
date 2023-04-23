@@ -198,8 +198,8 @@ public class TypeDefine {
     // 完成类型
     public enum CompleteType {
         COMPLETE_ALL(0),  // 全部
-        COMPLETE_HAS(1),  // 未完成
-        COMPLETE_NOT(2);  // 已完成
+        COMPLETE_HAS(1),  // 已完成
+        COMPLETE_NOT(2);  // 未完成
 
         private int value = 0;
 

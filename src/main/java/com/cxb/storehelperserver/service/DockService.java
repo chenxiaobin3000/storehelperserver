@@ -37,6 +37,9 @@ public class DockService {
     private MarketStorageRepository marketStorageRepository;
 
     @Resource
+    private MarketCommodityRepository marketCommodityRepository;
+
+    @Resource
     private GroupMarketRepository groupMarketRepository;
 
     @Resource
@@ -211,14 +214,14 @@ public class DockService {
         return RestResult.ok();
     }
 
-    public RestResult delMarketMany(int id, int gid, int aid, int sub) {
+    public RestResult delMarketMany(int id, int gid, int sub) {
         // 验证公司
         String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
             return RestResult.fail(msg);
         }
-        if (marketStorageRepository.check(aid)) {
-            return RestResult.fail("存在关联仓库，不能删除账号");
+        if (marketCommodityRepository.checkByAsid(sub)) {
+            return RestResult.fail("存在关联商品，不能删除账号");
         }
         if (!marketManyRepository.delete(sub)) {
             return RestResult.fail("删除账号信息失败");
@@ -294,6 +297,13 @@ public class DockService {
         String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
             return RestResult.fail(msg);
+        }
+        MyMarketStorage marketStorage = marketStorageRepository.find(cid);
+        if (null == marketStorage) {
+            return RestResult.fail("账号信息不存在");
+        }
+        if (marketCommodityRepository.checkByAid(marketStorage.getAid())) {
+            return RestResult.fail("存在关联商品，不能删除账号");
         }
         if (!marketStorageRepository.delete(cid)) {
             return RestResult.fail("删除账号信息失败");

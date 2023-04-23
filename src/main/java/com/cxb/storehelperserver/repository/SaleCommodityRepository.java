@@ -3,11 +3,15 @@ package com.cxb.storehelperserver.repository;
 import com.cxb.storehelperserver.mapper.TSaleCommodityMapper;
 import com.cxb.storehelperserver.model.TSaleCommodity;
 import com.cxb.storehelperserver.model.TSaleCommodityExample;
+import com.cxb.storehelperserver.model.TSaleOrder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
 import java.util.List;
+
+import static com.cxb.storehelperserver.util.TypeDefine.CompleteType;
+import static com.cxb.storehelperserver.util.TypeDefine.ReviewType;
 
 /**
  * desc: 销售出入库商品仓库
@@ -54,6 +58,14 @@ public class SaleCommodityRepository extends BaseRepository<List> {
             setCache(oid, saleCommoditys);
         }
         return saleCommoditys;
+    }
+
+    public int total(int gid, int aid, int asid, int type, ReviewType review, CompleteType complete, String search, int cid) {
+        return 0;
+    }
+
+    public List<TSaleOrder> pagination(int gid, int aid, int asid, int type, int page, int limit, ReviewType review, CompleteType complete, String date, int cid) {
+        return null;
     }
 
     // 注意：数据被缓存在SaleCommodityService，所以不能直接调用该函数

@@ -16,8 +16,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 import static com.cxb.storehelperserver.util.TypeDefine.BusinessType;
+import static com.cxb.storehelperserver.util.TypeDefine.CompleteType;
 import static com.cxb.storehelperserver.util.TypeDefine.OrderType;
 import static com.cxb.storehelperserver.util.TypeDefine.ReviewType;
 
@@ -56,6 +58,9 @@ public class OrderService {
 
     @Resource
     private AgreementRemarkRepository agreementRemarkRepository;
+
+    @Resource
+    private AgreementCommodityRepository agreementCommodityRepository;
 
     @Resource
     private ProductOrderRepository productOrderRepository;
@@ -116,6 +121,15 @@ public class OrderService {
 
     @Resource
     private UserGroupRepository userGroupRepository;
+
+    @Resource
+    private CommodityRepository commodityRepository;
+
+    @Resource
+    private HalfgoodRepository halfgoodRepository;
+
+    @Resource
+    private OriginalRepository originalRepository;
 
     @Resource
     private DateUtil dateUtil;
@@ -518,22 +532,34 @@ public class OrderService {
         return RestResult.fail("不支持添加运费");
     }
 
-    public RestResult getAgreementOrder(int id, int type, int page, int limit, ReviewType review, String search) {
+    public RestResult getAgreementOrder(int id, int aid, int asid, int type, int page, int limit, ReviewType review, CompleteType complete, String date, String search) {
         // 获取公司信息
         TUserGroup group = userGroupRepository.find(id);
         if (null == group) {
             return RestResult.fail("获取公司信息失败");
         }
 
-        int total = agreementOrderRepository.total(group.getGid(), type, review, search);
-        if (0 == total) {
-            return RestResult.ok(new PageData());
+        int total = 0;
+        List<TAgreementOrder> list = null;
+        if (null == search) {
+            total = agreementOrderRepository.total(group.getGid(), aid, asid, type, review, complete, date);
+            if (0 == total) {
+                return RestResult.ok(new PageData());
+            }
+            list = agreementOrderRepository.pagination(group.getGid(), aid, asid, type, page, limit, review, complete, date);
+        } else {
+            TCommodity commodity = commodityRepository.search(search);
+            if (null == commodity) {
+                return RestResult.ok(new PageData());
+            }
+            total = agreementCommodityRepository.total(group.getGid(), aid, asid, type, review, complete, date, commodity.getId());
+            if (0 == total) {
+                return RestResult.ok(new PageData());
+            }
+            list = agreementCommodityRepository.pagination(group.getGid(), aid, asid, type, page, limit, review, complete, date, commodity.getId());
         }
-
-        // 查询联系人
         SimpleDateFormat dateFormat = dateUtil.getDateFormat();
         val list2 = new ArrayList<HashMap<String, Object>>();
-        val list = agreementOrderRepository.pagination(group.getGid(), type, page, limit, review, search);
         if (null != list && !list.isEmpty()) {
             for (TAgreementOrder o : list) {
                 val ret = createOrder(o.getOtype(), o.getId(), o.getBatch(), o.getSid(), o.getAid(), o.getAsid(), o.getRid(), o.getUnit(), null, o.getPrice(), o.getCurPrice(), o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(), null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));

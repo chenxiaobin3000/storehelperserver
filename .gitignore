@@ -1,7 +1,6 @@
 .DS_Store
 .mvn
 storehelpserver.mwb.bak
-admin/
 logs/
 target/
 src/main/java/com/cxb/storehelperserver/mapper/
