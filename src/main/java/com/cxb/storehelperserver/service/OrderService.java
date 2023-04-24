@@ -60,9 +60,6 @@ public class OrderService {
     private AgreementRemarkRepository agreementRemarkRepository;
 
     @Resource
-    private AgreementCommodityRepository agreementCommodityRepository;
-
-    @Resource
     private ProductOrderRepository productOrderRepository;
 
     @Resource
@@ -121,15 +118,6 @@ public class OrderService {
 
     @Resource
     private UserGroupRepository userGroupRepository;
-
-    @Resource
-    private CommodityRepository commodityRepository;
-
-    @Resource
-    private HalfgoodRepository halfgoodRepository;
-
-    @Resource
-    private OriginalRepository originalRepository;
 
     @Resource
     private DateUtil dateUtil;
@@ -539,25 +527,11 @@ public class OrderService {
             return RestResult.fail("获取公司信息失败");
         }
 
-        int total = 0;
-        List<TAgreementOrder> list = null;
-        if (null == search) {
-            total = agreementOrderRepository.total(group.getGid(), aid, asid, type, review, complete, date);
-            if (0 == total) {
-                return RestResult.ok(new PageData());
-            }
-            list = agreementOrderRepository.pagination(group.getGid(), aid, asid, type, page, limit, review, complete, date);
-        } else {
-            TCommodity commodity = commodityRepository.search(search);
-            if (null == commodity) {
-                return RestResult.ok(new PageData());
-            }
-            total = agreementCommodityRepository.total(group.getGid(), aid, asid, type, review, complete, date, commodity.getId());
-            if (0 == total) {
-                return RestResult.ok(new PageData());
-            }
-            list = agreementCommodityRepository.pagination(group.getGid(), aid, asid, type, page, limit, review, complete, date, commodity.getId());
+        int total = agreementOrderService.total(group.getGid(), aid, asid, type, review, complete, date, search);
+        if (0 == total) {
+            return RestResult.ok(new PageData());
         }
+        val list = agreementOrderService.pagination(group.getGid(), aid, asid, type, page, limit, review, complete, date, search);
         SimpleDateFormat dateFormat = dateUtil.getDateFormat();
         val list2 = new ArrayList<HashMap<String, Object>>();
         if (null != list && !list.isEmpty()) {
@@ -594,22 +568,20 @@ public class OrderService {
         return RestResult.ok(new PageData(total, list2));
     }
 
-    public RestResult getProductOrder(int id, int type, int page, int limit, ReviewType review, String search) {
+    public RestResult getProductOrder(int id, int type, int page, int limit, ReviewType review, String date, String search) {
         // 获取公司信息
         TUserGroup group = userGroupRepository.find(id);
         if (null == group) {
             return RestResult.fail("获取公司信息失败");
         }
 
-        int total = productOrderRepository.total(group.getGid(), type, review, search);
+        int total = productOrderService.total(group.getGid(), type, review, date, search);
         if (0 == total) {
             return RestResult.ok(new PageData());
         }
-
-        // 查询联系人
+        val list = productOrderService.pagination(group.getGid(), type, page, limit, review, date, search);
         SimpleDateFormat dateFormat = dateUtil.getDateFormat();
         val list2 = new ArrayList<HashMap<String, Object>>();
-        val list = productOrderRepository.pagination(group.getGid(), type, page, limit, review, search);
         if (null != list && !list.isEmpty()) {
             for (TProductOrder o : list) {
                 val ret = createOrder(o.getOtype(), o.getId(), o.getBatch(), o.getSid(), null, null, null, o.getUnit(), null, o.getPrice(), null, o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(), null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));
@@ -629,22 +601,20 @@ public class OrderService {
         return RestResult.ok(new PageData(total, list2));
     }
 
-    public RestResult getPurchaseOrder(int id, int type, int page, int limit, ReviewType review, int complete, String search) {
+    public RestResult getPurchaseOrder(int id, int type, int page, int limit, ReviewType review, CompleteType complete, String date, String search) {
         // 获取公司信息
         TUserGroup group = userGroupRepository.find(id);
         if (null == group) {
             return RestResult.fail("获取公司信息失败");
         }
 
-        int total = purchaseOrderRepository.total(group.getGid(), type, review, complete, search);
+        int total = purchaseOrderService.total(group.getGid(), type, review, complete, date, search);
         if (0 == total) {
             return RestResult.ok(new PageData());
         }
-
-        // 查询联系人
+        val list = purchaseOrderService.pagination(group.getGid(), type, page, limit, review, complete, date, search);
         SimpleDateFormat dateFormat = dateUtil.getDateFormat();
         val list2 = new ArrayList<HashMap<String, Object>>();
-        val list = purchaseOrderRepository.pagination(group.getGid(), type, page, limit, review, complete, search);
         if (null != list && !list.isEmpty()) {
             for (TPurchaseOrder o : list) {
                 val ret = createOrder(o.getOtype(), o.getId(), o.getBatch(), o.getSid(), null, null, o.getRid(), o.getUnit(), o.getCurUnit(), o.getPrice(), o.getCurPrice(), o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(), null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));
@@ -673,22 +643,20 @@ public class OrderService {
         return RestResult.ok(new PageData(total, list2));
     }
 
-    public RestResult getStorageOrder(int id, int type, int page, int limit, ReviewType review, String search) {
+    public RestResult getStorageOrder(int id, int type, int page, int limit, ReviewType review, String date, String search) {
         // 获取公司信息
         TUserGroup group = userGroupRepository.find(id);
         if (null == group) {
             return RestResult.fail("获取公司信息失败");
         }
 
-        int total = storageOrderRepository.total(group.getGid(), type, review, search);
+        int total = storageOrderService.total(group.getGid(), type, review, date, search);
         if (0 == total) {
             return RestResult.ok(new PageData());
         }
-
-        // 查询联系人
+        List<TStorageOrder> list = storageOrderService.pagination(group.getGid(), type, page, limit, review, date, search);
         SimpleDateFormat dateFormat = dateUtil.getDateFormat();
         val list2 = new ArrayList<HashMap<String, Object>>();
-        val list = storageOrderRepository.pagination(group.getGid(), type, page, limit, review, search);
         if (null != list && !list.isEmpty()) {
             for (TStorageOrder o : list) {
                 val ret = createOrder(o.getOtype(), o.getId(), o.getBatch(), o.getSid(), null, null, o.getOid(), o.getUnit(), null, o.getPrice(), null, o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(), null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));
@@ -715,22 +683,20 @@ public class OrderService {
         return RestResult.ok(new PageData(total, list2));
     }
 
-    public RestResult getSaleOrder(int id, int type, int page, int limit, ReviewType review, int complete, String search) {
+    public RestResult getSaleOrder(int id, int type, int page, int limit, ReviewType review, String date, String search) {
         // 获取公司信息
         TUserGroup group = userGroupRepository.find(id);
         if (null == group) {
             return RestResult.fail("获取公司信息失败");
         }
 
-        int total = saleOrderRepository.total(group.getGid(), type, review, search);
+        int total = saleOrderService.total(group.getGid(), type, review, date, search);
         if (0 == total) {
             return RestResult.ok(new PageData());
         }
-
-        // 查询联系人
+        val list = saleOrderService.pagination(group.getGid(), type, page, limit, review, date, search);
         SimpleDateFormat dateFormat = dateUtil.getDateFormat();
         val list2 = new ArrayList<HashMap<String, Object>>();
-        val list = saleOrderRepository.pagination(group.getGid(), type, page, limit, review, search);
         if (null != list && !list.isEmpty()) {
             for (TSaleOrder o : list) {
                 val ret = createOrder(o.getOtype(), o.getId(), o.getBatch(), o.getSid(), o.getAid(), o.getAsid(), null, null, null, o.getPrice(), null, o.getApply(), dateFormat.format(o.getApplyTime()), o.getReview(), null == o.getReview() ? null : dateFormat.format(o.getReviewTime()));

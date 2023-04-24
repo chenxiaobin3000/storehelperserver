@@ -70,7 +70,7 @@ public class ProductService {
                               List<Integer> values, List<Integer> types2, List<Integer> commoditys2, List<BigDecimal> prices2, List<Integer> weights2, List<Integer> values2,
                               List<Integer> types3, List<Integer> commoditys3, List<BigDecimal> prices3, List<Integer> weights3, List<Integer> values3, List<Integer> attrs) {
         val reviews = new ArrayList<Integer>();
-        RestResult ret = check(id, order, mp_product_collect_apply, mp_product_collect_review, reviews);
+        RestResult ret = check(id, order, mp_product_collect, reviews);
         if (null != ret) {
             return ret;
         }
@@ -140,7 +140,7 @@ public class ProductService {
 
         order.setApplyTime(applyTime);
         val reviews = new ArrayList<Integer>();
-        RestResult ret = check(id, order, mp_product_collect_apply, mp_product_collect_review, reviews);
+        RestResult ret = check(id, order, mp_product_collect, reviews);
         if (null != ret) {
             return ret;
         }
@@ -277,7 +277,7 @@ public class ProductService {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
-        RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApply(), mp_product_collect_review);
+        RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApply(), mp_product_collect);
         if (null != ret) {
             return ret;
         }
@@ -295,7 +295,7 @@ public class ProductService {
         return RestResult.ok();
     }
 
-    private RestResult check(int id, TProductOrder order, int applyPerm, int reviewPerm, List<Integer> reviews) {
+    private RestResult check(int id, TProductOrder order, int reviewPerm, List<Integer> reviews) {
         // 验证公司
         int gid = order.getGid();
         String msg = checkService.checkGroup(id, gid);
@@ -304,7 +304,7 @@ public class ProductService {
         }
 
         // 校验申请订单权限
-        return reviewService.checkPerm(id, gid, applyPerm, reviewPerm, reviews);
+        return reviewService.checkPerm(gid, reviewPerm, reviews);
     }
 
     private RestResult createCollectComms(TProductOrder order, int iotype, List<Integer> types, List<Integer> commoditys,

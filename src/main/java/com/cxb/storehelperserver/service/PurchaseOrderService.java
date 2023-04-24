@@ -16,6 +16,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import static com.cxb.storehelperserver.util.TypeDefine.CommodityType;
+import static com.cxb.storehelperserver.util.TypeDefine.CompleteType;
+import static com.cxb.storehelperserver.util.TypeDefine.ReviewType;
 
 /**
  * desc: 采购订单缓存业务
@@ -26,6 +28,9 @@ import static com.cxb.storehelperserver.util.TypeDefine.CommodityType;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class PurchaseOrderService extends BaseService<HashMap> {
+    @Resource
+    private PurchaseOrderRepository purchaseOrderRepository;
+
     @Resource
     private PurchaseCommodityRepository purchaseCommodityRepository;
 
@@ -148,6 +153,30 @@ public class PurchaseOrderService extends BaseService<HashMap> {
         }
         setCache(oid, datas);
         return datas;
+    }
+
+    public int total(int gid, int type, ReviewType review, CompleteType complete, String date, String search) {
+        if (null == search) {
+            return purchaseOrderRepository.total(gid, type, review, complete, date);
+        } else {
+            TCommodity commodity = commodityRepository.search(search);
+            if (null == commodity) {
+                return 0;
+            }
+            return purchaseCommodityRepository.total(gid, type, review, complete, date, commodity.getId());
+        }
+    }
+
+    public List<TPurchaseOrder> pagination(int gid, int type, int page, int limit, ReviewType review, CompleteType complete, String date, String search) {
+        if (null == search) {
+            return purchaseOrderRepository.pagination(gid, type, page, limit, review, complete, date);
+        } else {
+            TCommodity commodity = commodityRepository.search(search);
+            if (null == commodity) {
+                return null;
+            }
+            return purchaseCommodityRepository.pagination(gid, type, page, limit, review, complete, date, commodity.getId());
+        }
     }
 
     public String update(int oid, List<TPurchaseCommodity> comms, List<Integer> attrs) {

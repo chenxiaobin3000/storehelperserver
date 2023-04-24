@@ -46,7 +46,7 @@ public class AgreementOrderRepository extends BaseRepository<TAgreementOrder> {
         return agreementOrder;
     }
 
-    public int total(int gid, int aid, int asid, int type, ReviewType review, CompleteType complete, String search) {
+    public int total(int gid, int aid, int asid, int type, ReviewType review, CompleteType complete, String date) {
         TAgreementOrderExample example = new TAgreementOrderExample();
         TAgreementOrderExample.Criteria criteria = example.createCriteria();
         criteria.andGidEqualTo(gid).andOtypeEqualTo(type);
@@ -56,8 +56,8 @@ public class AgreementOrderRepository extends BaseRepository<TAgreementOrder> {
         if (asid > 0) {
             criteria.andAsidEqualTo(asid);
         }
-        if (null != search) {
-            criteria.andBatchLike("%" + search + "%");
+        if (null != date) {
+            criteria.andBatchLike("%" + date + "%");
         }
         switch (review) {
             case REVIEW_HAS:

@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import static com.cxb.storehelperserver.util.TypeDefine.CommodityType;
+import static com.cxb.storehelperserver.util.TypeDefine.ReviewType;
 
 /**
  * desc: 生产订单缓存业务
@@ -25,6 +26,9 @@ import static com.cxb.storehelperserver.util.TypeDefine.CommodityType;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class ProductOrderService extends BaseService<HashMap> {
+    @Resource
+    private ProductOrderRepository productOrderRepository;
+
     @Resource
     private ProductCommodityRepository productCommodityRepository;
 
@@ -123,6 +127,30 @@ public class ProductOrderService extends BaseService<HashMap> {
         }
         setCache(oid, datas);
         return datas;
+    }
+
+    public int total(int gid, int type, ReviewType review, String date, String search) {
+        if (null == search) {
+            return productOrderRepository.total(gid, type, review, date);
+        } else {
+            TCommodity commodity = commodityRepository.search(search);
+            if (null == commodity) {
+                return 0;
+            }
+            return productCommodityRepository.total(gid, type, review, date, commodity.getId());
+        }
+    }
+
+    public List<TProductOrder> pagination(int gid, int type, int page, int limit, ReviewType review, String date, String search) {
+        if (null == search) {
+            return productOrderRepository.pagination(gid, type, page, limit, review, date);
+        } else {
+            TCommodity commodity = commodityRepository.search(search);
+            if (null == commodity) {
+                return null;
+            }
+            return productCommodityRepository.pagination(gid, type, page, limit, review, date, commodity.getId());
+        }
     }
 
     public String update(int oid, List<TProductCommodity> comms, List<Integer> attrs) {

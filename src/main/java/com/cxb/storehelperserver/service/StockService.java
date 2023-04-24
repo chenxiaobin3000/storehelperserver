@@ -257,7 +257,12 @@ public class StockService {
                         break;
                     }
                 }
-                if (!find) {
+                if (!find && c2.getWeight() > 0) {
+                    if (null != search) {
+                        if (!c2.getName().contains(search)) {
+                            continue;
+                        }
+                    }
                     val tmp = new HashMap<String, Object>();
                     list.add(tmp);
                     tmp.put("id", c2.getCid());
@@ -278,6 +283,7 @@ public class StockService {
                             tmp2.add(attr.getValue());
                         }
                     }
+                    total = total + 1;
                 }
             }
         }

@@ -15,7 +15,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static com.cxb.storehelperserver.util.TypeDefine.CommodityType;
+import static com.cxb.storehelperserver.util.TypeDefine.CompleteType;
+import static com.cxb.storehelperserver.util.TypeDefine.ReviewType;
 
 /**
  * desc: 履约订单缓存业务
@@ -26,6 +27,9 @@ import static com.cxb.storehelperserver.util.TypeDefine.CommodityType;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class AgreementOrderService extends BaseService<HashMap> {
+    @Resource
+    private AgreementOrderRepository agreementOrderRepository;
+
     @Resource
     private AgreementCommodityRepository agreementCommodityRepository;
 
@@ -120,6 +124,30 @@ public class AgreementOrderService extends BaseService<HashMap> {
         }
         setCache(oid, datas);
         return datas;
+    }
+
+    public int total(int gid, int aid, int asid, int type, ReviewType review, CompleteType complete, String date, String search) {
+        if (null == search) {
+            return agreementOrderRepository.total(gid, aid, asid, type, review, complete, date);
+        } else {
+            TCommodity commodity = commodityRepository.search(search);
+            if (null == commodity) {
+                return 0;
+            }
+            return agreementCommodityRepository.total(gid, aid, asid, type, review, complete, date, commodity.getId());
+        }
+    }
+
+    public List<TAgreementOrder> pagination(int gid, int aid, int asid, int type, int page, int limit, ReviewType review, CompleteType complete, String date, String search) {
+        if (null == search) {
+            return agreementOrderRepository.pagination(gid, aid, asid, type, page, limit, review, complete, date);
+        } else {
+            TCommodity commodity = commodityRepository.search(search);
+            if (null == commodity) {
+                return null;
+            }
+            return agreementCommodityRepository.pagination(gid, aid, asid, type, page, limit, review, complete, date, commodity.getId());
+        }
     }
 
     public String update(int oid, List<TAgreementCommodity> comms, List<Integer> attrs) {

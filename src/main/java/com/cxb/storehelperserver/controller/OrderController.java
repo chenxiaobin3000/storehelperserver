@@ -57,25 +57,25 @@ public class OrderController {
 
     @PostMapping("/getProductOrder")
     public RestResult getProductOrder(@Validated @RequestBody GetProductOrderValid req) {
-        return orderService.getProductOrder(req.getId(), req.getType(), req.getPage(), req.getLimit(), ReviewType.valueOf(req.getReview()), req.getSearch());
+        return orderService.getProductOrder(req.getId(), req.getType(), req.getPage(), req.getLimit(), ReviewType.valueOf(req.getReview()), req.getDate(), req.getSearch());
     }
 
     @PostMapping("/getPurchaseOrder")
     public RestResult getPurchaseOrder(@Validated @RequestBody GetPurchaseOrderValid req) {
         return orderService.getPurchaseOrder(req.getId(), req.getType(), req.getPage(), req.getLimit(),
-                ReviewType.valueOf(req.getReview()), req.getComplete(), req.getSearch());
+                ReviewType.valueOf(req.getReview()), CompleteType.valueOf(req.getComplete()), req.getDate(), req.getSearch());
     }
 
     @PostMapping("/getStorageOrder")
     public RestResult getStorageOrder(@Validated @RequestBody GetStorageOrderValid req) {
         return orderService.getStorageOrder(req.getId(), req.getType(), req.getPage(), req.getLimit(),
-                ReviewType.valueOf(req.getReview()), req.getSearch());
+                ReviewType.valueOf(req.getReview()), req.getDate(), req.getSearch());
     }
 
     @PostMapping("/getSaleOrder")
     public RestResult getSaleOrder(@Validated @RequestBody GetSaleOrderValid req) {
         return orderService.getSaleOrder(req.getId(), req.getType(), req.getPage(), req.getLimit(),
-                ReviewType.valueOf(req.getReview()), req.getComplete(), req.getSearch());
+                ReviewType.valueOf(req.getReview()), req.getDate(), req.getSearch());
     }
 
     @PostMapping("/getMyWait")

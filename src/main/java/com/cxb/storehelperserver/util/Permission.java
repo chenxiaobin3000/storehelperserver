@@ -9,45 +9,25 @@ public class Permission {
     // 小程序
     static public final int mp_report = 10;
 
-    static public final int mp_purchase_apply = 11;
-    static public final int mp_purchase_purchase_apply = 12;
-    static public final int mp_purchase_return_apply = 13;
-    static public final int mp_product_apply = 15;
-    static public final int mp_product_collect_apply = 16;
-    static public final int mp_storage_apply = 20;
-    static public final int mp_storage_purchase_apply = 21;
-    static public final int mp_storage_return_apply = 22;
-    static public final int mp_storage_dispatch_apply = 23;
-    static public final int mp_storage_loss_apply = 24;
-    static public final int mp_agreement_apply = 30;
-    static public final int mp_agreement_shipped_apply = 31;
-    static public final int mp_agreement_return_apply = 32;
-    static public final int mp_agreement_offline_apply = 33;
-    static public final int mp_agreement_back_apply = 34;
-    static public final int mp_sale_apply = 40;
-    static public final int mp_sale_sale_apply = 41;
-    static public final int mp_sale_loss_apply = 42;
-    static public final int mp_end_apply = 50;
-
-    static public final int mp_purchase_review = 51;
-    static public final int mp_purchase_purchase_review = 52;
-    static public final int mp_purchase_return_review = 53;
-    static public final int mp_product_review = 55;
-    static public final int mp_product_collect_review = 56;
-    static public final int mp_storage_review = 60;
-    static public final int mp_storage_purchase_review = 61;
-    static public final int mp_storage_return_review = 62;
-    static public final int mp_storage_dispatch_review = 63;
-    static public final int mp_storage_loss_review = 64;
-    static public final int mp_agreement_review = 70;
-    static public final int mp_agreement_shipped_review = 71;
-    static public final int mp_agreement_return_review = 72;
-    static public final int mp_agreement_offline_review = 73;
-    static public final int mp_agreement_back_review = 74;
-    static public final int mp_sale_review = 80;
-    static public final int mp_sale_sale_review = 81;
-    static public final int mp_sale_loss_review = 82;
-    static public final int mp_end_review = 90;
+    static public final int mp_purchase = 11;
+    static public final int mp_purchase_purchase = 12;
+    static public final int mp_purchase_return = 13;
+    static public final int mp_storage = 20;
+    static public final int mp_storage_purchase = 21;
+    static public final int mp_storage_return = 22;
+    static public final int mp_storage_dispatch = 23;
+    static public final int mp_storage_loss = 24;
+    static public final int mp_product = 30;
+    static public final int mp_product_collect = 31;
+    static public final int mp_agreement = 40;
+    static public final int mp_agreement_shipped = 41;
+    static public final int mp_agreement_return = 42;
+    static public final int mp_sale = 50;
+    static public final int mp_sale_sale = 51;
+    static public final int mp_sale_loss = 52;
+    static public final int mp_sale_offline = 53;
+    static public final int mp_sale_back = 54;
+    static public final int mp_end = 60;
 
     // 管理后台
     static public final int dashboard_report = 100;
@@ -59,8 +39,6 @@ public class Permission {
     static public final int agreement_getlist = 202;
     static public final int agreement_shipped = 203;
     static public final int agreement_return = 204;
-    static public final int agreement_offline = 205;
-    static public final int agreement_back = 206;
 
     static public final int purchase = 250;
     static public final int purchase_report = 251;
@@ -75,6 +53,13 @@ public class Permission {
     static public final int commodity_original = 304;
     static public final int commodity_category = 306;
     static public final int commodity_attribute = 307;
+
+    static public final int transport = 350;
+    static public final int transport_report = 351;
+    static public final int transport_getlist = 352;
+    static public final int transport_purchase = 353;
+    static public final int transport_storage = 354;
+    static public final int transport_agreement = 355;
 
     static public final int finance = 400;
     static public final int finance_report = 401;
@@ -93,6 +78,8 @@ public class Permission {
     static public final int market_getlist = 502;
     static public final int market_sale = 503;
     static public final int market_loss = 504;
+    static public final int market_offline = 505;
+    static public final int market_back = 506;
 
     static public final int product = 600;
     static public final int product_report = 601;

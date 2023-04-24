@@ -71,7 +71,7 @@ public class PurchaseService {
     public RestResult purchase(int id, TPurchaseOrder order, List<Integer> types, List<Integer> commoditys, List<BigDecimal> prices,
                                List<Integer> weights, List<String> norms, List<Integer> values, List<Integer> attrs) {
         val reviews = new ArrayList<Integer>();
-        RestResult ret = check(id, order, mp_purchase_purchase_apply, mp_purchase_purchase_review, reviews);
+        RestResult ret = check(id, order, mp_purchase_purchase, reviews);
         if (null != ret) {
             return ret;
         }
@@ -116,7 +116,7 @@ public class PurchaseService {
 
         order.setApplyTime(applyTime);
         val reviews = new ArrayList<Integer>();
-        RestResult ret = check(id, order, mp_purchase_purchase_apply, mp_purchase_purchase_review, reviews);
+        RestResult ret = check(id, order, mp_purchase_purchase, reviews);
         if (null != ret) {
             return ret;
         }
@@ -225,7 +225,7 @@ public class PurchaseService {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
-        RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApply(), mp_purchase_purchase_review);
+        RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApply(), mp_purchase_purchase);
         if (null != ret) {
             return ret;
         }
@@ -294,7 +294,7 @@ public class PurchaseService {
         order.setGid(purchaseOrder.getGid());
         order.setSid(purchaseOrder.getSid());
         val reviews = new ArrayList<Integer>();
-        RestResult ret = check(id, order, mp_purchase_return_apply, mp_purchase_return_review, reviews);
+        RestResult ret = check(id, order, mp_purchase_return, reviews);
         if (null != ret) {
             return ret;
         }
@@ -338,7 +338,7 @@ public class PurchaseService {
 
         order.setApplyTime(applyTime);
         val reviews = new ArrayList<Integer>();
-        RestResult ret = check(id, order, mp_purchase_return_apply, mp_purchase_return_review, reviews);
+        RestResult ret = check(id, order, mp_purchase_return, reviews);
         if (null != ret) {
             return ret;
         }
@@ -451,7 +451,7 @@ public class PurchaseService {
             return RestResult.fail("修改进货单数据失败");
         }
 
-        RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApply(), mp_purchase_return_review);
+        RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApply(), mp_purchase_return);
         if (null != ret) {
             return ret;
         }
@@ -468,7 +468,7 @@ public class PurchaseService {
         return RestResult.ok();
     }
 
-    private RestResult check(int id, TPurchaseOrder order, int applyPerm, int reviewPerm, List<Integer> reviews) {
+    private RestResult check(int id, TPurchaseOrder order, int reviewPerm, List<Integer> reviews) {
         // 验证公司
         int gid = order.getGid();
         String msg = checkService.checkGroup(id, gid);
@@ -477,7 +477,7 @@ public class PurchaseService {
         }
 
         // 校验申请订单权限
-        return reviewService.checkPerm(id, gid, applyPerm, reviewPerm, reviews);
+        return reviewService.checkPerm(gid, reviewPerm, reviews);
     }
 
     private RestResult createPurchaseComms(TPurchaseOrder order, List<Integer> types, List<Integer> commoditys, List<BigDecimal> prices,

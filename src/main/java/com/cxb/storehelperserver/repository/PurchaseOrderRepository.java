@@ -46,11 +46,11 @@ public class PurchaseOrderRepository extends BaseRepository<TPurchaseOrder> {
         return purchaseOrder;
     }
 
-    public int total(int gid, int type, ReviewType review, int complete, String search) {
+    public int total(int gid, int type, ReviewType review, CompleteType complete, String date) {
         TPurchaseOrderExample example = new TPurchaseOrderExample();
         TPurchaseOrderExample.Criteria criteria = example.createCriteria();
         criteria.andGidEqualTo(gid).andOtypeEqualTo(type);
-        switch (CompleteType.valueOf(complete)) {
+        switch (complete) {
             case COMPLETE_HAS:
                 criteria.andCompleteEqualTo(new Byte("1"));
                 break;
@@ -60,8 +60,8 @@ public class PurchaseOrderRepository extends BaseRepository<TPurchaseOrder> {
             default:
                 break;
         }
-        if (null != search) {
-            criteria.andBatchLike("%" + search + "%");
+        if (null != date) {
+            criteria.andBatchLike("%" + date + "%");
         }
         switch (review) {
             case REVIEW_HAS:
@@ -76,11 +76,11 @@ public class PurchaseOrderRepository extends BaseRepository<TPurchaseOrder> {
         return (int) purchaseOrderMapper.countByExample(example);
     }
 
-    public List<TPurchaseOrder> pagination(int gid, int type, int page, int limit, ReviewType review, int complete, String search) {
+    public List<TPurchaseOrder> pagination(int gid, int type, int page, int limit, ReviewType review, CompleteType complete, String date) {
         TPurchaseOrderExample example = new TPurchaseOrderExample();
         TPurchaseOrderExample.Criteria criteria = example.createCriteria();
         criteria.andGidEqualTo(gid).andOtypeEqualTo(type);
-        switch (CompleteType.valueOf(complete)) {
+        switch (complete) {
             case COMPLETE_HAS:
                 criteria.andCompleteEqualTo(new Byte("1"));
                 break;
@@ -90,8 +90,8 @@ public class PurchaseOrderRepository extends BaseRepository<TPurchaseOrder> {
             default:
                 break;
         }
-        if (null != search) {
-            criteria.andBatchLike("%" + search + "%");
+        if (null != date) {
+            criteria.andBatchLike("%" + date + "%");
         }
         switch (review) {
             case REVIEW_HAS:

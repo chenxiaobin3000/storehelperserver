@@ -69,11 +69,11 @@ public class PurchaseCommodityRepository extends BaseRepository<List> {
         return myCommodityCountMapper.count_purchase(oid);
     }
 
-    public int total(int gid, int aid, int asid, int type, ReviewType review, CompleteType complete, String search, int cid) {
+    public int total(int gid, int type, ReviewType review, CompleteType complete, String search, int cid) {
         return 0;
     }
 
-    public List<TPurchaseOrder> pagination(int gid, int aid, int asid, int type, int page, int limit, ReviewType review, CompleteType complete, String date, int cid) {
+    public List<TPurchaseOrder> pagination(int gid, int type, int page, int limit, ReviewType review, CompleteType complete, String date, int cid) {
         return null;
     }
 

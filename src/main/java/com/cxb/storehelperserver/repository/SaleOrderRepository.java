@@ -45,12 +45,12 @@ public class SaleOrderRepository extends BaseRepository<TSaleOrder> {
         return saleOrder;
     }
 
-    public int total(int gid, int type, ReviewType review, String search) {
+    public int total(int gid, int type, ReviewType review, String date) {
         TSaleOrderExample example = new TSaleOrderExample();
         TSaleOrderExample.Criteria criteria = example.createCriteria();
         criteria.andGidEqualTo(gid).andOtypeEqualTo(type);
-        if (null != search) {
-            criteria.andBatchLike("%" + search + "%");
+        if (null != date) {
+            criteria.andBatchLike("%" + date + "%");
         }
         switch (review) {
             case REVIEW_HAS:
@@ -65,12 +65,12 @@ public class SaleOrderRepository extends BaseRepository<TSaleOrder> {
         return (int) saleOrderMapper.countByExample(example);
     }
 
-    public List<TSaleOrder> pagination(int gid, int type, int page, int limit, ReviewType review, String search) {
+    public List<TSaleOrder> pagination(int gid, int type, int page, int limit, ReviewType review, String date) {
         TSaleOrderExample example = new TSaleOrderExample();
         TSaleOrderExample.Criteria criteria = example.createCriteria();
         criteria.andGidEqualTo(gid).andOtypeEqualTo(type);
-        if (null != search) {
-            criteria.andBatchLike("%" + search + "%");
+        if (null != date) {
+            criteria.andBatchLike("%" + date + "%");
         }
         switch (review) {
             case REVIEW_HAS:

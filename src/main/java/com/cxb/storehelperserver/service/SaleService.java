@@ -96,7 +96,7 @@ public class SaleService {
         order.setAsid(asid);
 
         val reviews = new ArrayList<Integer>();
-        RestResult ret = check(id, order, mp_sale_sale_apply, mp_sale_sale_review, reviews);
+        RestResult ret = check(id, order, mp_sale_sale, reviews);
         if (null != ret) {
             return ret;
         }
@@ -302,7 +302,7 @@ public class SaleService {
         agreementCommodityRepository.update(agreementCommodities, pid);
         agreementOrderService.clean(pid);
 
-        RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApply(), mp_sale_sale_review);
+        RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApply(), mp_sale_sale);
         if (null != ret) {
             return ret;
         }
@@ -353,7 +353,7 @@ public class SaleService {
         order.setAid(agreement.getAid());
         order.setAsid(agreement.getAsid());
         val reviews = new ArrayList<Integer>();
-        RestResult ret = check(id, order, mp_sale_loss_apply, mp_sale_loss_review, reviews);
+        RestResult ret = check(id, order, mp_sale_loss, reviews);
         if (null != ret) {
             return ret;
         }
@@ -414,7 +414,7 @@ public class SaleService {
 
         order.setApplyTime(applyTime);
         val reviews = new ArrayList<Integer>();
-        RestResult ret = check(id, order, mp_sale_loss_apply, mp_sale_loss_review, reviews);
+        RestResult ret = check(id, order, mp_sale_loss, reviews);
         if (null != ret) {
             return ret;
         }
@@ -628,7 +628,7 @@ public class SaleService {
             agreementOrderService.clean(pid);
         }
 
-        RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApply(), mp_sale_loss_review);
+        RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApply(), mp_sale_loss);
         if (null != ret) {
             return ret;
         }
@@ -645,7 +645,7 @@ public class SaleService {
         return RestResult.ok();
     }
 
-    private RestResult check(int id, TSaleOrder order, int applyPerm, int reviewPerm, List<Integer> reviews) {
+    private RestResult check(int id, TSaleOrder order, int reviewPerm, List<Integer> reviews) {
         // 验证公司
         int gid = order.getGid();
         String msg = checkService.checkGroup(id, gid);
@@ -654,7 +654,7 @@ public class SaleService {
         }
 
         // 校验申请订单权限
-        return reviewService.checkPerm(id, gid, applyPerm, reviewPerm, reviews);
+        return reviewService.checkPerm(gid, reviewPerm, reviews);
     }
 
     private RestResult createAfterComms(TSaleOrder order, int aid, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> values, List<TSaleCommodity> list) {

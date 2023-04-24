@@ -12,7 +12,6 @@ import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.List;
 
-import static com.cxb.storehelperserver.util.TypeDefine.CompleteType;
 import static com.cxb.storehelperserver.util.TypeDefine.ReviewType;
 
 /**
@@ -69,11 +68,11 @@ public class StorageCommodityRepository extends BaseRepository<List> {
         return myCommodityCountMapper.count_storage(oid);
     }
 
-    public int total(int gid, int aid, int asid, int type, ReviewType review, CompleteType complete, String search, int cid) {
+    public int total(int gid, int type, ReviewType review, String search, int cid) {
         return 0;
     }
 
-    public List<TStorageOrder> pagination(int gid, int aid, int asid, int type, int page, int limit, ReviewType review, CompleteType complete, String date, int cid) {
+    public List<TStorageOrder> pagination(int gid, int type, int page, int limit, ReviewType review, String date, int cid) {
         return null;
     }
 

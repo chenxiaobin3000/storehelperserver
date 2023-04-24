@@ -68,7 +68,7 @@ public class AgreementService {
      */
     public RestResult shipped(int id, TAgreementOrder order, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<String> norms, List<Integer> values, List<Integer> attrs) {
         val reviews = new ArrayList<Integer>();
-        RestResult ret = check(id, order, mp_agreement_shipped_apply, mp_agreement_shipped_review, reviews);
+        RestResult ret = check(id, order, mp_agreement_shipped, reviews);
         if (null != ret) {
             return ret;
         }
@@ -114,7 +114,7 @@ public class AgreementService {
         order.setAid(aid);
         order.setApplyTime(applyTime);
         val reviews = new ArrayList<Integer>();
-        RestResult ret = check(id, order, mp_agreement_shipped_apply, mp_agreement_shipped_review, reviews);
+        RestResult ret = check(id, order, mp_agreement_shipped, reviews);
         if (null != ret) {
             return ret;
         }
@@ -230,7 +230,7 @@ public class AgreementService {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
-        RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApply(), mp_agreement_shipped_review);
+        RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApply(), mp_agreement_shipped);
         if (null != ret) {
             return ret;
         }
@@ -270,7 +270,7 @@ public class AgreementService {
         order.setAid(agreement.getAid());
         order.setAsid(agreement.getAsid());
         val reviews = new ArrayList<Integer>();
-        RestResult ret = check(id, order, mp_agreement_return_apply, mp_agreement_return_review, reviews);
+        RestResult ret = check(id, order, mp_agreement_return, reviews);
         if (null != ret) {
             return ret;
         }
@@ -314,7 +314,7 @@ public class AgreementService {
 
         order.setApplyTime(applyTime);
         val reviews = new ArrayList<Integer>();
-        RestResult ret = check(id, order, mp_agreement_return_apply, mp_agreement_return_review, reviews);
+        RestResult ret = check(id, order, mp_agreement_return, reviews);
         if (null != ret) {
             return ret;
         }
@@ -433,7 +433,7 @@ public class AgreementService {
             return RestResult.fail("修改履约单数据失败");
         }
 
-        RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApply(), mp_agreement_return_review);
+        RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApply(), mp_agreement_return);
         if (null != ret) {
             return ret;
         }
@@ -461,7 +461,7 @@ public class AgreementService {
      */
     public RestResult offline(int id, TAgreementOrder order, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<String> norms, List<Integer> values, List<Integer> attrs) {
         val reviews = new ArrayList<Integer>();
-        RestResult ret = check(id, order, mp_agreement_offline_apply, mp_agreement_offline_review, reviews);
+        RestResult ret = check(id, order, mp_sale_offline, reviews);
         if (null != ret) {
             return ret;
         }
@@ -507,7 +507,7 @@ public class AgreementService {
         order.setAid(sid2);
         order.setApplyTime(applyTime);
         val reviews = new ArrayList<Integer>();
-        RestResult ret = check(id, order, mp_agreement_offline_apply, mp_agreement_offline_review, reviews);
+        RestResult ret = check(id, order, mp_sale_offline, reviews);
         if (null != ret) {
             return ret;
         }
@@ -593,11 +593,11 @@ public class AgreementService {
         }
 
         // 校验申请订单权限
-        if (!checkService.checkRolePermission(id, agreement_offline)) {
+        if (!checkService.checkRolePermission(id, market_offline)) {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
-        RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApply(), mp_agreement_offline_review);
+        RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApply(), mp_sale_offline);
         if (null != ret) {
             return ret;
         }
@@ -654,7 +654,7 @@ public class AgreementService {
         order.setAid(storage.getAid());
         order.setAsid(storage.getAsid());
         val reviews = new ArrayList<Integer>();
-        RestResult ret = check(id, order, mp_agreement_back_apply, mp_agreement_back_review, reviews);
+        RestResult ret = check(id, order, mp_sale_back, reviews);
         if (null != ret) {
             return ret;
         }
@@ -698,7 +698,7 @@ public class AgreementService {
 
         order.setApplyTime(applyTime);
         val reviews = new ArrayList<Integer>();
-        RestResult ret = check(id, order, mp_agreement_back_apply, mp_agreement_back_review, reviews);
+        RestResult ret = check(id, order, mp_sale_back, reviews);
         if (null != ret) {
             return ret;
         }
@@ -800,7 +800,7 @@ public class AgreementService {
         }
 
         // 校验申请订单权限
-        if (!checkService.checkRolePermission(id, agreement_back)) {
+        if (!checkService.checkRolePermission(id, market_back)) {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
@@ -816,7 +816,7 @@ public class AgreementService {
             return RestResult.fail("修改发货单数据失败");
         }
 
-        RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApply(), mp_storage_return_review);
+        RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApply(), mp_storage_return);
         if (null != ret) {
             return ret;
         }
@@ -839,7 +839,7 @@ public class AgreementService {
         return RestResult.ok();
     }
 
-    private RestResult check(int id, TAgreementOrder order, int applyPerm, int reviewPerm, List<Integer> reviews) {
+    private RestResult check(int id, TAgreementOrder order, int reviewPerm, List<Integer> reviews) {
         // 验证公司
         int gid = order.getGid();
         String msg = checkService.checkGroup(id, gid);
@@ -848,7 +848,7 @@ public class AgreementService {
         }
 
         // 校验申请订单权限
-        return reviewService.checkPerm(id, gid, applyPerm, reviewPerm, reviews);
+        return reviewService.checkPerm(gid, reviewPerm, reviews);
     }
 
     private RestResult createShippedComms(TAgreementOrder order, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<String> norms, List<Integer> values, List<TAgreementCommodity> list) {

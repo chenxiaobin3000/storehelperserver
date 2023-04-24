@@ -183,12 +183,7 @@ public class ReviewService {
         return null;
     }
 
-    public RestResult checkPerm(int id, int gid, int applyPerm, int reviewPerm, List<Integer> reviews) {
-        // 校验申请订单权限
-        if (!checkService.checkRolePermissionMp(id, applyPerm)) {
-            return RestResult.fail("本账号没有相关的权限，请联系管理员");
-        }
-
+    public RestResult checkPerm(int gid, int reviewPerm, List<Integer> reviews) {
         // 验证审核人员信息
         val orderReviewers = orderReviewerRepository.find(gid);
         if (null == orderReviewers || orderReviewers.isEmpty()) {

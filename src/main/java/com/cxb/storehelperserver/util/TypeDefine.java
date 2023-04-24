@@ -332,4 +332,31 @@ public class TypeDefine {
             return value;
         }
     }
+
+    // 物流类型
+    public enum FareType {
+        FARE_WAIT(0),       // 待发货
+        FARE_SHIP(1),       // 运输中
+        FARE_COMPLETE(2);   // 完成
+
+        private int value = 0;
+
+        private FareType(int v) {
+            this.value = v;
+        }
+
+        public static FareType valueOf(int v) {
+            switch (v) {
+                case 0:
+                    return FARE_WAIT;
+                case 1:
+                    return FARE_SHIP;
+            }
+            return FARE_COMPLETE;
+        }
+
+        public int getValue() {
+            return value;
+        }
+    }
 }

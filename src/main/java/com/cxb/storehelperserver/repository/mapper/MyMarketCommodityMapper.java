@@ -16,7 +16,7 @@ import java.util.List;
 @Mapper
 public interface MyMarketCommodityMapper {
     @Select({"<script>",
-            "select count(id) from t_commodity_storage t1 left join t_market_commodity t2 on t1.cid = t2.cid",
+            "select count(t1.id) from t_commodity_storage t1 left join t_market_commodity t2 on t1.cid = t2.cid",
             "and t1.sid = t2.sid where t1.sid = #{sid} <if test='null != search'>and t2.name like #{search}</if>",
             "</script>"})
     int count(int sid, String search);
