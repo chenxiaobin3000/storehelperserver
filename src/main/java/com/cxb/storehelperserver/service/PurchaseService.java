@@ -14,7 +14,6 @@ import java.math.BigDecimal;
 import java.util.*;
 
 import static com.cxb.storehelperserver.util.Permission.*;
-import static com.cxb.storehelperserver.util.TypeDefine.CommodityType;
 import static com.cxb.storehelperserver.util.TypeDefine.OrderType.PURCHASE_PURCHASE_ORDER;
 
 /**
@@ -57,18 +56,12 @@ public class PurchaseService {
     private CommodityRepository commodityRepository;
 
     @Resource
-    private HalfgoodRepository halfgoodRepository;
-
-    @Resource
-    private OriginalRepository originalRepository;
-
-    @Resource
     private DateUtil dateUtil;
 
     /**
      * desc: 采购仓储进货
      */
-    public RestResult purchase(int id, TPurchaseOrder order, List<Integer> types, List<Integer> commoditys, List<BigDecimal> prices,
+    public RestResult purchase(int id, TPurchaseOrder order, List<Integer> commoditys, List<BigDecimal> prices,
                                List<Integer> weights, List<String> norms, List<Integer> values, List<Integer> attrs) {
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_purchase_purchase, reviews);
@@ -78,7 +71,7 @@ public class PurchaseService {
 
         // 生成采购单
         val comms = new ArrayList<TPurchaseCommodity>();
-        ret = createPurchaseComms(order, types, commoditys, prices, weights, norms, values, comms);
+        ret = createPurchaseComms(order, commoditys, prices, weights, norms, values, comms);
         if (null != ret) {
             return ret;
         }
@@ -100,7 +93,7 @@ public class PurchaseService {
     /**
      * desc: 原料采购仓储修改
      */
-    public RestResult setPurchase(int id, int oid, int sid, Date applyTime, List<Integer> types, List<Integer> commoditys,
+    public RestResult setPurchase(int id, int oid, int sid, Date applyTime, List<Integer> commoditys,
                                   List<BigDecimal> prices, List<Integer> weights, List<String> norms, List<Integer> values, List<Integer> attrs) {
         // 已经审核的订单不能修改
         TPurchaseOrder order = purchaseOrderRepository.find(oid);
@@ -132,7 +125,7 @@ public class PurchaseService {
 
         // 生成采购单
         val comms = new ArrayList<TPurchaseCommodity>();
-        ret = createPurchaseComms(order, types, commoditys, prices, weights, norms, values, comms);
+        ret = createPurchaseComms(order, commoditys, prices, weights, norms, values, comms);
         if (null != ret) {
             return ret;
         }
@@ -274,7 +267,7 @@ public class PurchaseService {
     /**
      * desc: 原料退货
      */
-    public RestResult returnc(int id, TPurchaseOrder order, List<Integer> types, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
+    public RestResult returnc(int id, TPurchaseOrder order, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
         // 采购单未审核，已入库都不能退货
         int rid = order.getRid();
         TPurchaseOrder purchaseOrder = purchaseOrderRepository.find(rid);
@@ -301,7 +294,7 @@ public class PurchaseService {
 
         // 生成退货单
         val comms = new ArrayList<TPurchaseCommodity>();
-        ret = createReturnComms(order, rid, types, commoditys, prices, weights, values, comms);
+        ret = createReturnComms(order, rid, commoditys, prices, weights, values, comms);
         if (null != ret) {
             return ret;
         }
@@ -323,7 +316,7 @@ public class PurchaseService {
     /**
      * desc: 原料退货修改
      */
-    public RestResult setReturn(int id, int oid, Date applyTime, List<Integer> types, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
+    public RestResult setReturn(int id, int oid, Date applyTime, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
         // 已经审核的订单不能修改
         TPurchaseOrder order = purchaseOrderRepository.find(oid);
         if (null == order) {
@@ -345,7 +338,7 @@ public class PurchaseService {
 
         // 生成退货单
         val comms = new ArrayList<TPurchaseCommodity>();
-        ret = createReturnComms(order, order.getRid(), types, commoditys, prices, weights, values, comms);
+        ret = createReturnComms(order, order.getRid(), commoditys, prices, weights, values, comms);
         if (null != ret) {
             return ret;
         }
@@ -480,45 +473,25 @@ public class PurchaseService {
         return reviewService.checkPerm(gid, reviewPerm, reviews);
     }
 
-    private RestResult createPurchaseComms(TPurchaseOrder order, List<Integer> types, List<Integer> commoditys, List<BigDecimal> prices,
+    private RestResult createPurchaseComms(TPurchaseOrder order, List<Integer> commoditys, List<BigDecimal> prices,
                                            List<Integer> weights, List<String> norms, List<Integer> values, List<TPurchaseCommodity> list) {
         // 生成采购单
         int size = commoditys.size();
-        if (size != types.size() || size != prices.size() || size != weights.size() || size != norms.size() || size != values.size()) {
+        if (size != prices.size() || size != weights.size() || size != norms.size() || size != values.size()) {
             return RestResult.fail("商品信息异常");
         }
         int total = 0;
         BigDecimal price = new BigDecimal(0);
         for (int i = 0; i < size; i++) {
             // 获取商品单位信息
-            int ctype = types.get(i);
             int cid = commoditys.get(i);
             int weight = weights.get(i);
-            switch (CommodityType.valueOf(ctype)) {
-                case COMMODITY:
-                    TCommodity commodity = commodityRepository.find(cid);
-                    if (null == commodity) {
-                        return RestResult.fail("未查询到商品：" + cid);
-                    }
-                    break;
-                case HALFGOOD:
-                    THalfgood halfgood = halfgoodRepository.find(cid);
-                    if (null == halfgood) {
-                        return RestResult.fail("未查询到半成品：" + cid);
-                    }
-                    break;
-                case ORIGINAL:
-                    TOriginal original = originalRepository.find(cid);
-                    if (null == original) {
-                        return RestResult.fail("未查询到原料：" + cid);
-                    }
-                    break;
-                default:
-                    return RestResult.fail("商品类型异常：" + ctype);
+            TCommodity commodity = commodityRepository.find(cid);
+            if (null == commodity) {
+                return RestResult.fail("未查询到商品：" + cid);
             }
 
             TPurchaseCommodity c = new TPurchaseCommodity();
-            c.setCtype(ctype);
             c.setCid(cid);
             c.setPrice(prices.get(i));
             c.setWeight(weight);
@@ -536,11 +509,11 @@ public class PurchaseService {
         return null;
     }
 
-    private RestResult createReturnComms(TPurchaseOrder order, int rid, List<Integer> types, List<Integer> commoditys, List<BigDecimal> prices,
+    private RestResult createReturnComms(TPurchaseOrder order, int rid, List<Integer> commoditys, List<BigDecimal> prices,
                                          List<Integer> weights, List<Integer> values, List<TPurchaseCommodity> list) {
         // 生成退货单
         int size = commoditys.size();
-        if (size != types.size() || size != prices.size() || size != weights.size() || size != values.size()) {
+        if (size != prices.size() || size != weights.size() || size != values.size()) {
             return RestResult.fail("商品信息异常");
         }
         val purchaseCommodities = purchaseCommodityRepository.find(rid);
@@ -551,22 +524,20 @@ public class PurchaseService {
         BigDecimal price = new BigDecimal(0);
         for (int i = 0; i < size; i++) {
             boolean find = false;
-            int ctype = types.get(i);
             int cid = commoditys.get(i);
             int weight = weights.get(i);
             int value = values.get(i);
             for (TPurchaseCommodity pc : purchaseCommodities) {
-                if (pc.getCtype() == ctype && pc.getCid() == cid) {
+                if (pc.getCid() == cid) {
                     find = true;
                     if (weight > pc.getWeight()) {
-                        return RestResult.fail("退货商品重量不能大于采购重量:" + ctype + ", 商品id:" + cid);
+                        return RestResult.fail("退货商品重量不能大于采购重量, 商品id:" + cid);
                     }
                     if (value > pc.getValue()) {
-                        return RestResult.fail("退货商品件数不能大于采购件数:" + ctype + ", 商品id:" + cid);
+                        return RestResult.fail("退货商品件数不能大于采购件数, 商品id:" + cid);
                     }
 
                     TPurchaseCommodity c = new TPurchaseCommodity();
-                    c.setCtype(ctype);
                     c.setCid(cid);
                     c.setPrice(prices.get(i));
                     c.setWeight(weight);
@@ -580,7 +551,7 @@ public class PurchaseService {
                 }
             }
             if (!find) {
-                return RestResult.fail("未查询到商品id:" + cid + ", 类型:" + ctype);
+                return RestResult.fail("未查询到商品id:" + cid);
             }
         }
         order.setUnit(total);

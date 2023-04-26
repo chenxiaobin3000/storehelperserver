@@ -46,13 +46,11 @@ public class ScheduledTasks {
             val list2 = storageRepository.pagination(gid, 1, total2, null);
             if (null != list2 && !list2.isEmpty()) {
                 for (TStorage s : list2) {
-                    for (int i = 1; i < 5; i++) {
-                        stockService.countStockDay(gid, s.getId(), i, today);
-                        try {
-                            Thread.sleep(200);
-                        } catch (InterruptedException e) {
-                            log.error(e.toString());
-                        }
+                    stockService.countStockDay(gid, s.getId(), today);
+                    try {
+                        Thread.sleep(200);
+                    } catch (InterruptedException e) {
+                        log.error(e.toString());
                     }
                 }
             }

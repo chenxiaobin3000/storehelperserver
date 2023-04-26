@@ -20,9 +20,6 @@ public class GetStockListValid implements IValid {
     @Min(value = 1, message = "仓库账号错误")
     private int sid;
 
-    @Min(value = 1, message = "商品类型错误")
-    private int ctype;
-
     @Min(value = 1, message = "页面编号错误")
     private int page;
 

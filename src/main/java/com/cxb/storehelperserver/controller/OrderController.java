@@ -28,17 +28,6 @@ public class OrderController {
     @Resource
     private OrderService orderService;
 
-    @PostMapping("/addOrderFare")
-    public RestResult addOrderFare(@Validated @RequestBody AddOrderFareValid req) {
-        return orderService.addOrderFare(req.getId(), BusinessType.valueOf(req.getOtype()), req.getOid(), req.getShip(),
-                req.getCode(), req.getPhone(), req.getFare(), req.getRemark());
-    }
-
-    @PostMapping("/delOrderFare")
-    public RestResult delOrderFare(@Validated @RequestBody DelOrderFareValid req) {
-        return orderService.delOrderFare(req.getId(), BusinessType.valueOf(req.getOtype()), req.getOid(), req.getFid());
-    }
-
     @PostMapping("/addOrderRemark")
     public RestResult addOrderRemark(@Validated @RequestBody AddOrderRemarkValid req) {
         return orderService.addOrderRemark(req.getId(), BusinessType.valueOf(req.getOtype()), req.getOid(), req.getRemark());

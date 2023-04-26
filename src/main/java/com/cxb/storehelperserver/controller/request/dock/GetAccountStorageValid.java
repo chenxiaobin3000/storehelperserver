@@ -1,10 +1,9 @@
-package com.cxb.storehelperserver.controller.request.halfgood;
+package com.cxb.storehelperserver.controller.request.dock;
 
 import com.cxb.storehelperserver.controller.request.IValid;
 import lombok.Data;
 
 import javax.validation.constraints.Min;
-import java.util.List;
 
 /**
  * desc:
@@ -12,15 +11,13 @@ import java.util.List;
  * date: 2022/12/21
  */
 @Data
-public class SetHalfgoodStorageValid implements IValid {
+public class GetAccountStorageValid implements IValid {
     @Min(value = 1, message = "账号错误")
     private int id;
 
     @Min(value = 1, message = "公司账号错误")
     private int gid;
 
-    @Min(value = 1, message = "原料账号错误")
-    private int cid;
-
-    private List<Integer> sids;
+    @Min(value = 1, message = "平台账号错误")
+    private int aid;
 }

@@ -93,4 +93,9 @@ public class DockController {
     public RestResult getMarketStorageList(@Validated @RequestBody GetMarketStorageListValid req) {
         return dockService.getMarketStorageList(req.getId(), req.getPage(), req.getLimit(), req.getSearch());
     }
+
+    @PostMapping("/getAccountStorage")
+    public RestResult getAccountStorage(@Validated @RequestBody GetAccountStorageValid req) {
+        return dockService.getAccountStorage(req.getId(), req.getGid(), req.getAid());
+    }
 }

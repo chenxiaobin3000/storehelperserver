@@ -38,6 +38,12 @@ public class CommodityRepository extends BaseRepository<TCommodity> {
         return commodity;
     }
 
+    public TCommodity findByCode(String code) {
+        TCommodityExample example = new TCommodityExample();
+        example.or().andCodeEqualTo(code);
+        return commodityMapper.selectOneByExample(example);
+    }
+
     public TCommodity search(String name) {
         TCommodityExample example = new TCommodityExample();
         example.or().andNameLike("%" + name + "%");

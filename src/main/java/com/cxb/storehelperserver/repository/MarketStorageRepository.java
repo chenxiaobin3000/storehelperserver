@@ -5,9 +5,12 @@ import com.cxb.storehelperserver.model.TMarketStorage;
 import com.cxb.storehelperserver.model.TMarketStorageExample;
 import com.cxb.storehelperserver.repository.model.MyMarketStorage;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * desc: 市场账号关联仓库
@@ -42,6 +45,17 @@ public class MarketStorageRepository extends BaseRepository<TMarketStorage> {
             return new MyMarketStorage(marketStorage, marketAccountRepository.find(marketStorage.getAid()));
         }
         return null;
+    }
+
+    public List<MyMarketStorage> findByAid(int aid) {
+        TMarketStorageExample example = new TMarketStorageExample();
+        example.or().andAidEqualTo(aid);
+        val list = marketStorageMapper.selectByExample(example);
+        val ret = new ArrayList<MyMarketStorage>();
+        for (val marketStorage : list) {
+            ret.add(new MyMarketStorage(marketStorage, marketAccountRepository.find(marketStorage.getAid())));
+        }
+        return ret;
     }
 
     public boolean check(int aid) {

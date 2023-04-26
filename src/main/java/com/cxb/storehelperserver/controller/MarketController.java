@@ -46,7 +46,12 @@ public class MarketController {
 
     @PostMapping("/getMarketCommodity")
     public RestResult getMarketCommodity(@Validated @RequestBody GetMarketCommodityValid req) {
-        return marketService.getMarketCommodity(req.getId(), req.getGid(), req.getPage(), req.getLimit(), req.getSid(), req.getAid(), req.getAsid(), req.getSearch());
+        return marketService.getMarketCommodity(req.getId(), req.getGid(), req.getSid(), req.getAid(), req.getAsid(), req.getCid());
+    }
+
+    @PostMapping("/getMarketCommodityList")
+    public RestResult getMarketCommodityList(@Validated @RequestBody GetMarketCommodityListValid req) {
+        return marketService.getMarketCommodityList(req.getId(), req.getGid(), req.getPage(), req.getLimit(), req.getSid(), req.getAid(), req.getAsid(), req.getSearch());
     }
 
     @PostMapping("/setMarketCommList")

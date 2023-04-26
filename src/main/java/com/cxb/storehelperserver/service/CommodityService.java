@@ -14,9 +14,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static com.cxb.storehelperserver.util.TypeDefine.CommodityType;
-import static com.cxb.storehelperserver.util.TypeDefine.CommodityType.COMMODITY;
-
 /**
  * desc: 商品业务
  * auth: cxb
@@ -45,7 +42,13 @@ public class CommodityService {
     private CommodityStorageRepository commodityStorageRepository;
 
     @Resource
-    private OriginalRepository originalRepository;
+    private MarketCommodityRepository marketCommodityRepository;
+
+    @Resource
+    private MarketAccountRepository marketAccountRepository;
+
+    @Resource
+    private MarketManyRepository marketManyRepository;
 
     @Resource
     private AttributeTemplateRepository attributeTemplateRepository;
@@ -72,7 +75,7 @@ public class CommodityService {
         }
 
         // 检测属性数量是否匹配
-        List<TAttributeTemplate> attributeTemplates = attributeTemplateRepository.find(commodity.getGid(), CommodityType.COMMODITY.getValue());
+        List<TAttributeTemplate> attributeTemplates = attributeTemplateRepository.find(commodity.getGid());
         if (null == attributeTemplates) {
             return RestResult.fail("商品属性模板信息失败");
         }
@@ -103,7 +106,7 @@ public class CommodityService {
         }
 
         // 检测属性数量是否匹配
-        List<TAttributeTemplate> attributeTemplates = attributeTemplateRepository.find(commodity.getGid(), CommodityType.COMMODITY.getValue());
+        List<TAttributeTemplate> attributeTemplates = attributeTemplateRepository.find(commodity.getGid());
         if (null == attributeTemplates) {
             return RestResult.fail("商品属性模板信息失败");
         }
@@ -192,51 +195,7 @@ public class CommodityService {
 
         val datas = new ArrayList<HashMap<String, Object>>();
         for (TCommodity c : commodities) {
-            int cid = c.getId();
-            val tmp = new HashMap<String, Object>();
-            tmp.put("id", cid);
-            tmp.put("code", c.getCode());
-            tmp.put("name", c.getName());
-            tmp.put("cid", c.getCid());
-            tmp.put("remark", c.getRemark());
-            datas.add(tmp);
-
-            // 仓库
-            val storages = commodityStorageRepository.find(cid);
-            if (null != storages && !storages.isEmpty()) {
-                val list2 = new ArrayList<HashMap<String, Object>>();
-                tmp.put("storages", list2);
-                for (TCommodityStorage ss : storages) {
-                    val tmp2 = new HashMap<String, Object>();
-                    int sid = ss.getSid();
-                    tmp2.put("sid", sid);
-                    TStorage storage = storageRepository.find(sid);
-                    if (null != storage) {
-                        tmp2.put("name", storage.getName());
-                    }
-                    list2.add(tmp2);
-                }
-            }
-
-            // 属性
-            List<TCommodityAttr> attrs = commodityAttrRepository.find(c.getId());
-            if (null != attrs && !attrs.isEmpty()) {
-                val list = new ArrayList<String>();
-                tmp.put("attrs", list);
-                for (TCommodityAttr attr : attrs) {
-                    list.add(attr.getValue());
-                }
-            }
-
-            // 关联来源
-            TCommodityOriginal commodityOriginal = commodityOriginalRepository.find(c.getId());
-            if (null != commodityOriginal) {
-                TOriginal original = originalRepository.find(commodityOriginal.getOid());
-                if (null != original) {
-                    tmp.put("oid", original.getId());
-                    tmp.put("oname", original.getName());
-                }
-            }
+            datas.add(createCommodity(c));
         }
         return RestResult.ok(new PageData(total, datas));
     }
@@ -268,63 +227,66 @@ public class CommodityService {
 
         val datas = new ArrayList<HashMap<String, Object>>();
         for (TCommodity c : commodities) {
-            int cid = c.getId();
-            val tmp = new HashMap<String, Object>();
-            tmp.put("id", cid);
-            tmp.put("code", c.getCode());
-            tmp.put("name", c.getName());
-            tmp.put("cid", c.getCid());
-            tmp.put("remark", c.getRemark());
+            val tmp = createCommodity(c);
             datas.add(tmp);
 
-            // 属性
-            List<TCommodityAttr> attrs = commodityAttrRepository.find(c.getId());
-            if (null != attrs && !attrs.isEmpty()) {
-                val list = new ArrayList<String>();
-                tmp.put("attrs", list);
-                for (TCommodityAttr attr : attrs) {
-                    list.add(attr.getValue());
-                }
-            }
-
             // 库存
-            TStockDay stock = stockService.getStockCommodity(gid, sid, COMMODITY.getValue(), cid);
+            TStockDay stock = stockService.getStockCommodity(gid, sid, c.getId());
             if (null != stock) {
                 tmp.put("sprice", stock.getPrice());
                 tmp.put("sweight", stock.getWeight());
                 tmp.put("svalue", stock.getValue());
             }
-
-            // 关联来源
-            TCommodityOriginal commodityOriginal = commodityOriginalRepository.find(c.getId());
-            if (null != commodityOriginal) {
-                TOriginal original = originalRepository.find(commodityOriginal.getOid());
-                if (null != original) {
-                    tmp.put("oid", original.getId());
-                    tmp.put("oname", original.getName());
-                }
-            }
         }
         return RestResult.ok(new PageData(total, datas));
     }
 
-    public RestResult setCommodityOriginal(int id, int gid, int cid, int oid) {
+    public RestResult getAccountCommodity(int id, int gid, int aid, int asid, int page, int limit, String search) {
         // 验证公司
         String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
             return RestResult.fail(msg);
         }
 
+        int total = marketCommodityRepository.totalOnlyAid(aid, asid, search);
+        if (0 == total) {
+            return RestResult.ok(new PageData());
+        }
+
+        val commodities = marketCommodityRepository.paginationOnlyAid(aid, asid, page, limit, search);
+        if (null == commodities) {
+            return RestResult.fail("获取商品信息失败");
+        }
+
+        val datas = new ArrayList<HashMap<String, Object>>();
+        for (TCommodity c : commodities) {
+            datas.add(createCommodity(c));
+        }
+        return RestResult.ok(new PageData(total, datas));
+    }
+
+    public RestResult setCommodityOriginal(int id, int gid, int cid, String oid) {
+        // 验证公司
+        String msg = checkService.checkGroup(id, gid);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+
+        TCommodity commodity = commodityRepository.findByCode(oid);
+        if (null == commodity) {
+            return RestResult.fail("未查询到关联商品信息");
+        }
+
         TCommodityOriginal commodityOriginal = commodityOriginalRepository.find(cid);
         if (null == commodityOriginal) {
             commodityOriginal = new TCommodityOriginal();
-            commodityOriginal.setOid(oid);
+            commodityOriginal.setOid(commodity.getId());
             commodityOriginal.setCid(cid);
             if (!commodityOriginalRepository.insert(commodityOriginal)) {
                 return RestResult.fail("添加商品关联原料失败");
             }
         } else {
-            commodityOriginal.setOid(oid);
+            commodityOriginal.setOid(commodity.getId());
             if (!commodityOriginalRepository.update(commodityOriginal)) {
                 return RestResult.fail("修改商品关联原料失败");
             }
@@ -342,5 +304,73 @@ public class CommodityService {
             return RestResult.fail("添加商品关联仓库失败");
         }
         return RestResult.ok();
+    }
+
+    private HashMap<String, Object> createCommodity(TCommodity c) {
+        int cid = c.getId();
+        val tmp = new HashMap<String, Object>();
+        tmp.put("id", cid);
+        tmp.put("code", c.getCode());
+        tmp.put("name", c.getName());
+        tmp.put("cid", c.getCid());
+        tmp.put("remark", c.getRemark());
+
+        // 仓库
+        val storages = commodityStorageRepository.find(cid);
+        if (null != storages && !storages.isEmpty()) {
+            val list = new ArrayList<HashMap<String, Object>>();
+            tmp.put("storages", list);
+            for (TCommodityStorage ss : storages) {
+                val tmp2 = new HashMap<String, Object>();
+                int sid = ss.getSid();
+                tmp2.put("sid", sid);
+                TStorage storage = storageRepository.find(sid);
+                if (null != storage) {
+                    tmp2.put("name", storage.getName());
+                }
+                list.add(tmp2);
+            }
+        }
+
+        // 属性
+        List<TCommodityAttr> attrs = commodityAttrRepository.find(cid);
+        if (null != attrs && !attrs.isEmpty()) {
+            val list = new ArrayList<String>();
+            tmp.put("attrs", list);
+            for (TCommodityAttr attr : attrs) {
+                list.add(attr.getValue());
+            }
+        }
+
+        // 关联来源
+        TCommodityOriginal commodityOriginal = commodityOriginalRepository.find(cid);
+        if (null != commodityOriginal) {
+            TCommodity original = commodityRepository.find(commodityOriginal.getOid());
+            if (null != original) {
+                tmp.put("oname", original.getName());
+                tmp.put("ocode", original.getCode());
+            }
+        }
+
+        // 账号
+        val list = marketCommodityRepository.findByCid(cid);
+        if (null != list && !list.isEmpty()) {
+            val list2 = new ArrayList<String>();
+            for (TMarketCommodity commodity : list) {
+                if (commodity.getAsid().equals(0)) {
+                    TMarketAccount account = marketAccountRepository.find(commodity.getAid());
+                    if (null != account) {
+                        list2.add(account.getAccount());
+                    }
+                } else {
+                    TMarketMany many = marketManyRepository.find(commodity.getAsid());
+                    if (null != many) {
+                        list2.add(many.getAccount());
+                    }
+                }
+            }
+            tmp.put("accounts", list2);
+        }
+        return tmp;
     }
 }

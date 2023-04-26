@@ -19,12 +19,6 @@ public class GetMarketCommodityValid implements IValid {
     @Min(value = 1, message = "公司账号错误")
     private int gid;
 
-    @Min(value = 1, message = "页面编号错误")
-    private int page;
-
-    @Min(value = 10, message = "页面数量错误")
-    private int limit;
-
     @Min(value = 1, message = "云仓账号错误")
     private int sid;
 
@@ -34,6 +28,6 @@ public class GetMarketCommodityValid implements IValid {
     @Min(value = 0, message = "平台子账号错误")
     private int asid;
 
-    @Length(max = 16, message = "搜索内容不能大于16个字符")
-    private String search;
+    @Min(value = 1, message = "商品账号错误")
+    private int cid;
 }

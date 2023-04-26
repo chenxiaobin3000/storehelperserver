@@ -21,13 +21,5 @@ public class UpdateAttrTempValid implements IValid {
     @Min(value = 1, message = "公司账号错误")
     private int gid;
 
-    private List<String> template1;
-
-    private List<String> template2;
-
-    private List<String> template3;
-
-    private List<String> template4;
-
-    private List<String> template5;
+    private List<String> template;
 }

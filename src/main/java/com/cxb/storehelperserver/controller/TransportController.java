@@ -1,6 +1,6 @@
 package com.cxb.storehelperserver.controller;
 
-import com.cxb.storehelperserver.controller.request.product.CollectValid;
+import com.cxb.storehelperserver.controller.request.transport.*;
 import com.cxb.storehelperserver.service.TransportService;
 import com.cxb.storehelperserver.util.RestResult;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+
+import static com.cxb.storehelperserver.util.TypeDefine.BusinessType;
 
 /**
  * desc:
@@ -24,19 +26,14 @@ public class TransportController {
     @Resource
     private TransportService transportService;
 
-    @PostMapping("/getPurchaseFareList")
-    public RestResult getPurchaseFareList(@Validated @RequestBody CollectValid req) {
-        //return transportService.getPurchaseFareList();
-        return null;
+    @PostMapping("/addOrderFare")
+    public RestResult addOrderFare(@Validated @RequestBody AddOrderFareValid req) {
+        return transportService.addOrderFare(req.getId(), BusinessType.valueOf(req.getOtype()), req.getOid(), req.getShip(),
+                req.getCode(), req.getPhone(), req.getFare(), req.getRemark());
     }
 
-    @PostMapping("/getStorageFareList")
-    public RestResult getStorageFareList(@Validated @RequestBody CollectValid req) {
-        return transportService.getStorageFareList();
-    }
-
-    @PostMapping("/getAgreementFareList")
-    public RestResult getAgreementFareList(@Validated @RequestBody CollectValid req) {
-        return transportService.getAgreementFareList();
+    @PostMapping("/delOrderFare")
+    public RestResult delOrderFare(@Validated @RequestBody DelOrderFareValid req) {
+        return transportService.delOrderFare(req.getId(), BusinessType.valueOf(req.getOtype()), req.getOid(), req.getFid());
     }
 }

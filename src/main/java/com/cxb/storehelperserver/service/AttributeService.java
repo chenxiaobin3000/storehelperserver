@@ -111,14 +111,7 @@ public class AttributeService {
         return RestResult.ok(data);
     }
 
-    public RestResult updateAttributeTemplate(
-            int id,
-            int gid,
-            List<String> template1,
-            List<String> template2,
-            List<String> template3,
-            List<String> template4,
-            List<String> template5) {
+    public RestResult updateAttributeTemplate(int id, int gid, List<String> template) {
         // 验证公司
         String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
@@ -130,20 +123,13 @@ public class AttributeService {
         if (null == attributes) {
             return RestResult.fail("获取属性信息失败");
         }
-
-        val templates = new ArrayList<List<TAttributeTemplate>>();
-        name2Temp(gid, 1, templates, template1, attributes);
-        name2Temp(gid, 2, templates, template2, attributes);
-        name2Temp(gid, 3, templates, template3, attributes);
-        name2Temp(gid, 4, templates, template4, attributes);
-        name2Temp(gid, 5, templates, template5, attributes);
-        if (!attributeTemplateRepository.update(gid, templates)) {
+        if (!attributeTemplateRepository.update(gid, name2Temp(gid, template, attributes))) {
             return RestResult.fail("修改属性模板信息失败");
         }
         return RestResult.ok();
     }
 
-    public RestResult getGroupAttributeTemplate(int id, int atid) {
+    public RestResult getGroupAttributeTemplate(int id) {
         // 获取公司信息
         TUserGroup group = userGroupRepository.find(id);
         if (null == group) {
@@ -157,38 +143,22 @@ public class AttributeService {
         }
 
         val data = new HashMap<String, Object>();
-        if (0 == atid) {
-            List<List<TAttributeTemplate>> attrTemps = attributeTemplateRepository.findByGroup(group.getGid());
-            if (null == attrTemps) {
-                return RestResult.fail("获取属性模板信息失败");
-            }
-
-            data.put("list1", temp2Name(attrTemps.get(0), attributes));
-            data.put("list2", temp2Name(attrTemps.get(1), attributes));
-            data.put("list3", temp2Name(attrTemps.get(2), attributes));
-            data.put("list4", temp2Name(attrTemps.get(3), attributes));
-            data.put("list5", temp2Name(attrTemps.get(4), attributes));
-        } else {
-            List<TAttributeTemplate> attrTemp = attributeTemplateRepository.find(group.getGid(), atid);
-            if (null == attrTemp) {
-                return RestResult.fail("获取属性模板信息失败");
-            }
-            data.put("list", temp2Name(attrTemp, attributes));
+        List<TAttributeTemplate> attrTemp = attributeTemplateRepository.find(group.getGid());
+        if (null == attrTemp) {
+            return RestResult.fail("获取属性模板信息失败");
         }
+        data.put("list", temp2Name(attrTemp, attributes));
         return RestResult.ok(data);
     }
 
-    private void name2Temp(int gid, int code, List<List<TAttributeTemplate>> templates, List<String> template, List<TAttribute> attributes) {
+    private List<TAttributeTemplate> name2Temp(int gid, List<String> template, List<TAttribute> attributes) {
         val list = new ArrayList<TAttributeTemplate>();
-        templates.add(list);
-
         int index = 0;
         for (String name : template) {
             for (TAttribute attribute : attributes) {
                 if (name.equals(attribute.getName())) {
                     TAttributeTemplate tmp = new TAttributeTemplate();
                     tmp.setGid(gid);
-                    tmp.setCode(code);
                     tmp.setAid(attribute.getId());
                     tmp.setIdx(++index);
                     list.add(tmp);
@@ -196,6 +166,7 @@ public class AttributeService {
                 }
             }
         }
+        return list;
     }
 
     private List<String> temp2Name(List<TAttributeTemplate> template, List<TAttribute> attributes) {

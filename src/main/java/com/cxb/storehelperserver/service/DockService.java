@@ -343,4 +343,28 @@ public class DockService {
         }
         return RestResult.ok(new PageData(total, datas));
     }
+
+    public RestResult getAccountStorage(int id, int gid, int aid) {
+        // 验证公司
+        String msg = checkService.checkGroup(id, gid);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+
+        val datas = new ArrayList<HashMap<String, Object>>();
+        val list = marketStorageRepository.findByAid(aid);
+        if (null != list && !list.isEmpty()) {
+            for (MyMarketStorage storage: list) {
+                val tmp = new HashMap<String, Object>();
+                tmp.put("id", storage.getCid());
+                datas.add(tmp);
+
+                TStorage storage1 = storageRepository.find(storage.getCid());
+                if (null != storage1) {
+                    tmp.put("name", storage1.getName());
+                }
+            }
+        }
+        return RestResult.ok(new PageData(0, datas));
+    }
 }

@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static com.cxb.storehelperserver.util.TypeDefine.CommodityType;
 import static com.cxb.storehelperserver.util.TypeDefine.ReviewType;
 
 /**
@@ -46,12 +45,6 @@ public class StorageOrderService extends BaseService<HashMap> {
     private CommodityRepository commodityRepository;
 
     @Resource
-    private HalfgoodRepository halfgoodRepository;
-
-    @Resource
-    private OriginalRepository originalRepository;
-
-    @Resource
     private DateUtil dateUtil;
 
     public StorageOrderService() {
@@ -73,7 +66,6 @@ public class StorageOrderService extends BaseService<HashMap> {
                 val data = new HashMap<String, Object>();
                 data.put("id", sc.getId());
                 data.put("cid", sc.getCid());
-                data.put("ctype", sc.getCtype());
                 data.put("price", sc.getPrice());
                 data.put("weight", sc.getWeight());
                 data.put("norm", sc.getNorm());
@@ -81,32 +73,10 @@ public class StorageOrderService extends BaseService<HashMap> {
                 commoditys.add(data);
 
                 // 获取商品单位信息
-                CommodityType type = CommodityType.valueOf(sc.getCtype());
-                int cid = sc.getCid();
-                switch (type) {
-                    case COMMODITY:
-                        TCommodity find1 = commodityRepository.find(cid);
-                        if (null != find1) {
-                            data.put("code", find1.getCode());
-                            data.put("name", find1.getName());
-                        }
-                        break;
-                    case HALFGOOD:
-                        THalfgood find2 = halfgoodRepository.find(cid);
-                        if (null != find2) {
-                            data.put("code", find2.getCode());
-                            data.put("name", find2.getName());
-                        }
-                        break;
-                    case ORIGINAL:
-                        TOriginal find3 = originalRepository.find(cid);
-                        if (null != find3) {
-                            data.put("code", find3.getCode());
-                            data.put("name", find3.getName());
-                        }
-                        break;
-                    default:
-                        break;
+                TCommodity commodity = commodityRepository.find(sc.getCid());
+                if (null != commodity) {
+                    data.put("code", commodity.getCode());
+                    data.put("name", commodity.getName());
                 }
             }
         }

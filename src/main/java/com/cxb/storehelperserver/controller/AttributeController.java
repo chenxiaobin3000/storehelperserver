@@ -59,18 +59,11 @@ public class AttributeController {
 
     @PostMapping("/updateAttrTemp")
     public RestResult updateAttrTemplate(@Validated @RequestBody UpdateAttrTempValid req) {
-        return attributeService.updateAttributeTemplate(
-                req.getId(),
-                req.getGid(),
-                req.getTemplate1(),
-                req.getTemplate2(),
-                req.getTemplate3(),
-                req.getTemplate4(),
-                req.getTemplate5());
+        return attributeService.updateAttributeTemplate(req.getId(), req.getGid(), req.getTemplate());
     }
 
     @PostMapping("/getGroupAttrTemp")
     public RestResult getGroupAttribute(@Validated @RequestBody GetGroupAttrTemplateValid req) {
-        return attributeService.getGroupAttributeTemplate(req.getId(), req.getAtid());
+        return attributeService.getGroupAttributeTemplate(req.getId());
     }
 }

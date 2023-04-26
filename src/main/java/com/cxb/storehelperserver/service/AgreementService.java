@@ -14,7 +14,6 @@ import java.math.BigDecimal;
 import java.util.*;
 
 import static com.cxb.storehelperserver.util.Permission.*;
-import static com.cxb.storehelperserver.util.TypeDefine.CommodityType.COMMODITY;
 import static com.cxb.storehelperserver.util.TypeDefine.OrderType.AGREEMENT_SHIPPED_ORDER;
 import static com.cxb.storehelperserver.util.TypeDefine.OrderType.AGREEMENT_OFFLINE_ORDER;
 
@@ -866,7 +865,7 @@ public class AgreementService {
             int cid = commoditys.get(i);
             int weight = weights.get(i);
             int value = values.get(i);
-            TStockDay stock = stockService.getStockCommodity(order.getGid(), sid, COMMODITY.getValue(), cid);
+            TStockDay stock = stockService.getStockCommodity(order.getGid(), sid, cid);
             if (null == stock) {
                 return RestResult.fail("未查询到库存类型:" + cid);
             }
@@ -920,10 +919,10 @@ public class AgreementService {
                 if (ac.getCid() == cid) {
                     find = true;
                     if (weight > ac.getWeight()) {
-                        return RestResult.fail("退货商品重量不能大于发货重量:" + cid);
+                        return RestResult.fail("退货商品重量不能大于发货重量, 商品id:" + cid);
                     }
                     if (value > ac.getValue()) {
-                        return RestResult.fail("退货商品件数不能大于发货件数:" + cid);
+                        return RestResult.fail("退货商品件数不能大于发货件数, 商品id:" + cid);
                     }
 
                     TAgreementCommodity c = new TAgreementCommodity();
@@ -975,10 +974,10 @@ public class AgreementService {
                 if (ac.getCid() == cid) {
                     find = true;
                     if (weight > ac.getWeight()) {
-                        return RestResult.fail("退货商品重量不能大于发货重量:" + cid);
+                        return RestResult.fail("退货商品重量不能大于发货重量, 商品id:" + cid);
                     }
                     if (value > ac.getValue()) {
-                        return RestResult.fail("退货商品件数不能大于发货件数:" + cid);
+                        return RestResult.fail("退货商品件数不能大于发货件数, 商品id:" + cid);
                     }
 
                     TAgreementCommodity c = new TAgreementCommodity();

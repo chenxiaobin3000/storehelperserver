@@ -16,7 +16,6 @@ import java.util.*;
 
 import static com.cxb.storehelperserver.util.Permission.dashboard_report;
 import static com.cxb.storehelperserver.util.Permission.mp_report;
-import static com.cxb.storehelperserver.util.TypeDefine.CommodityType.*;
 import static com.cxb.storehelperserver.util.TypeDefine.ReportCycleType;
 
 /**

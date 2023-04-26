@@ -30,9 +30,6 @@ public class SetLossValid implements IValid {
     @Length(min = 19, max = 19, message = "订单制单日期格式错误")
     private String date;
 
-    @Size(min = 1, message = "商品类型不能为空")
-    private List<Integer> types;
-
     @Size(min = 1, message = "商品id不能为空")
     private List<Integer> commoditys;
 

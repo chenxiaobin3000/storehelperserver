@@ -21,7 +21,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import static com.cxb.storehelperserver.util.TypeDefine.*;
-import static com.cxb.storehelperserver.util.TypeDefine.CommodityType.COMMODITY;
 
 /**
  * desc: 市场业务
@@ -114,7 +113,18 @@ public class MarketService {
         return RestResult.ok();
     }
 
-    public RestResult getMarketCommodity(int id, int gid, int page, int limit, int sid, int aid, int asid, String search) {
+    public RestResult getMarketCommodity(int id, int gid, int sid, int aid, int asid, int cid) {
+        // 验证公司
+        String msg = checkService.checkGroup(id, gid);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+        val ret = new HashMap<String, Object>();
+        ret.put("commodity", marketCommodityRepository.find(sid, aid, asid, cid));
+        return RestResult.ok(ret);
+    }
+
+    public RestResult getMarketCommodityList(int id, int gid, int page, int limit, int sid, int aid, int asid, String search) {
         // 验证公司
         String msg = checkService.checkGroup(id, gid);
         if (null != msg) {

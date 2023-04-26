@@ -15,8 +15,6 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
-import static com.cxb.storehelperserver.util.TypeDefine.CommodityType;
-
 /**
  * desc: 库存日快照仓库
  * auth: cxb
@@ -38,77 +36,49 @@ public class StockDayRepository extends BaseRepository<TStockDay> {
         init("stockDay::");
     }
 
-    public TStockDay find(int sid, int ctype, int cid, Date date) {
+    public TStockDay find(int sid, int cid, Date date) {
         TStockDayExample example = new TStockDayExample();
-        example.or().andSidEqualTo(sid).andCtypeEqualTo(ctype).andCidEqualTo(cid).andCdateEqualTo(date);
+        example.or().andSidEqualTo(sid).andCidEqualTo(cid).andCdateEqualTo(date);
         return stockDayMapper.selectOneByExample(example);
     }
 
-    public List<MyStockReport> findReport(int gid, int sid, int ctype, Date start, Date end) {
-        return myStockDayMapper.selectReport(gid, sid, ctype, new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
+    public List<MyStockReport> findReport(int gid, int sid, Date start, Date end) {
+        return myStockDayMapper.selectReport(gid, sid, new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
     }
 
     // 所有有库存的商品数量
-    public int total(int sid, int ctype, Date date, String search) {
+    public int total(int sid, Date date, String search) {
         if (null != search) {
-            switch (CommodityType.valueOf(ctype)) {
-                case COMMODITY:
-                    return myStockDayMapper.count_commodity(sid, new java.sql.Date(date.getTime()), "%" + search + "%");
-                case HALFGOOD:
-                    return myStockDayMapper.count_halfgood(sid, new java.sql.Date(date.getTime()), "%" + search + "%");
-                case ORIGINAL:
-                    return myStockDayMapper.count_original(sid, new java.sql.Date(date.getTime()), "%" + search + "%");
-                default:
-                    return 0;
-            }
+            return myStockDayMapper.count(sid, new java.sql.Date(date.getTime()), "%" + search + "%");
         } else {
             TStockDayExample example = new TStockDayExample();
-            example.or().andSidEqualTo(sid).andCtypeEqualTo(ctype).andCdateEqualTo(date);
+            example.or().andSidEqualTo(sid).andCdateEqualTo(date);
             return (int) stockDayMapper.countByExample(example);
         }
     }
 
     // 所有有库存的商品列表
-    public List<MyStockCommodity> pagination(int sid, int page, int limit, int ctype, Date date, String search) {
+    public List<MyStockCommodity> pagination(int sid, int page, int limit, Date date, String search) {
         String key = null;
         if (null != search) {
             key = "%" + search + "%";
         }
-        switch (CommodityType.valueOf(ctype)) {
-            case COMMODITY:
-                return myStockDayMapper.pagination_commodity((page - 1) * limit, limit, sid, new java.sql.Date(date.getTime()), key);
-            case HALFGOOD:
-                return myStockDayMapper.pagination_halfgood((page - 1) * limit, limit, sid, new java.sql.Date(date.getTime()), key);
-            case ORIGINAL:
-                return myStockDayMapper.pagination_original((page - 1) * limit, limit, sid, new java.sql.Date(date.getTime()), key);
-            default:
-                return null;
-        }
+        return myStockDayMapper.pagination((page - 1) * limit, limit, sid, new java.sql.Date(date.getTime()), key);
     }
 
     // 所有商品列表，库存为0也显示
-    public List<MyStockCommodity> paginationAll(int sid, int page, int limit, int ctype, Date date, String search) {
+    public List<MyStockCommodity> paginationAll(int sid, int page, int limit, Date date, String search) {
         String key = null;
         if (null != search) {
             key = "%" + search + "%";
         }
-        switch (CommodityType.valueOf(ctype)) {
-            case COMMODITY:
-                return myStockDayMapper.pagination_commodity_all((page - 1) * limit, limit, sid, new java.sql.Date(date.getTime()), key);
-            case HALFGOOD:
-                return myStockDayMapper.pagination_halfgood_all((page - 1) * limit, limit, sid, new java.sql.Date(date.getTime()), key);
-            case ORIGINAL:
-                return myStockDayMapper.pagination_original_all((page - 1) * limit, limit, sid, new java.sql.Date(date.getTime()), key);
-            default:
-                return null;
-        }
+        return myStockDayMapper.pagination_all((page - 1) * limit, limit, sid, new java.sql.Date(date.getTime()), key);
     }
 
-    public boolean insert(int gid, int sid, int ctype, int cid, BigDecimal price, int weight, int value, Date cdate) {
+    public boolean insert(int gid, int sid, int cid, BigDecimal price, int weight, int value, Date cdate) {
         TStockDay row = new TStockDay();
         row.setGid(gid);
         row.setSid(sid);
-        row.setCtype(ctype);
         row.setCid(cid);
         row.setPrice(price);
         row.setWeight(weight);

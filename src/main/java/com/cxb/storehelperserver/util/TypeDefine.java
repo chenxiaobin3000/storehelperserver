@@ -222,33 +222,6 @@ public class TypeDefine {
         }
     }
 
-    // 商品类型
-    public enum CommodityType {
-        COMMODITY(1),   // 商品
-        HALFGOOD(2),    // 半成品
-        ORIGINAL(3);    // 原料
-
-        private int value = 0;
-
-        private CommodityType(int v) {
-            this.value = v;
-        }
-
-        public static CommodityType valueOf(int v) {
-            switch (v) {
-                case 1:
-                    return COMMODITY;
-                case 2:
-                    return HALFGOOD;
-            }
-            return ORIGINAL;
-        }
-
-        public int getValue() {
-            return value;
-        }
-    }
-
     // 报表周期类型
     public enum ReportCycleType {
         REPORT_DAILY(1),    // 每日报表

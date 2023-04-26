@@ -32,11 +32,11 @@ public class StorageCommodityRepository extends BaseRepository<List> {
         init("storageComm::");
     }
 
-    public TStorageCommodity findOne(int oid, int ctype, int cid) {
+    public TStorageCommodity findOne(int oid, int cid) {
         List<TStorageCommodity> storageCommoditys = getCache(oid, List.class);
         if (null != storageCommoditys) {
             for (TStorageCommodity c : storageCommoditys) {
-                if (c.getCtype() == ctype && c.getCid() == cid) {
+                if (c.getCid() == cid) {
                     return c;
                 }
             }
@@ -44,7 +44,7 @@ public class StorageCommodityRepository extends BaseRepository<List> {
 
         // 缓存没有就查询数据库
         TStorageCommodityExample example = new TStorageCommodityExample();
-        example.or().andOidEqualTo(oid).andCtypeEqualTo(ctype).andCidEqualTo(cid);
+        example.or().andOidEqualTo(oid).andCidEqualTo(cid);
         return storageCommodityMapper.selectOneByExample(example);
     }
 

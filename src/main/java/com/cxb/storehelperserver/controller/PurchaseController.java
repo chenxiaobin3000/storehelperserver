@@ -51,7 +51,7 @@ public class PurchaseController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return purchaseService.purchase(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getPrices(),
+        return purchaseService.purchase(req.getId(), order, req.getCommoditys(), req.getPrices(),
                 req.getWeights(), req.getNorms(), req.getValues(), req.getAttrs());
     }
 
@@ -64,7 +64,7 @@ public class PurchaseController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return purchaseService.setPurchase(req.getId(), req.getOid(), req.getSid(), applyTime, req.getTypes(),
+        return purchaseService.setPurchase(req.getId(), req.getOid(), req.getSid(), applyTime,
                 req.getCommoditys(), req.getPrices(), req.getWeights(), req.getNorms(), req.getValues(), req.getAttrs());
     }
 
@@ -108,7 +108,7 @@ public class PurchaseController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return purchaseService.returnc(req.getId(), order, req.getTypes(), req.getCommoditys(), req.getPrices(), req.getWeights(), req.getValues(), req.getAttrs());
+        return purchaseService.returnc(req.getId(), order, req.getCommoditys(), req.getPrices(), req.getWeights(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/setReturn")
@@ -120,7 +120,7 @@ public class PurchaseController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return purchaseService.setReturn(req.getId(), req.getOid(), applyTime, req.getTypes(), req.getCommoditys(), req.getPrices(), req.getWeights(), req.getValues(), req.getAttrs());
+        return purchaseService.setReturn(req.getId(), req.getOid(), applyTime, req.getCommoditys(), req.getPrices(), req.getWeights(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/delReturn")

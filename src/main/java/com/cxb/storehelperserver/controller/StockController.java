@@ -40,21 +40,21 @@ public class StockController {
         } catch (ParseException e) {
             return RestResult.fail("查询日期转换失败");
         }
-        return stockService.getStockList(req.getId(), req.getSid(), req.getCtype(), req.getPage(), req.getLimit(), date, req.getSearch());
+        return stockService.getStockList(req.getId(), req.getSid(), req.getPage(), req.getLimit(), date, req.getSearch());
     }
 
     @PostMapping("/getTodayStockList")
     public RestResult getTodayStockList(@Validated @RequestBody GetTodayStockListValid req) {
-        return stockService.getTodayStockList(req.getId(), req.getSid(), req.getCtype(), req.getPage(), req.getLimit(), req.getSearch());
+        return stockService.getTodayStockList(req.getId(), req.getSid(), req.getPage(), req.getLimit(), req.getSearch());
     }
 
     @PostMapping("/getStockDay")
     public RestResult getStockDay(@Validated @RequestBody GetStockDayValid req) {
-        return stockService.getStockDay(req.getId(), req.getGid(), req.getSid(), req.getCtype());
+        return stockService.getStockDay(req.getId(), req.getGid(), req.getSid());
     }
 
     @PostMapping("/getStockWeek")
     public RestResult getStockWeek(@Validated @RequestBody GetStockWeekValid req) {
-        return stockService.getStockWeek(req.getId(), req.getGid(), req.getSid(), req.getCtype());
+        return stockService.getStockWeek(req.getId(), req.getGid(), req.getSid());
     }
 }

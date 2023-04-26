@@ -30,9 +30,6 @@ public class CollectValid implements IValid {
     @Length(min = 19, max = 19, message = "订单制单日期格式错误")
     private String date;
 
-    @Size(min = 1, message = "出库商品类型不能为空")
-    private List<Integer> types;
-
     @Size(min = 1, message = "出库商品id不能为空")
     private List<Integer> commoditys;
 
@@ -45,9 +42,6 @@ public class CollectValid implements IValid {
     @Size(min = 1, message = "出库商品数量不能为空")
     private List<Integer> values;
 
-    @Size(min = 1, message = "入库商品类型不能为空")
-    private List<Integer> types2;
-
     @Size(min = 1, message = "入库商品id不能为空")
     private List<Integer> commoditys2;
 
@@ -59,8 +53,6 @@ public class CollectValid implements IValid {
 
     @Size(min = 1, message = "入库商品数量不能为空")
     private List<Integer> values2;
-
-    private List<Integer> types3;
 
     private List<Integer> commoditys3;
 

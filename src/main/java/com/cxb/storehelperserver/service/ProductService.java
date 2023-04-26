@@ -52,9 +52,6 @@ public class ProductService {
     private ProductRemarkRepository productRemarkRepository;
 
     @Resource
-    private HalfgoodOriginalRepository halfgoodOriginalRepository;
-
-    @Resource
     private CommodityOriginalRepository commodityOriginalRepository;
 
     @Resource
@@ -66,9 +63,9 @@ public class ProductService {
     /**
      * desc: 生产订单
      */
-    public RestResult collect(int id, TProductOrder order, List<Integer> types, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights,
-                              List<Integer> values, List<Integer> types2, List<Integer> commoditys2, List<BigDecimal> prices2, List<Integer> weights2, List<Integer> values2,
-                              List<Integer> types3, List<Integer> commoditys3, List<BigDecimal> prices3, List<Integer> weights3, List<Integer> values3, List<Integer> attrs) {
+    public RestResult collect(int id, TProductOrder order, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights,
+                              List<Integer> values, List<Integer> commoditys2, List<BigDecimal> prices2, List<Integer> weights2, List<Integer> values2,
+                              List<Integer> commoditys3, List<BigDecimal> prices3, List<Integer> weights3, List<Integer> values3, List<Integer> attrs) {
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_product_collect, reviews);
         if (null != ret) {
@@ -77,14 +74,14 @@ public class ProductService {
 
         // 生成生产单
         val comms = new ArrayList<TProductCommodity>();
-        ret = createCollectComms(order, PRODUCT_OUT.getValue(), types, commoditys, prices, weights, values, comms);
+        ret = createCollectComms(order, PRODUCT_OUT.getValue(), commoditys, prices, weights, values, comms);
         if (null != ret) {
             return ret;
         }
 
         // 完成商品
         val comms2 = new ArrayList<TProductCommodity>();
-        ret = createCollectComms(order, PRODUCT_IN.getValue(), types2, commoditys2, prices2, weights2, values2, comms);
+        ret = createCollectComms(order, PRODUCT_IN.getValue(), commoditys2, prices2, weights2, values2, comms);
         if (null != ret) {
             return ret;
         }
@@ -92,8 +89,8 @@ public class ProductService {
 
         // 损耗商品
         val comms3 = new ArrayList<TProductCommodity>();
-        if (!types3.isEmpty()) {
-            ret = createCollectComms(order, PRODUCT_LOSS.getValue(), types3, commoditys3, prices3, weights3, values3, comms);
+        if (!commoditys3.isEmpty()) {
+            ret = createCollectComms(order, PRODUCT_LOSS.getValue(), commoditys3, prices3, weights3, values3, comms);
             if (null != ret) {
                 return ret;
             }
@@ -123,9 +120,9 @@ public class ProductService {
     /**
      * desc: 生产订单修改
      */
-    public RestResult setCollect(int id, int oid, int sid, Date applyTime, List<Integer> types, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights,
-                                 List<Integer> values, List<Integer> types2, List<Integer> commoditys2, List<BigDecimal> prices2, List<Integer> weights2, List<Integer> values2,
-                                 List<Integer> types3, List<Integer> commoditys3, List<BigDecimal> prices3, List<Integer> weights3, List<Integer> values3, List<Integer> attrs) {
+    public RestResult setCollect(int id, int oid, int sid, Date applyTime, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights,
+                                 List<Integer> values, List<Integer> commoditys2, List<BigDecimal> prices2, List<Integer> weights2, List<Integer> values2,
+                                 List<Integer> commoditys3, List<BigDecimal> prices3, List<Integer> weights3, List<Integer> values3, List<Integer> attrs) {
         // 已经审核的订单不能修改
         TProductOrder order = productOrderRepository.find(oid);
         if (null == order) {
@@ -156,14 +153,14 @@ public class ProductService {
 
         // 生成生产单
         val comms = new ArrayList<TProductCommodity>();
-        ret = createCollectComms(order, PRODUCT_OUT.getValue(), types, commoditys, prices, weights, values, comms);
+        ret = createCollectComms(order, PRODUCT_OUT.getValue(), commoditys, prices, weights, values, comms);
         if (null != ret) {
             return ret;
         }
 
         // 完成商品
         val comms2 = new ArrayList<TProductCommodity>();
-        ret = createCollectComms(order, PRODUCT_IN.getValue(), types2, commoditys2, prices2, weights2, values2, comms);
+        ret = createCollectComms(order, PRODUCT_IN.getValue(), commoditys2, prices2, weights2, values2, comms);
         if (null != ret) {
             return ret;
         }
@@ -171,8 +168,8 @@ public class ProductService {
 
         // 损耗商品
         val comms3 = new ArrayList<TProductCommodity>();
-        if (!types3.isEmpty()) {
-            ret = createCollectComms(order, PRODUCT_LOSS.getValue(), types3, commoditys3, prices3, weights3, values3, comms);
+        if (!commoditys3.isEmpty()) {
+            ret = createCollectComms(order, PRODUCT_LOSS.getValue(), commoditys3, prices3, weights3, values3, comms);
             if (null != ret) {
                 return ret;
             }
@@ -307,11 +304,11 @@ public class ProductService {
         return reviewService.checkPerm(gid, reviewPerm, reviews);
     }
 
-    private RestResult createCollectComms(TProductOrder order, int iotype, List<Integer> types, List<Integer> commoditys,
-                                          List<BigDecimal> prices, List<Integer> weights, List<Integer> values, List<TProductCommodity> list) {
+    private RestResult createCollectComms(TProductOrder order, int iotype, List<Integer> commoditys, List<BigDecimal> prices,
+                                          List<Integer> weights, List<Integer> values, List<TProductCommodity> list) {
         // 生成进货单
         int size = commoditys.size();
-        if (size != types.size() || size != weights.size() || size != values.size()) {
+        if (size != weights.size() || size != values.size()) {
             return RestResult.fail("商品信息异常");
         }
         int sid = order.getSid();
@@ -319,26 +316,24 @@ public class ProductService {
         BigDecimal price = new BigDecimal(0);
         for (int i = 0; i < size; i++) {
             // 获取商品单位信息
-            int ctype = types.get(i);
             int cid = commoditys.get(i);
             int weight = weights.get(i);
             int value = values.get(i);
-            TStockDay stock = stockService.getStockCommodity(order.getGid(), sid, ctype, cid);
+            TStockDay stock = stockService.getStockCommodity(order.getGid(), sid, cid);
             if (PRODUCT_OUT.getValue() == iotype) {
                 if (null == stock) {
-                    return RestResult.fail("未查询到库存类型:" + types.get(i) + ",商品:" + commoditys.get(i));
+                    return RestResult.fail("未查询到库存类型,商品:" + cid);
                 }
                 if (weight > stock.getWeight()) {
-                    return RestResult.fail("库存商品重量不足:" + ctype + ",商品:" + cid);
+                    return RestResult.fail("库存商品重量不足,商品:" + cid);
                 }
                 if (value > stock.getValue()) {
-                    return RestResult.fail("库存商品件数不足:" + ctype + ",商品:" + cid);
+                    return RestResult.fail("库存商品件数不足,商品:" + cid);
                 }
             }
 
             TProductCommodity c = new TProductCommodity();
             c.setIotype(iotype);
-            c.setCtype(ctype);
             c.setCid(cid);
             c.setPrice(prices.get(i));
             c.setWeight(weight);

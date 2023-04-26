@@ -2,6 +2,7 @@ package com.cxb.storehelperserver.repository;
 
 import com.cxb.storehelperserver.mapper.TCommodityStorageMapper;
 import com.cxb.storehelperserver.mapper.TMarketCommodityMapper;
+import com.cxb.storehelperserver.model.TCommodity;
 import com.cxb.storehelperserver.model.TCommodityStorageExample;
 import com.cxb.storehelperserver.model.TMarketCommodity;
 import com.cxb.storehelperserver.model.TMarketCommodityExample;
@@ -49,6 +50,12 @@ public class MarketCommodityRepository extends BaseRepository<TMarketCommodity> 
         return marketCommodity;
     }
 
+    public List<TMarketCommodity> findByCid(int cid) {
+        TMarketCommodityExample example = new TMarketCommodityExample();
+        example.or().andCidEqualTo(cid);
+        return marketCommodityMapper.selectByExample(example);
+    }
+
     public List<TMarketCommodity> findAll(int sid, int aid, int asid) {
         TMarketCommodityExample example = new TMarketCommodityExample();
         example.or().andSidEqualTo(sid).andAidEqualTo(aid).andAsidEqualTo(asid);
@@ -71,6 +78,28 @@ public class MarketCommodityRepository extends BaseRepository<TMarketCommodity> 
             return myMarketCommodityMapper.pagination((page - 1) * limit, limit, sid, aid, asid, "%" + search + "%");
         } else {
             return myMarketCommodityMapper.pagination((page - 1) * limit, limit, sid, aid, asid, null);
+        }
+    }
+
+    public int totalOnlyAid(int aid, int asid, String search) {
+        if (null != search) {
+            return myMarketCommodityMapper.countOnlyAid(aid, asid, "%" + search + "%");
+        } else {
+            TMarketCommodityExample example = new TMarketCommodityExample();
+            if (0 == asid) {
+                example.or().andAidEqualTo(aid);
+            } else {
+                example.or().andAidEqualTo(aid).andAsidEqualTo(asid);
+            }
+            return (int) marketCommodityMapper.countByExample(example);
+        }
+    }
+
+    public List<TCommodity> paginationOnlyAid(int aid, int asid, int page, int limit, String search) {
+        if (null != search) {
+            return myMarketCommodityMapper.paginationOnlyAid((page - 1) * limit, limit, aid, asid, "%" + search + "%");
+        } else {
+            return myMarketCommodityMapper.paginationOnlyAid((page - 1) * limit, limit, aid, asid, null);
         }
     }
 

@@ -26,6 +26,8 @@ public class SetCommodityOriginalValid implements IValid {
     @Min(value = 1, message = "公司账号错误")
     private int gid;
 
-    @Min(value = 1, message = "原料信息错误")
-    private int oid;
+    @NotEmpty(message = "请输入原料编号")
+    @Length(min = 2, message = "原料编号长度不能小于2个字符")
+    @Length(max = 16, message = "原料编号长度不能大于16个字符")
+    private String oid;
 }

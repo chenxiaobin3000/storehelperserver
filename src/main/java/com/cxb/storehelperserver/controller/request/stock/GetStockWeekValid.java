@@ -22,7 +22,4 @@ public class GetStockWeekValid implements IValid {
 
     @Min(value = 0, message = "仓库账号错误")
     private int sid;
-
-    @Min(value = 1, message = "商品类型错误")
-    private int ctype;
 }

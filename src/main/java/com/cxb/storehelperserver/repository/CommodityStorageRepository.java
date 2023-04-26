@@ -53,17 +53,17 @@ public class CommodityStorageRepository extends BaseRepository<List> {
 
     public int total(int sid, String search) {
         if (null != search) {
-            return myStorageCommodityMapper.count_commodity(sid, "%" + search + "%");
+            return myStorageCommodityMapper.count(sid, "%" + search + "%");
         } else {
-            return myStorageCommodityMapper.count_commodity(sid, null);
+            return myStorageCommodityMapper.count(sid, null);
         }
     }
 
     public List<TCommodity> pagination(int sid, int page, int limit, String search) {
         if (null != search) {
-            return myStorageCommodityMapper.pagination_commodity((page - 1) * limit, limit, sid, "%" + search + "%");
+            return myStorageCommodityMapper.pagination((page - 1) * limit, limit, sid, "%" + search + "%");
         } else {
-            return myStorageCommodityMapper.pagination_commodity((page - 1) * limit, limit, sid, null);
+            return myStorageCommodityMapper.pagination((page - 1) * limit, limit, sid, null);
         }
     }
 

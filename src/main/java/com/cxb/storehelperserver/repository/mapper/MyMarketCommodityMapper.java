@@ -1,5 +1,6 @@
 package com.cxb.storehelperserver.repository.mapper;
 
+import com.cxb.storehelperserver.model.TCommodity;
 import com.cxb.storehelperserver.model.TMarketCommodity;
 import com.cxb.storehelperserver.repository.model.MyMarketCommodity;
 import org.apache.ibatis.annotations.Mapper;
@@ -17,7 +18,7 @@ import java.util.List;
 public interface MyMarketCommodityMapper {
     @Select({"<script>",
             "select count(t1.id) from t_commodity_storage t1 left join t_market_commodity t2 on t1.cid = t2.cid",
-            "and t1.sid = t2.sid where t1.sid = #{sid} <if test='null != search'>and t2.name like #{search}</if>",
+            "and t1.sid = t2.sid where t1.sid = #{sid} and t2.name like #{search}",
             "</script>"})
     int count(int sid, String search);
 
@@ -28,6 +29,19 @@ public interface MyMarketCommodityMapper {
             "where t1.sid = #{sid} <if test='null != search'>and t2.name like #{search}</if> limit #{offset}, #{limit}",
             "</script>"})
     List<TMarketCommodity> pagination(int offset, int limit, int sid, int aid, int asid, String search);
+
+    @Select({"<script>",
+            "select count(t1.id) from t_market_commodity t1 left join t_commodity t2 on t1.cid = t2.id",
+            "where t1.aid = #{aid} <if test='0 != asid'>and t1.asid = #{asid}</if> and t2.name like #{search}",
+            "</script>"})
+    int countOnlyAid(int aid, int asid, String search);
+
+    @Select({"<script>",
+            "select t2.id, t2.code, t2.name, t2.gid, t2.cid, t2.remark from t_market_commodity t1 left join t_commodity t2",
+            "on t1.cid = t2.id where t1.aid = #{aid} <if test='0 != asid'>and t1.asid = #{asid}</if>",
+            "<if test='null != search'>and t2.name like #{search}</if> limit #{offset}, #{limit}",
+            "</script>"})
+    List<TCommodity> paginationOnlyAid(int offset, int limit, int aid, int asid, String search);
 
     @Select({"<script>",
             "select id from t_market_commodity_detail where sid = #{sid} and aid = #{aid} and asid = #{asid} and cdate = #{cdate}",

@@ -33,11 +33,11 @@ public class PurchaseCommodityRepository extends BaseRepository<List> {
         init("purComm::");
     }
 
-    public TPurchaseCommodity findOne(int oid, int ctype, int cid) {
+    public TPurchaseCommodity findOne(int oid, int cid) {
         List<TPurchaseCommodity> purchaseCommoditys = getCache(oid, List.class);
         if (null != purchaseCommoditys) {
             for (TPurchaseCommodity c : purchaseCommoditys) {
-                if (c.getCtype() == ctype && c.getCid() == cid) {
+                if (c.getCid() == cid) {
                     return c;
                 }
             }
@@ -45,7 +45,7 @@ public class PurchaseCommodityRepository extends BaseRepository<List> {
 
         // 缓存没有就查询数据库
         TPurchaseCommodityExample example = new TPurchaseCommodityExample();
-        example.or().andOidEqualTo(oid).andCtypeEqualTo(ctype).andCidEqualTo(cid);
+        example.or().andOidEqualTo(oid).andCidEqualTo(cid);
         return purchaseCommodityMapper.selectOneByExample(example);
     }
 

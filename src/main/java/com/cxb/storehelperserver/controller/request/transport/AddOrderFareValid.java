@@ -1,4 +1,4 @@
-package com.cxb.storehelperserver.controller.request.order;
+package com.cxb.storehelperserver.controller.request.transport;
 
 import com.cxb.storehelperserver.controller.request.IValid;
 import lombok.Data;
