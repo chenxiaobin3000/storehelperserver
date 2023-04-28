@@ -35,12 +35,11 @@ public class ReviewService {
     @Resource
     private OrderReviewerRepository orderReviewerRepository;
 
-    public RestResult apply(int id, int gid, int sid, int otype, int oid, String batch, List<Integer> reviews) {
+    public RestResult apply(int id, int gid, int otype, int oid, String batch, List<Integer> reviews) {
         // 添加用户订单冗余信息
         TUserOrderApply apply = new TUserOrderApply();
         apply.setUid(id);
         apply.setGid(gid);
-        apply.setSid(sid);
         apply.setOtype(otype);
         apply.setOid(oid);
         apply.setBatch(batch);
@@ -51,7 +50,6 @@ public class ReviewService {
         // 添加用户订单审核信息
         TUserOrderReview review = new TUserOrderReview();
         review.setGid(gid);
-        review.setSid(sid);
         review.setOtype(otype);
         review.setOid(oid);
         review.setBatch(batch);
@@ -65,23 +63,6 @@ public class ReviewService {
         val ret = new HashMap<String, Object>();
         ret.put("id", oid);
         return RestResult.ok(ret);
-    }
-
-    public RestResult update(int otype, int oid, int sid) {
-        val userOrderApply = userOrderApplyRepository.find(otype, oid);
-        userOrderApply.setSid(sid);
-        if (!userOrderApplyRepository.update(userOrderApply)) {
-            return RestResult.fail("修改用户订单信息失败");
-        }
-
-        val userOrderReviews = userOrderReviewRepository.find(otype, oid);
-        for (TUserOrderReview review : userOrderReviews) {
-            review.setSid(sid);
-            if (!userOrderReviewRepository.update(review)) {
-                return RestResult.fail("修改用户订单审核信息失败");
-            }
-        }
-        return null;
     }
 
     public RestResult delete(Integer review, int otype, int oid) {
@@ -113,7 +94,7 @@ public class ReviewService {
     }
 
     // aid是申请人id， cid是审核人id
-    public RestResult review(int aid, int cid, int gid, int sid, int otype, int oid, String batch, Date applyTime) {
+    public RestResult review(int aid, int cid, int gid, int otype, int oid, String batch, Date applyTime) {
         // 删除apply和review信息
         if (!userOrderApplyRepository.delete(otype, oid)) {
             return RestResult.fail("删除用户订单信息失败");
@@ -127,7 +108,6 @@ public class ReviewService {
         complete.setAid(aid);
         complete.setCid(cid);
         complete.setGid(gid);
-        complete.setSid(sid);
         complete.setOtype(otype);
         complete.setOid(oid);
         complete.setBatch(batch);
@@ -138,7 +118,7 @@ public class ReviewService {
         return RestResult.ok();
     }
 
-    public RestResult revoke(int id, int gid, int sid, int otype, int oid, String batch, int aid, int perm) {
+    public RestResult revoke(int id, int gid, int otype, int oid, String batch, int aid, int perm) {
         val orderReviewers = orderReviewerRepository.find(gid);
         if (null == orderReviewers || orderReviewers.isEmpty()) {
             return RestResult.fail("未设置订单审核人，请联系系统管理员");
@@ -158,7 +138,6 @@ public class ReviewService {
         TUserOrderApply apply = new TUserOrderApply();
         apply.setUid(aid);
         apply.setGid(gid);
-        apply.setSid(sid);
         apply.setOtype(otype);
         apply.setOid(oid);
         apply.setBatch(batch);
@@ -169,7 +148,6 @@ public class ReviewService {
         // 添加用户订单审核信息
         TUserOrderReview review = new TUserOrderReview();
         review.setGid(gid);
-        review.setSid(sid);
         review.setOtype(otype);
         review.setOid(oid);
         review.setBatch(batch);

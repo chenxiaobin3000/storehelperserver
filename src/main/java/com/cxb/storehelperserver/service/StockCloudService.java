@@ -2,7 +2,8 @@ package com.cxb.storehelperserver.service;
 
 import com.cxb.storehelperserver.model.*;
 import com.cxb.storehelperserver.repository.*;
-import com.cxb.storehelperserver.repository.model.*;
+import com.cxb.storehelperserver.repository.model.MyStockCommodity;
+import com.cxb.storehelperserver.repository.model.MyStockReport;
 import com.cxb.storehelperserver.service.model.PageData;
 import com.cxb.storehelperserver.util.DateUtil;
 import com.cxb.storehelperserver.util.RestResult;
@@ -16,7 +17,10 @@ import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * desc: 库存统计业务
@@ -26,18 +30,21 @@ import java.util.*;
 @Slf4j
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class StockService {
+public class StockCloudService {
     @Resource
     private CheckService checkService;
 
     @Resource
-    private StockRepository stockRepository;
+    private StockCloudRepository stockRepository;
 
     @Resource
-    private StockDayRepository stockDayRepository;
+    private StockCloudDayRepository stockDayRepository;
 
     @Resource
-    private StorageCommodityRepository storageCommodityRepository;
+    private AgreementCommodityRepository agreementCommodityRepository;
+
+    @Resource
+    private SaleCommodityRepository saleCommodityRepository;
 
     @Resource
     private CommodityStorageRepository commodityStorageRepository;
@@ -57,18 +64,18 @@ public class StockService {
     @Value("${store-app.config.stockday}")
     private int stockday;
 
-    public TStockDay getStockCommodity(int gid, int sid, int cid) {
+    public TStockCloudDay getStockCommodity(int gid, int sid, int aid, int asid, int cid) {
         Date today = dateUtil.getStartTime(new Date());
         Date yesterday = dateUtil.addOneDay(today, -1);
         Date tomorrow = dateUtil.addOneDay(today, 1);
-        TStockDay day = stockDayRepository.find(sid, cid, yesterday);
+        TStockCloudDay day = stockDayRepository.find(sid, aid, asid, cid, yesterday);
         if (null == day) {
-            day = new TStockDay();
+            day = new TStockCloudDay();
             day.setPrice(new BigDecimal(0));
             day.setWeight(0);
             day.setValue(0);
         }
-        val commodities = stockRepository.findHistory(gid, sid, cid, today, tomorrow);
+        val commodities = stockRepository.findHistory(gid, sid, aid, asid, cid, today, tomorrow);
         if (null != commodities && !commodities.isEmpty()) {
             for (MyStockCommodity c : commodities) {
                 day.setPrice(day.getPrice().add(c.getPrice()));
@@ -79,7 +86,7 @@ public class StockService {
         return day;
     }
 
-    public RestResult getStockList(int id, int sid, int page, int limit, Date date, String search) {
+    public RestResult getStockList(int id, int sid, int aid, int asid, int page, int limit, Date date, String search) {
         RestResult ret = check(id, sid);
         if (null != ret) {
             return ret;
@@ -103,13 +110,13 @@ public class StockService {
                 return RestResult.ok(new PageData());
             }
             Date yesterday = dateUtil.addOneDay(today, -1);
-            val commodities = stockDayRepository.paginationAll(sid, page, limit, yesterday, search);
+            val commodities = stockDayRepository.paginationAll(sid, aid, asid, page, limit, yesterday, search);
             if (null == commodities) {
                 return RestResult.fail("获取商品信息失败");
             }
             // 加上今日变化量
             Date tomorrow = dateUtil.addOneDay(today, 1);
-            val commodities2 = stockRepository.findHistoryAll(gid, sid, today, tomorrow);
+            val commodities2 = stockRepository.findHistoryAll(gid, sid, aid, asid, today, tomorrow);
             if (null != commodities2 && !commodities2.isEmpty()) {
                 for (MyStockCommodity c : commodities) {
                     if (null == c.getPrice()) {
@@ -139,7 +146,7 @@ public class StockService {
             if (0 == total) {
                 return RestResult.ok(new PageData());
             }
-            val commodities = stockDayRepository.paginationAll(sid, page, limit, date, search);
+            val commodities = stockDayRepository.paginationAll(sid, aid, asid, page, limit, date, search);
             if (null == commodities) {
                 return RestResult.fail("获取商品信息失败");
             }
@@ -149,7 +156,7 @@ public class StockService {
         return RestResult.ok(data);
     }
 
-    public RestResult getTodayStockList(int id, int sid, int page, int limit, String search) {
+    public RestResult getTodayStockList(int id, int sid, int aid, int asid, int page, int limit, String search) {
         RestResult ret = check(id, sid);
         if (null != ret) {
             return ret;
@@ -166,10 +173,10 @@ public class StockService {
         val data = new HashMap<String, Object>();
         Date today = dateUtil.getStartTime(new Date());
         Date yesterday = dateUtil.addOneDay(today, -1);
-        int total = stockDayRepository.total(sid, yesterday, search);
+        int total = stockDayRepository.total(sid, aid, asid, yesterday, search);
         List<HashMap<String, Object>> list = new ArrayList<>();
         if (0 != total) {
-            val commodities = stockDayRepository.pagination(sid, page, limit, yesterday, search);
+            val commodities = stockDayRepository.pagination(sid, aid, asid, page, limit, yesterday, search);
             if (null == commodities) {
                 return RestResult.fail("获取商品信息失败");
             }
@@ -199,7 +206,7 @@ public class StockService {
 
         // 加上今日变化量
         Date tomorrow = dateUtil.addOneDay(today, 1);
-        val commodities2 = stockRepository.findHistoryAll(gid, sid, today, tomorrow);
+        val commodities2 = stockRepository.findHistoryAll(gid, sid, aid, asid, today, tomorrow);
         if (null != commodities2 && !commodities2.isEmpty()) {
             for (MyStockCommodity c2 : commodities2) {
                 boolean find = false;
@@ -248,7 +255,7 @@ public class StockService {
         return RestResult.ok(data);
     }
 
-    public RestResult getStockDay(int id, int gid, int sid) {
+    public RestResult getStockDay(int id, int gid, int sid, int aid, int asid) {
         // 验证公司
         String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
@@ -258,7 +265,7 @@ public class StockService {
         SimpleDateFormat dateFormat = dateUtil.getSimpleDateFormat();
         Date end = dateUtil.getStartTime(new Date());
         Date start = dateUtil.addOneDay(end, -6);
-        List<MyStockReport> stocks = stockDayRepository.findReport(gid, sid, start, end);
+        List<MyStockReport> stocks = stockDayRepository.findReport(gid, sid, aid, asid, start, end);
         if (null == stocks) {
             return RestResult.fail("未查询到库存信息");
         }
@@ -272,28 +279,54 @@ public class StockService {
             list.add(tmp);
         }
         data.put("list", list);
-        data.put("today", stockRepository.findReport(gid, sid, dateUtil.getStartTime(new Date()), end));
+        data.put("today", stockRepository.findReport(gid, sid, aid, asid, dateUtil.getStartTime(new Date()), end));
         return RestResult.ok(data);
     }
 
-    public RestResult getStockWeek(int id, int gid, int sid) {
+    public RestResult getStockWeek(int id, int gid, int sid, int aid, int asid) {
         return null;
     }
 
-    // 修改库存
-    public String handleStock(TStorageOrder order, boolean add) {
-        val storageCommodities = storageCommodityRepository.find(order.getId());
+    // 按履约单修改库存
+    public String handleAgreementStock(TAgreementOrder order, boolean add) {
+        val storageCommodities = agreementCommodityRepository.find(order.getId());
         if (null == storageCommodities || storageCommodities.isEmpty()) {
             return "未查询到商品信息";
         }
         int gid = order.getGid();
         int sid = order.getSid();
-        for (TStorageCommodity storageCommodity : storageCommodities) {
-            int cid = storageCommodity.getCid();
-            BigDecimal price = storageCommodity.getPrice();
-            int weight = storageCommodity.getWeight();
-            int value = storageCommodity.getValue();
-            if (!stockRepository.insert(gid, sid, order.getOtype(), order.getId(), cid,
+        int aid = order.getAid();
+        int asid = order.getAsid();
+        for (TAgreementCommodity agreementCommodity : storageCommodities) {
+            int cid = agreementCommodity.getCid();
+            BigDecimal price = agreementCommodity.getPrice();
+            int weight = agreementCommodity.getWeight();
+            int value = agreementCommodity.getValue();
+            if (!stockRepository.insert(gid, sid, aid, asid, order.getOtype(), order.getId(), cid,
+                    add ? price : price.negate(), add ? weight : -weight, add ? value : -value, order.getApplyTime())) {
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                return "增加库存明细信息失败";
+            }
+        }
+        return null;
+    }
+
+    // 按销售单修改库存
+    public String handleSaleStock(TSaleOrder order, boolean add) {
+        val saleCommodities = saleCommodityRepository.find(order.getId());
+        if (null == saleCommodities || saleCommodities.isEmpty()) {
+            return "未查询到商品信息";
+        }
+        int gid = order.getGid();
+        int sid = order.getSid();
+        int aid = order.getAid();
+        int asid = order.getAsid();
+        for (TSaleCommodity saleCommodity : saleCommodities) {
+            int cid = saleCommodity.getCid();
+            BigDecimal price = saleCommodity.getPrice();
+            int weight = saleCommodity.getWeight();
+            int value = saleCommodity.getValue();
+            if (!stockRepository.insert(gid, sid, aid, asid, order.getOtype(), order.getId(), cid,
                     add ? price : price.negate(), add ? weight : -weight, add ? value : -value, order.getApplyTime())) {
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                 return "增加库存明细信息失败";
@@ -303,7 +336,7 @@ public class StockService {
     }
 
     // 计算库存
-    public void countStockDay(int gid, int sid, Date date) {
+    public void countStockDay(int gid, int sid, int aid, int asid, Date date) {
         // 获取注册仓库的商品id
         val ids = new ArrayList<Integer>();
         val commodityStorages = commodityStorageRepository.findBySid(sid);
@@ -317,7 +350,7 @@ public class StockService {
         // 获取历史记录，没有就补
         for (int cid : ids) {
             // 查找商品在周期内的销售数据, 没数据的直接忽略, 默认没有库存
-            val commodities = stockRepository.findHistory(gid, sid, cid, start, date);
+            val commodities = stockRepository.findHistory(gid, sid, aid, asid, cid, start, date);
             if (null == commodities || commodities.isEmpty()) {
                 continue;
             }
@@ -327,7 +360,7 @@ public class StockService {
             yesterday.setValue(0);
             while (tmp.before(stop)) {
                 // 已有数据就忽略
-                val day = stockDayRepository.find(sid, cid, tmp);
+                val day = stockDayRepository.find(sid, aid, asid, cid, tmp);
                 if (null != day) {
                     yesterday.setPrice(day.getPrice());
                     yesterday.setWeight(day.getWeight());
@@ -344,7 +377,7 @@ public class StockService {
                     }
                 }
                 // 添加库存数据
-                stockDayRepository.insert(gid, sid, cid, yesterday.getPrice(), yesterday.getWeight(), yesterday.getValue(), tmp);
+                stockDayRepository.insert(gid, sid, aid, asid, cid, yesterday.getPrice(), yesterday.getWeight(), yesterday.getValue(), tmp);
                 tmp = dateUtil.addOneDay(tmp, 1);
             }
         }

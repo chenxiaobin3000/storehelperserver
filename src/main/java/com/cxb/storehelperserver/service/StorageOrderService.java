@@ -36,7 +36,7 @@ public class StorageOrderService extends BaseService<HashMap> {
     private StorageAttachmentRepository storageAttachmentRepository;
 
     @Resource
-    private StorageFareRepository storageFareRepository;
+    private OfflineFareRepository offlineFareRepository;
 
     @Resource
     private StorageRemarkRepository storageRemarkRepository;
@@ -87,7 +87,7 @@ public class StorageOrderService extends BaseService<HashMap> {
         datas.put("attrs", storageAttachmentRepository.findByOid(oid));
 
         // 运费
-        val fares = storageFareRepository.findByOid(oid);
+        val fares = offlineFareRepository.findByOid(oid);
         if (null != fares && !fares.isEmpty()) {
             val tmps = new ArrayList<HashMap<String, Object>>();
             BigDecimal total = new BigDecimal(0);

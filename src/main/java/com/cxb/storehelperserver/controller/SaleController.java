@@ -46,7 +46,8 @@ public class SaleController {
         TSaleOrder order = new TSaleOrder();
         order.setGid(req.getGid());
         order.setSid(req.getSid());
-        order.setPid(req.getPid());
+        order.setAid(req.getAid());
+        order.setAsid(req.getAsid());
         order.setOtype(SALE_SALE_ORDER.getValue());
         order.setTid(0);
         order.setPayPrice(new BigDecimal(0));
@@ -57,7 +58,7 @@ public class SaleController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return saleService.sale(req.getId(), order);
+        return saleService.sale(req.getId(), order, req.getReview());
     }
 
     @PostMapping("/delSale")
@@ -88,7 +89,7 @@ public class SaleController {
         order.setOtype(SALE_LOSS_ORDER.getValue());
         order.setTid(req.getTid());
         order.setPayPrice(new BigDecimal(0));
-        order.setFine(req.getFine());
+        order.setFine(new BigDecimal(0));
         order.setApply(req.getId());
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));

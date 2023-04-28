@@ -16,6 +16,13 @@ public class RestResult {
     public HashMap<String, Object> data = null;
 
     /**
+     * desc: 是否成功
+     */
+    public static boolean isOk(RestResult ret) {
+        return 0 == ret.code;
+    }
+
+    /**
      * desc: 成功
      */
     public static RestResult ok() {

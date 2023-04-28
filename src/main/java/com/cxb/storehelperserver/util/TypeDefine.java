@@ -41,19 +41,25 @@ public class TypeDefine {
 
     // 订单类型
     public enum OrderType {
-        PURCHASE_PURCHASE_ORDER(1),     // 采购进货订单
-        PURCHASE_RETURN_ORDER(2),       // 采购退货订单
-        PRODUCT_COLLECT_ORDER(3),       // 生产订单
-        STORAGE_PURCHASE_ORDER(10),     // 仓储采购入库订单
-        STORAGE_RETURN_ORDER(11),       // 仓储采购退货订单
-        STORAGE_DISPATCH_ORDER(12),     // 仓储调度订单
-        STORAGE_LOSS_ORDER(13),         // 仓储损耗订单
-        AGREEMENT_SHIPPED_ORDER(20),    // 履约发货订单
-        AGREEMENT_RETURN_ORDER(21),     // 履约退货订单
-        AGREEMENT_OFFLINE_ORDER(22),    // 线下销售订单
-        AGREEMENT_BACK_ORDER(23),       // 线下销售退货订单
-        SALE_SALE_ORDER(30),            // 线上销售订单
-        SALE_LOSS_ORDER(31);            // 线上损耗订单
+        PURCHASE_PURCHASE_ORDER(1),         // 采购进货订单
+        PURCHASE_RETURN_ORDER(2),           // 采购退货订单
+        STORAGE_PURCHASE_IN_ORDER(10),      // 仓储采购入库订单
+        STORAGE_PURCHASE_OUT_ORDER(11),     // 仓储采购退货订单
+        STORAGE_PRODUCT_IN_ORDER(12),       // 生产入库订单
+        STORAGE_PRODUCT_OUT_ORDER(13),      // 生产出库订单
+        STORAGE_AGREEMENT_IN_ORDER(14),     // 生产履约入库订单
+        STORAGE_AGREEMENT_OUT_ORDER(15),    // 生产履约出库订单
+        STORAGE_OFFLINE_IN_ORDER(16),       // 生产线下入库订单
+        STORAGE_OFFLINE_OUT_ORDER(17),      // 生产线下出库订单
+        STORAGE_LOSS_ORDER(18),             // 仓储损耗订单
+        PRODUCT_COLLECT_ORDER(30),          // 生产订单
+        PRODUCT_LOSS_ORDER(31),             // 生产损耗订单
+        AGREEMENT_SHIPPED_ORDER(40),        // 履约发货订单
+        AGREEMENT_RETURN_ORDER(41),         // 履约退货订单
+        SALE_SALE_ORDER(50),                // 线上销售订单
+        SALE_LOSS_ORDER(51),                // 线上损耗订单
+        OFFLINE_OFFLINE_ORDER(60),          // 线下销售订单
+        OFFLINE_RETURN_ORDER(61);           // 线下销售退货订单
 
         private int value = 0;
 
@@ -67,28 +73,40 @@ public class TypeDefine {
                     return PURCHASE_PURCHASE_ORDER;
                 case 2:
                     return PURCHASE_RETURN_ORDER;
-                case 3:
-                    return PRODUCT_COLLECT_ORDER;
                 case 10:
-                    return STORAGE_PURCHASE_ORDER;
+                    return STORAGE_PURCHASE_IN_ORDER;
                 case 11:
-                    return STORAGE_RETURN_ORDER;
+                    return STORAGE_PURCHASE_OUT_ORDER;
                 case 12:
-                    return STORAGE_DISPATCH_ORDER;
+                    return STORAGE_PRODUCT_IN_ORDER;
                 case 13:
+                    return STORAGE_PRODUCT_OUT_ORDER;
+                case 14:
+                    return STORAGE_AGREEMENT_IN_ORDER;
+                case 15:
+                    return STORAGE_AGREEMENT_OUT_ORDER;
+                case 16:
+                    return STORAGE_OFFLINE_IN_ORDER;
+                case 17:
+                    return STORAGE_OFFLINE_OUT_ORDER;
+                case 18:
                     return STORAGE_LOSS_ORDER;
-                case 20:
-                    return AGREEMENT_SHIPPED_ORDER;
-                case 21:
-                    return AGREEMENT_RETURN_ORDER;
-                case 22:
-                    return AGREEMENT_OFFLINE_ORDER;
-                case 23:
-                    return AGREEMENT_BACK_ORDER;
                 case 30:
+                    return PRODUCT_COLLECT_ORDER;
+                case 31:
+                    return PRODUCT_LOSS_ORDER;
+                case 40:
+                    return AGREEMENT_SHIPPED_ORDER;
+                case 41:
+                    return AGREEMENT_RETURN_ORDER;
+                case 50:
                     return SALE_SALE_ORDER;
+                case 51:
+                    return SALE_LOSS_ORDER;
+                case 60:
+                    return OFFLINE_OFFLINE_ORDER;
             }
-            return SALE_LOSS_ORDER;
+            return OFFLINE_RETURN_ORDER;
         }
 
         public int getValue() {

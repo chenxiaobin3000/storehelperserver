@@ -50,7 +50,7 @@ public class TransportService {
     private StorageOrderRepository storageOrderRepository;
 
     @Resource
-    private StorageFareRepository storageFareRepository;
+    private OfflineFareRepository offlineFareRepository;
 
     public RestResult addOrderFare(int id, TypeDefine.BusinessType otype, int oid, String ship, String code, String phone, BigDecimal fare, String remark) {
         switch (otype) {
@@ -112,7 +112,7 @@ public class TransportService {
                 storageOrderService.clean(oid);
 
                 // 运费
-                if (!storageFareRepository.insert(oid, ship, code, phone, fare, remark, new Date())) {
+                if (!offlineFareRepository.insert(oid, ship, code, phone, fare, remark, new Date())) {
                     return RestResult.fail("添加物流费用失败");
                 }
                 return RestResult.ok();
@@ -200,7 +200,7 @@ public class TransportService {
                 storageOrderService.clean(oid);
 
                 // 运费由申请人删，已审核由审核人删，备注由审核人删
-                TStorageFare fare = storageFareRepository.find(fid);
+                TStorageFare fare = offlineFareRepository.find(fid);
                 if (null == fare) {
                     return RestResult.fail("未查询到运费信息");
                 }
@@ -213,7 +213,7 @@ public class TransportService {
                         return RestResult.fail("只能由申请人删除信息");
                     }
                 }
-                if (!storageFareRepository.delete(fid)) {
+                if (!offlineFareRepository.delete(fid)) {
                     return RestResult.fail("删除运费信息失败");
                 }
                 return RestResult.ok();

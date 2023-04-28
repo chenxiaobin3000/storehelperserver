@@ -13,6 +13,9 @@ public interface MyOrderMapper {
     @Update({"<script>update t_agreement_order set review = null, review_time = null, complete = 0 where id = #{id}</script>"})
     int setAgreementReviewNull(int id);
 
+    @Update({"<script>update t_offline_order set review = null, review_time = null where id = #{id}</script>"})
+    int setOfflineReviewNull(int id);
+
     @Update({"<script>update t_product_order set review = null, review_time = null where id = #{id}</script>"})
     int setProductReviewNull(int id);
 

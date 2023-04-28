@@ -47,7 +47,7 @@ public class PurchaseService {
     private PurchaseReturnRepository purchaseReturnRepository;
 
     @Resource
-    private StoragePurchaseRepository storagePurchaseRepository;
+    private ProductAgreementRepository productAgreementRepository;
 
     @Resource
     private UserGroupRepository userGroupRepository;
@@ -61,7 +61,7 @@ public class PurchaseService {
     /**
      * desc: 采购仓储进货
      */
-    public RestResult purchase(int id, TPurchaseOrder order, List<Integer> commoditys, List<BigDecimal> prices,
+    public RestResult purchase(int id, TPurchaseOrder order, int review, int storage, List<Integer> commoditys, List<BigDecimal> prices,
                                List<Integer> weights, List<String> norms, List<Integer> values, List<Integer> attrs) {
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_purchase_purchase, reviews);
@@ -87,14 +87,23 @@ public class PurchaseService {
         if (null != msg) {
             return RestResult.fail(msg);
         }
-        return reviewService.apply(id, order.getGid(), order.getSid(), order.getOtype(), oid, batch, reviews);
+
+        // 一键审核
+        ret = reviewService.apply(id, order.getGid(), order.getOtype(), oid, batch, reviews);
+        if (RestResult.isOk(ret) && review > 0) {
+            // 一键出库
+            ret = reviewPurchase(id, oid);
+            if (RestResult.isOk(ret) && storage > 0) {
+                // TODO 一键出库
+            }
+        }
+        return ret;
     }
 
     /**
      * desc: 原料采购仓储修改
      */
-    public RestResult setPurchase(int id, int oid, int sid, Date applyTime, List<Integer> commoditys,
-                                  List<BigDecimal> prices, List<Integer> weights, List<String> norms, List<Integer> values, List<Integer> attrs) {
+    public RestResult setPurchase(int id, int oid, int supplier, Date applyTime, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<String> norms, List<Integer> values, List<Integer> attrs) {
         // 已经审核的订单不能修改
         TPurchaseOrder order = purchaseOrderRepository.find(oid);
         if (null == order) {
@@ -107,20 +116,12 @@ public class PurchaseService {
             return RestResult.fail("只能修改自己的订单");
         }
 
+        order.setSupplier(supplier);
         order.setApplyTime(applyTime);
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_purchase_purchase, reviews);
         if (null != ret) {
             return ret;
-        }
-
-        // 更新仓库信息
-        if (!order.getSid().equals(sid)) {
-            order.setSid(sid);
-            ret = reviewService.update(order.getOtype(), oid, sid);
-            if (null != ret) {
-                return ret;
-            }
         }
 
         // 生成采购单
@@ -129,7 +130,6 @@ public class PurchaseService {
         if (null != ret) {
             return ret;
         }
-
         if (!purchaseOrderRepository.update(order)) {
             return RestResult.fail("生成采购订单失败");
         }
@@ -151,9 +151,6 @@ public class PurchaseService {
         if (null != review) {
             return RestResult.fail("已审核的订单不能删除");
         }
-        if (!order.getApply().equals(id)) {
-            return RestResult.fail("订单必须由申请人删除");
-        }
 
         // 删除商品附件数据
         purchaseAttachmentRepository.deleteByOid(oid);
@@ -172,7 +169,6 @@ public class PurchaseService {
         if (null == group) {
             return RestResult.fail("获取公司信息失败");
         }
-        int gid = group.getGid();
 
         // 校验审核人员信息
         TPurchaseOrder order = purchaseOrderRepository.find(oid);
@@ -190,7 +186,7 @@ public class PurchaseService {
         if (!purchaseOrderRepository.update(order)) {
             return RestResult.fail("审核用户订单信息失败");
         }
-        return reviewService.review(order.getApply(), id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
+        return reviewService.review(order.getApply(), id, group.getGid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
     }
 
     public RestResult revokePurchase(int id, int oid) {
@@ -218,7 +214,7 @@ public class PurchaseService {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
-        RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApply(), mp_purchase_purchase);
+        RestResult ret = reviewService.revoke(id, gid, order.getOtype(), oid, order.getBatch(), order.getApply(), mp_purchase_purchase);
         if (null != ret) {
             return ret;
         }
@@ -267,9 +263,8 @@ public class PurchaseService {
     /**
      * desc: 原料退货
      */
-    public RestResult returnc(int id, TPurchaseOrder order, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
+    public RestResult returnc(int id, TPurchaseOrder order, int rid, int review, int storage, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
         // 采购单未审核，已入库都不能退货
-        int rid = order.getRid();
         TPurchaseOrder purchaseOrder = purchaseOrderRepository.find(rid);
         if (null == purchaseOrder) {
             return RestResult.fail("未查询到采购单");
@@ -280,12 +275,8 @@ public class PurchaseService {
         if (null == purchaseOrder.getReview()) {
             return RestResult.fail("采购单未审核通过，不能进行入库");
         }
-        if (storagePurchaseRepository.checkByPid(rid)) {
-            return RestResult.fail("采购商品已入库，请使用仓储退货单");
-        }
 
         order.setGid(purchaseOrder.getGid());
-        order.setSid(purchaseOrder.getSid());
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_purchase_return, reviews);
         if (null != ret) {
@@ -310,7 +301,22 @@ public class PurchaseService {
         if (null != msg) {
             return RestResult.fail(msg);
         }
-        return reviewService.apply(id, order.getGid(), order.getSid(), order.getOtype(), oid, batch, reviews);
+
+        // 添加关联
+        if (!purchaseReturnRepository.insert(oid, rid)) {
+            return RestResult.fail("添加采购退货信息失败");
+        }
+
+        // 一键审核
+        ret = reviewService.apply(id, order.getGid(), order.getOtype(), oid, batch, reviews);
+        if (RestResult.isOk(ret) && review > 0) {
+            // 一键出库
+            ret = reviewReturn(id, oid);
+            if (RestResult.isOk(ret) && storage > 0) {
+                // TODO 一键出库
+            }
+        }
+        return ret;
     }
 
     /**
@@ -329,6 +335,12 @@ public class PurchaseService {
             return RestResult.fail("只能修改自己的订单");
         }
 
+        // 采购单
+        int pid = getPurchaseId(oid);
+        if (0 == pid) {
+            return RestResult.fail("未查询到采购单信息");
+        }
+
         order.setApplyTime(applyTime);
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_purchase_return, reviews);
@@ -338,11 +350,10 @@ public class PurchaseService {
 
         // 生成退货单
         val comms = new ArrayList<TPurchaseCommodity>();
-        ret = createReturnComms(order, order.getRid(), commoditys, prices, weights, values, comms);
+        ret = createReturnComms(order, pid, commoditys, prices, weights, values, comms);
         if (null != ret) {
             return ret;
         }
-
         if (!purchaseOrderRepository.update(order)) {
             return RestResult.fail("生成退货订单失败");
         }
@@ -354,6 +365,14 @@ public class PurchaseService {
     }
 
     public RestResult delReturn(int id, int oid) {
+        // 删除关联
+        int pid = getPurchaseId(oid);
+        if (0 == pid) {
+            return RestResult.fail("未查询到采购单信息");
+        }
+        if (!purchaseReturnRepository.delete(oid, pid)) {
+            return RestResult.fail("删除采购退货信息失败");
+        }
         return delPurchase(id, oid);
     }
 
@@ -362,6 +381,12 @@ public class PurchaseService {
         TUserGroup group = userGroupRepository.find(id);
         if (null == group) {
             return RestResult.fail("获取公司信息失败");
+        }
+
+        // 采购单
+        int pid = getPurchaseId(oid);
+        if (0 == pid) {
+            return RestResult.fail("未查询到采购单信息");
         }
 
         // 校验审核人员信息
@@ -374,7 +399,7 @@ public class PurchaseService {
         }
 
         // 校验退货订单总价格和总量不能超出采购单
-        TPurchaseOrder purchase = purchaseOrderRepository.find(order.getRid());
+        TPurchaseOrder purchase = purchaseOrderRepository.find(pid);
         if (null == purchase) {
             return RestResult.fail("未查询到对应的进货单");
         }
@@ -404,11 +429,7 @@ public class PurchaseService {
             return RestResult.fail("审核用户订单信息失败");
         }
 
-        // 添加关联
-        if (!purchaseReturnRepository.insert(oid, order.getRid())) {
-            return RestResult.fail("添加采购退货信息失败");
-        }
-        return reviewService.review(order.getApply(), id, order.getGid(), order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
+        return reviewService.review(order.getApply(), id, order.getGid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
     }
 
     public RestResult revokeReturn(int id, int oid) {
@@ -418,6 +439,12 @@ public class PurchaseService {
         }
         if (null == order.getReview()) {
             return RestResult.fail("未审核的订单不能撤销");
+        }
+
+        // 采购单
+        int pid = getPurchaseId(oid);
+        if (0 == pid) {
+            return RestResult.fail("未查询到采购单信息");
         }
 
         // 验证公司
@@ -433,7 +460,7 @@ public class PurchaseService {
         }
 
         // 还原扣除的采购单数量
-        TPurchaseOrder purchase = purchaseOrderRepository.find(order.getRid());
+        TPurchaseOrder purchase = purchaseOrderRepository.find(pid);
         if (null == purchase) {
             return RestResult.fail("未查询到对应的进货单");
         }
@@ -444,7 +471,7 @@ public class PurchaseService {
             return RestResult.fail("修改进货单数据失败");
         }
 
-        RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApply(), mp_purchase_return);
+        RestResult ret = reviewService.revoke(id, gid, order.getOtype(), oid, order.getBatch(), order.getApply(), mp_purchase_return);
         if (null != ret) {
             return ret;
         }
@@ -452,11 +479,6 @@ public class PurchaseService {
         // 撤销审核人信息
         if (!purchaseOrderRepository.setReviewNull(oid)) {
             return RestResult.fail("撤销订单审核信息失败");
-        }
-
-        // 删除关联
-        if (!purchaseReturnRepository.delete(oid, order.getRid())) {
-            return RestResult.fail("删除采购退货信息失败");
         }
         return RestResult.ok();
     }
@@ -559,5 +581,14 @@ public class PurchaseService {
         order.setCurUnit(total);
         order.setCurPrice(price);
         return null;
+    }
+
+    // 获取退货对应的采购单
+    private int getPurchaseId(int id) {
+        TPurchaseReturn ret = purchaseReturnRepository.find(id);
+        if (null != ret) {
+            return ret.getPid();
+        }
+        return 0;
     }
 }

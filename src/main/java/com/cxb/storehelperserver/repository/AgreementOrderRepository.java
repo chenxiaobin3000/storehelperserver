@@ -46,6 +46,16 @@ public class AgreementOrderRepository extends BaseRepository<TAgreementOrder> {
         return agreementOrder;
     }
 
+    public List<TAgreementOrder> findByAid(int aid, int asid, Byte complete) {
+        TAgreementOrderExample example = new TAgreementOrderExample();
+        if (0 == asid) {
+            example.or().andAidEqualTo(aid).andCompleteEqualTo(complete);
+        } else {
+            example.or().andAidEqualTo(aid).andAsidEqualTo(asid).andCompleteEqualTo(complete);
+        }
+        return agreementOrderMapper.selectByExample(example);
+    }
+
     public int total(int gid, int aid, int asid, int type, ReviewType review, CompleteType complete, String date) {
         TAgreementOrderExample example = new TAgreementOrderExample();
         TAgreementOrderExample.Criteria criteria = example.createCriteria();

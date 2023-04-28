@@ -142,15 +142,6 @@ public class ProductService {
             return ret;
         }
 
-        // 更新仓库信息
-        if (!order.getSid().equals(sid)) {
-            order.setSid(sid);
-            ret = reviewService.update(order.getOtype(), oid, sid);
-            if (null != ret) {
-                return ret;
-            }
-        }
-
         // 生成生产单
         val comms = new ArrayList<TProductCommodity>();
         ret = createCollectComms(order, PRODUCT_OUT.getValue(), commoditys, prices, weights, values, comms);
@@ -202,9 +193,6 @@ public class ProductService {
         Integer review = order.getReview();
         if (null != review) {
             return RestResult.fail("已审核的订单不能删除");
-        }
-        if (!order.getApply().equals(id)) {
-            return RestResult.fail("订单必须由申请人删除");
         }
 
         // 删除商品附件数据

@@ -33,6 +33,9 @@ public class LossValid implements IValid {
     @Length(min = 19, max = 19, message = "订单制单日期格式错误")
     private String date;
 
+    @Min(value = 0, message = "一键审核错误")
+    private int review;
+
     @Size(min = 1, message = "商品id不能为空")
     private List<Integer> commoditys;
 

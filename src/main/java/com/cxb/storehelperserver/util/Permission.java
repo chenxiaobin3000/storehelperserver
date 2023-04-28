@@ -13,21 +13,28 @@ public class Permission {
     static public final int mp_purchase_purchase = 12;
     static public final int mp_purchase_return = 13;
     static public final int mp_storage = 20;
-    static public final int mp_storage_purchase = 21;
-    static public final int mp_storage_return = 22;
-    static public final int mp_storage_dispatch = 23;
-    static public final int mp_storage_loss = 24;
-    static public final int mp_product = 30;
-    static public final int mp_product_collect = 31;
-    static public final int mp_agreement = 40;
-    static public final int mp_agreement_shipped = 41;
-    static public final int mp_agreement_return = 42;
-    static public final int mp_sale = 50;
-    static public final int mp_sale_sale = 51;
-    static public final int mp_sale_loss = 52;
-    static public final int mp_sale_offline = 53;
-    static public final int mp_sale_back = 54;
-    static public final int mp_end = 60;
+    static public final int mp_storage_purchase_in = 21;
+    static public final int mp_storage_purchase_out = 22;
+    static public final int mp_storage_product_in = 23;
+    static public final int mp_storage_product_out = 24;
+    static public final int mp_storage_agreement_in = 25;
+    static public final int mp_storage_agreement_out = 26;
+    static public final int mp_storage_offline_in = 27;
+    static public final int mp_storage_offline_out = 28;
+    static public final int mp_storage_loss = 29;
+    static public final int mp_product = 40;
+    static public final int mp_product_collect = 41;
+    static public final int mp_product_loss = 42;
+    static public final int mp_agreement = 50;
+    static public final int mp_agreement_shipped = 51;
+    static public final int mp_agreement_return = 52;
+    static public final int mp_sale = 60;
+    static public final int mp_sale_sale = 61;
+    static public final int mp_sale_loss = 62;
+    static public final int mp_offline = 70;
+    static public final int mp_offline_offline = 71;
+    static public final int mp_offline_return = 72;
+    static public final int mp_end = 80;
 
     // 管理后台
     static public final int dashboard_report = 100;
@@ -78,8 +85,12 @@ public class Permission {
     static public final int market_getlist = 502;
     static public final int market_sale = 503;
     static public final int market_loss = 504;
-    static public final int market_offline = 505;
-    static public final int market_back = 506;
+
+    static public final int offline = 550;
+    static public final int offline_report = 551;
+    static public final int offline_getlist = 552;
+    static public final int offline_offline = 553;
+    static public final int offline_return = 554;
 
     static public final int product = 600;
     static public final int product_report = 601;
@@ -99,10 +110,9 @@ public class Permission {
     static public final int storage_stocklist = 802;
     static public final int storage_report = 803;
     static public final int storage_getlist = 804;
-    static public final int storage_purchase = 805;
-    static public final int storage_return = 806;
-    static public final int storage_dispatch = 807;
-    static public final int storage_loss = 808;
+    static public final int storage_in = 805;
+    static public final int storage_out = 806;
+    static public final int storage_loss = 807;
 
     static public final int supplier = 900;
     static public final int supplier_getlist = 901;

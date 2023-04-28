@@ -23,12 +23,18 @@ public class PurchaseValid implements IValid {
     @Min(value = 1, message = "公司账号错误")
     private int gid;
 
-    @Min(value = 1, message = "仓库账号错误")
-    private int sid;
+    @Min(value = 0, message = "供应商编号错误")
+    private int supplier;
 
     @NotEmpty(message = "请输入订单制单日期")
     @Length(min = 19, max = 19, message = "订单制单日期格式错误")
     private String date;
+
+    @Min(value = 0, message = "一键审核错误")
+    private int review;
+
+    @Min(value = 0, message = "一键出库错误")
+    private int storage;
 
     @Size(min = 1, message = "商品id不能为空")
     private List<Integer> commoditys;
