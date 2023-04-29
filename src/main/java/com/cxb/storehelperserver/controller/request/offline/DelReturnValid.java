@@ -1,4 +1,4 @@
-package com.cxb.storehelperserver.controller.request.attributeTemplate;
+package com.cxb.storehelperserver.controller.request.offline;
 
 import com.cxb.storehelperserver.controller.request.IValid;
 import lombok.Data;
@@ -11,7 +11,10 @@ import javax.validation.constraints.Min;
  * date: 2022/12/21
  */
 @Data
-public class GetGroupAttrTemplateValid implements IValid {
+public class DelReturnValid implements IValid {
     @Min(value = 1, message = "账号错误")
     private int id;
+
+    @Min(value = 1, message = "订单编号错误")
+    private int oid;
 }

@@ -23,6 +23,9 @@ public class PurchaseValid implements IValid {
     @Min(value = 1, message = "公司账号错误")
     private int gid;
 
+    @Min(value = 0, message = "仓库账号错误")
+    private int sid;
+
     @Min(value = 0, message = "供应商编号错误")
     private int supplier;
 
@@ -33,7 +36,7 @@ public class PurchaseValid implements IValid {
     @Min(value = 0, message = "一键审核错误")
     private int review;
 
-    @Min(value = 0, message = "一键出库错误")
+    @Min(value = 0, message = "一键入库错误")
     private int storage;
 
     @Size(min = 1, message = "商品id不能为空")

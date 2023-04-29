@@ -36,9 +36,6 @@ public class StorageOrderService extends BaseService<HashMap> {
     private StorageAttachmentRepository storageAttachmentRepository;
 
     @Resource
-    private OfflineFareRepository offlineFareRepository;
-
-    @Resource
     private StorageRemarkRepository storageRemarkRepository;
 
     @Resource
@@ -85,27 +82,6 @@ public class StorageOrderService extends BaseService<HashMap> {
         datas = new HashMap<>();
         datas.put("comms", commoditys);
         datas.put("attrs", storageAttachmentRepository.findByOid(oid));
-
-        // 运费
-        val fares = offlineFareRepository.findByOid(oid);
-        if (null != fares && !fares.isEmpty()) {
-            val tmps = new ArrayList<HashMap<String, Object>>();
-            BigDecimal total = new BigDecimal(0);
-            for (TStorageFare fare : fares) {
-                val tmp = new HashMap<String, Object>();
-                total = total.add(fare.getFare());
-                tmp.put("id", fare.getId());
-                tmp.put("ship", fare.getShip());
-                tmp.put("code", fare.getCode());
-                tmp.put("phone", fare.getPhone());
-                tmp.put("fare", fare.getFare());
-                tmp.put("remark", fare.getRemark());
-                tmp.put("cdate", dateFormat.format(fare.getCdate()));
-                tmps.add(tmp);
-            }
-            datas.put("total", total);
-            datas.put("fares", tmps);
-        }
 
         // 备注
         val remarks = storageRemarkRepository.findByOid(oid);

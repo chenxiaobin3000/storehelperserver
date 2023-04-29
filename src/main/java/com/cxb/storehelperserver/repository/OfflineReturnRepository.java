@@ -71,12 +71,10 @@ public class OfflineReturnRepository extends BaseRepository<TOfflineReturn> {
         return false;
     }
 
-    public boolean delete(int id) {
-        TOfflineReturn offlineReturn = offlineReturnMapper.selectByPrimaryKey(id);
-        if (null == offlineReturn) {
-            return false;
-        }
-        delCache(offlineReturn.getOid());
-        return offlineReturnMapper.deleteByPrimaryKey(id) > 0;
+    public boolean delete(int oid, int sid) {
+        delCache(oid);
+        TOfflineReturnExample example = new TOfflineReturnExample();
+        example.or().andOidEqualTo(oid).andSidEqualTo(sid);
+        return offlineReturnMapper.deleteByExample(example) > 0;
     }
 }

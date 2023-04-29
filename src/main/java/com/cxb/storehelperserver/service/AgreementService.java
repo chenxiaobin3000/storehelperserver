@@ -35,7 +35,7 @@ public class AgreementService {
     private ReviewService reviewService;
 
     @Resource
-    private StockService stockService;
+    private StorageService storageService;
 
     @Resource
     private StockCloudService stockCloudService;
@@ -61,7 +61,7 @@ public class AgreementService {
     /**
      * desc: 履约发货
      */
-    public RestResult shipped(int id, TAgreementOrder order, int review, int storage, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<String> norms, List<Integer> values, List<Integer> attrs) {
+    public RestResult shipped(int id, TAgreementOrder order, int sid, int review, int storage, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<String> norms, List<Integer> values, List<Integer> attrs) {
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_agreement_shipped, reviews);
         if (null != ret) {
@@ -90,10 +90,17 @@ public class AgreementService {
         // 一键审核
         ret = reviewService.apply(id, order.getGid(), order.getOtype(), oid, batch, reviews);
         if (RestResult.isOk(ret) && review > 0) {
-            // 一键出库
             ret = reviewShipped(id, oid);
             if (RestResult.isOk(ret) && storage > 0) {
-                // TODO 一键出库
+                // 一键出库
+                if (sid <= 0) {
+                    return RestResult.fail("未指定仓库，一键出库失败");
+                }
+                TStorageOrder storageOrder = new TStorageOrder();
+                storageOrder.setSid(sid);
+                storageOrder.setTid(0);
+                storageOrder.setApply(order.getApply());
+                return storageService.purchaseOut(id, storageOrder, oid, review, commoditys, weights, values, attrs);
             }
         }
         return ret;
@@ -209,6 +216,8 @@ public class AgreementService {
             return RestResult.fail("已销售或退货的订单不能撤销");
         }
 
+        // TODO 存在入库单就不能改
+
         // 验证公司
         int gid = order.getGid();
         String msg = checkService.checkGroup(id, gid);
@@ -220,8 +229,6 @@ public class AgreementService {
         if (!checkService.checkRolePermission(id, agreement_shipped)) {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
-
-        // TODO 库存校验
 
         RestResult ret = reviewService.revoke(id, gid, order.getOtype(), oid, order.getBatch(), order.getApply(), mp_agreement_shipped);
         if (null != ret) {
@@ -244,7 +251,7 @@ public class AgreementService {
     /**
      * desc: 履约退货
      */
-    public RestResult returnc(int id, TAgreementOrder order, int pid, int review, int storage, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
+    public RestResult returnc(int id, TAgreementOrder order, int pid, int sid, int review, int storage, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
         // 发货单未审核不能退货
         TAgreementOrder agreement = agreementOrderRepository.find(pid);
         if (null == agreement) {
@@ -254,7 +261,7 @@ public class AgreementService {
             return RestResult.fail("履约单据类型异常");
         }
         if (null == agreement.getReview()) {
-            return RestResult.fail("履约单未审核通过，不能进行入库");
+            return RestResult.fail("履约单未审核通过，不能进行退货");
         }
 
         order.setGid(agreement.getGid());
@@ -293,10 +300,17 @@ public class AgreementService {
         // 一键审核
         ret = reviewService.apply(id, order.getGid(), order.getOtype(), oid, batch, reviews);
         if (RestResult.isOk(ret) && review > 0) {
-            // 一键入库
-            ret = reviewShipped(id, oid);
+            ret = reviewReturn(id, oid);
             if (RestResult.isOk(ret) && storage > 0) {
-                // TODO 一键入库
+                // 一键入库
+                if (sid <= 0) {
+                    return RestResult.fail("未指定仓库，一键入库失败");
+                }
+                TStorageOrder storageOrder = new TStorageOrder();
+                storageOrder.setSid(sid);
+                storageOrder.setTid(0);
+                storageOrder.setApply(order.getApply());
+                return storageService.purchaseIn(id, storageOrder, oid, review, commoditys, weights, values, attrs);
             }
         }
         return ret;
@@ -354,7 +368,7 @@ public class AgreementService {
             return RestResult.fail("未查询到发货单信息");
         }
         if (!agreementReturnRepository.delete(oid, pid)) {
-            return RestResult.fail("删除采购退货信息失败");
+            return RestResult.fail("删除履约退货信息失败");
         }
         return delShipped(id, oid);
     }
@@ -380,8 +394,6 @@ public class AgreementService {
         if (!reviewService.checkReview(id, order.getOtype(), oid)) {
             return RestResult.fail("您没有审核权限");
         }
-
-        // TODO 校验库存
 
         // 校验退货订单总价格和总量不能超出履约单
         TAgreementOrder agreement = agreementOrderRepository.find(pid);
@@ -430,6 +442,8 @@ public class AgreementService {
         if (null == order.getReview()) {
             return RestResult.fail("未审核的订单不能撤销");
         }
+
+        // TODO 存在入库单就不能改
 
         // 发货单
         int pid = getAgreementId(oid);
@@ -497,36 +511,19 @@ public class AgreementService {
         if (size != weights.size() || size != norms.size() || size != values.size()) {
             return RestResult.fail("商品信息异常");
         }
-        int gid = order.getGid();
-        int sid = order.getSid();
         int total = 0;
         BigDecimal price = new BigDecimal(0);
         for (int i = 0; i < size; i++) {
             // 获取商品单位信息
-            int cid = commoditys.get(i);
-            int weight = weights.get(i);
-            int value = values.get(i);
-            TStockDay stock = stockService.getStockCommodity(gid, sid, cid);
-            if (null == stock) {
-                return RestResult.fail("未查询到库存类型:" + cid);
-            }
-            if (weight > stock.getWeight()) {
-                return RestResult.fail("库存商品重量不足:" + cid);
-            }
-            if (value > stock.getValue()) {
-                return RestResult.fail("库存商品件数不足:" + cid);
-            }
-
             TAgreementCommodity c = new TAgreementCommodity();
-            c.setCid(cid);
+            c.setCid(commoditys.get(i));
             c.setPrice(prices.get(i));
-            c.setWeight(weight);
+            c.setWeight(weights.get(i));
             c.setNorm(norms.get(i));
-            c.setValue(value);
-            c.setCurValue(value);
+            c.setValue(values.get(i));
             list.add(c);
 
-            total = total + value;
+            total = total + c.getValue();
             price = price.add(c.getPrice());
         }
         order.setValue(total);
@@ -569,7 +566,6 @@ public class AgreementService {
                     c.setWeight(weight);
                     c.setNorm(ac.getNorm());
                     c.setValue(value);
-                    c.setCurValue(value);
                     list.add(c);
 
                     total = total + value;

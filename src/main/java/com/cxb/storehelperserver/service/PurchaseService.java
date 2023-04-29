@@ -35,6 +35,9 @@ public class PurchaseService {
     private ReviewService reviewService;
 
     @Resource
+    private StorageService storageService;
+
+    @Resource
     private PurchaseOrderRepository purchaseOrderRepository;
 
     @Resource
@@ -61,7 +64,7 @@ public class PurchaseService {
     /**
      * desc: 采购仓储进货
      */
-    public RestResult purchase(int id, TPurchaseOrder order, int review, int storage, List<Integer> commoditys, List<BigDecimal> prices,
+    public RestResult purchase(int id, TPurchaseOrder order, int sid, int review, int storage, List<Integer> commoditys, List<BigDecimal> prices,
                                List<Integer> weights, List<String> norms, List<Integer> values, List<Integer> attrs) {
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_purchase_purchase, reviews);
@@ -91,10 +94,17 @@ public class PurchaseService {
         // 一键审核
         ret = reviewService.apply(id, order.getGid(), order.getOtype(), oid, batch, reviews);
         if (RestResult.isOk(ret) && review > 0) {
-            // 一键出库
             ret = reviewPurchase(id, oid);
             if (RestResult.isOk(ret) && storage > 0) {
-                // TODO 一键出库
+                // 一键入库
+                if (sid <= 0) {
+                    return RestResult.fail("未指定仓库，一键入库失败");
+                }
+                TStorageOrder storageOrder = new TStorageOrder();
+                storageOrder.setSid(sid);
+                storageOrder.setTid(0);
+                storageOrder.setApply(order.getApply());
+                return storageService.purchaseIn(id, storageOrder, oid, review, commoditys, weights, values, attrs);
             }
         }
         return ret;
@@ -202,6 +212,8 @@ public class PurchaseService {
             return RestResult.fail("已入库或退货的订单不能撤销");
         }
 
+        // TODO 存在入库单就不能改
+
         // 验证公司
         int gid = order.getGid();
         String msg = checkService.checkGroup(id, gid);
@@ -263,7 +275,7 @@ public class PurchaseService {
     /**
      * desc: 原料退货
      */
-    public RestResult returnc(int id, TPurchaseOrder order, int rid, int review, int storage, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
+    public RestResult returnc(int id, TPurchaseOrder order, int rid, int sid, int review, int storage, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
         // 采购单未审核，已入库都不能退货
         TPurchaseOrder purchaseOrder = purchaseOrderRepository.find(rid);
         if (null == purchaseOrder) {
@@ -310,10 +322,17 @@ public class PurchaseService {
         // 一键审核
         ret = reviewService.apply(id, order.getGid(), order.getOtype(), oid, batch, reviews);
         if (RestResult.isOk(ret) && review > 0) {
-            // 一键出库
             ret = reviewReturn(id, oid);
             if (RestResult.isOk(ret) && storage > 0) {
-                // TODO 一键出库
+                // 一键出库
+                if (sid <= 0) {
+                    return RestResult.fail("未指定仓库，一键出库失败");
+                }
+                TStorageOrder storageOrder = new TStorageOrder();
+                storageOrder.setSid(sid);
+                storageOrder.setTid(0);
+                storageOrder.setApply(order.getApply());
+                return storageService.purchaseOut(id, storageOrder, oid, review, commoditys, weights, values, attrs);
             }
         }
         return ret;
@@ -440,6 +459,8 @@ public class PurchaseService {
         if (null == order.getReview()) {
             return RestResult.fail("未审核的订单不能撤销");
         }
+
+        // TODO 存在出库单就不能改
 
         // 采购单
         int pid = getPurchaseId(oid);

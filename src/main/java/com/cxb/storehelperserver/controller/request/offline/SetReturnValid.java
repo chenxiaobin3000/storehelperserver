@@ -1,4 +1,4 @@
-package com.cxb.storehelperserver.controller.request.agreement;
+package com.cxb.storehelperserver.controller.request.offline;
 
 import com.cxb.storehelperserver.controller.request.IValid;
 import lombok.Data;
@@ -16,7 +16,7 @@ import java.util.List;
  * date: 2022/12/21
  */
 @Data
-public class SetBackValid implements IValid {
+public class SetReturnValid implements IValid {
     @Min(value = 1, message = "账号错误")
     private int id;
 

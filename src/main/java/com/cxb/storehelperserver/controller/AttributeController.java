@@ -1,11 +1,6 @@
 package com.cxb.storehelperserver.controller;
 
-import com.cxb.storehelperserver.controller.request.attribute.AddAttributeValid;
-import com.cxb.storehelperserver.controller.request.attribute.DelAttributeValid;
-import com.cxb.storehelperserver.controller.request.attribute.GetGroupAttributeValid;
-import com.cxb.storehelperserver.controller.request.attribute.SetAttributeValid;
-import com.cxb.storehelperserver.controller.request.attributeTemplate.GetGroupAttrTemplateValid;
-import com.cxb.storehelperserver.controller.request.attributeTemplate.UpdateAttrTempValid;
+import com.cxb.storehelperserver.controller.request.attribute.*;
 import com.cxb.storehelperserver.model.TAttribute;
 import com.cxb.storehelperserver.service.AttributeService;
 import com.cxb.storehelperserver.util.RestResult;

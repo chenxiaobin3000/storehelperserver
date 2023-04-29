@@ -40,7 +40,6 @@ public class AgreementController {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
         TAgreementOrder order = new TAgreementOrder();
         order.setGid(req.getGid());
-        order.setSid(req.getSid());
         order.setAid(req.getAid());
         order.setAsid(req.getAsid());
         order.setOtype(AGREEMENT_SHIPPED_ORDER.getValue());
@@ -51,7 +50,7 @@ public class AgreementController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return agreementService.shipped(req.getId(), order, req.getReview(), req.getStorage(), req.getCommoditys(), req.getPrices(), req.getWeights(), req.getNorms(), req.getValues(), req.getAttrs());
+        return agreementService.shipped(req.getId(), order, req.getSid(), req.getReview(), req.getStorage(), req.getCommoditys(), req.getPrices(), req.getWeights(), req.getNorms(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/setShipped")
@@ -94,7 +93,7 @@ public class AgreementController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return agreementService.returnc(req.getId(), order, req.getRid(), req.getReview(), req.getStorage(), req.getCommoditys(), req.getPrices(), req.getWeights(), req.getValues(), req.getAttrs());
+        return agreementService.returnc(req.getId(), order, req.getRid(), req.getSid(), req.getReview(), req.getStorage(), req.getCommoditys(), req.getPrices(), req.getWeights(), req.getValues(), req.getAttrs());
     }
 
     @PostMapping("/setReturn")

@@ -1,4 +1,4 @@
-package com.cxb.storehelperserver.controller.request.financeLabel;
+package com.cxb.storehelperserver.controller.request.finance;
 
 import com.cxb.storehelperserver.controller.request.IValid;
 import lombok.Data;

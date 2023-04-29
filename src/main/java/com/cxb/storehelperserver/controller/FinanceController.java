@@ -1,8 +1,8 @@
 package com.cxb.storehelperserver.controller;
 
-import com.cxb.storehelperserver.controller.request.finance.AddLabelDetailValid;
-import com.cxb.storehelperserver.controller.request.finance.GetFinanceValid;
-import com.cxb.storehelperserver.controller.request.finance.GetLabelListValid;
+import com.cxb.storehelperserver.controller.request.finance.*;
+import com.cxb.storehelperserver.model.TFinanceLabel;
+import com.cxb.storehelperserver.service.FinanceLabelService;
 import com.cxb.storehelperserver.service.FinanceService;
 import com.cxb.storehelperserver.util.DateUtil;
 import com.cxb.storehelperserver.util.RestResult;
@@ -29,6 +29,9 @@ import java.util.Date;
 public class FinanceController {
     @Resource
     private FinanceService financeService;
+
+    @Resource
+    private FinanceLabelService financeLabelService;
 
     @Resource
     private DateUtil dateUtil;
@@ -60,5 +63,41 @@ public class FinanceController {
             return RestResult.fail("查询日期转换失败");
         }
         return financeService.insertLabelDetail(req.getId(), req.getGid(), req.getAction(), req.getAid(), req.getValue(), req.getRemark(), date, req.getSub());
+    }
+
+    @PostMapping("/addLabel")
+    public RestResult addLabel(@Validated @RequestBody AddLabelValid req) {
+        TFinanceLabel financeLabel = new TFinanceLabel();
+        financeLabel.setGid(req.getGid());
+        financeLabel.setName(req.getName());
+        financeLabel.setParent(req.getParent());
+        financeLabel.setLevel(req.getLevel());
+        return financeLabelService.addabel(req.getId(), financeLabel);
+    }
+
+    @PostMapping("/setLabel")
+    public RestResult setLabel(@Validated @RequestBody SetLabelValid req) {
+        TFinanceLabel financeLabel = new TFinanceLabel();
+        financeLabel.setId(req.getCid());
+        financeLabel.setGid(req.getGid());
+        financeLabel.setName(req.getName());
+        financeLabel.setParent(req.getParent());
+        financeLabel.setLevel(req.getLevel());
+        return financeLabelService.setLabel(req.getId(), financeLabel);
+    }
+
+    @PostMapping("/delLabel")
+    public RestResult delLabel(@Validated @RequestBody DelLabelValid req) {
+        return financeLabelService.delLabel(req.getId(), req.getCid());
+    }
+
+    @PostMapping("/getGroupLabelList")
+    public RestResult getGroupLabelList(@Validated @RequestBody GetGroupLabelValid req) {
+        return financeLabelService.getGroupLabelList(req.getId());
+    }
+
+    @PostMapping("/getGroupLabelTree")
+    public RestResult getGroupLabelTree(@Validated @RequestBody GetGroupLabelValid req) {
+        return financeLabelService.getGroupLabelTree(req.getId());
     }
 }

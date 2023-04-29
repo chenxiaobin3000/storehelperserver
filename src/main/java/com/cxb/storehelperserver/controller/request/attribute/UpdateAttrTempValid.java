@@ -1,4 +1,4 @@
-package com.cxb.storehelperserver.controller.request.attributeTemplate;
+package com.cxb.storehelperserver.controller.request.attribute;
 
 import com.cxb.storehelperserver.controller.request.IValid;
 import lombok.Data;
