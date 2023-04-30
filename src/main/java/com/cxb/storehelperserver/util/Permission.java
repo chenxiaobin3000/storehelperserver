@@ -23,8 +23,9 @@ public class Permission {
     static public final int mp_storage_offline_out = 28;
     static public final int mp_storage_loss = 29;
     static public final int mp_product = 40;
-    static public final int mp_product_collect = 41;
-    static public final int mp_product_loss = 42;
+    static public final int mp_product_process = 41;
+    static public final int mp_product_complete = 42;
+    static public final int mp_product_loss = 43;
     static public final int mp_agreement = 50;
     static public final int mp_agreement_shipped = 51;
     static public final int mp_agreement_return = 52;
@@ -95,7 +96,9 @@ public class Permission {
     static public final int product = 600;
     static public final int product_report = 601;
     static public final int product_getlist = 602;
-    static public final int product_collect = 603;
+    static public final int product_process = 603;
+    static public final int product_complete = 604;
+    static public final int product_loss = 605;
 
     static public final int report = 700;
     static public final int report_market = 701;

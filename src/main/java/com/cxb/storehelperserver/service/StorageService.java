@@ -2406,7 +2406,7 @@ public class StorageService {
             return RestResult.fail("未查询到要删除的订单");
         }
 
-        // 校验是否订单提交人，已经审核的订单不能删除
+        // 已经审核的订单不能删除
         Integer review = order.getReview();
         if (null != review) {
             return RestResult.fail("已审核的订单不能删除");

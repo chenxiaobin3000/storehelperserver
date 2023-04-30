@@ -52,8 +52,9 @@ public class TypeDefine {
         STORAGE_OFFLINE_IN_ORDER(16),       // 生产线下入库订单
         STORAGE_OFFLINE_OUT_ORDER(17),      // 生产线下出库订单
         STORAGE_LOSS_ORDER(18),             // 仓储损耗订单
-        PRODUCT_COLLECT_ORDER(30),          // 生产订单
-        PRODUCT_LOSS_ORDER(31),             // 生产损耗订单
+        PRODUCT_PROCESS_ORDER(30),          // 生产开始订单
+        PRODUCT_COMPLETE_ORDER(31),         // 生产完成订单
+        PRODUCT_LOSS_ORDER(32),             // 生产损耗订单
         AGREEMENT_SHIPPED_ORDER(40),        // 履约发货订单
         AGREEMENT_RETURN_ORDER(41),         // 履约退货订单
         SALE_SALE_ORDER(50),                // 线上销售订单
@@ -92,8 +93,10 @@ public class TypeDefine {
                 case 18:
                     return STORAGE_LOSS_ORDER;
                 case 30:
-                    return PRODUCT_COLLECT_ORDER;
+                    return PRODUCT_PROCESS_ORDER;
                 case 31:
+                    return PRODUCT_COMPLETE_ORDER;
+                case 32:
                     return PRODUCT_LOSS_ORDER;
                 case 40:
                     return AGREEMENT_SHIPPED_ORDER;

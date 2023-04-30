@@ -154,7 +154,7 @@ public class AgreementService {
             return RestResult.fail("未查询到要删除的订单");
         }
 
-        // 校验是否订单提交人，已经审核的订单不能删除
+        // 已经审核的订单不能删除
         Integer review = order.getReview();
         if (null != review) {
             return RestResult.fail("已审核的订单不能删除");
@@ -514,7 +514,6 @@ public class AgreementService {
         int total = 0;
         BigDecimal price = new BigDecimal(0);
         for (int i = 0; i < size; i++) {
-            // 获取商品单位信息
             TAgreementCommodity c = new TAgreementCommodity();
             c.setCid(commoditys.get(i));
             c.setPrice(prices.get(i));

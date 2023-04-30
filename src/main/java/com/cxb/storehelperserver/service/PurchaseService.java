@@ -56,9 +56,6 @@ public class PurchaseService {
     private UserGroupRepository userGroupRepository;
 
     @Resource
-    private CommodityRepository commodityRepository;
-
-    @Resource
     private DateUtil dateUtil;
 
     /**
@@ -156,7 +153,7 @@ public class PurchaseService {
             return RestResult.fail("未查询到要删除的订单");
         }
 
-        // 校验是否订单提交人，已经审核的订单不能删除
+        // 已经审核的订单不能删除
         Integer review = order.getReview();
         if (null != review) {
             return RestResult.fail("已审核的订单不能删除");
@@ -277,18 +274,18 @@ public class PurchaseService {
      */
     public RestResult returnc(int id, TPurchaseOrder order, int rid, int sid, int review, int storage, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
         // 采购单未审核，已入库都不能退货
-        TPurchaseOrder purchaseOrder = purchaseOrderRepository.find(rid);
-        if (null == purchaseOrder) {
+        TPurchaseOrder purchase = purchaseOrderRepository.find(rid);
+        if (null == purchase) {
             return RestResult.fail("未查询到采购单");
         }
-        if (!purchaseOrder.getOtype().equals(PURCHASE_PURCHASE_ORDER.getValue())) {
+        if (!purchase.getOtype().equals(PURCHASE_PURCHASE_ORDER.getValue())) {
             return RestResult.fail("退货单据类型异常");
         }
-        if (null == purchaseOrder.getReview()) {
+        if (null == purchase.getReview()) {
             return RestResult.fail("采购单未审核通过，不能进行入库");
         }
 
-        order.setGid(purchaseOrder.getGid());
+        order.setGid(purchase.getGid());
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_purchase_return, reviews);
         if (null != ret) {
@@ -526,24 +523,16 @@ public class PurchaseService {
         int total = 0;
         BigDecimal price = new BigDecimal(0);
         for (int i = 0; i < size; i++) {
-            // 获取商品单位信息
-            int cid = commoditys.get(i);
-            int weight = weights.get(i);
-            TCommodity commodity = commodityRepository.find(cid);
-            if (null == commodity) {
-                return RestResult.fail("未查询到商品：" + cid);
-            }
-
             TPurchaseCommodity c = new TPurchaseCommodity();
-            c.setCid(cid);
+            c.setCid(commoditys.get(i));
             c.setPrice(prices.get(i));
-            c.setWeight(weight);
+            c.setWeight(weights.get(i));
             c.setNorm(norms.get(i));
             c.setValue(values.get(i));
             list.add(c);
 
-            total = total + weight;
-            price = price.add(prices.get(i));
+            total = total + c.getWeight();
+            price = price.add(c.getPrice());
         }
         order.setUnit(total);
         order.setPrice(price);
