@@ -40,18 +40,6 @@ public class ProductStorageRepository extends BaseRepository<TProductStorage> {
         return productStorage;
     }
 
-    public List<TProductStorage> findBySid(int sid) {
-        TProductStorageExample example = new TProductStorageExample();
-        example.or().andSidEqualTo(sid);
-        return productStorageMapper.selectByExample(example);
-    }
-
-    public boolean checkBySid(int sid) {
-        TProductStorageExample example = new TProductStorageExample();
-        example.or().andSidEqualTo(sid);
-        return null != productStorageMapper.selectOneByExample(example);
-    }
-
     public boolean insert(int oid, int sid) {
         TProductStorage row = new TProductStorage();
         row.setOid(oid);

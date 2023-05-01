@@ -46,25 +46,18 @@ public class OfflineOrderRepository extends BaseRepository<TOfflineOrder> {
         return offlineOrder;
     }
 
-    public List<TOfflineOrder> findByAid(int aid, int asid) {
+    public List<TOfflineOrder> findByAid(int aid) {
         TOfflineOrderExample example = new TOfflineOrderExample();
-        if (0 == asid) {
-            example.or().andAidEqualTo(aid);
-        } else {
-            example.or().andAidEqualTo(aid).andAsidEqualTo(asid);
-        }
+        example.or().andAidEqualTo(aid);
         return offlineOrderMapper.selectByExample(example);
     }
 
-    public int total(int gid, int aid, int asid, int type, ReviewType review, String date) {
+    public int total(int gid, int aid, int type, ReviewType review, String date) {
         TOfflineOrderExample example = new TOfflineOrderExample();
         TOfflineOrderExample.Criteria criteria = example.createCriteria();
         criteria.andGidEqualTo(gid).andOtypeEqualTo(type);
         if (aid > 0) {
             criteria.andAidEqualTo(aid);
-        }
-        if (asid > 0) {
-            criteria.andAsidEqualTo(asid);
         }
         if (null != date) {
             criteria.andBatchLike("%" + date + "%");
@@ -82,15 +75,12 @@ public class OfflineOrderRepository extends BaseRepository<TOfflineOrder> {
         return (int) offlineOrderMapper.countByExample(example);
     }
 
-    public List<TOfflineOrder> pagination(int gid, int aid, int asid, int type, int page, int limit, ReviewType review, String date) {
+    public List<TOfflineOrder> pagination(int gid, int aid, int type, int page, int limit, ReviewType review, String date) {
         TOfflineOrderExample example = new TOfflineOrderExample();
         TOfflineOrderExample.Criteria criteria = example.createCriteria();
         criteria.andGidEqualTo(gid).andOtypeEqualTo(type);
         if (aid > 0) {
             criteria.andAidEqualTo(aid);
-        }
-        if (asid > 0) {
-            criteria.andAsidEqualTo(asid);
         }
         if (null != date) {
             criteria.andBatchLike("%" + date + "%");
@@ -117,9 +107,9 @@ public class OfflineOrderRepository extends BaseRepository<TOfflineOrder> {
         return offlineOrderMapper.selectByExample(example);
     }
 
-    public boolean check(int aid, int asid) {
+    public boolean check(int aid) {
         TOfflineOrderExample example = new TOfflineOrderExample();
-        example.or().andAidEqualTo(aid).andAsidEqualTo(asid);
+        example.or().andAidEqualTo(aid);
         return null != offlineOrderMapper.selectOneByExample(example);
     }
 

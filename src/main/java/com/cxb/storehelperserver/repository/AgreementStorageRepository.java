@@ -40,18 +40,6 @@ public class AgreementStorageRepository extends BaseRepository<TAgreementStorage
         return agreementStorage;
     }
 
-    public List<TAgreementStorage> findBySid(int sid) {
-        TAgreementStorageExample example = new TAgreementStorageExample();
-        example.or().andSidEqualTo(sid);
-        return agreementStorageMapper.selectByExample(example);
-    }
-
-    public boolean checkByAid(int sid) {
-        TAgreementStorageExample example = new TAgreementStorageExample();
-        example.or().andSidEqualTo(sid);
-        return null != agreementStorageMapper.selectOneByExample(example);
-    }
-
     public boolean insert(int oid, int sid) {
         TAgreementStorage row = new TAgreementStorage();
         row.setOid(oid);

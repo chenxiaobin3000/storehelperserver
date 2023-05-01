@@ -40,18 +40,6 @@ public class OfflineStorageRepository extends BaseRepository<TOfflineStorage> {
         return offlineStorage;
     }
 
-    public List<TOfflineStorage> findBySid(int sid) {
-        TOfflineStorageExample example = new TOfflineStorageExample();
-        example.or().andSidEqualTo(sid);
-        return offlineStorageMapper.selectByExample(example);
-    }
-
-    public boolean checkBySid(int sid) {
-        TOfflineStorageExample example = new TOfflineStorageExample();
-        example.or().andSidEqualTo(sid);
-        return null != offlineStorageMapper.selectOneByExample(example);
-    }
-
     public boolean insert(int oid, int sid) {
         TOfflineStorage row = new TOfflineStorage();
         row.setOid(oid);

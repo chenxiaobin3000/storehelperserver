@@ -48,21 +48,14 @@ public class UserOrderCompleteRepository extends BaseRepository<TUserOrderComple
         return userOrderComplete;
     }
 
-    public TUserOrderComplete findFirstOrder(int sid) {
-        TUserOrderCompleteExample example = new TUserOrderCompleteExample();
-        example.or().andSidEqualTo(sid);
-        example.setOrderByClause("cdate asc");
-        return userOrderCompleteMapper.selectOneByExample(example);
-    }
-
     public List<MyUserOrderComplete> findByAgreement(int gid, int sid, Date start, Date end) {
         return myUserOrderCompleteMapper.selectByAgreement(gid, sid, AGREEMENT_SHIPPED_ORDER.getValue(),
-                AGREEMENT_BACK_ORDER.getValue(), new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
+                AGREEMENT_RETURN_ORDER.getValue(), new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
     }
 
     public List<MyUserOrderComplete> findByProduct(int gid, int sid, Date start, Date end) {
-        return myUserOrderCompleteMapper.selectByProduct(gid, sid, PRODUCT_COLLECT_ORDER.getValue(),
-                PRODUCT_COLLECT_ORDER.getValue(), new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
+        return myUserOrderCompleteMapper.selectByProduct(gid, sid, PRODUCT_PROCESS_ORDER.getValue(),
+                PRODUCT_LOSS_ORDER.getValue(), new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
     }
 
     public List<MyUserOrderComplete> findByPurchase(int gid, int sid, Date start, Date end) {
@@ -71,13 +64,18 @@ public class UserOrderCompleteRepository extends BaseRepository<TUserOrderComple
     }
 
     public List<MyUserOrderComplete> findByStorage(int gid, int sid, Date start, Date end) {
-        return myUserOrderCompleteMapper.selectByStorage(gid, sid, STORAGE_PURCHASE_ORDER.getValue(),
+        return myUserOrderCompleteMapper.selectByStorage(gid, sid, STORAGE_PURCHASE_IN_ORDER.getValue(),
                 STORAGE_LOSS_ORDER.getValue(), new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
     }
 
     public List<MyUserOrderComplete> findBySale(int gid, int sid, Date start, Date end) {
         return myUserOrderCompleteMapper.selectBySale(gid, sid, SALE_SALE_ORDER.getValue(),
                 SALE_LOSS_ORDER.getValue(), new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
+    }
+
+    public List<MyUserOrderComplete> findByOffline(int gid, int sid, Date start, Date end) {
+        return myUserOrderCompleteMapper.selectBySale(gid, sid, OFFLINE_OFFLINE_ORDER.getValue(),
+                OFFLINE_RETURN_ORDER.getValue(), new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
     }
 
     public int total(int aid, int cid, String search) {

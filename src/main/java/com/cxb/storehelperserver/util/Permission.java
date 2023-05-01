@@ -57,10 +57,9 @@ public class Permission {
     static public final int commodity = 300;
     static public final int commodity_report = 301;
     static public final int commodity_commodity = 302;
-    static public final int commodity_halfgood = 303;
-    static public final int commodity_original = 304;
-    static public final int commodity_category = 306;
-    static public final int commodity_attribute = 307;
+    static public final int commodity_market = 303;
+    static public final int commodity_category = 304;
+    static public final int commodity_attribute = 305;
 
     static public final int transport = 350;
     static public final int transport_report = 351;
@@ -74,12 +73,6 @@ public class Permission {
     static public final int finance_getlist = 402;
     static public final int finance_detail = 403;
     static public final int finance_label = 404;
-
-    static public final int dock = 450;
-    static public final int dock_account = 451;
-    static public final int dock_many = 452;
-    static public final int dock_storage = 453;
-    static public final int dock_commodity = 454;
 
     static public final int market = 500;
     static public final int market_report = 501;
@@ -134,6 +127,7 @@ public class Permission {
     static public final int system_rolelist = 1104;
     static public final int system_mprolelist = 1105;
     static public final int system_supplier = 1106;
+    static public final int system_account = 1108;
 
     static public final int admin = 8888;
     static public final int admin_changegroup = 8889;

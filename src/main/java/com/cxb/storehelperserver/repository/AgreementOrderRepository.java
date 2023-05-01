@@ -46,25 +46,18 @@ public class AgreementOrderRepository extends BaseRepository<TAgreementOrder> {
         return agreementOrder;
     }
 
-    public List<TAgreementOrder> findByAid(int aid, int asid, Byte complete) {
+    public List<TAgreementOrder> findByAid(int aid, Byte complete) {
         TAgreementOrderExample example = new TAgreementOrderExample();
-        if (0 == asid) {
-            example.or().andAidEqualTo(aid).andCompleteEqualTo(complete);
-        } else {
-            example.or().andAidEqualTo(aid).andAsidEqualTo(asid).andCompleteEqualTo(complete);
-        }
+        example.or().andAidEqualTo(aid).andCompleteEqualTo(complete);
         return agreementOrderMapper.selectByExample(example);
     }
 
-    public int total(int gid, int aid, int asid, int type, ReviewType review, CompleteType complete, String date) {
+    public int total(int gid, int aid, int type, ReviewType review, CompleteType complete, String date) {
         TAgreementOrderExample example = new TAgreementOrderExample();
         TAgreementOrderExample.Criteria criteria = example.createCriteria();
         criteria.andGidEqualTo(gid).andOtypeEqualTo(type);
         if (aid > 0) {
             criteria.andAidEqualTo(aid);
-        }
-        if (asid > 0) {
-            criteria.andAsidEqualTo(asid);
         }
         if (null != date) {
             criteria.andBatchLike("%" + date + "%");
@@ -92,15 +85,12 @@ public class AgreementOrderRepository extends BaseRepository<TAgreementOrder> {
         return (int) agreementOrderMapper.countByExample(example);
     }
 
-    public List<TAgreementOrder> pagination(int gid, int aid, int asid, int type, int page, int limit, ReviewType review, CompleteType complete, String date) {
+    public List<TAgreementOrder> pagination(int gid, int aid, int type, int page, int limit, ReviewType review, CompleteType complete, String date) {
         TAgreementOrderExample example = new TAgreementOrderExample();
         TAgreementOrderExample.Criteria criteria = example.createCriteria();
         criteria.andGidEqualTo(gid).andOtypeEqualTo(type);
         if (aid > 0) {
             criteria.andAidEqualTo(aid);
-        }
-        if (asid > 0) {
-            criteria.andAsidEqualTo(asid);
         }
         if (null != date) {
             criteria.andBatchLike("%" + date + "%");
@@ -135,12 +125,6 @@ public class AgreementOrderRepository extends BaseRepository<TAgreementOrder> {
         TAgreementOrderExample example = new TAgreementOrderExample();
         example.or().andGidEqualTo(gid).andApplyTimeGreaterThanOrEqualTo(start).andApplyTimeLessThan(end).andReviewGreaterThan(0);
         return agreementOrderMapper.selectByExample(example);
-    }
-
-    public boolean check(int sid) {
-        TAgreementOrderExample example = new TAgreementOrderExample();
-        example.or().andSidEqualTo(sid);
-        return null != agreementOrderMapper.selectOneByExample(example);
     }
 
     public boolean insert(TAgreementOrder row) {

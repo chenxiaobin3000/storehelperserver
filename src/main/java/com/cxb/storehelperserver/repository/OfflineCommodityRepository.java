@@ -60,11 +60,11 @@ public class OfflineCommodityRepository extends BaseRepository<List> {
         return offlineCommoditys;
     }
 
-    public int total(int gid, int aid, int asid, int type, ReviewType review, CompleteType complete, String search, int cid) {
+    public int total(int gid, int aid, int type, ReviewType review, CompleteType complete, String search, int cid) {
         return 0;
     }
 
-    public List<TOfflineOrder> pagination(int gid, int aid, int asid, int type, int page, int limit, ReviewType review, CompleteType complete, String date, int cid) {
+    public List<TOfflineOrder> pagination(int gid, int aid, int type, int page, int limit, ReviewType review, CompleteType complete, String date, int cid) {
         return null;
     }
 

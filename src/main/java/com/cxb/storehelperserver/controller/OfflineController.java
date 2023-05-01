@@ -41,7 +41,6 @@ public class OfflineController {
         TOfflineOrder order = new TOfflineOrder();
         order.setGid(req.getGid());
         order.setAid(req.getAid());
-        order.setAsid(0);
         order.setOtype(OFFLINE_OFFLINE_ORDER.getValue());
         order.setApply(req.getId());
         order.setPayPrice(new BigDecimal(0));

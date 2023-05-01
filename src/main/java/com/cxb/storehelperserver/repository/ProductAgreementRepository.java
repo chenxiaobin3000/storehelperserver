@@ -40,18 +40,6 @@ public class ProductAgreementRepository extends BaseRepository<TProductAgreement
         return productAgreement;
     }
 
-    public List<TProductAgreement> findByAid(int aid) {
-        TProductAgreementExample example = new TProductAgreementExample();
-        example.or().andAidEqualTo(aid);
-        return productAgreementMapper.selectByExample(example);
-    }
-
-    public boolean checkByAid(int aid) {
-        TProductAgreementExample example = new TProductAgreementExample();
-        example.or().andAidEqualTo(aid);
-        return null != productAgreementMapper.selectOneByExample(example);
-    }
-
     public boolean insert(int oid, int aid) {
         TProductAgreement row = new TProductAgreement();
         row.setOid(oid);

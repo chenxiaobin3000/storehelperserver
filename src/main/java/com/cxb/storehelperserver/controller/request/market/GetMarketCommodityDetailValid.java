@@ -32,9 +32,6 @@ public class GetMarketCommodityDetailValid implements IValid {
     @Min(value = 0, message = "平台账号错误")
     private int aid;
 
-    @Min(value = 0, message = "平台子账号错误")
-    private int asid;
-
     @NotEmpty(message = "请输入查询日期")
     @Length(min = 10, max = 10, message = "查询日期格式错误")
     private String date;

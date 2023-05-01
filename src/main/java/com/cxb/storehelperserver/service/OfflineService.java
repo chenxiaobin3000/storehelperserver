@@ -55,6 +55,9 @@ public class OfflineService {
     private OfflineReturnRepository offlineReturnRepository;
 
     @Resource
+    private OfflineStorageRepository offlineStorageRepository;
+
+    @Resource
     private MarketCommodityDetailRepository marketCommodityDetailRepository;
 
     @Resource
@@ -105,7 +108,7 @@ public class OfflineService {
                 storageOrder.setSid(sid);
                 storageOrder.setTid(0);
                 storageOrder.setApply(order.getApply());
-                return storageService.purchaseOut(id, storageOrder, oid, review, commoditys, weights, values, attrs);
+                return storageService.offlineOut(id, storageOrder, oid, review, commoditys, weights, values, attrs);
             }
         }
         return ret;
@@ -209,19 +212,16 @@ public class OfflineService {
         if (null == order.getReview()) {
             return RestResult.fail("未审核的订单不能撤销");
         }
-
-        // TODO 存在入库单就不能改
+        // 存在出库单就不能改
+        if (null != offlineStorageRepository.find(oid)) {
+            return RestResult.fail("已出库的订单不能撤销");
+        }
 
         // 验证公司
         int gid = order.getGid();
         String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
             return RestResult.fail(msg);
-        }
-
-        // 校验申请订单权限
-        if (!checkService.checkRolePermission(id, offline_offline)) {
-            return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
         RestResult ret = reviewService.revoke(id, gid, order.getOtype(), oid, order.getBatch(), order.getApply(), mp_offline_offline);
@@ -271,7 +271,6 @@ public class OfflineService {
 
         order.setGid(offline.getGid());
         order.setAid(offline.getAid());
-        order.setAsid(offline.getAsid());
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_offline_return, reviews);
         if (null != ret) {
@@ -315,7 +314,7 @@ public class OfflineService {
                 storageOrder.setSid(sid);
                 storageOrder.setTid(0);
                 storageOrder.setApply(order.getApply());
-                return storageService.purchaseIn(id, storageOrder, oid, review, commoditys, weights, values, attrs);
+                return storageService.offlineIn(id, storageOrder, oid, review, commoditys, weights, values, attrs);
             }
         }
         return ret;
@@ -440,8 +439,10 @@ public class OfflineService {
         if (null == order.getReview()) {
             return RestResult.fail("未审核的订单不能撤销");
         }
-
-        // TODO 存在入库单就不能改
+        // 存在入库单就不能改
+        if (null != offlineStorageRepository.find(oid)) {
+            return RestResult.fail("已入库的订单不能撤销");
+        }
 
         // 销售单
         int pid = getOfflineId(oid);
@@ -454,11 +455,6 @@ public class OfflineService {
         String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
             return RestResult.fail(msg);
-        }
-
-        // 校验申请订单权限
-        if (!checkService.checkRolePermission(id, offline_return)) {
-            return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
         // 还原扣除的采购单数量

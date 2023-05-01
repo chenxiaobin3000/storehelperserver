@@ -40,18 +40,6 @@ public class AgreementReturnRepository extends BaseRepository<TAgreementReturn> 
         return agreementReturn;
     }
 
-    public List<TAgreementReturn> findByAid(int aid) {
-        TAgreementReturnExample example = new TAgreementReturnExample();
-        example.or().andAidEqualTo(aid);
-        return agreementReturnMapper.selectByExample(example);
-    }
-
-    public boolean checkByAid(int aid) {
-        TAgreementReturnExample example = new TAgreementReturnExample();
-        example.or().andAidEqualTo(aid);
-        return null != agreementReturnMapper.selectOneByExample(example);
-    }
-
     public boolean insert(int oid, int aid) {
         TAgreementReturn row = new TAgreementReturn();
         row.setOid(oid);

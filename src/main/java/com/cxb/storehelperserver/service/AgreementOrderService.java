@@ -125,27 +125,27 @@ public class AgreementOrderService extends BaseService<HashMap> {
         return datas;
     }
 
-    public int total(int gid, int aid, int asid, int type, ReviewType review, CompleteType complete, String date, String search) {
+    public int total(int gid, int aid, int type, ReviewType review, CompleteType complete, String date, String search) {
         if (null == search) {
-            return agreementOrderRepository.total(gid, aid, asid, type, review, complete, date);
+            return agreementOrderRepository.total(gid, aid, type, review, complete, date);
         } else {
             TCommodity commodity = commodityRepository.search(search);
             if (null == commodity) {
                 return 0;
             }
-            return agreementCommodityRepository.total(gid, aid, asid, type, review, complete, date, commodity.getId());
+            return agreementCommodityRepository.total(gid, aid, type, review, complete, date, commodity.getId());
         }
     }
 
-    public List<TAgreementOrder> pagination(int gid, int aid, int asid, int type, int page, int limit, ReviewType review, CompleteType complete, String date, String search) {
+    public List<TAgreementOrder> pagination(int gid, int aid, int type, int page, int limit, ReviewType review, CompleteType complete, String date, String search) {
         if (null == search) {
-            return agreementOrderRepository.pagination(gid, aid, asid, type, page, limit, review, complete, date);
+            return agreementOrderRepository.pagination(gid, aid, type, page, limit, review, complete, date);
         } else {
             TCommodity commodity = commodityRepository.search(search);
             if (null == commodity) {
                 return null;
             }
-            return agreementCommodityRepository.pagination(gid, aid, asid, type, page, limit, review, complete, date, commodity.getId());
+            return agreementCommodityRepository.pagination(gid, aid, type, page, limit, review, complete, date, commodity.getId());
         }
     }
 

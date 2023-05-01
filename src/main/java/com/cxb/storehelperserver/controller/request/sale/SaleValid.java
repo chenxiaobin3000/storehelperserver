@@ -22,14 +22,8 @@ public class SaleValid implements IValid {
     @Min(value = 1, message = "公司账号错误")
     private int gid;
 
-    @Min(value = 1, message = "仓库账号错误")
-    private int sid;
-
     @Min(value = 1, message = "平台账号错误")
     private int aid;
-
-    @Min(value = 0, message = "平台子账号错误")
-    private int asid;
 
     @NotEmpty(message = "请输入订单制单日期")
     @Length(min = 19, max = 19, message = "订单制单日期格式错误")

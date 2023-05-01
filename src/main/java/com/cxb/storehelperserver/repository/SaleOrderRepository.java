@@ -94,12 +94,6 @@ public class SaleOrderRepository extends BaseRepository<TSaleOrder> {
         return saleOrderMapper.selectByExample(example);
     }
 
-    public boolean check(int sid) {
-        TSaleOrderExample example = new TSaleOrderExample();
-        example.or().andSidEqualTo(sid);
-        return null != saleOrderMapper.selectOneByExample(example);
-    }
-
     public boolean insert(TSaleOrder row) {
         if (saleOrderMapper.insert(row) > 0) {
             setCache(row.getId(), row);

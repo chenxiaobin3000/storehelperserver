@@ -36,54 +36,51 @@ public class StockCloudDayRepository extends BaseRepository<TStockCloudDay> {
         init("stockCloudDay::");
     }
 
-    public TStockCloudDay find(int sid, int aid, int asid, int cid, Date date) {
+    public TStockCloudDay find(int aid, int cid, Date date) {
         TStockCloudDayExample example = new TStockCloudDayExample();
-        example.or().andSidEqualTo(sid).andAidEqualTo(aid).andAsidEqualTo(asid).andCidEqualTo(cid).andCdateEqualTo(date);
+        example.or().andAidEqualTo(aid).andCidEqualTo(cid).andCdateEqualTo(date);
         return stockCloudDayMapper.selectOneByExample(example);
     }
 
-    public List<MyStockReport> findReport(int gid, int sid, int aid, int asid, Date start, Date end) {
-        return myStockCloudDayMapper.selectReport(gid, sid, aid, asid, new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
+    public List<MyStockReport> findReport(int aid, Date start, Date end) {
+        return myStockCloudDayMapper.selectReport(aid, new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
     }
 
     // 所有有库存的商品数量
-    public int total(int sid, int aid, int asid, Date date, String search) {
+    public int total(int aid, Date date, String search) {
         if (null != search) {
-            return myStockCloudDayMapper.count(sid, aid, asid, new java.sql.Date(date.getTime()), "%" + search + "%");
+            return myStockCloudDayMapper.count(aid, new java.sql.Date(date.getTime()), "%" + search + "%");
         } else {
             TStockCloudDayExample example = new TStockCloudDayExample();
-            example.or().andSidEqualTo(sid).andAidEqualTo(aid).andAsidEqualTo(asid).andCdateEqualTo(date);
+            example.or().andAidEqualTo(aid).andCdateEqualTo(date);
             return (int) stockCloudDayMapper.countByExample(example);
         }
     }
 
     // 所有有库存的商品列表
-    public List<MyStockCommodity> pagination(int sid, int aid, int asid, int page, int limit, Date date, String search) {
+    public List<MyStockCommodity> pagination(int aid, int page, int limit, Date date, String search) {
         String key = null;
         if (null != search) {
             key = "%" + search + "%";
         }
-        return myStockCloudDayMapper.pagination((page - 1) * limit, limit, sid, aid, asid, new java.sql.Date(date.getTime()), key);
+        return myStockCloudDayMapper.pagination((page - 1) * limit, limit, aid, new java.sql.Date(date.getTime()), key);
     }
 
     // 所有商品列表，库存为0也显示
-    public List<MyStockCommodity> paginationAll(int sid, int aid, int asid, int page, int limit, Date date, String search) {
+    public List<MyStockCommodity> paginationAll(int aid, int page, int limit, Date date, String search) {
         String key = null;
         if (null != search) {
             key = "%" + search + "%";
         }
-        return myStockCloudDayMapper.pagination_all((page - 1) * limit, limit, sid, aid, asid, new java.sql.Date(date.getTime()), key);
+        return myStockCloudDayMapper.pagination_all((page - 1) * limit, limit, aid, new java.sql.Date(date.getTime()), key);
     }
 
-    public boolean insert(int gid, int sid, int aid, int asid, int cid, BigDecimal price, int weight, int value, Date cdate) {
+    public boolean insert(int gid, int aid, int cid, BigDecimal price, int value, Date cdate) {
         TStockCloudDay row = new TStockCloudDay();
         row.setGid(gid);
-        row.setSid(sid);
         row.setAid(aid);
-        row.setAsid(asid);
         row.setCid(cid);
         row.setPrice(price);
-        row.setWeight(weight);
         row.setValue(value);
         row.setCdate(cdate);
         return stockCloudDayMapper.insert(row) > 0;

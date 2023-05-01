@@ -12,7 +12,8 @@ public class TypeDefine {
         BUSINESS_STORAGE(2),    // 仓储
         BUSINESS_PRODUCT(3),    // 生产
         BUSINESS_AGREEMENT(4),  // 履约
-        BUSINESS_SALE(5);       // 销售
+        BUSINESS_SALE(5),       // 线上销售
+        BUSINESS_OFFLINE(6);    // 线下销售
 
         private int value = 0;
 
@@ -30,8 +31,10 @@ public class TypeDefine {
                     return BUSINESS_PRODUCT;
                 case 4:
                     return BUSINESS_AGREEMENT;
+                case 5:
+                    return BUSINESS_SALE;
             }
-            return BUSINESS_SALE;
+            return BUSINESS_OFFLINE;
         }
 
         public int getValue() {

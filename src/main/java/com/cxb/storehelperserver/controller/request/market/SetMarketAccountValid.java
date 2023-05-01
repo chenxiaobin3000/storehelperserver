@@ -1,4 +1,4 @@
-package com.cxb.storehelperserver.controller.request.dock;
+package com.cxb.storehelperserver.controller.request.market;
 
 import com.cxb.storehelperserver.controller.request.IValid;
 import lombok.Data;
@@ -13,7 +13,7 @@ import javax.validation.constraints.NotEmpty;
  * date: 2022/12/21
  */
 @Data
-public class AddMarketAccountValid implements IValid {
+public class SetMarketAccountValid implements IValid {
     @Min(value = 1, message = "账号错误")
     private int id;
 
@@ -22,6 +22,9 @@ public class AddMarketAccountValid implements IValid {
 
     @Min(value = 1, message = "平台账号错误")
     private int mid;
+
+    @Min(value = 1, message = "账号信息错误")
+    private int aid;
 
     @NotEmpty(message = "请输入账号")
     @Length(min = 2, message = "账号长度不能小于2个字符")

@@ -55,9 +55,6 @@ public class SaleService {
     private SaleRemarkRepository saleRemarkRepository;
 
     @Resource
-    private SaleLossRepository saleLossRepository;
-
-    @Resource
     private SaleTypeRepository saleTypeRepository;
 
     @Resource
@@ -84,12 +81,10 @@ public class SaleService {
 
         // 生成销售单
         int gid = order.getGid();
-        int sid = order.getSid();
         int aid = order.getAid();
-        int asid = order.getAsid();
         Date date = order.getApplyTime();
         val sales = new ArrayList<TSaleCommodity>();
-        val list = marketCommodityDetailRepository.sale(order.getSid(), aid, asid, date);
+        val list = marketCommodityDetailRepository.sale(aid, date);
         if (null == list) {
             return RestResult.fail("未查询到销售信息");
         }
@@ -108,14 +103,10 @@ public class SaleService {
         for (TSaleCommodity c : sales) {
             // 获取商品单位信息
             int cid = c.getCid();
-            int weight = c.getWeight();
             int value = c.getValue();
-            TStockCloudDay stock = stockCloudService.getStockCommodity(gid, sid, aid, asid, cid);
+            TStockCloudDay stock = stockCloudService.getStockCommodity(gid, aid, cid);
             if (null == stock) {
                 return RestResult.fail("未查询到库存类型:" + cid);
-            }
-            if (weight > stock.getWeight()) {
-                return RestResult.fail("库存商品重量不足:" + cid);
             }
             if (value > stock.getValue()) {
                 return RestResult.fail("库存商品件数不足:" + cid);
@@ -144,7 +135,13 @@ public class SaleService {
         if (null != msg) {
             return RestResult.fail(msg);
         }
-        return reviewService.apply(id, order.getGid(), order.getOtype(), oid, batch, reviews);
+
+        // 一键审核
+        ret = reviewService.apply(id, order.getGid(), order.getOtype(), oid, batch, reviews);
+        if (RestResult.isOk(ret) && review > 0) {
+            return reviewSale(id, oid);
+        }
+        return ret;
     }
 
     public RestResult delSale(int id, int oid) {
@@ -186,8 +183,6 @@ public class SaleService {
             return RestResult.fail("您没有审核权限");
         }
 
-        // TODO 校验库存
-
         // 添加审核信息
         Date reviewTime = new Date();
         order.setReview(id);
@@ -201,7 +196,7 @@ public class SaleService {
         if (null != msg) {
             return RestResult.fail(msg);
         }
-        return reviewService.review(order.getApply(), id, group.getGid(), order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
+        return reviewService.review(order.getApply(), id, group.getGid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
     }
 
     public RestResult revokeSale(int id, int oid) {
@@ -220,12 +215,7 @@ public class SaleService {
             return RestResult.fail(msg);
         }
 
-        // 校验申请订单权限
-        if (!checkService.checkRolePermission(id, market_sale)) {
-            return RestResult.fail("本账号没有相关的权限，请联系管理员");
-        }
-
-        RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApply(), mp_sale_sale);
+        RestResult ret = reviewService.revoke(id, gid, order.getOtype(), oid, order.getBatch(), order.getApply(), mp_sale_sale);
         if (null != ret) {
             return ret;
         }
@@ -263,24 +253,7 @@ public class SaleService {
     /**
      * desc: 销售损耗
      */
-    public RestResult loss(int id, TSaleOrder order, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> values, List<Integer> attrs) {
-        // 履约单未审核不能损耗
-        int rid = order.getPid();
-        TAgreementOrder agreement = agreementOrderRepository.find(rid);
-        if (null == agreement) {
-            return RestResult.fail("未查询到履约单信息");
-        }
-        if (!agreement.getOtype().equals(AGREEMENT_SHIPPED_ORDER.getValue())) {
-            return RestResult.fail("履约单据类型异常");
-        }
-        if (null == agreement.getReview()) {
-            return RestResult.fail("履约单未审核通过，不能进行损耗");
-        }
-
-        order.setGid(agreement.getGid());
-        order.setSid(agreement.getSid());
-        order.setAid(agreement.getAid());
-        order.setAsid(agreement.getAsid());
+    public RestResult loss(int id, TSaleOrder order, int review, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> values, List<Integer> attrs) {
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_sale_loss, reviews);
         if (null != ret) {
@@ -306,7 +279,7 @@ public class SaleService {
 
         // 生成损耗单
         val comms = new ArrayList<TSaleCommodity>();
-        ret = createLossComms(order, order.getPid(), commoditys, prices, values, comms);
+        ret = createLossComms(order, commoditys, prices, values, comms);
         if (null != ret) {
             return ret;
         }
@@ -322,7 +295,13 @@ public class SaleService {
         if (null != msg) {
             return RestResult.fail(msg);
         }
-        return reviewService.apply(id, order.getGid(), order.getSid(), order.getOtype(), oid, batch, reviews);
+
+        // 一键审核
+        ret = reviewService.apply(id, order.getGid(), order.getOtype(), oid, batch, reviews);
+        if (RestResult.isOk(ret) && review > 0) {
+            return reviewLoss(id, oid);
+        }
+        return ret;
     }
 
     /**
@@ -348,9 +327,9 @@ public class SaleService {
             return ret;
         }
 
-        // 生成退货单
+        // 生成损耗单
         val comms = new ArrayList<TSaleCommodity>();
-        ret = createLossComms(order, order.getPid(), commoditys, prices, values, comms);
+        ret = createLossComms(order, commoditys, prices, values, comms);
         if (null != ret) {
             return ret;
         }
@@ -384,10 +363,9 @@ public class SaleService {
         if (!reviewService.checkReview(id, order.getOtype(), oid)) {
             return RestResult.fail("您没有审核权限");
         }
-        int pid = order.getPid();
 
         // 损耗类型
-        val losses = saleTypeRepository.findByGroup(order.getGid());
+        val losses = saleTypeRepository.findByGroup(gid);
         if (null == losses) {
             return RestResult.fail("未查询到损耗类型信息");
         }
@@ -405,54 +383,6 @@ public class SaleService {
             return RestResult.fail("未查询到对应的损耗类型");
         }
 
-        // 校验损耗订单总价格和总量不能超出履约单
-        if (SALE_CONST.getValue() != add) {
-            boolean saleAdd = SALE_ADD.getValue() == add;
-            TAgreementOrder agreement = agreementOrderRepository.find(pid);
-            if (null == agreement) {
-                return RestResult.fail("未查询到对应的履约单");
-            }
-            int value = saleAdd ? agreement.getCurValue() + order.getValue() : agreement.getCurValue() - order.getValue();
-            if (value < 0) {
-                return RestResult.fail("损耗商品总件数不能超出履约订单总件数");
-            }
-            BigDecimal price = saleAdd ? agreement.getCurPrice().add(order.getPrice()) : agreement.getCurPrice().subtract(order.getPrice());
-            if (price.compareTo(BigDecimal.ZERO) < 0) {
-                return RestResult.fail("损耗商品总价不能超出履约订单总价");
-            }
-            if (0 == value) {
-                agreement.setComplete(new Byte("1"));
-            }
-            if (saleAdd) {
-                agreement.setComplete(new Byte("0"));
-            }
-            agreement.setCurValue(value);
-            agreement.setCurPrice(price);
-            if (!agreementOrderRepository.update(agreement)) {
-                return RestResult.fail("修改履约单数据失败");
-            }
-
-            // TODO 同个商品多个价格
-            // 更新履约单商品存量
-            val saleCommodities = saleCommodityRepository.find(oid);
-            if (null == saleCommodities || saleCommodities.isEmpty()) {
-                return RestResult.fail("未查询到销售商品信息");
-            }
-            val agreementCommodities = agreementCommodityRepository.find(pid);
-            if (null == agreementCommodities || agreementCommodities.isEmpty()) {
-                return RestResult.fail("未查询到履约商品信息");
-            }
-            for (TSaleCommodity sc : saleCommodities) {
-                for (TAgreementCommodity ac : agreementCommodities) {
-                    if (sc.getCid().equals(ac.getCid())) {
-                        ac.setCurValue(saleAdd ? ac.getCurValue() + sc.getValue() : ac.getCurValue() - sc.getValue());
-                    }
-                }
-            }
-            agreementCommodityRepository.update(agreementCommodities, pid);
-            agreementOrderService.clean(pid);
-        }
-
         // 添加审核信息
         Date reviewTime = new Date();
         order.setReview(id);
@@ -461,11 +391,14 @@ public class SaleService {
             return RestResult.fail("审核用户订单信息失败");
         }
 
-        // 添加关联
-        if (!saleLossRepository.insert(oid, order.getPid())) {
-            return RestResult.fail("添加平台损耗信息失败");
+        // 操作库存
+        if (SALE_CONST.getValue() != add) {
+            String msg = stockCloudService.handleSaleStock(order, SALE_ADD.getValue() == add);
+            if (null != msg) {
+                return RestResult.fail(msg);
+            }
         }
-        return reviewService.review(order.getApply(), id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
+        return reviewService.review(order.getApply(), id, gid, order.getOtype(), oid, order.getBatch(), order.getApplyTime());
     }
 
     public RestResult revokeLoss(int id, int oid) {
@@ -476,18 +409,12 @@ public class SaleService {
         if (null == order.getReview()) {
             return RestResult.fail("未审核的订单不能撤销");
         }
-        int pid = order.getPid();
 
         // 验证公司
         int gid = order.getGid();
         String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
             return RestResult.fail(msg);
-        }
-
-        // 校验申请订单权限
-        if (!checkService.checkRolePermission(id, market_loss)) {
-            return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
         // 损耗类型
@@ -509,67 +436,22 @@ public class SaleService {
             return RestResult.fail("未查询到对应的损耗类型");
         }
 
-        // 还原扣除的履约单数量
-        if (SALE_CONST.getValue() != add) {
-            boolean saleAdd = SALE_ADD.getValue() == add;
-            TAgreementOrder agreement = agreementOrderRepository.find(pid);
-            if (null == agreement) {
-                return RestResult.fail("未查询到对应的履约单");
-            }
-            int value = saleAdd ? agreement.getCurValue() - order.getValue() : agreement.getCurValue() + order.getValue();
-            if (value < 0) {
-                return RestResult.fail("损耗商品总件数不能超出履约订单总件数");
-            }
-            BigDecimal price = saleAdd ? agreement.getCurPrice().subtract(order.getPrice()) : agreement.getCurPrice().add(order.getPrice());
-            if (price.compareTo(BigDecimal.ZERO) < 0) {
-                return RestResult.fail("损耗商品总价不能超出履约订单总价");
-            }
-            if (0 == value) {
-                agreement.setComplete(new Byte("1"));
-            }
-            if (!saleAdd) {
-                agreement.setComplete(new Byte("0"));
-            }
-            agreement.setCurValue(value);
-            agreement.setCurPrice(price);
-            if (!agreementOrderRepository.update(agreement)) {
-                return RestResult.fail("修改履约单数据失败");
-            }
-
-            // TODO 同个商品多个价格
-            // 更新履约单商品存量
-            val saleCommodities = saleCommodityRepository.find(oid);
-            if (null == saleCommodities || saleCommodities.isEmpty()) {
-                return RestResult.fail("未查询到销售商品信息");
-            }
-            val agreementCommodities = agreementCommodityRepository.find(pid);
-            if (null == agreementCommodities || agreementCommodities.isEmpty()) {
-                return RestResult.fail("未查询到履约商品信息");
-            }
-            for (TSaleCommodity sc : saleCommodities) {
-                for (TAgreementCommodity ac : agreementCommodities) {
-                    if (sc.getCid().equals(ac.getCid())) {
-                        ac.setCurValue(saleAdd ? ac.getCurValue() - sc.getValue() : ac.getCurValue() + sc.getValue());
-                    }
-                }
-            }
-            agreementCommodityRepository.update(agreementCommodities, pid);
-            agreementOrderService.clean(pid);
-        }
-
-        RestResult ret = reviewService.revoke(id, gid, order.getSid(), order.getOtype(), oid, order.getBatch(), order.getApply(), mp_sale_loss);
+        RestResult ret = reviewService.revoke(id, gid, order.getOtype(), oid, order.getBatch(), order.getApply(), mp_sale_loss);
         if (null != ret) {
             return ret;
         }
 
         // 撤销审核人信息
-        if (!agreementOrderRepository.setReviewNull(oid)) {
+        if (!saleOrderRepository.setReviewNull(oid)) {
             return RestResult.fail("撤销订单审核信息失败");
         }
 
-        // 删除关联
-        if (!saleLossRepository.delete(oid)) {
-            return RestResult.fail("删除平台损耗信息失败");
+        // 操作库存
+        if (SALE_CONST.getValue() != add) {
+            msg = stockCloudService.handleSaleStock(order, SALE_ADD.getValue() != add);
+            if (null != msg) {
+                return RestResult.fail(msg);
+            }
         }
         return RestResult.ok();
     }
@@ -586,45 +468,26 @@ public class SaleService {
         return reviewService.checkPerm(gid, reviewPerm, reviews);
     }
 
-    private RestResult createLossComms(TSaleOrder order, int aid, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> values, List<TSaleCommodity> list) {
+    private RestResult createLossComms(TSaleOrder order, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> values, List<TSaleCommodity> list) {
         // 生成损耗单
         int size = commoditys.size();
         if (size != prices.size() || size != values.size()) {
             return RestResult.fail("商品信息异常");
         }
-        val agreementCommodities = agreementCommodityRepository.find(aid);
-        if (null == agreementCommodities || agreementCommodities.isEmpty()) {
-            return RestResult.fail("未查询到履约商品信息");
-        }
-        int all = 0;
+        int total = 0;
         BigDecimal price = new BigDecimal(0);
         for (int i = 0; i < size; i++) {
-            boolean find = false;
-            int cid = commoditys.get(i);
-            int value = values.get(i);
-            for (TAgreementCommodity ac : agreementCommodities) {
-                if (ac.getCid() == cid) {
-                    find = true;
-                    if (value > ac.getValue()) {
-                        return RestResult.fail("退货商品件数不能大于发货件数:" + cid);
-                    }
+            TSaleCommodity c = new TSaleCommodity();
+            c.setCid(commoditys.get(i));
+            c.setPrice(prices.get(i));
+            c.setValue(values.get(i));
+            list.add(c);
 
-                    TSaleCommodity c = new TSaleCommodity();
-                    c.setCid(cid);
-                    c.setPrice(prices.get(i));
-                    c.setValue(value);
-                    list.add(c);
+            total = total + c.getValue();
+            price = price.add(c.getPrice());
 
-                    all = all + value;
-                    price = price.add(c.getPrice());
-                    break;
-                }
-            }
-            if (!find) {
-                return RestResult.fail("未查询到商品id:" + cid);
-            }
         }
-        order.setValue(all);
+        order.setValue(total);
         order.setPrice(price);
         return null;
     }

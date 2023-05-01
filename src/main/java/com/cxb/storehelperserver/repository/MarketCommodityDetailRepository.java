@@ -49,8 +49,8 @@ public class MarketCommodityDetailRepository extends BaseRepository<TMarketCommo
         return detail;
     }
 
-    public List<Integer> findIds(int sid, int aid, int asid, Date date) {
-        return myMarketCommodityMapper.findIds(sid, aid, asid, new java.sql.Date(date.getTime()));
+    public List<Integer> findIds(int sid, int aid, Date date) {
+        return myMarketCommodityMapper.findIds(sid, aid, new java.sql.Date(date.getTime()));
     }
 
     public List<MyMarketReport> findByDate(int gid, int mid, Date start, Date end) {
@@ -61,24 +61,24 @@ public class MarketCommodityDetailRepository extends BaseRepository<TMarketCommo
         return myMarketMapper.selectInCids(gid, mid, cids);
     }
 
-    public int total(int sid, int aid, int asid, String search) {
+    public int total(int sid, int aid, String search) {
         if (null != search) {
-            return myMarketCommodityMapper.countDetail(sid, aid, asid, "%" + search + "%");
+            return myMarketCommodityMapper.countDetail(sid, aid, "%" + search + "%");
         } else {
-            return myMarketCommodityMapper.countDetail(sid, aid, asid, null);
+            return myMarketCommodityMapper.countDetail(sid, aid, null);
         }
     }
 
-    public List<MyMarketCommodity> pagination(int sid, int aid, int asid, int page, int limit, Date date, String search) {
+    public List<MyMarketCommodity> pagination(int sid, int aid, int page, int limit, Date date, String search) {
         if (null != search) {
-            return myMarketCommodityMapper.paginationDetail((page - 1) * limit, limit, sid, aid, asid, new java.sql.Date(date.getTime()), "%" + search + "%");
+            return myMarketCommodityMapper.paginationDetail((page - 1) * limit, limit, sid, aid, new java.sql.Date(date.getTime()), "%" + search + "%");
         } else {
-            return myMarketCommodityMapper.paginationDetail((page - 1) * limit, limit, sid, aid, asid, new java.sql.Date(date.getTime()), null);
+            return myMarketCommodityMapper.paginationDetail((page - 1) * limit, limit, sid, aid, new java.sql.Date(date.getTime()), null);
         }
     }
 
-    public List<MyMarketCommodity> sale(int sid, int aid, int asid, Date date) {
-        return myMarketCommodityMapper.sale(sid, aid, asid, new java.sql.Date(date.getTime()));
+    public List<MyMarketCommodity> sale(int aid, Date date) {
+        return myMarketCommodityMapper.sale(aid, new java.sql.Date(date.getTime()));
     }
 
     public boolean insert(TMarketCommodityDetail row) {

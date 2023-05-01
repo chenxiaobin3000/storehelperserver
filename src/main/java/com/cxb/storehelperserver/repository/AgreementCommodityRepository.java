@@ -60,11 +60,11 @@ public class AgreementCommodityRepository extends BaseRepository<List> {
         return agreementCommoditys;
     }
 
-    public int total(int gid, int aid, int asid, int type, ReviewType review, CompleteType complete, String search, int cid) {
+    public int total(int gid, int aid, int type, ReviewType review, CompleteType complete, String search, int cid) {
         return 0;
     }
 
-    public List<TAgreementOrder> pagination(int gid, int aid, int asid, int type, int page, int limit, ReviewType review, CompleteType complete, String date, int cid) {
+    public List<TAgreementOrder> pagination(int gid, int aid, int type, int page, int limit, ReviewType review, CompleteType complete, String date, int cid) {
         return null;
     }
 

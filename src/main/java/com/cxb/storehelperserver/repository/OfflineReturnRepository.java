@@ -40,18 +40,6 @@ public class OfflineReturnRepository extends BaseRepository<TOfflineReturn> {
         return offlineReturn;
     }
 
-    public List<TOfflineReturn> findBySid(int sid) {
-        TOfflineReturnExample example = new TOfflineReturnExample();
-        example.or().andSidEqualTo(sid);
-        return offlineReturnMapper.selectByExample(example);
-    }
-
-    public boolean checkBySid(int sid) {
-        TOfflineReturnExample example = new TOfflineReturnExample();
-        example.or().andSidEqualTo(sid);
-        return null != offlineReturnMapper.selectOneByExample(example);
-    }
-
     public boolean insert(int oid, int sid) {
         TOfflineReturn row = new TOfflineReturn();
         row.setOid(oid);

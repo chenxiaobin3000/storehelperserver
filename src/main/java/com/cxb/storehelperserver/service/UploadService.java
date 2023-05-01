@@ -29,19 +29,22 @@ import static com.cxb.storehelperserver.util.TypeDefine.OrderType;
 @Transactional(rollbackFor = Exception.class)
 public class UploadService {
     @Resource
-    private PurchaseAttachmentRepository purchaseAttachmentRepository;
+    private AgreementAttachmentRepository agreementAttachmentRepository;
 
     @Resource
-    private StorageAttachmentRepository storageAttachmentRepository;
+    private OfflineAttachmentRepository offlineAttachmentRepository;
+
+    @Resource
+    private PurchaseAttachmentRepository purchaseAttachmentRepository;
 
     @Resource
     private ProductAttachmentRepository productAttachmentRepository;
 
     @Resource
-    private AgreementAttachmentRepository agreementAttachmentRepository;
+    private SaleAttachmentRepository saleAttachmentRepository;
 
     @Resource
-    private SaleAttachmentRepository saleAttachmentRepository;
+    private StorageAttachmentRepository storageAttachmentRepository;
 
     @Resource
     private DateUtil dateUtil;
@@ -85,17 +88,24 @@ public class UploadService {
                 }
                 data.put("id", purchaseAttachment.getId());
                 break;
-            case STORAGE_PURCHASE_ORDER:
-            case STORAGE_DISPATCH_ORDER:
+            case STORAGE_PURCHASE_IN_ORDER:
+            case STORAGE_PURCHASE_OUT_ORDER:
+            case STORAGE_PRODUCT_IN_ORDER:
+            case STORAGE_PRODUCT_OUT_ORDER:
+            case STORAGE_AGREEMENT_IN_ORDER:
+            case STORAGE_AGREEMENT_OUT_ORDER:
+            case STORAGE_OFFLINE_IN_ORDER:
+            case STORAGE_OFFLINE_OUT_ORDER:
             case STORAGE_LOSS_ORDER:
-            case STORAGE_RETURN_ORDER:
                 TStorageAttachment storageAttachment = storageAttachmentRepository.insert(0, imagesrc, path, name);
                 if (null == storageAttachment) {
                     return RestResult.fail("写入数据失败，请联系管理员");
                 }
                 data.put("id", storageAttachment.getId());
                 break;
-            case PRODUCT_COLLECT_ORDER:
+            case PRODUCT_PROCESS_ORDER:
+            case PRODUCT_COMPLETE_ORDER:
+            case PRODUCT_LOSS_ORDER:
                 TProductAttachment productAttachment = productAttachmentRepository.insert(0, imagesrc, path, name);
                 if (null == productAttachment) {
                     return RestResult.fail("写入数据失败，请联系管理员");
@@ -104,8 +114,6 @@ public class UploadService {
                 break;
             case AGREEMENT_SHIPPED_ORDER:
             case AGREEMENT_RETURN_ORDER:
-            case AGREEMENT_OFFLINE_ORDER:
-            case AGREEMENT_BACK_ORDER:
                 TAgreementAttachment agreementAttachment = agreementAttachmentRepository.insert(0, imagesrc, path, name);
                 if (null == agreementAttachment) {
                     return RestResult.fail("写入数据失败，请联系管理员");
@@ -119,6 +127,14 @@ public class UploadService {
                     return RestResult.fail("写入数据失败，请联系管理员");
                 }
                 data.put("id", saleAttachment.getId());
+                break;
+            case OFFLINE_OFFLINE_ORDER:
+            case OFFLINE_RETURN_ORDER:
+                TOfflineAttachment offlineAttachment = offlineAttachmentRepository.insert(0, imagesrc, path, name);
+                if (null == offlineAttachment) {
+                    return RestResult.fail("写入数据失败，请联系管理员");
+                }
+                data.put("id", offlineAttachment.getId());
                 break;
             default:
                 return RestResult.fail("数据类型错误");

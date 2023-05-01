@@ -1,4 +1,4 @@
-package com.cxb.storehelperserver.controller.request.dock;
+package com.cxb.storehelperserver.controller.request.market;
 
 import com.cxb.storehelperserver.controller.request.IValid;
 import lombok.Data;

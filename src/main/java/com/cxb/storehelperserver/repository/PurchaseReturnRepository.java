@@ -40,18 +40,6 @@ public class PurchaseReturnRepository extends BaseRepository<TPurchaseReturn> {
         return purchaseReturn;
     }
 
-    public List<TPurchaseReturn> findByPid(int pid) {
-        TPurchaseReturnExample example = new TPurchaseReturnExample();
-        example.or().andPidEqualTo(pid);
-        return purchaseReturnMapper.selectByExample(example);
-    }
-
-    public boolean checkByPid(int pid) {
-        TPurchaseReturnExample example = new TPurchaseReturnExample();
-        example.or().andPidEqualTo(pid);
-        return null != purchaseReturnMapper.selectOneByExample(example);
-    }
-
     public boolean insert(int oid, int pid) {
         TPurchaseReturn row = new TPurchaseReturn();
         row.setOid(oid);

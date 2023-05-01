@@ -68,11 +68,6 @@ public class CommodityController {
         return commodityService.getStorageCommodity(req.getId(), req.getSid(), req.getPage(), req.getLimit(), req.getSearch());
     }
 
-    @PostMapping("/getAccountCommodity")
-    public RestResult getAccountCommodity(@Validated @RequestBody GetAccountCommodityValid req) {
-        return commodityService.getAccountCommodity(req.getId(), req.getGid(), req.getAid(), req.getAsid(), req.getPage(), req.getLimit(), req.getSearch());
-    }
-
     @PostMapping("/setCommodityOriginal")
     public RestResult setCommodityOriginal(@Validated @RequestBody SetCommodityOriginalValid req) {
         return commodityService.setCommodityOriginal(req.getId(), req.getGid(), req.getCid(), req.getOid());

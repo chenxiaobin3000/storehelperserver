@@ -94,12 +94,6 @@ public class ProductOrderRepository extends BaseRepository<TProductOrder> {
         return productOrderMapper.selectByExample(example);
     }
 
-    public boolean check(int sid) {
-        TProductOrderExample example = new TProductOrderExample();
-        example.or().andSidEqualTo(sid);
-        return null != productOrderMapper.selectOneByExample(example);
-    }
-
     public boolean insert(TProductOrder row) {
         if (productOrderMapper.insert(row) > 0) {
             setCache(row.getId(), row);

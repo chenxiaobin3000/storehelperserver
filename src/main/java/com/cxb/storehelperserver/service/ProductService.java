@@ -11,13 +11,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.*;
 
 import static com.cxb.storehelperserver.util.Permission.*;
-import static com.cxb.storehelperserver.util.TypeDefine.OrderType.PURCHASE_PURCHASE_ORDER;
-import static com.cxb.storehelperserver.util.TypeDefine.ProductType;
-import static com.cxb.storehelperserver.util.TypeDefine.ProductType.*;
 import static com.cxb.storehelperserver.util.TypeDefine.OrderType.PRODUCT_PROCESS_ORDER;
 
 /**
@@ -55,6 +51,9 @@ public class ProductService {
 
     @Resource
     private ProductRemarkRepository productRemarkRepository;
+
+    @Resource
+    private ProductStorageRepository productStorageRepository;
 
     @Resource
     private CommodityOriginalRepository commodityOriginalRepository;
@@ -214,19 +213,16 @@ public class ProductService {
         if (order.getUnit() > order.getCurUnit()) {
             return RestResult.fail("已结算的订单不能撤销");
         }
-
-        // TODO 存在入库单就不能改
+        // 存在出库单就不能撤销
+        if (null != productStorageRepository.find(oid)) {
+            return RestResult.fail("已出库的订单不能撤销");
+        }
 
         // 验证公司
         int gid = order.getGid();
         String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
             return RestResult.fail(msg);
-        }
-
-        // 校验申请订单权限
-        if (!checkService.checkRolePermission(id, product_process)) {
-            return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
         RestResult ret = reviewService.revoke(id, gid, order.getOtype(), oid, order.getBatch(), order.getApply(), mp_product_process);
@@ -428,8 +424,10 @@ public class ProductService {
         if (null == order.getReview()) {
             return RestResult.fail("未审核的订单不能撤销");
         }
-
-        // TODO 存在出库单就不能改
+        // 存在入库单就不能改
+        if (null != productStorageRepository.find(oid)) {
+            return RestResult.fail("已入库的订单不能撤销");
+        }
 
         // 生产单
         int pid = getProductId(oid);
@@ -442,11 +440,6 @@ public class ProductService {
         String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
             return RestResult.fail(msg);
-        }
-
-        // 校验申请订单权限
-        if (!checkService.checkRolePermission(id, product_complete)) {
-            return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
         // 还原扣除的生产单数量
@@ -599,19 +592,16 @@ public class ProductService {
         if (null == order.getReview()) {
             return RestResult.fail("未审核的订单不能撤销");
         }
-
-        // TODO 存在出库单就不能改
+        // 存在出库单就不能改
+        if (null != productStorageRepository.find(oid)) {
+            return RestResult.fail("已出库的订单不能撤销");
+        }
 
         // 验证公司
         int gid = order.getGid();
         String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
             return RestResult.fail(msg);
-        }
-
-        // 校验申请订单权限
-        if (!checkService.checkRolePermission(id, product_loss)) {
-            return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
         RestResult ret = reviewService.revoke(id, gid, order.getOtype(), oid, order.getBatch(), order.getApply(), mp_product_loss);

@@ -29,6 +29,9 @@ public class TransportService {
     private AgreementOrderService agreementOrderService;
 
     @Resource
+    private OfflineOrderService offlineOrderService;
+
+    @Resource
     private PurchaseOrderService purchaseOrderService;
 
     @Resource
@@ -38,19 +41,16 @@ public class TransportService {
     private AgreementFareRepository agreementFareRepository;
 
     @Resource
-    private StorageOrderService storageOrderService;
+    private OfflineOrderRepository offlineOrderRepository;
+
+    @Resource
+    private OfflineFareRepository offlineFareRepository;
 
     @Resource
     private PurchaseOrderRepository purchaseOrderRepository;
 
     @Resource
     private PurchaseFareRepository purchaseFareRepository;
-
-    @Resource
-    private StorageOrderRepository storageOrderRepository;
-
-    @Resource
-    private OfflineFareRepository offlineFareRepository;
 
     public RestResult addOrderFare(int id, TypeDefine.BusinessType otype, int oid, String ship, String code, String phone, BigDecimal fare, String remark) {
         switch (otype) {
@@ -75,6 +75,27 @@ public class TransportService {
                 }
                 return RestResult.ok();
             }
+            case BUSINESS_OFFLINE: {
+                // 验证公司
+                TOfflineOrder order = offlineOrderRepository.find(oid);
+                if (null == order) {
+                    return RestResult.fail("未查询到订单信息");
+                }
+                String msg = checkService.checkGroup(id, order.getGid());
+                if (null != msg) {
+                    return RestResult.fail(msg);
+                }
+                if (!order.getApply().equals(id)) {
+                    return RestResult.fail("只能由申请人添加信息");
+                }
+                offlineOrderService.clean(oid);
+
+                // 运费
+                if (!offlineFareRepository.insert(oid, ship, code, phone, fare, remark, new Date())) {
+                    return RestResult.fail("添加物流费用失败");
+                }
+                return RestResult.ok();
+            }
             case BUSINESS_PURCHASE: {
                 // 验证公司
                 TPurchaseOrder order = purchaseOrderRepository.find(oid);
@@ -92,27 +113,6 @@ public class TransportService {
 
                 // 运费
                 if (!purchaseFareRepository.insert(oid, ship, code, phone, fare, remark, new Date())) {
-                    return RestResult.fail("添加物流费用失败");
-                }
-                return RestResult.ok();
-            }
-            case BUSINESS_STORAGE: {
-                // 验证公司
-                TStorageOrder order = storageOrderRepository.find(oid);
-                if (null == order) {
-                    return RestResult.fail("未查询到订单信息");
-                }
-                String msg = checkService.checkGroup(id, order.getGid());
-                if (null != msg) {
-                    return RestResult.fail(msg);
-                }
-                if (!order.getApply().equals(id)) {
-                    return RestResult.fail("只能由申请人添加信息");
-                }
-                storageOrderService.clean(oid);
-
-                // 运费
-                if (!offlineFareRepository.insert(oid, ship, code, phone, fare, remark, new Date())) {
                     return RestResult.fail("添加物流费用失败");
                 }
                 return RestResult.ok();
@@ -156,6 +156,37 @@ public class TransportService {
                 }
                 return RestResult.ok();
             }
+            case BUSINESS_OFFLINE: {
+                // 验证公司
+                TOfflineOrder order = offlineOrderRepository.find(oid);
+                if (null == order) {
+                    return RestResult.fail("未查询到订单信息");
+                }
+                String msg = checkService.checkGroup(id, order.getGid());
+                if (null != msg) {
+                    return RestResult.fail(msg);
+                }
+                offlineOrderService.clean(oid);
+
+                // 运费由申请人删，已审核由审核人删，备注由审核人删
+                TOfflineFare fare = offlineFareRepository.find(fid);
+                if (null == fare) {
+                    return RestResult.fail("未查询到运费信息");
+                }
+                if (null != fare.getReview()) {
+                    if (!fare.getReview().equals(id)) {
+                        return RestResult.fail("要删除已审核信息，请联系审核人");
+                    }
+                } else {
+                    if (!order.getApply().equals(id)) {
+                        return RestResult.fail("只能由申请人删除信息");
+                    }
+                }
+                if (!offlineFareRepository.delete(fid)) {
+                    return RestResult.fail("删除运费信息失败");
+                }
+                return RestResult.ok();
+            }
             case BUSINESS_PURCHASE: {
                 // 验证公司
                 TPurchaseOrder order = purchaseOrderRepository.find(oid);
@@ -183,37 +214,6 @@ public class TransportService {
                     }
                 }
                 if (!purchaseFareRepository.delete(fid)) {
-                    return RestResult.fail("删除运费信息失败");
-                }
-                return RestResult.ok();
-            }
-            case BUSINESS_STORAGE: {
-                // 验证公司
-                TStorageOrder order = storageOrderRepository.find(oid);
-                if (null == order) {
-                    return RestResult.fail("未查询到订单信息");
-                }
-                String msg = checkService.checkGroup(id, order.getGid());
-                if (null != msg) {
-                    return RestResult.fail(msg);
-                }
-                storageOrderService.clean(oid);
-
-                // 运费由申请人删，已审核由审核人删，备注由审核人删
-                TStorageFare fare = offlineFareRepository.find(fid);
-                if (null == fare) {
-                    return RestResult.fail("未查询到运费信息");
-                }
-                if (null != fare.getReview()) {
-                    if (!fare.getReview().equals(id)) {
-                        return RestResult.fail("要删除已审核信息，请联系审核人");
-                    }
-                } else {
-                    if (!order.getApply().equals(id)) {
-                        return RestResult.fail("只能由申请人删除信息");
-                    }
-                }
-                if (!offlineFareRepository.delete(fid)) {
                     return RestResult.fail("删除运费信息失败");
                 }
                 return RestResult.ok();

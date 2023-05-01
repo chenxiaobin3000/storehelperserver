@@ -101,12 +101,6 @@ public class StorageOrderRepository extends BaseRepository<TStorageOrder> {
         return null != storageOrderMapper.selectOneByExample(example);
     }
 
-    public boolean checkBySupplier(int sid) {
-        TStorageOrderExample example = new TStorageOrderExample();
-        example.or().andSid2EqualTo(sid);
-        return null != storageOrderMapper.selectOneByExample(example);
-    }
-
     public boolean insert(TStorageOrder row) {
         if (storageOrderMapper.insert(row) > 0) {
             setCache(row.getId(), row);

@@ -20,8 +20,11 @@ public class LossValid implements IValid {
     @Min(value = 1, message = "账号错误")
     private int id;
 
-    @Min(value = 1, message = "履约单号错误")
-    private int pid;
+    @Min(value = 1, message = "公司账号错误")
+    private int gid;
+
+    @Min(value = 1, message = "平台账号错误")
+    private int aid;
 
     @Min(value = 1, message = "损耗类型错误")
     private int tid;
@@ -32,6 +35,9 @@ public class LossValid implements IValid {
     @NotEmpty(message = "请输入订单制单日期")
     @Length(min = 19, max = 19, message = "订单制单日期格式错误")
     private String date;
+
+    @Min(value = 0, message = "一键审核错误")
+    private int review;
 
     @Size(min = 1, message = "商品id不能为空")
     private List<Integer> commoditys;

@@ -40,18 +40,6 @@ public class PurchaseStorageRepository extends BaseRepository<TPurchaseStorage> 
         return purchaseStorage;
     }
 
-    public List<TPurchaseStorage> findBySid(int sid) {
-        TPurchaseStorageExample example = new TPurchaseStorageExample();
-        example.or().andSidEqualTo(sid);
-        return purchaseStorageMapper.selectByExample(example);
-    }
-
-    public boolean checkBySid(int sid) {
-        TPurchaseStorageExample example = new TPurchaseStorageExample();
-        example.or().andSidEqualTo(sid);
-        return null != purchaseStorageMapper.selectOneByExample(example);
-    }
-
     public boolean insert(int oid, int sid) {
         TPurchaseStorage row = new TPurchaseStorage();
         row.setOid(oid);

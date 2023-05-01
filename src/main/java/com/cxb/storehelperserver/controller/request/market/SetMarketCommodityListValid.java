@@ -29,9 +29,6 @@ public class SetMarketCommodityListValid implements IValid {
     @Min(value = 1, message = "平台账号错误")
     private int aid;
 
-    @Min(value = 0, message = "平台子账号错误")
-    private int asid;
-
     @Size(min = 1, message = "商品id不能为空")
     private List<String> commoditys;
 

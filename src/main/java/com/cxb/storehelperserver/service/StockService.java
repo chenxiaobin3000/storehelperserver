@@ -282,19 +282,35 @@ public class StockService {
 
     // 修改库存
     public String handleStock(TStorageOrder order, boolean add) {
+        int gid = order.getGid();
+        int sid = order.getSid();
         val storageCommodities = storageCommodityRepository.find(order.getId());
         if (null == storageCommodities || storageCommodities.isEmpty()) {
             return "未查询到商品信息";
         }
-        int gid = order.getGid();
-        int sid = order.getSid();
         for (TStorageCommodity storageCommodity : storageCommodities) {
             int cid = storageCommodity.getCid();
             BigDecimal price = storageCommodity.getPrice();
             int weight = storageCommodity.getWeight();
             int value = storageCommodity.getValue();
-            if (!stockRepository.insert(gid, sid, order.getOtype(), order.getId(), cid,
-                    add ? price : price.negate(), add ? weight : -weight, add ? value : -value, order.getApplyTime())) {
+            // 校验库存
+            if (!add) {
+                TStockDay stock = getStockCommodity(gid, sid, cid);
+                if (null == stock) {
+                    TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                    return "查询库存明细信息失败";
+                }
+                if (stock.getWeight() > weight) {
+                    TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                    return "库存重量明细信息失败";
+                }
+                if (stock.getValue() > value) {
+                    TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                    return "库存件数明细信息失败";
+                }
+            }
+            if (!stockRepository.insert(gid, sid, order.getOtype(), order.getId(), cid, add ? price : price.negate(),
+                    add ? weight : -weight, add ? value : -value, order.getApplyTime())) {
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                 return "增加库存明细信息失败";
             }

@@ -22,9 +22,6 @@ public class GetAccountCommodityValid implements IValid {
     @Min(value = 1, message = "平台账号错误")
     private int aid;
 
-    @Min(value = 0, message = "平台子账号错误")
-    private int asid;
-
     @Min(value = 1, message = "页面编号错误")
     private int page;
 

@@ -95,10 +95,6 @@ public class SupplierService {
         if (purchaseOrderRepository.checkBySupplier(sid)) {
             return RestResult.fail("供应商还存在采购订单");
         }
-        if (storageOrderRepository.checkBySupplier(sid)) {
-            return RestResult.fail("供应商还存在采购订单");
-        }
-
         if (!supplierRepository.delete(sid)) {
             return RestResult.fail("删除供应商信息失败");
         }

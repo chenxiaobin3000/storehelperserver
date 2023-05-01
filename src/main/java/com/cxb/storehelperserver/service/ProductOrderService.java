@@ -61,7 +61,6 @@ public class ProductOrderService extends BaseService<HashMap> {
             for (TProductCommodity sc : productCommodities) {
                 val data = new HashMap<String, Object>();
                 data.put("id", sc.getId());
-                data.put("iotype", sc.getIotype());
                 data.put("cid", sc.getCid());
                 data.put("price", sc.getPrice());
                 data.put("weight", sc.getWeight());

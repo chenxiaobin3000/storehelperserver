@@ -92,20 +92,10 @@ public class StorageMgrService {
             return RestResult.fail(msg);
         }
 
-        // 检验是否存在各种订单
-        if (purchaseOrderRepository.check(sid)) {
-            return RestResult.fail("仓库还存在采购订单");
-        }
-        if (agreementOrderRepository.check(sid)) {
-            return RestResult.fail("仓库还存在履约订单");
-        }
-        if (productOrderRepository.check(sid)) {
-            return RestResult.fail("仓库还存在生产订单");
-        }
+        // 检验是否存在订单
         if (storageOrderRepository.check(sid)) {
-            return RestResult.fail("仓库还存在入库订单");
+            return RestResult.fail("仓库还存在出入库订单");
         }
-
         if (!storageRepository.delete(sid)) {
             return RestResult.fail("删除仓库信息失败");
         }

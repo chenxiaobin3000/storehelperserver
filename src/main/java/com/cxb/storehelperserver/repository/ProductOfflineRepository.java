@@ -40,18 +40,6 @@ public class ProductOfflineRepository extends BaseRepository<TProductOffline> {
         return productOffline;
     }
 
-    public List<TProductOffline> findBySid(int sid) {
-        TProductOfflineExample example = new TProductOfflineExample();
-        example.or().andSidEqualTo(sid);
-        return productOfflineMapper.selectByExample(example);
-    }
-
-    public boolean checkBySid(int sid) {
-        TProductOfflineExample example = new TProductOfflineExample();
-        example.or().andSidEqualTo(sid);
-        return null != productOfflineMapper.selectOneByExample(example);
-    }
-
     public boolean insert(int oid, int sid) {
         TProductOffline row = new TProductOffline();
         row.setOid(oid);

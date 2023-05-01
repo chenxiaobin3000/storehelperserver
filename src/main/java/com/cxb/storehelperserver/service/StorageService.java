@@ -297,8 +297,6 @@ public class StorageService {
             return RestResult.fail(msg);
         }
 
-        // TODO 校验库存
-
         // 还原扣除的采购单数量
         TPurchaseOrder purchase = purchaseOrderRepository.find(pid);
         if (null == purchase) {
@@ -488,8 +486,6 @@ public class StorageService {
             return RestResult.fail("修改退货单数据失败");
         }
 
-        // TODO 库存校验
-
         // 添加审核信息
         Date reviewTime = new Date();
         order.setReview(id);
@@ -567,7 +563,7 @@ public class StorageService {
         if (null == product) {
             return RestResult.fail("未查询到生产单信息");
         }
-        if (!product.getOtype().equals(PRODUCT_COLLECT_ORDER.getValue())) {
+        if (!product.getOtype().equals(PRODUCT_COMPLETE_ORDER.getValue())) {
             return RestResult.fail("生产单据类型异常");
         }
         if (null == product.getReview()) {
@@ -747,8 +743,6 @@ public class StorageService {
             return RestResult.fail(msg);
         }
 
-        // TODO 校验库存
-
         RestResult ret = reviewService.revoke(id, gid, order.getOtype(), oid, order.getBatch(), order.getApply(), mp_storage_product_in);
         if (null != ret) {
             return ret;
@@ -776,7 +770,7 @@ public class StorageService {
         if (null == product) {
             return RestResult.fail("未查询到生产单信息");
         }
-        if (!product.getOtype().equals(PRODUCT_COLLECT_ORDER.getValue())) {
+        if (!product.getOtype().equals(PRODUCT_PROCESS_ORDER.getValue())) {
             return RestResult.fail("生产单据类型异常");
         }
         if (null == product.getReview()) {
@@ -917,8 +911,6 @@ public class StorageService {
         if (price.compareTo(BigDecimal.ZERO) < 0) {
             return RestResult.fail("出库商品总价不能超出生产订单总价");
         }
-
-        // TODO 库存校验
 
         // 添加审核信息
         Date reviewTime = new Date();
@@ -1173,8 +1165,6 @@ public class StorageService {
             return RestResult.fail(msg);
         }
 
-        // TODO 校验库存
-
         // 还原扣除的履约单数量
         TAgreementOrder agreement = agreementOrderRepository.find(pid);
         if (null == agreement) {
@@ -1363,8 +1353,6 @@ public class StorageService {
         if (!agreementOrderRepository.update(agreement)) {
             return RestResult.fail("修改履约单数据失败");
         }
-
-        // TODO 库存校验
 
         // 添加审核信息
         Date reviewTime = new Date();
@@ -1631,8 +1619,6 @@ public class StorageService {
             return RestResult.fail(msg);
         }
 
-        // TODO 校验库存
-
         // 还原扣除的退货单数量
         TOfflineOrder offline = offlineOrderRepository.find(pid);
         if (null == offline) {
@@ -1821,8 +1807,6 @@ public class StorageService {
         if (!offlineOrderRepository.update(offline)) {
             return RestResult.fail("修改销售单数据失败");
         }
-
-        // TODO 库存校验
 
         // 添加审核信息
         Date reviewTime = new Date();
@@ -2024,8 +2008,6 @@ public class StorageService {
         if (!find) {
             return RestResult.fail("未查询到对应的损耗类型");
         }
-
-        // TODO 库存校验
 
         // 添加审核信息
         Date reviewTime = new Date();

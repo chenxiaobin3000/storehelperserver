@@ -32,48 +32,44 @@ public class StockCloudRepository extends BaseRepository<TStockCloud> {
         init("stockCloud::");
     }
 
-    public List<MyStockReport> findReport(int gid, int sid, int aid, int asid, Date start, Date end) {
-        return myStockCloudMapper.selectReport(gid, sid, aid, asid, start, end);
+    public List<MyStockReport> findReport(int gid, int aid, Date start, Date end) {
+        return myStockCloudMapper.selectReport(gid, aid, start, end);
     }
 
-    public List<MyStockCommodity> findHistoryAll(int gid, int sid, int aid, int asid, Date start, Date end) {
-        return myStockCloudMapper.selectHistory_all(gid, sid, aid, asid, new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
+    public List<MyStockCommodity> findHistoryAll(int gid, int aid, Date start, Date end) {
+        return myStockCloudMapper.selectHistory_all(gid, aid, new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
     }
 
-    public List<MyStockCommodity> findHistory(int gid, int sid, int aid, int asid, int cid, Date start, Date end) {
-        return myStockCloudMapper.selectHistory(gid, sid, aid, asid, cid, new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
+    public List<MyStockCommodity> findHistory(int gid, int aid, int cid, Date start, Date end) {
+        return myStockCloudMapper.selectHistory(gid, aid, cid, new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
     }
 
-    public int total(int gid, int sid, int aid, int asid, Date start, Date end, String search) {
+    public int total(int gid, int aid, Date start, Date end, String search) {
         if (null != search) {
-            return myStockCloudMapper.count(gid, sid, aid, asid, start, end, "%" + search + "%");
+            return myStockCloudMapper.count(gid, aid, start, end, "%" + search + "%");
         } else {
             TStockCloudExample example = new TStockCloudExample();
-            example.or().andGidEqualTo(gid).andSidEqualTo(sid).andAidEqualTo(aid).andAsidEqualTo(asid)
-                    .andCdateGreaterThanOrEqualTo(start).andCdateLessThanOrEqualTo(end);
+            example.or().andGidEqualTo(gid).andAidEqualTo(aid).andCdateGreaterThanOrEqualTo(start).andCdateLessThanOrEqualTo(end);
             return (int) stockCloudMapper.countByExample(example);
         }
     }
 
-    public List<MyStockCommodity> pagination(int gid, int sid, int aid, int asid, int page, int limit, Date start, Date end, String search) {
+    public List<MyStockCommodity> pagination(int gid, int aid, int page, int limit, Date start, Date end, String search) {
         String key = null;
         if (null != search) {
             key = "%" + search + "%";
         }
-        return myStockCloudMapper.pagination((page - 1) * limit, limit, gid, sid, aid, asid, start, end, key);
+        return myStockCloudMapper.pagination((page - 1) * limit, limit, gid, aid, start, end, key);
     }
 
-    public boolean insert(int gid, int sid, int aid, int asid, int otype, Integer oid, int cid, BigDecimal price, int weight, int value, Date cdate) {
+    public boolean insert(int gid, int aid, int otype, Integer oid, int cid, BigDecimal price, int value, Date cdate) {
         TStockCloud row = new TStockCloud();
         row.setGid(gid);
-        row.setSid(sid);
         row.setAid(aid);
-        row.setAsid(asid);
         row.setOtype(otype);
         row.setOid(null == oid ? 0 : oid);
         row.setCid(cid);
         row.setPrice(price);
-        row.setWeight(weight);
         row.setValue(value);
         row.setCdate(cdate);
         return stockCloudMapper.insert(row) > 0;

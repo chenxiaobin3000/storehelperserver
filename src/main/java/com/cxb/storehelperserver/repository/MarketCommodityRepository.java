@@ -1,9 +1,6 @@
 package com.cxb.storehelperserver.repository;
 
-import com.cxb.storehelperserver.mapper.TCommodityStorageMapper;
 import com.cxb.storehelperserver.mapper.TMarketCommodityMapper;
-import com.cxb.storehelperserver.model.TCommodity;
-import com.cxb.storehelperserver.model.TCommodityStorageExample;
 import com.cxb.storehelperserver.model.TMarketCommodity;
 import com.cxb.storehelperserver.model.TMarketCommodityExample;
 import com.cxb.storehelperserver.repository.mapper.MyMarketCommodityMapper;
@@ -25,27 +22,24 @@ public class MarketCommodityRepository extends BaseRepository<TMarketCommodity> 
     private TMarketCommodityMapper marketCommodityMapper;
 
     @Resource
-    private TCommodityStorageMapper commodityStorageMapper;
-
-    @Resource
     private MyMarketCommodityMapper myMarketCommodityMapper;
 
     public MarketCommodityRepository() {
         init("marketComm::");
     }
 
-    public TMarketCommodity find(int sid, int aid, int asid, int cid) {
-        TMarketCommodity marketCommodity = getCache(joinKey(sid, aid, asid, cid), TMarketCommodity.class);
+    public TMarketCommodity find(int aid, int cid) {
+        TMarketCommodity marketCommodity = getCache(joinKey(aid, cid), TMarketCommodity.class);
         if (null != marketCommodity) {
             return marketCommodity;
         }
 
         // 缓存没有就查询数据库
         TMarketCommodityExample example = new TMarketCommodityExample();
-        example.or().andSidEqualTo(sid).andAidEqualTo(aid).andAsidEqualTo(asid).andCidEqualTo(cid);
+        example.or().andAidEqualTo(aid).andCidEqualTo(cid);
         marketCommodity = marketCommodityMapper.selectOneByExample(example);
         if (null != marketCommodity) {
-            setCache(joinKey(sid, aid, asid, cid), marketCommodity);
+            setCache(joinKey(aid, cid), marketCommodity);
         }
         return marketCommodity;
     }
@@ -56,80 +50,45 @@ public class MarketCommodityRepository extends BaseRepository<TMarketCommodity> 
         return marketCommodityMapper.selectByExample(example);
     }
 
-    public List<TMarketCommodity> findAll(int sid, int aid, int asid) {
+    public List<TMarketCommodity> findAll(int aid) {
         TMarketCommodityExample example = new TMarketCommodityExample();
-        example.or().andSidEqualTo(sid).andAidEqualTo(aid).andAsidEqualTo(asid);
+        example.or().andAidEqualTo(aid);
         return marketCommodityMapper.selectByExample(example);
     }
 
-    public int total(int sid, String search) {
+    public int total(int aid, String search) {
         if (null != search) {
-            return myMarketCommodityMapper.count(sid, "%" + search + "%");
-        } else {
-            TCommodityStorageExample example = new TCommodityStorageExample();
-            example.or().andSidEqualTo(sid);
-            return (int) commodityStorageMapper.countByExample(example);
-        }
-    }
-
-    // aid，asid是在子查询里使用，所以total不用
-    public List<TMarketCommodity> pagination(int sid, int aid, int asid, int page, int limit, String search) {
-        if (null != search) {
-            return myMarketCommodityMapper.pagination((page - 1) * limit, limit, sid, aid, asid, "%" + search + "%");
-        } else {
-            return myMarketCommodityMapper.pagination((page - 1) * limit, limit, sid, aid, asid, null);
-        }
-    }
-
-    public int totalOnlyAid(int aid, int asid, String search) {
-        if (null != search) {
-            return myMarketCommodityMapper.countOnlyAid(aid, asid, "%" + search + "%");
+            return myMarketCommodityMapper.count(aid, "%" + search + "%");
         } else {
             TMarketCommodityExample example = new TMarketCommodityExample();
-            if (0 == asid) {
-                example.or().andAidEqualTo(aid);
-            } else {
-                example.or().andAidEqualTo(aid).andAsidEqualTo(asid);
-            }
+            example.or().andAidEqualTo(aid);
             return (int) marketCommodityMapper.countByExample(example);
         }
     }
 
-    public List<TCommodity> paginationOnlyAid(int aid, int asid, int page, int limit, String search) {
+    public List<TMarketCommodity> pagination(int aid, int page, int limit, String search) {
         if (null != search) {
-            return myMarketCommodityMapper.paginationOnlyAid((page - 1) * limit, limit, aid, asid, "%" + search + "%");
+            return myMarketCommodityMapper.pagination((page - 1) * limit, limit, aid, "%" + search + "%");
         } else {
-            return myMarketCommodityMapper.paginationOnlyAid((page - 1) * limit, limit, aid, asid, null);
+            return myMarketCommodityMapper.pagination((page - 1) * limit, limit, aid, null);
         }
     }
 
-    public boolean checkByAid(int aid) {
-        TMarketCommodityExample example = new TMarketCommodityExample();
-        example.or().andAidEqualTo(aid);
-        return null != marketCommodityMapper.selectOneByExample(example);
-    }
-
-    public boolean checkByAsid(int asid) {
-        TMarketCommodityExample example = new TMarketCommodityExample();
-        example.or().andAsidEqualTo(asid);
-        return null != marketCommodityMapper.selectOneByExample(example);
-    }
-
     public boolean update(TMarketCommodity row) {
-        delete(row.getSid(), row.getAid(), row.getAsid(), row.getCid());
+        delete(row.getAid(), row.getCid());
         if (marketCommodityMapper.insert(row) > 0) {
-            setCache(joinKey(row.getSid(), row.getAid(), row.getAsid(), row.getCid()), row);
+            setCache(joinKey(row.getAid(), row.getCid()), row);
             return true;
         }
         return false;
     }
 
-    public boolean delete(int sid, int aid, int asid, int cid) {
-        TMarketCommodity marketCommodity = find(sid, aid, asid, cid);
+    public boolean delete(int aid, int cid) {
+        TMarketCommodity marketCommodity = find(aid, cid);
         if (null == marketCommodity) {
             return false;
         }
-        delCache(joinKey(sid, aid, asid, cid));
+        delCache(joinKey(aid, cid));
         return marketCommodityMapper.deleteByPrimaryKey(marketCommodity.getId()) > 0;
     }
 }

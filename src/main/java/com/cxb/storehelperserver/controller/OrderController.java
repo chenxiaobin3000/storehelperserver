@@ -40,8 +40,8 @@ public class OrderController {
 
     @PostMapping("/getAgreementOrder")
     public RestResult getAgreementOrder(@Validated @RequestBody GetAgreementOrderValid req) {
-        return orderService.getAgreementOrder(req.getId(), req.getAid(), req.getAsid(), req.getType(), req.getPage(),
-                req.getLimit(), ReviewType.valueOf(req.getReview()), CompleteType.valueOf(req.getComplete()), req.getDate(), req.getSearch());
+        return orderService.getAgreementOrder(req.getId(), req.getAid(), req.getType(), req.getPage(), req.getLimit(),
+                ReviewType.valueOf(req.getReview()), CompleteType.valueOf(req.getComplete()), req.getDate(), req.getSearch());
     }
 
     @PostMapping("/getProductOrder")
@@ -80,10 +80,5 @@ public class OrderController {
     @PostMapping("/getMyComplete")
     public RestResult getMyComplete(@Validated @RequestBody GetMyCompleteValid req) {
         return orderService.getMyComplete(req.getId(), req.getPage(), req.getLimit(), req.getSearch());
-    }
-
-    @PostMapping("/getOrder")
-    public RestResult getOrder(@Validated @RequestBody GetOrderValid req) {
-        return orderService.getOrder(req.getId(), req.getType(), req.getOid());
     }
 }

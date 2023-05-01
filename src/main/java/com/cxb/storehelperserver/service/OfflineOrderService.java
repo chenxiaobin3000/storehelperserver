@@ -123,27 +123,27 @@ public class OfflineOrderService extends BaseService<HashMap> {
         return datas;
     }
 
-    public int total(int gid, int aid, int asid, int type, ReviewType review, CompleteType complete, String date, String search) {
+    public int total(int gid, int aid, int type, ReviewType review, CompleteType complete, String date, String search) {
         if (null == search) {
-            return offlineOrderRepository.total(gid, aid, asid, type, review, date);
+            return offlineOrderRepository.total(gid, aid, type, review, date);
         } else {
             TCommodity commodity = commodityRepository.search(search);
             if (null == commodity) {
                 return 0;
             }
-            return offlineCommodityRepository.total(gid, aid, asid, type, review, complete, date, commodity.getId());
+            return offlineCommodityRepository.total(gid, aid, type, review, complete, date, commodity.getId());
         }
     }
 
-    public List<TOfflineOrder> pagination(int gid, int aid, int asid, int type, int page, int limit, ReviewType review, CompleteType complete, String date, String search) {
+    public List<TOfflineOrder> pagination(int gid, int aid, int type, int page, int limit, ReviewType review, CompleteType complete, String date, String search) {
         if (null == search) {
-            return offlineOrderRepository.pagination(gid, aid, asid, type, page, limit, review, date);
+            return offlineOrderRepository.pagination(gid, aid, type, page, limit, review, date);
         } else {
             TCommodity commodity = commodityRepository.search(search);
             if (null == commodity) {
                 return null;
             }
-            return offlineCommodityRepository.pagination(gid, aid, asid, type, page, limit, review, complete, date, commodity.getId());
+            return offlineCommodityRepository.pagination(gid, aid, type, page, limit, review, complete, date, commodity.getId());
         }
     }
 

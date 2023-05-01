@@ -50,6 +50,9 @@ public class PurchaseService {
     private PurchaseReturnRepository purchaseReturnRepository;
 
     @Resource
+    private PurchaseStorageRepository purchaseStorageRepository;
+
+    @Resource
     private ProductAgreementRepository productAgreementRepository;
 
     @Resource
@@ -208,19 +211,16 @@ public class PurchaseService {
         if (order.getUnit() > order.getCurUnit()) {
             return RestResult.fail("已入库或退货的订单不能撤销");
         }
-
-        // TODO 存在入库单就不能改
+        // 存在入库单就不能改
+        if (null != purchaseStorageRepository.find(oid)) {
+            return RestResult.fail("已入库的订单不能撤销");
+        }
 
         // 验证公司
         int gid = order.getGid();
         String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
             return RestResult.fail(msg);
-        }
-
-        // 校验申请订单权限
-        if (!checkService.checkRolePermission(id, purchase_purchase)) {
-            return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
         RestResult ret = reviewService.revoke(id, gid, order.getOtype(), oid, order.getBatch(), order.getApply(), mp_purchase_purchase);
@@ -456,8 +456,10 @@ public class PurchaseService {
         if (null == order.getReview()) {
             return RestResult.fail("未审核的订单不能撤销");
         }
-
-        // TODO 存在出库单就不能改
+        // 存在出库单就不能改
+        if (null != purchaseStorageRepository.find(oid)) {
+            return RestResult.fail("已出库的订单不能撤销");
+        }
 
         // 采购单
         int pid = getPurchaseId(oid);
@@ -470,11 +472,6 @@ public class PurchaseService {
         String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
             return RestResult.fail(msg);
-        }
-
-        // 校验申请订单权限
-        if (!checkService.checkRolePermission(id, purchase_return)) {
-            return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
         // 还原扣除的采购单数量

@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
-import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -41,7 +40,6 @@ public class AgreementController {
         TAgreementOrder order = new TAgreementOrder();
         order.setGid(req.getGid());
         order.setAid(req.getAid());
-        order.setAsid(req.getAsid());
         order.setOtype(AGREEMENT_SHIPPED_ORDER.getValue());
         order.setApply(req.getId());
         order.setComplete(new Byte("0"));
@@ -62,7 +60,7 @@ public class AgreementController {
         } catch (ParseException e) {
             return RestResult.fail("订单制单日期转换失败");
         }
-        return agreementService.setShipped(req.getId(), req.getOid(), req.getAid(), req.getAsid(), applyTime, req.getCommoditys(),
+        return agreementService.setShipped(req.getId(), req.getOid(), req.getAid(), applyTime, req.getCommoditys(),
                 req.getPrices(), req.getWeights(), req.getNorms(), req.getValues(), req.getAttrs());
     }
 

@@ -53,6 +53,9 @@ public class AgreementService {
     private AgreementReturnRepository agreementReturnRepository;
 
     @Resource
+    private AgreementStorageRepository agreementStorageRepository;
+
+    @Resource
     private UserGroupRepository userGroupRepository;
 
     @Resource
@@ -100,7 +103,7 @@ public class AgreementService {
                 storageOrder.setSid(sid);
                 storageOrder.setTid(0);
                 storageOrder.setApply(order.getApply());
-                return storageService.purchaseOut(id, storageOrder, oid, review, commoditys, weights, values, attrs);
+                return storageService.agreementOut(id, storageOrder, oid, review, commoditys, weights, values, attrs);
             }
         }
         return ret;
@@ -109,7 +112,7 @@ public class AgreementService {
     /**
      * desc: 履约发货修改
      */
-    public RestResult setShipped(int id, int oid, int aid, int asid, Date applyTime, List<Integer> commoditys, List<BigDecimal> prices,
+    public RestResult setShipped(int id, int oid, int aid, Date applyTime, List<Integer> commoditys, List<BigDecimal> prices,
                                  List<Integer> weights, List<String> norms, List<Integer> values, List<Integer> attrs) {
         // 已经审核的订单不能修改
         TAgreementOrder order = agreementOrderRepository.find(oid);
@@ -124,7 +127,6 @@ public class AgreementService {
         }
 
         order.setAid(aid);
-        order.setAsid(asid);
         order.setApplyTime(applyTime);
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_agreement_shipped, reviews);
@@ -215,19 +217,16 @@ public class AgreementService {
         if (order.getValue() > order.getCurValue()) {
             return RestResult.fail("已销售或退货的订单不能撤销");
         }
-
-        // TODO 存在入库单就不能改
+        // 存在出库单就不能撤销
+        if (null != agreementStorageRepository.find(oid)) {
+            return RestResult.fail("已出库的订单不能撤销");
+        }
 
         // 验证公司
         int gid = order.getGid();
         String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
             return RestResult.fail(msg);
-        }
-
-        // 校验申请订单权限
-        if (!checkService.checkRolePermission(id, agreement_shipped)) {
-            return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
         RestResult ret = reviewService.revoke(id, gid, order.getOtype(), oid, order.getBatch(), order.getApply(), mp_agreement_shipped);
@@ -266,7 +265,6 @@ public class AgreementService {
 
         order.setGid(agreement.getGid());
         order.setAid(agreement.getAid());
-        order.setAsid(agreement.getAsid());
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_agreement_return, reviews);
         if (null != ret) {
@@ -310,7 +308,7 @@ public class AgreementService {
                 storageOrder.setSid(sid);
                 storageOrder.setTid(0);
                 storageOrder.setApply(order.getApply());
-                return storageService.purchaseIn(id, storageOrder, oid, review, commoditys, weights, values, attrs);
+                return storageService.agreementIn(id, storageOrder, oid, review, commoditys, weights, values, attrs);
             }
         }
         return ret;
@@ -442,8 +440,10 @@ public class AgreementService {
         if (null == order.getReview()) {
             return RestResult.fail("未审核的订单不能撤销");
         }
-
-        // TODO 存在入库单就不能改
+        // 存在入库单就不能撤销
+        if (null != agreementStorageRepository.find(oid)) {
+            return RestResult.fail("已入库的订单不能撤销");
+        }
 
         // 发货单
         int pid = getAgreementId(oid);
@@ -456,11 +456,6 @@ public class AgreementService {
         String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
             return RestResult.fail(msg);
-        }
-
-        // 校验申请订单权限
-        if (!checkService.checkRolePermission(id, agreement_return)) {
-            return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
         // 还原扣除的履约单数量

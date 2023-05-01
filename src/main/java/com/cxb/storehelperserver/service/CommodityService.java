@@ -48,9 +48,6 @@ public class CommodityService {
     private MarketAccountRepository marketAccountRepository;
 
     @Resource
-    private MarketManyRepository marketManyRepository;
-
-    @Resource
     private AttributeTemplateRepository attributeTemplateRepository;
 
     @Resource
@@ -241,30 +238,6 @@ public class CommodityService {
         return RestResult.ok(new PageData(total, datas));
     }
 
-    public RestResult getAccountCommodity(int id, int gid, int aid, int asid, int page, int limit, String search) {
-        // 验证公司
-        String msg = checkService.checkGroup(id, gid);
-        if (null != msg) {
-            return RestResult.fail(msg);
-        }
-
-        int total = marketCommodityRepository.totalOnlyAid(aid, asid, search);
-        if (0 == total) {
-            return RestResult.ok(new PageData());
-        }
-
-        val commodities = marketCommodityRepository.paginationOnlyAid(aid, asid, page, limit, search);
-        if (null == commodities) {
-            return RestResult.fail("获取商品信息失败");
-        }
-
-        val datas = new ArrayList<HashMap<String, Object>>();
-        for (TCommodity c : commodities) {
-            datas.add(createCommodity(c));
-        }
-        return RestResult.ok(new PageData(total, datas));
-    }
-
     public RestResult setCommodityOriginal(int id, int gid, int cid, String oid) {
         // 验证公司
         String msg = checkService.checkGroup(id, gid);
@@ -357,16 +330,9 @@ public class CommodityService {
         if (null != list && !list.isEmpty()) {
             val list2 = new ArrayList<String>();
             for (TMarketCommodity commodity : list) {
-                if (commodity.getAsid().equals(0)) {
-                    TMarketAccount account = marketAccountRepository.find(commodity.getAid());
-                    if (null != account) {
-                        list2.add(account.getAccount());
-                    }
-                } else {
-                    TMarketMany many = marketManyRepository.find(commodity.getAsid());
-                    if (null != many) {
-                        list2.add(many.getAccount());
-                    }
+                TMarketAccount account = marketAccountRepository.find(commodity.getAid());
+                if (null != account) {
+                    list2.add(account.getAccount());
                 }
             }
             tmp.put("accounts", list2);

@@ -40,18 +40,6 @@ public class ProductCompleteRepository extends BaseRepository<TProductComplete> 
         return productComplete;
     }
 
-    public List<TProductComplete> findByPid(int pid) {
-        TProductCompleteExample example = new TProductCompleteExample();
-        example.or().andPidEqualTo(pid);
-        return productCompleteMapper.selectByExample(example);
-    }
-
-    public boolean checkByPid(int pid) {
-        TProductCompleteExample example = new TProductCompleteExample();
-        example.or().andPidEqualTo(pid);
-        return null != productCompleteMapper.selectOneByExample(example);
-    }
-
     public boolean insert(int oid, int pid) {
         TProductComplete row = new TProductComplete();
         row.setOid(oid);

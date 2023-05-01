@@ -115,12 +115,6 @@ public class PurchaseOrderRepository extends BaseRepository<TPurchaseOrder> {
         return purchaseOrderMapper.selectByExample(example);
     }
 
-    public boolean check(int sid) {
-        TPurchaseOrderExample example = new TPurchaseOrderExample();
-        example.or().andSidEqualTo(sid);
-        return null != purchaseOrderMapper.selectOneByExample(example);
-    }
-
     public boolean checkBySupplier(int sid) {
         TPurchaseOrderExample example = new TPurchaseOrderExample();
         example.or().andSupplierEqualTo(sid);
