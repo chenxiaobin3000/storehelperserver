@@ -1889,7 +1889,7 @@ public class StorageService {
 
         // 生成入库单
         val comms = new ArrayList<TStorageCommodity>();
-        ret = createStorageComms(order, commoditys, prices, weights, norms, values, comms);
+        ret = createStorageInComms(order, commoditys, prices, weights, norms, values, comms);
         if (null != ret) {
             return ret;
         }
@@ -1939,7 +1939,7 @@ public class StorageService {
 
         // 生成入库单
         val comms = new ArrayList<TStorageCommodity>();
-        ret = createStorageComms(order, commoditys, prices, weights, norms, values, comms);
+        ret = createStorageInComms(order, commoditys, prices, weights, norms, values, comms);
         if (null != ret) {
             return ret;
         }
@@ -2043,7 +2043,7 @@ public class StorageService {
 
         // 生成出库单
         val comms = new ArrayList<TStorageCommodity>();
-        ret = createStorageComms(order, commoditys, prices, weights, norms, values, comms);
+        ret = createStorageOutComms(order, commoditys, prices, weights, norms, values, comms);
         if (null != ret) {
             return ret;
         }
@@ -2093,7 +2093,7 @@ public class StorageService {
 
         // 生成出库单
         val comms = new ArrayList<TStorageCommodity>();
-        ret = createStorageComms(order, commoditys, prices, weights, norms, values, comms);
+        ret = createStorageOutComms(order, commoditys, prices, weights, norms, values, comms);
         if (null != ret) {
             return ret;
         }
@@ -2202,8 +2202,10 @@ public class StorageService {
         }
         int tid = order.getTid();
         boolean find = false;
+        boolean add = false;
         for (TStorageType loss : losses) {
             if (loss.getId().equals(tid)) {
+                add = loss.getIsAdd().equals(1);
                 find = true;
                 break;
             }
@@ -2214,7 +2216,11 @@ public class StorageService {
 
         // 生成损耗单
         val comms = new ArrayList<TStorageCommodity>();
-        ret = createStorageComms(order, commoditys, prices, weights, norms, values, comms);
+        if (add) {
+            ret = createStorageInComms(order, commoditys, prices, weights, norms, values, comms);
+        } else {
+            ret = createStorageOutComms(order, commoditys, prices, weights, norms, values, comms);
+        }
         if (null != ret) {
             return ret;
         }
@@ -2262,9 +2268,32 @@ public class StorageService {
             return ret;
         }
 
+        // 校验损耗类型
+        val losses = storageTypeRepository.findByGroup(order.getGid());
+        if (null == losses) {
+            return RestResult.fail("未查询到损耗类型信息");
+        }
+        int tid = order.getTid();
+        boolean find = false;
+        boolean add = false;
+        for (TStorageType loss : losses) {
+            if (loss.getId().equals(tid)) {
+                add = loss.getIsAdd().equals(1);
+                find = true;
+                break;
+            }
+        }
+        if (!find) {
+            return RestResult.fail("未查询到对应的损耗类型");
+        }
+
         // 生成损耗单
         val comms = new ArrayList<TStorageCommodity>();
-        ret = createStorageComms(order, commoditys, prices, weights, norms, values, comms);
+        if (add) {
+            ret = createStorageInComms(order, commoditys, prices, weights, norms, values, comms);
+        } else {
+            ret = createStorageOutComms(order, commoditys, prices, weights, norms, values, comms);
+        }
         if (null != ret) {
             return ret;
         }
@@ -2615,7 +2644,33 @@ public class StorageService {
         return null;
     }
 
-    private RestResult createStorageComms(TStorageOrder order, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<String> norms, List<Integer> values, List<TStorageCommodity> list) {
+    private RestResult createStorageInComms(TStorageOrder order, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<String> norms, List<Integer> values, List<TStorageCommodity> list) {
+        // 生成调度单
+        int size = commoditys.size();
+        if (size != prices.size() || size != weights.size() || size != norms.size() || size != values.size()) {
+            return RestResult.fail("商品信息异常");
+        }
+        int sid = order.getSid();
+        int total = 0;
+        BigDecimal price = new BigDecimal(0);
+        for (int i = 0; i < size; i++) {
+            TStorageCommodity c = new TStorageCommodity();
+            c.setCid(commoditys.get(i));
+            c.setPrice(prices.get(i));
+            c.setWeight(weights.get(i));
+            c.setNorm(norms.get(i));
+            c.setValue(values.get(i));
+            list.add(c);
+
+            total = total + c.getWeight();
+            price = price.add(c.getPrice());
+        }
+        order.setUnit(total);
+        order.setPrice(price);
+        return null;
+    }
+
+    private RestResult createStorageOutComms(TStorageOrder order, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<String> norms, List<Integer> values, List<TStorageCommodity> list) {
         // 生成调度单
         int size = commoditys.size();
         if (size != prices.size() || size != weights.size() || size != norms.size() || size != values.size()) {

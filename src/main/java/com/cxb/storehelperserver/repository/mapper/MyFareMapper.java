@@ -18,4 +18,7 @@ public interface MyFareMapper {
 
     @Update({"<script>update t_offline_fare set review = null, review_time = null where oid = #{oid}</script>"})
     int setOfflineFareReviewNull(int oid);
+
+    @Update({"<script>update t_storage_fare set review = null, review_time = null where oid = #{oid}</script>"})
+    int setStorageFareReviewNull(int oid);
 }
