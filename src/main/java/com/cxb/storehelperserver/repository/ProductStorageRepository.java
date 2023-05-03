@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
-import java.util.List;
 
 /**
  * desc: 生产仓储关联仓库
@@ -38,6 +37,12 @@ public class ProductStorageRepository extends BaseRepository<TProductStorage> {
             setCache(oid, productStorage);
         }
         return productStorage;
+    }
+
+    public TProductStorage findBySid(int sid) {
+        TProductStorageExample example = new TProductStorageExample();
+        example.or().andSidEqualTo(sid);
+        return productStorageMapper.selectOneByExample(example);
     }
 
     public boolean insert(int oid, int sid) {

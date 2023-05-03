@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
-import java.util.List;
 
 /**
  * desc: 履约仓库关联仓库
@@ -38,6 +37,12 @@ public class AgreementStorageRepository extends BaseRepository<TAgreementStorage
             setCache(oid, agreementStorage);
         }
         return agreementStorage;
+    }
+
+    public TAgreementStorage findBySid(int sid) {
+        TAgreementStorageExample example = new TAgreementStorageExample();
+        example.or().andSidEqualTo(sid);
+        return agreementStorageMapper.selectOneByExample(example);
     }
 
     public boolean insert(int oid, int sid) {

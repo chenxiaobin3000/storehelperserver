@@ -21,7 +21,9 @@ public class Permission {
     static public final int mp_storage_agreement_out = 26;
     static public final int mp_storage_offline_in = 27;
     static public final int mp_storage_offline_out = 28;
-    static public final int mp_storage_loss = 29;
+    static public final int mp_storage_dispatch_in = 29;
+    static public final int mp_storage_dispatch_out = 30;
+    static public final int mp_storage_loss = 31;
     static public final int mp_product = 40;
     static public final int mp_product_process = 41;
     static public final int mp_product_complete = 42;
@@ -57,7 +59,6 @@ public class Permission {
     static public final int commodity = 300;
     static public final int commodity_report = 301;
     static public final int commodity_commodity = 302;
-    static public final int commodity_market = 303;
     static public final int commodity_category = 304;
     static public final int commodity_attribute = 305;
 

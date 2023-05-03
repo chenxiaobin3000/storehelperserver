@@ -4,6 +4,7 @@ import com.cxb.storehelperserver.mapper.TMarketCommodityMapper;
 import com.cxb.storehelperserver.model.TMarketCommodity;
 import com.cxb.storehelperserver.model.TMarketCommodityExample;
 import com.cxb.storehelperserver.repository.mapper.MyMarketCommodityMapper;
+import com.cxb.storehelperserver.repository.model.MyMarketCommodity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
@@ -66,7 +67,7 @@ public class MarketCommodityRepository extends BaseRepository<TMarketCommodity> 
         }
     }
 
-    public List<TMarketCommodity> pagination(int aid, int page, int limit, String search) {
+    public List<MyMarketCommodity> pagination(int aid, int page, int limit, String search) {
         if (null != search) {
             return myMarketCommodityMapper.pagination((page - 1) * limit, limit, aid, "%" + search + "%");
         } else {

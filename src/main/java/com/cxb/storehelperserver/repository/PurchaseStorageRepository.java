@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
-import java.util.List;
 
 /**
  * desc: 采购仓库关联仓库
@@ -38,6 +37,12 @@ public class PurchaseStorageRepository extends BaseRepository<TPurchaseStorage> 
             setCache(oid, purchaseStorage);
         }
         return purchaseStorage;
+    }
+
+    public TPurchaseStorage findBySid(int sid) {
+        TPurchaseStorageExample example = new TPurchaseStorageExample();
+        example.or().andSidEqualTo(sid);
+        return purchaseStorageMapper.selectOneByExample(example);
     }
 
     public boolean insert(int oid, int sid) {

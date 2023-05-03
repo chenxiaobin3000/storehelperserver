@@ -15,6 +15,8 @@ import java.util.*;
 
 import static com.cxb.storehelperserver.util.Permission.*;
 import static com.cxb.storehelperserver.util.TypeDefine.OrderType.PURCHASE_PURCHASE_ORDER;
+import static com.cxb.storehelperserver.util.TypeDefine.OrderType.STORAGE_PURCHASE_IN_ORDER;
+import static com.cxb.storehelperserver.util.TypeDefine.OrderType.STORAGE_PURCHASE_OUT_ORDER;
 
 /**
  * desc: 采购业务
@@ -101,9 +103,11 @@ public class PurchaseService {
                     return RestResult.fail("未指定仓库，一键入库失败");
                 }
                 TStorageOrder storageOrder = new TStorageOrder();
+                storageOrder.setOtype(STORAGE_PURCHASE_IN_ORDER.getValue());
                 storageOrder.setSid(sid);
                 storageOrder.setTid(0);
                 storageOrder.setApply(order.getApply());
+                storageOrder.setApplyTime(order.getApplyTime());
                 return storageService.purchaseIn(id, storageOrder, oid, review, commoditys, weights, values, attrs);
             }
         }
@@ -273,7 +277,7 @@ public class PurchaseService {
      * desc: 原料退货
      */
     public RestResult returnc(int id, TPurchaseOrder order, int rid, int sid, int review, int storage, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
-        // 采购单未审核，已入库都不能退货
+        // 采购单未审核不能退货
         TPurchaseOrder purchase = purchaseOrderRepository.find(rid);
         if (null == purchase) {
             return RestResult.fail("未查询到采购单");
@@ -326,9 +330,11 @@ public class PurchaseService {
                     return RestResult.fail("未指定仓库，一键出库失败");
                 }
                 TStorageOrder storageOrder = new TStorageOrder();
+                storageOrder.setOtype(STORAGE_PURCHASE_OUT_ORDER.getValue());
                 storageOrder.setSid(sid);
                 storageOrder.setTid(0);
                 storageOrder.setApply(order.getApply());
+                storageOrder.setApplyTime(order.getApplyTime());
                 return storageService.purchaseOut(id, storageOrder, oid, review, commoditys, weights, values, attrs);
             }
         }
@@ -399,12 +405,6 @@ public class PurchaseService {
             return RestResult.fail("获取公司信息失败");
         }
 
-        // 采购单
-        int pid = getPurchaseId(oid);
-        if (0 == pid) {
-            return RestResult.fail("未查询到采购单信息");
-        }
-
         // 校验审核人员信息
         TPurchaseOrder order = purchaseOrderRepository.find(oid);
         if (null == order) {
@@ -412,28 +412,6 @@ public class PurchaseService {
         }
         if (!reviewService.checkReview(id, order.getOtype(), oid)) {
             return RestResult.fail("您没有审核权限");
-        }
-
-        // 校验退货订单总价格和总量不能超出采购单
-        TPurchaseOrder purchase = purchaseOrderRepository.find(pid);
-        if (null == purchase) {
-            return RestResult.fail("未查询到对应的进货单");
-        }
-        int unit = purchase.getCurUnit() - order.getUnit();
-        if (unit < 0) {
-            return RestResult.fail("退货商品总量不能超出采购订单总量");
-        }
-        BigDecimal price = purchase.getCurPrice().subtract(order.getPrice());
-        if (price.compareTo(BigDecimal.ZERO) < 0) {
-            return RestResult.fail("退货商品总价不能超出采购订单总价");
-        }
-        if (0 == unit) {
-            purchase.setComplete(new Byte("1"));
-        }
-        purchase.setCurUnit(unit);
-        purchase.setCurPrice(price);
-        if (!purchaseOrderRepository.update(purchase)) {
-            return RestResult.fail("修改进货单数据失败");
         }
 
         // 添加审核信息
@@ -461,29 +439,11 @@ public class PurchaseService {
             return RestResult.fail("已出库的订单不能撤销");
         }
 
-        // 采购单
-        int pid = getPurchaseId(oid);
-        if (0 == pid) {
-            return RestResult.fail("未查询到采购单信息");
-        }
-
         // 验证公司
         int gid = order.getGid();
         String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
             return RestResult.fail(msg);
-        }
-
-        // 还原扣除的采购单数量
-        TPurchaseOrder purchase = purchaseOrderRepository.find(pid);
-        if (null == purchase) {
-            return RestResult.fail("未查询到对应的进货单");
-        }
-        purchase.setCurUnit(purchase.getCurUnit() + order.getUnit());
-        purchase.setCurPrice(purchase.getCurPrice().add(order.getPrice()));
-        purchase.setComplete(new Byte("0"));
-        if (!purchaseOrderRepository.update(purchase)) {
-            return RestResult.fail("修改进货单数据失败");
         }
 
         RestResult ret = reviewService.revoke(id, gid, order.getOtype(), oid, order.getBatch(), order.getApply(), mp_purchase_return);

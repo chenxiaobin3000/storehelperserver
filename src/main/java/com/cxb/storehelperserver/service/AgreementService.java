@@ -15,6 +15,8 @@ import java.util.*;
 
 import static com.cxb.storehelperserver.util.Permission.*;
 import static com.cxb.storehelperserver.util.TypeDefine.OrderType.AGREEMENT_SHIPPED_ORDER;
+import static com.cxb.storehelperserver.util.TypeDefine.OrderType.STORAGE_AGREEMENT_IN_ORDER;
+import static com.cxb.storehelperserver.util.TypeDefine.OrderType.STORAGE_AGREEMENT_OUT_ORDER;
 
 /**
  * desc: 履约业务
@@ -100,9 +102,11 @@ public class AgreementService {
                     return RestResult.fail("未指定仓库，一键出库失败");
                 }
                 TStorageOrder storageOrder = new TStorageOrder();
+                storageOrder.setOtype(STORAGE_AGREEMENT_OUT_ORDER.getValue());
                 storageOrder.setSid(sid);
                 storageOrder.setTid(0);
                 storageOrder.setApply(order.getApply());
+                storageOrder.setApplyTime(order.getApplyTime());
                 return storageService.agreementOut(id, storageOrder, oid, review, commoditys, weights, values, attrs);
             }
         }
@@ -305,9 +309,11 @@ public class AgreementService {
                     return RestResult.fail("未指定仓库，一键入库失败");
                 }
                 TStorageOrder storageOrder = new TStorageOrder();
+                storageOrder.setOtype(STORAGE_AGREEMENT_IN_ORDER.getValue());
                 storageOrder.setSid(sid);
                 storageOrder.setTid(0);
                 storageOrder.setApply(order.getApply());
+                storageOrder.setApplyTime(order.getApplyTime());
                 return storageService.agreementIn(id, storageOrder, oid, review, commoditys, weights, values, attrs);
             }
         }

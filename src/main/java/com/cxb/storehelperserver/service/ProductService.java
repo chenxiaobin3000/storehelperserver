@@ -15,6 +15,8 @@ import java.util.*;
 
 import static com.cxb.storehelperserver.util.Permission.*;
 import static com.cxb.storehelperserver.util.TypeDefine.OrderType.PRODUCT_PROCESS_ORDER;
+import static com.cxb.storehelperserver.util.TypeDefine.OrderType.STORAGE_PRODUCT_IN_ORDER;
+import static com.cxb.storehelperserver.util.TypeDefine.OrderType.STORAGE_PRODUCT_OUT_ORDER;
 
 /**
  * desc: 生产业务
@@ -104,9 +106,11 @@ public class ProductService {
                     return RestResult.fail("未指定仓库，一键出库失败");
                 }
                 TStorageOrder storageOrder = new TStorageOrder();
+                storageOrder.setOtype(STORAGE_PRODUCT_OUT_ORDER.getValue());
                 storageOrder.setSid(sid);
                 storageOrder.setTid(0);
                 storageOrder.setApply(order.getApply());
+                storageOrder.setApplyTime(order.getApplyTime());
                 return storageService.productOut(id, storageOrder, oid, review, commoditys, weights, values, attrs);
             }
         }
@@ -294,9 +298,11 @@ public class ProductService {
                     return RestResult.fail("未指定仓库，一键入库失败");
                 }
                 TStorageOrder storageOrder = new TStorageOrder();
+                storageOrder.setOtype(STORAGE_PRODUCT_IN_ORDER.getValue());
                 storageOrder.setSid(sid);
                 storageOrder.setTid(0);
                 storageOrder.setApply(order.getApply());
+                storageOrder.setApplyTime(order.getApplyTime());
                 return storageService.purchaseIn(id, storageOrder, oid, review, commoditys, weights, values, attrs);
             }
         }
@@ -506,9 +512,11 @@ public class ProductService {
                     return RestResult.fail("未指定仓库，一键出库失败");
                 }
                 TStorageOrder storageOrder = new TStorageOrder();
+                storageOrder.setOtype(STORAGE_PRODUCT_OUT_ORDER.getValue());
                 storageOrder.setSid(sid);
                 storageOrder.setTid(0);
                 storageOrder.setApply(order.getApply());
+                storageOrder.setApplyTime(order.getApplyTime());
                 return storageService.productOut(id, storageOrder, oid, review, commoditys, weights, values, attrs);
             }
         }

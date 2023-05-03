@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
-import java.util.List;
 
 /**
  * desc: 线下销售退货关联仓库
@@ -38,6 +37,12 @@ public class OfflineStorageRepository extends BaseRepository<TOfflineStorage> {
             setCache(oid, offlineStorage);
         }
         return offlineStorage;
+    }
+
+    public TOfflineStorage findBySid(int sid) {
+        TOfflineStorageExample example = new TOfflineStorageExample();
+        example.or().andSidEqualTo(sid);
+        return offlineStorageMapper.selectOneByExample(example);
     }
 
     public boolean insert(int oid, int sid) {

@@ -310,7 +310,7 @@ public class StockService {
                 }
             }
             if (!stockRepository.insert(gid, sid, order.getOtype(), order.getId(), cid, add ? price : price.negate(),
-                    add ? weight : -weight, add ? value : -value, order.getApplyTime())) {
+                    add ? weight : -weight, storageCommodity.getNorm(), add ? value : -value, order.getApplyTime())) {
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                 return "增加库存明细信息失败";
             }

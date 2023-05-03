@@ -143,7 +143,7 @@ public class StorageService {
         }
 
         // 添加关联
-        if (!purchaseStorageRepository.insert(oid, pid)) {
+        if (!purchaseStorageRepository.insert(pid, oid)) {
             return RestResult.fail("添加采购入库信息失败");
         }
 
@@ -244,6 +244,7 @@ public class StorageService {
         }
         int unit = purchase.getCurUnit() - order.getUnit();
         if (unit < 0) {
+            log.info("---------"+ purchase.getCurUnit()+ "------"+ order.getUnit()+ "------"+ unit);
             return RestResult.fail("入库商品总量不能超出采购订单总量");
         }
         BigDecimal price = purchase.getCurPrice().subtract(order.getPrice());
@@ -370,7 +371,7 @@ public class StorageService {
         }
 
         // 添加关联
-        if (!purchaseStorageRepository.insert(oid, pid)) {
+        if (!purchaseStorageRepository.insert(pid, oid)) {
             return RestResult.fail("添加采购出库信息失败");
         }
 
@@ -597,7 +598,7 @@ public class StorageService {
         }
 
         // 添加关联
-        if (!productStorageRepository.insert(oid, pid)) {
+        if (!productStorageRepository.insert(pid, oid)) {
             return RestResult.fail("添加生产入库信息失败");
         }
 
@@ -804,7 +805,7 @@ public class StorageService {
         }
 
         // 添加关联
-        if (!productStorageRepository.insert(oid, pid)) {
+        if (!productStorageRepository.insert(pid, oid)) {
             return RestResult.fail("添加生产出库信息失败");
         }
 
@@ -1011,7 +1012,7 @@ public class StorageService {
         }
 
         // 添加关联
-        if (!agreementStorageRepository.insert(oid, pid)) {
+        if (!agreementStorageRepository.insert(pid, oid)) {
             return RestResult.fail("添加履约入库信息失败");
         }
 
@@ -1238,7 +1239,7 @@ public class StorageService {
         }
 
         // 添加关联
-        if (!agreementStorageRepository.insert(oid, pid)) {
+        if (!agreementStorageRepository.insert(pid, oid)) {
             return RestResult.fail("添加履约出库信息失败");
         }
 
@@ -1465,7 +1466,7 @@ public class StorageService {
         }
 
         // 添加关联
-        if (!offlineStorageRepository.insert(oid, pid)) {
+        if (!offlineStorageRepository.insert(pid, oid)) {
             return RestResult.fail("添加退货入库信息失败");
         }
 
@@ -1692,7 +1693,7 @@ public class StorageService {
         }
 
         // 添加关联
-        if (!offlineStorageRepository.insert(oid, pid)) {
+        if (!offlineStorageRepository.insert(pid, oid)) {
             return RestResult.fail("添加销售出库信息失败");
         }
 
@@ -1877,6 +1878,314 @@ public class StorageService {
     }
 
     /**
+     * desc: 调度入库
+     */
+    public RestResult dispatchIn(int id, TStorageOrder order, int review, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<String> norms, List<Integer> values, List<Integer> attrs) {
+        val reviews = new ArrayList<Integer>();
+        RestResult ret = check(id, order, mp_storage_dispatch_in, reviews);
+        if (null != ret) {
+            return ret;
+        }
+
+        // 生成入库单
+        val comms = new ArrayList<TStorageCommodity>();
+        ret = createStorageComms(order, commoditys, prices, weights, norms, values, comms);
+        if (null != ret) {
+            return ret;
+        }
+
+        // 生成入库单批号
+        String batch = dateUtil.createBatch(order.getOtype());
+        order.setBatch(batch);
+        if (!storageOrderRepository.insert(order)) {
+            return RestResult.fail("生成入库订单失败");
+        }
+        int oid = order.getId();
+        String msg = storageOrderService.update(oid, comms, attrs);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+
+        // 一键审核
+        ret = reviewService.apply(id, order.getGid(), order.getOtype(), oid, batch, reviews);
+        if (RestResult.isOk(ret) && review > 0) {
+            return reviewDispatchIn(id, oid);
+        }
+        return ret;
+    }
+
+    /**
+     * desc: 调度入库修改
+     */
+    public RestResult setDispatchIn(int id, int oid, Date applyTime, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<String> norms, List<Integer> values, List<Integer> attrs) {
+        // 已经审核的订单不能修改
+        TStorageOrder order = storageOrderRepository.find(oid);
+        if (null == order) {
+            return RestResult.fail("未查询到要修改的订单");
+        }
+        if (null != order.getReview()) {
+            return RestResult.fail("已审核的订单不能修改");
+        }
+        if (!order.getApply().equals(id)) {
+            return RestResult.fail("只能修改自己的订单");
+        }
+
+        order.setApplyTime(applyTime);
+        val reviews = new ArrayList<Integer>();
+        RestResult ret = check(id, order, mp_storage_dispatch_in, reviews);
+        if (null != ret) {
+            return ret;
+        }
+
+        // 生成入库单
+        val comms = new ArrayList<TStorageCommodity>();
+        ret = createStorageComms(order, commoditys, prices, weights, norms, values, comms);
+        if (null != ret) {
+            return ret;
+        }
+        if (!storageOrderRepository.update(order)) {
+            return RestResult.fail("生成入库订单失败");
+        }
+        String msg = storageOrderService.update(oid, comms, attrs);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+        return RestResult.ok();
+    }
+
+    public RestResult delDispatchIn(int id, int oid) {
+        // 删除关联
+        int pid = getPurchaseId(oid);
+        if (0 == pid) {
+            return RestResult.fail("未查询到采购单信息");
+        }
+        if (!purchaseStorageRepository.delete(oid, pid)) {
+            return RestResult.fail("删除采购入库信息失败");
+        }
+        return delOrder(id, oid);
+    }
+
+    public RestResult reviewDispatchIn(int id, int oid) {
+        // 获取公司信息
+        TUserGroup group = userGroupRepository.find(id);
+        if (null == group) {
+            return RestResult.fail("获取公司信息失败");
+        }
+
+        // 校验审核人员信息
+        TStorageOrder order = storageOrderRepository.find(oid);
+        if (null == order) {
+            return RestResult.fail("未查询到要审核的订单");
+        }
+        if (!reviewService.checkReview(id, order.getOtype(), oid)) {
+            return RestResult.fail("您没有审核权限");
+        }
+
+        // 添加审核信息
+        Date reviewTime = new Date();
+        order.setReview(id);
+        order.setReviewTime(reviewTime);
+        if (!storageOrderRepository.update(order)) {
+            return RestResult.fail("审核用户订单信息失败");
+        }
+
+        // 增加库存
+        String msg = stockService.handleStock(order, true);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+        return reviewService.review(order.getApply(), id, order.getGid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
+    }
+
+    public RestResult revokeDispatchIn(int id, int oid) {
+        TStorageOrder order = storageOrderRepository.find(oid);
+        if (null == order) {
+            return RestResult.fail("未查询到要撤销的订单");
+        }
+        if (null == order.getReview()) {
+            return RestResult.fail("未审核的订单不能撤销");
+        }
+
+        // 验证公司
+        int gid = order.getGid();
+        String msg = checkService.checkGroup(id, gid);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+
+        RestResult ret = reviewService.revoke(id, gid, order.getOtype(), oid, order.getBatch(), order.getApply(), mp_storage_dispatch_in);
+        if (null != ret) {
+            return ret;
+        }
+
+        // 撤销审核人信息
+        if (!storageOrderRepository.setReviewNull(oid)) {
+            return RestResult.fail("撤销订单审核信息失败");
+        }
+
+        // 减少库存
+        msg = stockService.handleStock(order, false);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+        return RestResult.ok();
+    }
+
+    /**
+     * desc: 调度出库
+     */
+    public RestResult dispatchOut(int id, TStorageOrder order, int review, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<String> norms, List<Integer> values, List<Integer> attrs) {
+        val reviews = new ArrayList<Integer>();
+        RestResult ret = check(id, order, mp_storage_dispatch_out, reviews);
+        if (null != ret) {
+            return ret;
+        }
+
+        // 生成出库单
+        val comms = new ArrayList<TStorageCommodity>();
+        ret = createStorageComms(order, commoditys, prices, weights, norms, values, comms);
+        if (null != ret) {
+            return ret;
+        }
+
+        // 生成出库单批号
+        String batch = dateUtil.createBatch(order.getOtype());
+        order.setBatch(batch);
+        if (!storageOrderRepository.insert(order)) {
+            return RestResult.fail("生成出库订单失败");
+        }
+        int oid = order.getId();
+        String msg = storageOrderService.update(oid, comms, attrs);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+
+        // 一键审核
+        ret = reviewService.apply(id, order.getGid(), order.getOtype(), oid, batch, reviews);
+        if (RestResult.isOk(ret) && review > 0) {
+            return reviewDispatchOut(id, oid);
+        }
+        return ret;
+    }
+
+    /**
+     * desc: 调度出库修改
+     */
+    public RestResult setDispatchOut(int id, int oid, Date applyTime, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<String> norms, List<Integer> values, List<Integer> attrs) {
+        // 已经审核的订单不能修改
+        TStorageOrder order = storageOrderRepository.find(oid);
+        if (null == order) {
+            return RestResult.fail("未查询到要修改的订单");
+        }
+        if (null != order.getReview()) {
+            return RestResult.fail("已审核的订单不能修改");
+        }
+        if (!order.getApply().equals(id)) {
+            return RestResult.fail("只能修改自己的订单");
+        }
+
+        order.setApplyTime(applyTime);
+        val reviews = new ArrayList<Integer>();
+        RestResult ret = check(id, order, mp_storage_dispatch_out, reviews);
+        if (null != ret) {
+            return ret;
+        }
+
+        // 生成出库单
+        val comms = new ArrayList<TStorageCommodity>();
+        ret = createStorageComms(order, commoditys, prices, weights, norms, values, comms);
+        if (null != ret) {
+            return ret;
+        }
+        if (!storageOrderRepository.update(order)) {
+            return RestResult.fail("生成出库订单失败");
+        }
+        String msg = storageOrderService.update(oid, comms, attrs);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+        return RestResult.ok();
+    }
+
+    public RestResult delDispatchOut(int id, int oid) {
+        // 删除关联
+        int pid = getPurchaseId(oid);
+        if (0 == pid) {
+            return RestResult.fail("未查询到退货单信息");
+        }
+        if (!purchaseStorageRepository.delete(oid, pid)) {
+            return RestResult.fail("删除退货出库信息失败");
+        }
+        return delOrder(id, oid);
+    }
+
+    public RestResult reviewDispatchOut(int id, int oid) {
+        // 获取公司信息
+        TUserGroup group = userGroupRepository.find(id);
+        if (null == group) {
+            return RestResult.fail("获取公司信息失败");
+        }
+
+        // 校验审核人员信息
+        TStorageOrder order = storageOrderRepository.find(oid);
+        if (null == order) {
+            return RestResult.fail("未查询到要审核的订单");
+        }
+        if (!reviewService.checkReview(id, order.getOtype(), oid)) {
+            return RestResult.fail("您没有审核权限");
+        }
+
+        // 添加审核信息
+        Date reviewTime = new Date();
+        order.setReview(id);
+        order.setReviewTime(reviewTime);
+        if (!storageOrderRepository.update(order)) {
+            return RestResult.fail("审核用户订单信息失败");
+        }
+
+        // 减少库存
+        String msg = stockService.handleStock(order, false);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+        return reviewService.review(order.getApply(), id, order.getGid(), order.getOtype(), oid, order.getBatch(), order.getApplyTime());
+    }
+
+    public RestResult revokeDispatchOut(int id, int oid) {
+        TStorageOrder order = storageOrderRepository.find(oid);
+        if (null == order) {
+            return RestResult.fail("未查询到要撤销的订单");
+        }
+        if (null == order.getReview()) {
+            return RestResult.fail("未审核的订单不能撤销");
+        }
+
+        // 验证公司
+        int gid = order.getGid();
+        String msg = checkService.checkGroup(id, gid);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+
+        RestResult ret = reviewService.revoke(id, gid, order.getOtype(), oid, order.getBatch(), order.getApply(), mp_storage_dispatch_out);
+        if (null != ret) {
+            return ret;
+        }
+
+        // 撤销审核人信息
+        if (!storageOrderRepository.setReviewNull(oid)) {
+            return RestResult.fail("撤销订单审核信息失败");
+        }
+
+        // 增加库存
+        msg = stockService.handleStock(order, true);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+        return RestResult.ok();
+    }
+
+    /**
      * desc: 仓储损耗
      */
     public RestResult loss(int id, TStorageOrder order, int review, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<String> norms, List<Integer> values, List<Integer> attrs) {
@@ -1905,7 +2214,7 @@ public class StorageService {
 
         // 生成损耗单
         val comms = new ArrayList<TStorageCommodity>();
-        ret = createLossComms(order, commoditys, prices, weights, norms, values, comms);
+        ret = createStorageComms(order, commoditys, prices, weights, norms, values, comms);
         if (null != ret) {
             return ret;
         }
@@ -1955,7 +2264,7 @@ public class StorageService {
 
         // 生成损耗单
         val comms = new ArrayList<TStorageCommodity>();
-        ret = createLossComms(order, commoditys, prices, weights, norms, values, comms);
+        ret = createStorageComms(order, commoditys, prices, weights, norms, values, comms);
         if (null != ret) {
             return ret;
         }
@@ -2306,7 +2615,7 @@ public class StorageService {
         return null;
     }
 
-    private RestResult createLossComms(TStorageOrder order, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<String> norms, List<Integer> values, List<TStorageCommodity> list) {
+    private RestResult createStorageComms(TStorageOrder order, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<String> norms, List<Integer> values, List<TStorageCommodity> list) {
         // 生成调度单
         int size = commoditys.size();
         if (size != prices.size() || size != weights.size() || size != norms.size() || size != values.size()) {
@@ -2348,7 +2657,7 @@ public class StorageService {
 
     // 获取入库对应的采购单
     private int getPurchaseId(int id) {
-        TPurchaseStorage ret = purchaseStorageRepository.find(id);
+        TPurchaseStorage ret = purchaseStorageRepository.findBySid(id);
         if (null != ret) {
             return ret.getSid();
         }
@@ -2357,7 +2666,7 @@ public class StorageService {
 
     // 获取入库对应的生产单
     private int getProductId(int id) {
-        TProductStorage ret = productStorageRepository.find(id);
+        TProductStorage ret = productStorageRepository.findBySid(id);
         if (null != ret) {
             return ret.getSid();
         }
@@ -2366,7 +2675,7 @@ public class StorageService {
 
     // 获取入库对应的履约单
     private int getAgreementId(int id) {
-        TAgreementStorage ret = agreementStorageRepository.find(id);
+        TAgreementStorage ret = agreementStorageRepository.findBySid(id);
         if (null != ret) {
             return ret.getSid();
         }
@@ -2375,7 +2684,7 @@ public class StorageService {
 
     // 获取入库对应的线下销售单
     private int getOfflineId(int id) {
-        TOfflineStorage ret = offlineStorageRepository.find(id);
+        TOfflineStorage ret = offlineStorageRepository.findBySid(id);
         if (null != ret) {
             return ret.getSid();
         }

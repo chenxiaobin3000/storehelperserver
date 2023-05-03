@@ -62,7 +62,7 @@ public class StockRepository extends BaseRepository<TStock> {
         return myStockMapper.pagination((page - 1) * limit, limit, gid, sid, start, end, key);
     }
 
-    public boolean insert(int gid, int sid, int otype, Integer oid, int cid, BigDecimal price, int weight, int value, Date cdate) {
+    public boolean insert(int gid, int sid, int otype, Integer oid, int cid, BigDecimal price, int weight, String norm, int value, Date cdate) {
         TStock row = new TStock();
         row.setGid(gid);
         row.setSid(sid);
@@ -71,6 +71,7 @@ public class StockRepository extends BaseRepository<TStock> {
         row.setCid(cid);
         row.setPrice(price);
         row.setWeight(weight);
+        row.setNorm(norm);
         row.setValue(value);
         row.setCdate(cdate);
         return stockMapper.insert(row) > 0;

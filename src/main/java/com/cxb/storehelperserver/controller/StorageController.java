@@ -242,8 +242,8 @@ public class StorageController {
         }
     }
 
-    @PostMapping("/delReturn")
-    public RestResult delReturn(@Validated @RequestBody DelOutValid req) {
+    @PostMapping("/delOut")
+    public RestResult delOut(@Validated @RequestBody DelOutValid req) {
         switch (OrderType.valueOf(req.getType())) {
             case STORAGE_PURCHASE_OUT_ORDER:
                 return storageService.delPurchaseOut(req.getId(), req.getOid());
@@ -258,8 +258,8 @@ public class StorageController {
         }
     }
 
-    @PostMapping("/reviewReturn")
-    public RestResult reviewReturn(@Validated @RequestBody ReviewOutValid req) {
+    @PostMapping("/reviewOut")
+    public RestResult reviewOut(@Validated @RequestBody ReviewOutValid req) {
         switch (OrderType.valueOf(req.getType())) {
             case STORAGE_PURCHASE_OUT_ORDER:
                 return storageService.reviewPurchaseOut(req.getId(), req.getOid());
@@ -274,8 +274,8 @@ public class StorageController {
         }
     }
 
-    @PostMapping("/revokeReturn")
-    public RestResult revokeReturn(@Validated @RequestBody RevokeOutValid req) {
+    @PostMapping("/revokeOut")
+    public RestResult revokeOut(@Validated @RequestBody RevokeOutValid req) {
         switch (OrderType.valueOf(req.getType())) {
             case STORAGE_PURCHASE_OUT_ORDER:
                 return storageService.revokePurchaseOut(req.getId(), req.getOid());
@@ -288,6 +288,94 @@ public class StorageController {
             default:
                 return RestResult.fail("未知订单类型");
         }
+    }
+
+    @PostMapping("/dispatchIn")
+    public RestResult dispatchIn(@Validated @RequestBody DispatchInValid req) {
+        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
+        TStorageOrder order = new TStorageOrder();
+        order.setGid(req.getGid());
+        order.setSid(req.getSid());
+        order.setOtype(STORAGE_DISPATCH_IN_ORDER.getValue());
+        order.setTid(0);
+        order.setApply(req.getId());
+        try {
+            order.setApplyTime(simpleDateFormat.parse(req.getDate()));
+        } catch (ParseException e) {
+            return RestResult.fail("订单制单日期转换失败");
+        }
+        return storageService.dispatchIn(req.getId(), order, req.getReview(), req.getCommoditys(), req.getPrices(), req.getWeights(), req.getNorms(), req.getValues(), req.getAttrs());
+    }
+
+    @PostMapping("/setDispatchIn")
+    public RestResult setDispatchIn(@Validated @RequestBody SetDispatchInValid req) {
+        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
+        Date applyTime = null;
+        try {
+            applyTime = simpleDateFormat.parse(req.getDate());
+        } catch (ParseException e) {
+            return RestResult.fail("订单制单日期转换失败");
+        }
+        return storageService.setDispatchIn(req.getId(), req.getOid(), applyTime, req.getCommoditys(), req.getPrices(), req.getWeights(), req.getNorms(), req.getValues(), req.getAttrs());
+    }
+
+    @PostMapping("/delDispatchIn")
+    public RestResult delDispatchIn(@Validated @RequestBody DelDispatchInValid req) {
+        return storageService.delDispatchIn(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/reviewDispatchIn")
+    public RestResult reviewDispatchIn(@Validated @RequestBody ReviewDispatchInValid req) {
+        return storageService.reviewDispatchIn(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/revokeDispatchIn")
+    public RestResult revokeDispatchIn(@Validated @RequestBody RevokeDispatchInValid req) {
+        return storageService.revokeDispatchIn(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/dispatchOut")
+    public RestResult dispatchOut(@Validated @RequestBody DispatchOutValid req) {
+        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
+        TStorageOrder order = new TStorageOrder();
+        order.setGid(req.getGid());
+        order.setSid(req.getSid());
+        order.setOtype(STORAGE_DISPATCH_OUT_ORDER.getValue());
+        order.setTid(0);
+        order.setApply(req.getId());
+        try {
+            order.setApplyTime(simpleDateFormat.parse(req.getDate()));
+        } catch (ParseException e) {
+            return RestResult.fail("订单制单日期转换失败");
+        }
+        return storageService.dispatchOut(req.getId(), order, req.getReview(), req.getCommoditys(), req.getPrices(), req.getWeights(), req.getNorms(), req.getValues(), req.getAttrs());
+    }
+
+    @PostMapping("/setDispatchOut")
+    public RestResult setDispatchOut(@Validated @RequestBody SetDispatchOutValid req) {
+        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
+        Date applyTime = null;
+        try {
+            applyTime = simpleDateFormat.parse(req.getDate());
+        } catch (ParseException e) {
+            return RestResult.fail("订单制单日期转换失败");
+        }
+        return storageService.setDispatchOut(req.getId(), req.getOid(), applyTime, req.getCommoditys(), req.getPrices(), req.getWeights(), req.getNorms(), req.getValues(), req.getAttrs());
+    }
+
+    @PostMapping("/delDispatchOut")
+    public RestResult delDispatchOut(@Validated @RequestBody DelDispatchOutValid req) {
+        return storageService.delDispatchOut(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/reviewDispatchOut")
+    public RestResult reviewDispatchOut(@Validated @RequestBody ReviewDispatchOutValid req) {
+        return storageService.reviewDispatchOut(req.getId(), req.getOid());
+    }
+
+    @PostMapping("/revokeDispatchOut")
+    public RestResult revokeDispatchOut(@Validated @RequestBody RevokeDispatchOutValid req) {
+        return storageService.revokeDispatchOut(req.getId(), req.getOid());
     }
 
     @PostMapping("/loss")

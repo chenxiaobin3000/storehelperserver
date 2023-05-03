@@ -22,10 +22,10 @@ public interface MyMarketCommodityMapper {
     int count(int aid, String search);
 
     @Select({"<script>",
-            "select t1.id, t1.gid, t1.mid, t1.aid, t1.cid, t1.price, t2.code, t2.name, t2.remark from t_market_commodity t1 left join t_commodity t2",
+            "select t1.id, t1.mid, t1.cid, t1.price, t2.code, t2.name, t2.cid as cate, t2.remark from t_market_commodity t1 left join t_commodity t2",
             "on t1.cid = t2.id where t1.aid = #{aid} <if test='null != search'>and t2.name like #{search}</if> limit #{offset}, #{limit}",
             "</script>"})
-    List<TMarketCommodity> pagination(int offset, int limit, int aid, String search);
+    List<MyMarketCommodity> pagination(int offset, int limit, int aid, String search);
 
     @Select({"<script>",
             "select id from t_market_commodity_detail where sid = #{sid} and aid = #{aid} and cdate = #{cdate}",

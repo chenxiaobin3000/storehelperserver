@@ -703,6 +703,15 @@ public class OrderService {
                 }
             }
         }
+
+        // 查询关联仓储单据
+        TPurchaseStorage ps = purchaseStorageRepository.find(order.getId());
+        if (null != ps) {
+            TStorageOrder so = storageOrderRepository.find(ps.getSid());
+            if (null != so) {
+                createSubOrder(so, ret);
+            }
+        }
         return ret;
     }
 
@@ -758,6 +767,15 @@ public class OrderService {
                 }
             }
         }
+
+        // 查询关联仓储单据
+        TPurchaseStorage ps = purchaseStorageRepository.find(order.getId());
+        if (null != ps) {
+            TStorageOrder so = storageOrderRepository.find(ps.getSid());
+            if (null != so) {
+                createSubOrder(so, ret);
+            }
+        }
         return ret;
     }
 
@@ -786,6 +804,15 @@ public class OrderService {
                 if (null != product) {
                     ret.put("obatch", product.getBatch());
                 }
+            }
+        }
+
+        // 查询关联仓储单据
+        TPurchaseStorage ps = purchaseStorageRepository.find(order.getId());
+        if (null != ps) {
+            TStorageOrder so = storageOrderRepository.find(ps.getSid());
+            if (null != so) {
+                createSubOrder(so, ret);
             }
         }
         return ret;
@@ -846,6 +873,15 @@ public class OrderService {
                 if (null != purchase) {
                     ret.put("obatch", purchase.getBatch());
                 }
+            }
+        }
+
+        // 查询关联仓储单据
+        TPurchaseStorage ps = purchaseStorageRepository.find(order.getId());
+        if (null != ps) {
+            TStorageOrder so = storageOrderRepository.find(ps.getSid());
+            if (null != so) {
+                createSubOrder(so, ret);
             }
         }
         return ret;
@@ -980,5 +1016,16 @@ public class OrderService {
                 break;
         }
         return ret;
+    }
+
+    private void createSubOrder(TStorageOrder order, HashMap<String, Object> data) {
+        data.put("ssid", order.getId());
+        data.put("sbatch", order.getBatch());
+
+        TStorage s = storageRepository.find(order.getSid());
+        if (null != s) {
+            data.put("sid", s.getId());
+            data.put("sname", s.getName());
+        }
     }
 }

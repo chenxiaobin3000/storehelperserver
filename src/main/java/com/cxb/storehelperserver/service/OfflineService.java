@@ -17,6 +17,8 @@ import java.util.List;
 
 import static com.cxb.storehelperserver.util.Permission.*;
 import static com.cxb.storehelperserver.util.TypeDefine.OrderType.OFFLINE_OFFLINE_ORDER;
+import static com.cxb.storehelperserver.util.TypeDefine.OrderType.STORAGE_OFFLINE_IN_ORDER;
+import static com.cxb.storehelperserver.util.TypeDefine.OrderType.STORAGE_OFFLINE_OUT_ORDER;
 
 /**
  * desc: 线下销售业务
@@ -105,9 +107,11 @@ public class OfflineService {
                     return RestResult.fail("未指定仓库，一键出库失败");
                 }
                 TStorageOrder storageOrder = new TStorageOrder();
+                storageOrder.setOtype(STORAGE_OFFLINE_OUT_ORDER.getValue());
                 storageOrder.setSid(sid);
                 storageOrder.setTid(0);
                 storageOrder.setApply(order.getApply());
+                storageOrder.setApplyTime(order.getApplyTime());
                 return storageService.offlineOut(id, storageOrder, oid, review, commoditys, weights, values, attrs);
             }
         }
@@ -311,9 +315,11 @@ public class OfflineService {
                     return RestResult.fail("未指定仓库，一键入库失败");
                 }
                 TStorageOrder storageOrder = new TStorageOrder();
+                storageOrder.setOtype(STORAGE_OFFLINE_IN_ORDER.getValue());
                 storageOrder.setSid(sid);
                 storageOrder.setTid(0);
                 storageOrder.setApply(order.getApply());
+                storageOrder.setApplyTime(order.getApplyTime());
                 return storageService.offlineIn(id, storageOrder, oid, review, commoditys, weights, values, attrs);
             }
         }

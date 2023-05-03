@@ -115,7 +115,9 @@ public class ReviewService {
         if (!userOrderCompleteRepository.insert(complete)) {
             return RestResult.fail("完成用户订单审核信息失败");
         }
-        return RestResult.ok();
+        val ret = new HashMap<String, Object>();
+        ret.put("id", oid);
+        return RestResult.ok(ret);
     }
 
     public RestResult revoke(int id, int gid, int otype, int oid, String batch, int aid, int perm) {

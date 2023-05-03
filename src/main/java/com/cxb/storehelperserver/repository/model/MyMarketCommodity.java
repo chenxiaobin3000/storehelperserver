@@ -13,6 +13,8 @@ public class MyMarketCommodity {
 
     private Integer cid;
 
+    private Integer cate;
+
     private String code;
 
     private String name;
