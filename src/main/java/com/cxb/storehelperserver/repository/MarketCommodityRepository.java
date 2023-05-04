@@ -75,6 +75,28 @@ public class MarketCommodityRepository extends BaseRepository<TMarketCommodity> 
         }
     }
 
+    public int totalBySid(int aid, int sid, String search) {
+        if (0 == sid) {
+            return total(aid, search);
+        }
+        if (null != search) {
+            return myMarketCommodityMapper.countBySid(aid, sid, "%" + search + "%");
+        } else {
+            return myMarketCommodityMapper.countBySid(aid, sid, null);
+        }
+    }
+
+    public List<MyMarketCommodity> paginationBySid(int aid, int sid, int page, int limit, String search) {
+        if (0 == sid) {
+            return pagination(aid, page, limit, search);
+        }
+        if (null != search) {
+            return myMarketCommodityMapper.paginationBySid((page - 1) * limit, limit, aid, sid, "%" + search + "%");
+        } else {
+            return myMarketCommodityMapper.paginationBySid((page - 1) * limit, limit, aid, sid, null);
+        }
+    }
+
     public boolean update(TMarketCommodity row) {
         delete(row.getAid(), row.getCid());
         if (marketCommodityMapper.insert(row) > 0) {

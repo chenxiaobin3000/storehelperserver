@@ -705,9 +705,9 @@ public class OrderService {
         }
 
         // 查询关联仓储单据
-        TPurchaseStorage ps = purchaseStorageRepository.find(order.getId());
-        if (null != ps) {
-            TStorageOrder so = storageOrderRepository.find(ps.getSid());
+        TAgreementStorage as = agreementStorageRepository.find(order.getId());
+        if (null != as) {
+            TStorageOrder so = storageOrderRepository.find(as.getSid());
             if (null != so) {
                 createSubOrder(so, ret);
             }
@@ -769,9 +769,9 @@ public class OrderService {
         }
 
         // 查询关联仓储单据
-        TPurchaseStorage ps = purchaseStorageRepository.find(order.getId());
-        if (null != ps) {
-            TStorageOrder so = storageOrderRepository.find(ps.getSid());
+        TOfflineStorage os = offlineStorageRepository.find(order.getId());
+        if (null != os) {
+            TStorageOrder so = storageOrderRepository.find(os.getSid());
             if (null != so) {
                 createSubOrder(so, ret);
             }
@@ -797,6 +797,24 @@ public class OrderService {
             ret.put("remarks", datas.get("remarks"));
         }
 
+        SimpleDateFormat dateFormat = dateUtil.getDateFormat();
+        TUser ua = userRepository.find(order.getApply());
+        if (null != ua) {
+            ret.put("apply", ua.getId());
+            ret.put("applyName", ua.getName());
+        }
+        ret.put("applyTime", dateFormat.format(order.getApplyTime()));
+
+        Integer review = order.getReview();
+        if (null != review) {
+            TUser uv = userRepository.find(review);
+            if (null != uv) {
+                ret.put("review", uv.getId());
+                ret.put("reviewName", uv.getName());
+            }
+            ret.put("reviewTime", dateFormat.format(order.getReviewTime()));
+        }
+
         if (order.getOtype().equals(PRODUCT_COMPLETE_ORDER.getValue())) {
             TProductComplete productComplete = productCompleteRepository.find(order.getId());
             if (null != productComplete) {
@@ -808,7 +826,7 @@ public class OrderService {
         }
 
         // 查询关联仓储单据
-        TPurchaseStorage ps = purchaseStorageRepository.find(order.getId());
+        TProductStorage ps = productStorageRepository.find(order.getId());
         if (null != ps) {
             TStorageOrder so = storageOrderRepository.find(ps.getSid());
             if (null != so) {

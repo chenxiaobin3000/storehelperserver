@@ -79,6 +79,11 @@ public class MarketController {
         return marketService.getMarketCommodityList(req.getId(), req.getGid(), req.getPage(), req.getLimit(), req.getAid(), req.getSearch());
     }
 
+    @PostMapping("/getMarketCommodityStock")
+    public RestResult getMarketCommodityStock(@Validated @RequestBody GetMarketCommodityStockValid req) {
+        return marketService.getMarketCommodityStock(req.getId(), req.getGid(), req.getPage(), req.getLimit(), req.getAid(), req.getSid(), req.getSearch());
+    }
+
     @PostMapping("/setMarketCommList")
     public RestResult setMarketCommList(@Validated @RequestBody SetMarketCommodityListValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();

@@ -32,6 +32,9 @@ public class TransportService {
     private OfflineOrderService offlineOrderService;
 
     @Resource
+    private ProductOrderService productOrderService;
+
+    @Resource
     private PurchaseOrderService purchaseOrderService;
 
     @Resource
@@ -48,6 +51,12 @@ public class TransportService {
 
     @Resource
     private OfflineFareRepository offlineFareRepository;
+
+    @Resource
+    private ProductOrderRepository productOrderRepository;
+
+    @Resource
+    private ProductFareRepository productFareRepository;
 
     @Resource
     private PurchaseOrderRepository purchaseOrderRepository;
@@ -122,6 +131,27 @@ public class TransportService {
 
                 // 运费
                 if (!purchaseFareRepository.insert(oid, ship, code, phone, fare, remark, new Date())) {
+                    return RestResult.fail("添加物流费用失败");
+                }
+                return RestResult.ok();
+            }
+            case BUSINESS_PRODUCT: {
+                // 验证公司
+                TProductOrder order = productOrderRepository.find(oid);
+                if (null == order) {
+                    return RestResult.fail("未查询到订单信息");
+                }
+                String msg = checkService.checkGroup(id, order.getGid());
+                if (null != msg) {
+                    return RestResult.fail(msg);
+                }
+                if (!order.getApply().equals(id)) {
+                    return RestResult.fail("只能由申请人添加信息");
+                }
+                productOrderService.clean(oid);
+
+                // 运费
+                if (!productFareRepository.insert(oid, ship, code, phone, fare, remark, new Date())) {
                     return RestResult.fail("添加物流费用失败");
                 }
                 return RestResult.ok();
@@ -244,6 +274,37 @@ public class TransportService {
                     }
                 }
                 if (!purchaseFareRepository.delete(fid)) {
+                    return RestResult.fail("删除运费信息失败");
+                }
+                return RestResult.ok();
+            }
+            case BUSINESS_PRODUCT: {
+                // 验证公司
+                TProductOrder order = productOrderRepository.find(oid);
+                if (null == order) {
+                    return RestResult.fail("未查询到订单信息");
+                }
+                String msg = checkService.checkGroup(id, order.getGid());
+                if (null != msg) {
+                    return RestResult.fail(msg);
+                }
+                productOrderService.clean(oid);
+
+                // 运费由申请人删，已审核由审核人删，备注由审核人删
+                TProductFare fare = productFareRepository.find(fid);
+                if (null == fare) {
+                    return RestResult.fail("未查询到运费信息");
+                }
+                if (null != fare.getReview()) {
+                    if (!fare.getReview().equals(id)) {
+                        return RestResult.fail("要删除已审核信息，请联系审核人");
+                    }
+                } else {
+                    if (!order.getApply().equals(id)) {
+                        return RestResult.fail("只能由申请人删除信息");
+                    }
+                }
+                if (!productFareRepository.delete(fid)) {
                     return RestResult.fail("删除运费信息失败");
                 }
                 return RestResult.ok();

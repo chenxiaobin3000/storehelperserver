@@ -303,7 +303,7 @@ public class ProductService {
                 storageOrder.setTid(0);
                 storageOrder.setApply(order.getApply());
                 storageOrder.setApplyTime(order.getApplyTime());
-                return storageService.purchaseIn(id, storageOrder, oid, review, commoditys, weights, values, attrs);
+                return storageService.productIn(id, storageOrder, oid, review, commoditys, weights, values, attrs);
             }
         }
         return ret;

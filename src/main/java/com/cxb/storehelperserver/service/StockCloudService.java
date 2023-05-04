@@ -298,6 +298,7 @@ public class StockCloudService {
             BigDecimal price = agreementCommodity.getPrice();
             int value = agreementCommodity.getValue();
             if (!stockCloudRepository.insert(gid, aid, order.getOtype(), order.getId(), cid, add ? price : price.negate(), add ? value : -value, order.getApplyTime())) {
+                log.warn("增加库存明细信息失败:" + cid);
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                 return "增加库存明细信息失败";
             }
@@ -321,16 +322,19 @@ public class StockCloudService {
             if (!add) {
                 TStockCloudDay stock = getStockCommodity(gid, aid, cid);
                 if (null == stock) {
+                    log.warn("查询库存明细信息失败:" + cid);
                     TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                     return "查询库存明细信息失败";
                 }
-                if (stock.getValue() > value) {
+                if (stock.getValue() < value) {
+                    log.warn("库存件数明细信息失败:" + cid + "," + stock.getValue() + "," + value);
                     TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                     return "库存件数明细信息失败";
                 }
             }
             if (!stockCloudRepository.insert(gid, aid, order.getOtype(), order.getId(), cid,
                     add ? price : price.negate(), add ? value : -value, order.getApplyTime())) {
+                log.warn("增加库存明细信息失败:" + cid);
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                 return "增加库存明细信息失败";
             }

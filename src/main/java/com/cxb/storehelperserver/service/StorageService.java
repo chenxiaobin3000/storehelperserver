@@ -771,7 +771,7 @@ public class StorageService {
         if (null == product) {
             return RestResult.fail("未查询到生产单信息");
         }
-        if (!product.getOtype().equals(PRODUCT_PROCESS_ORDER.getValue())) {
+        if (!product.getOtype().equals(PRODUCT_PROCESS_ORDER.getValue()) && !product.getOtype().equals(PRODUCT_LOSS_ORDER.getValue())) {
             return RestResult.fail("生产单据类型异常");
         }
         if (null == product.getReview()) {
@@ -2714,7 +2714,7 @@ public class StorageService {
     private int getPurchaseId(int id) {
         TPurchaseStorage ret = purchaseStorageRepository.findBySid(id);
         if (null != ret) {
-            return ret.getSid();
+            return ret.getOid();
         }
         return 0;
     }
@@ -2723,7 +2723,7 @@ public class StorageService {
     private int getProductId(int id) {
         TProductStorage ret = productStorageRepository.findBySid(id);
         if (null != ret) {
-            return ret.getSid();
+            return ret.getOid();
         }
         return 0;
     }
@@ -2732,7 +2732,7 @@ public class StorageService {
     private int getAgreementId(int id) {
         TAgreementStorage ret = agreementStorageRepository.findBySid(id);
         if (null != ret) {
-            return ret.getSid();
+            return ret.getOid();
         }
         return 0;
     }
@@ -2741,7 +2741,7 @@ public class StorageService {
     private int getOfflineId(int id) {
         TOfflineStorage ret = offlineStorageRepository.findBySid(id);
         if (null != ret) {
-            return ret.getSid();
+            return ret.getOid();
         }
         return 0;
     }

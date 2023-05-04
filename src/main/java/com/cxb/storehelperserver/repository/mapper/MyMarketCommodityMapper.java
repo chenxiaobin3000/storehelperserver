@@ -28,6 +28,19 @@ public interface MyMarketCommodityMapper {
     List<MyMarketCommodity> pagination(int offset, int limit, int aid, String search);
 
     @Select({"<script>",
+            "select count(t1.id) from t_market_commodity t1 left join t_commodity t2 on t1.cid = t2.id left join t_commodity_storage t3",
+            "on t1.cid = t3.cid where t1.aid = #{aid} and t3.sid = #{sid} <if test='null != search'>and t2.name like #{search}</if>",
+            "</script>"})
+    int countBySid(int aid, int sid, String search);
+
+    @Select({"<script>",
+            "select t1.id, t1.mid, t1.cid, t1.price, t2.code, t2.name, t2.cid as cate, t2.remark from t_market_commodity t1",
+            "left join t_commodity t2 on t1.cid = t2.id left join t_commodity_storage t3 on t1.cid = t3.cid where t1.aid = #{aid}",
+            "and t3.sid = #{sid} <if test='null != search'>and t2.name like #{search}</if> limit #{offset}, #{limit}",
+            "</script>"})
+    List<MyMarketCommodity> paginationBySid(int offset, int limit, int aid, int sid, String search);
+
+    @Select({"<script>",
             "select id from t_market_commodity_detail where sid = #{sid} and aid = #{aid} and cdate = #{cdate}",
             "</script>"})
     List<Integer> findIds(int sid, int aid, Date cdate);

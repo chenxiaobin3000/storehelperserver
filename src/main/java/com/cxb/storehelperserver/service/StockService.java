@@ -297,20 +297,24 @@ public class StockService {
             if (!add) {
                 TStockDay stock = getStockCommodity(gid, sid, cid);
                 if (null == stock) {
+                    log.warn("查询库存明细信息失败:" + cid);
                     TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                     return "查询库存明细信息失败";
                 }
-                if (stock.getWeight() > weight) {
+                if (stock.getWeight() < weight) {
+                    log.warn("库存重量明细信息失败:" + cid + "," + stock.getWeight() + "," + weight);
                     TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                     return "库存重量明细信息失败";
                 }
-                if (stock.getValue() > value) {
+                if (stock.getValue() < value) {
+                    log.warn("库存件数明细信息失败:" + cid + "," + stock.getValue() + "," + value);
                     TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                     return "库存件数明细信息失败";
                 }
             }
             if (!stockRepository.insert(gid, sid, order.getOtype(), order.getId(), cid, add ? price : price.negate(),
                     add ? weight : -weight, storageCommodity.getNorm(), add ? value : -value, order.getApplyTime())) {
+                log.warn("增加库存明细信息失败:" + cid);
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                 return "增加库存明细信息失败";
             }

@@ -41,6 +41,7 @@ public class ProductController {
         order.setGid(req.getGid());
         order.setOtype(PRODUCT_PROCESS_ORDER.getValue());
         order.setApply(req.getId());
+        order.setComplete(new Byte("0"));
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));
         } catch (ParseException e) {
@@ -125,6 +126,7 @@ public class ProductController {
         order.setGid(req.getGid());
         order.setOtype(PRODUCT_LOSS_ORDER.getValue());
         order.setApply(req.getId());
+        order.setComplete(new Byte("0"));
         try {
             order.setApplyTime(simpleDateFormat.parse(req.getDate()));
         } catch (ParseException e) {
