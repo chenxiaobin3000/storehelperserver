@@ -1111,7 +1111,7 @@ public class StorageService {
         if (null == agreement) {
             return RestResult.fail("未查询到对应的履约单");
         }
-        int value = agreement.getCurValue() - order.getUnit();
+        int value = agreement.getCurValue() - order.getValue();
         if (value < 0) {
             return RestResult.fail("入库商品总量不能超出履约订单总量");
         }
@@ -1333,12 +1333,12 @@ public class StorageService {
             return RestResult.fail("您没有审核权限");
         }
 
-        // 校验退货订单总价格和总量不能超出采购单
+        // 校验出库订单总价格和总量不能超出履约单
         TAgreementOrder agreement = agreementOrderRepository.find(pid);
         if (null == agreement) {
             return RestResult.fail("未查询到对应的履约单");
         }
-        int value = agreement.getValue() - order.getUnit();
+        int value = agreement.getValue() - order.getValue();
         if (value < 0) {
             return RestResult.fail("出库商品总量不能超出履约订单总量");
         }
@@ -1565,7 +1565,7 @@ public class StorageService {
         if (null == offline) {
             return RestResult.fail("未查询到对应的退货单");
         }
-        int value = offline.getCurValue() - order.getUnit();
+        int value = offline.getCurValue() - order.getValue();
         if (value < 0) {
             return RestResult.fail("入库商品总量不能超出退货订单总量");
         }
@@ -1792,7 +1792,7 @@ public class StorageService {
         if (null == offline) {
             return RestResult.fail("未查询到对应的销售单");
         }
-        int value = offline.getValue() - order.getUnit();
+        int value = offline.getValue() - order.getValue();
         if (value < 0) {
             return RestResult.fail("出库商品总量不能超出销售订单总量");
         }
@@ -2443,6 +2443,7 @@ public class StorageService {
             return RestResult.fail("未查询到采购商品信息");
         }
         int total = 0;
+        int all = 0;
         BigDecimal price = new BigDecimal(0);
         for (int i = 0; i < size; i++) {
             boolean find = false;
@@ -2472,6 +2473,7 @@ public class StorageService {
                     list.add(c);
 
                     total = total + weight;
+                    all = all + value;
                     price = price.add(c.getPrice());
                     break;
                 }
@@ -2481,6 +2483,7 @@ public class StorageService {
             }
         }
         order.setUnit(total);
+        order.setValue(all);
         order.setPrice(price);
         return null;
     }
@@ -2496,6 +2499,7 @@ public class StorageService {
             return RestResult.fail("未查询到采购商品信息");
         }
         int total = 0;
+        int all = 0;
         BigDecimal price = new BigDecimal(0);
         for (int i = 0; i < size; i++) {
             boolean find = false;
@@ -2525,6 +2529,7 @@ public class StorageService {
                     list.add(c);
 
                     total = total + weight;
+                    all = all + value;
                     price = price.add(c.getPrice());
                     break;
                 }
@@ -2534,6 +2539,7 @@ public class StorageService {
             }
         }
         order.setUnit(total);
+        order.setValue(all);
         order.setPrice(price);
         return null;
     }
@@ -2549,6 +2555,7 @@ public class StorageService {
             return RestResult.fail("未查询到采购商品信息");
         }
         int total = 0;
+        int all = 0;
         BigDecimal price = new BigDecimal(0);
         for (int i = 0; i < size; i++) {
             boolean find = false;
@@ -2578,6 +2585,7 @@ public class StorageService {
                     list.add(c);
 
                     total = total + weight;
+                    all = all + value;
                     price = price.add(c.getPrice());
                     break;
                 }
@@ -2587,6 +2595,7 @@ public class StorageService {
             }
         }
         order.setUnit(total);
+        order.setValue(all);
         order.setPrice(price);
         return null;
     }
@@ -2602,6 +2611,7 @@ public class StorageService {
             return RestResult.fail("未查询到采购商品信息");
         }
         int total = 0;
+        int all = 0;
         BigDecimal price = new BigDecimal(0);
         for (int i = 0; i < size; i++) {
             boolean find = false;
@@ -2631,6 +2641,7 @@ public class StorageService {
                     list.add(c);
 
                     total = total + weight;
+                    all = all + value;
                     price = price.add(c.getPrice());
                     break;
                 }
@@ -2640,6 +2651,7 @@ public class StorageService {
             }
         }
         order.setUnit(total);
+        order.setValue(all);
         order.setPrice(price);
         return null;
     }
@@ -2650,8 +2662,8 @@ public class StorageService {
         if (size != prices.size() || size != weights.size() || size != norms.size() || size != values.size()) {
             return RestResult.fail("商品信息异常");
         }
-        int sid = order.getSid();
         int total = 0;
+        int all = 0;
         BigDecimal price = new BigDecimal(0);
         for (int i = 0; i < size; i++) {
             TStorageCommodity c = new TStorageCommodity();
@@ -2663,9 +2675,11 @@ public class StorageService {
             list.add(c);
 
             total = total + c.getWeight();
+            all = all + values.get(i);
             price = price.add(c.getPrice());
         }
         order.setUnit(total);
+        order.setValue(all);
         order.setPrice(price);
         return null;
     }
@@ -2678,6 +2692,7 @@ public class StorageService {
         }
         int sid = order.getSid();
         int total = 0;
+        int all = 0;
         BigDecimal price = new BigDecimal(0);
         for (int i = 0; i < size; i++) {
             int cid = commoditys.get(i);
@@ -2703,9 +2718,11 @@ public class StorageService {
             list.add(c);
 
             total = total + weight;
+            all = all + value;
             price = price.add(c.getPrice());
         }
         order.setUnit(total);
+        order.setValue(all);
         order.setPrice(price);
         return null;
     }

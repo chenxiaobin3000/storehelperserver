@@ -62,7 +62,7 @@ public class StockCloudRepository extends BaseRepository<TStockCloud> {
         return myStockCloudMapper.pagination((page - 1) * limit, limit, gid, aid, start, end, key);
     }
 
-    public boolean insert(int gid, int aid, int otype, Integer oid, int cid, BigDecimal price, int value, Date cdate) {
+    public boolean insert(int gid, int aid, int otype, Integer oid, int cid, BigDecimal price, String norm, int value, Date cdate) {
         TStockCloud row = new TStockCloud();
         row.setGid(gid);
         row.setAid(aid);
@@ -70,6 +70,7 @@ public class StockCloudRepository extends BaseRepository<TStockCloud> {
         row.setOid(null == oid ? 0 : oid);
         row.setCid(cid);
         row.setPrice(price);
+        row.setNorm(norm);
         row.setValue(value);
         row.setCdate(cdate);
         return stockCloudMapper.insert(row) > 0;

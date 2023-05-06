@@ -44,6 +44,12 @@ public class OrderController {
                 ReviewType.valueOf(req.getReview()), CompleteType.valueOf(req.getComplete()), req.getDate(), req.getSearch());
     }
 
+    @PostMapping("/getOfflineOrder")
+    public RestResult getOfflineOrder(@Validated @RequestBody GetOfflineOrderValid req) {
+        return orderService.getOfflineOrder(req.getId(), req.getAid(), req.getType(), req.getPage(), req.getLimit(),
+                ReviewType.valueOf(req.getReview()), CompleteType.valueOf(req.getComplete()), req.getDate(), req.getSearch());
+    }
+
     @PostMapping("/getProductOrder")
     public RestResult getProductOrder(@Validated @RequestBody GetProductOrderValid req) {
         return orderService.getProductOrder(req.getId(), req.getType(), req.getPage(), req.getLimit(), ReviewType.valueOf(req.getReview()), req.getDate(), req.getSearch());

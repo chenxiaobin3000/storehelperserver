@@ -120,16 +120,12 @@ public class StockCloudService {
                     if (null == c.getPrice()) {
                         c.setPrice(new BigDecimal(0));
                     }
-                    if (null == c.getWeight()) {
-                        c.setWeight(0);
-                    }
                     if (null == c.getValue()) {
                         c.setValue(0);
                     }
                     for (MyStockCommodity c2 : commodities2) {
                         if (c2.getCid().equals(c.getCid())) {
                             c.setPrice(c.getPrice().add(c2.getPrice()));
-                            c.setWeight(c.getWeight() + c2.getWeight());
                             c.setValue(c.getValue() + c2.getValue());
                             break;
                         }
@@ -187,7 +183,6 @@ public class StockCloudService {
                 tmp.put("cid", c.getCtid());
                 tmp.put("remark", c.getRemark());
                 tmp.put("price", c.getPrice());
-                tmp.put("weight", c.getWeight());
                 tmp.put("value", c.getValue());
 
                 // 属性
@@ -211,13 +206,12 @@ public class StockCloudService {
                 for (val c : list) {
                     if (c2.getCid().equals(c.get("id"))) {
                         c.put("price", c2.getPrice().add((BigDecimal) c.get("price")));
-                        c.put("weight", c2.getWeight() + (int) c.get("weight"));
                         c.put("value", c2.getValue() + (int) c.get("value"));
                         find = true;
                         break;
                     }
                 }
-                if (!find && c2.getWeight() > 0) {
+                if (!find && c2.getValue() > 0) {
                     if (null != search) {
                         if (!c2.getName().contains(search)) {
                             continue;
@@ -231,7 +225,6 @@ public class StockCloudService {
                     tmp.put("cid", c2.getCtid());
                     tmp.put("remark", c2.getRemark());
                     tmp.put("price", c2.getPrice());
-                    tmp.put("weight", c2.getWeight());
                     tmp.put("value", c2.getValue());
 
                     // 属性
@@ -253,7 +246,7 @@ public class StockCloudService {
         return RestResult.ok(data);
     }
 
-    public RestResult getStockDay(int id, int gid, int sid, int aid) {
+    public RestResult getStockDay(int id, int gid, int aid) {
         // 验证公司
         String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
@@ -281,7 +274,7 @@ public class StockCloudService {
         return RestResult.ok(data);
     }
 
-    public RestResult getStockWeek(int id, int gid, int sid, int aid) {
+    public RestResult getStockWeek(int id, int gid, int aid) {
         return null;
     }
 
@@ -293,11 +286,11 @@ public class StockCloudService {
         }
         int gid = order.getGid();
         int aid = order.getAid();
-        for (TAgreementCommodity agreementCommodity : storageCommodities) {
-            int cid = agreementCommodity.getCid();
-            BigDecimal price = agreementCommodity.getPrice();
-            int value = agreementCommodity.getValue();
-            if (!stockCloudRepository.insert(gid, aid, order.getOtype(), order.getId(), cid, add ? price : price.negate(), add ? value : -value, order.getApplyTime())) {
+        for (TAgreementCommodity c : storageCommodities) {
+            int cid = c.getCid();
+            BigDecimal price = c.getPrice();
+            int value = c.getValue();
+            if (!stockCloudRepository.insert(gid, aid, order.getOtype(), order.getId(), cid, add ? price : price.negate(), c.getNorm(), add ? value : -value, order.getApplyTime())) {
                 log.warn("增加库存明细信息失败:" + cid);
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                 return "增加库存明细信息失败";
@@ -314,10 +307,10 @@ public class StockCloudService {
         if (null == saleCommodities || saleCommodities.isEmpty()) {
             return "未查询到商品信息";
         }
-        for (TSaleCommodity saleCommodity : saleCommodities) {
-            int cid = saleCommodity.getCid();
-            BigDecimal price = saleCommodity.getPrice();
-            int value = saleCommodity.getValue();
+        for (TSaleCommodity c : saleCommodities) {
+            int cid = c.getCid();
+            BigDecimal price = c.getPrice();
+            int value = c.getValue();
             // 校验库存
             if (!add) {
                 TStockCloudDay stock = getStockCommodity(gid, aid, cid);
@@ -333,7 +326,7 @@ public class StockCloudService {
                 }
             }
             if (!stockCloudRepository.insert(gid, aid, order.getOtype(), order.getId(), cid,
-                    add ? price : price.negate(), add ? value : -value, order.getApplyTime())) {
+                    add ? price : price.negate(), c.getNorm(), add ? value : -value, order.getApplyTime())) {
                 log.warn("增加库存明细信息失败:" + cid);
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                 return "增加库存明细信息失败";
@@ -363,7 +356,6 @@ public class StockCloudService {
             }
             Date tmp = dateUtil.getStartTime(start);
             yesterday.setPrice(new BigDecimal(0));
-            yesterday.setWeight(0);
             yesterday.setValue(0);
             while (tmp.before(stop)) {
                 // 已有数据就忽略

@@ -41,28 +41,26 @@ public interface MyMarketCommodityMapper {
     List<MyMarketCommodity> paginationBySid(int offset, int limit, int aid, int sid, String search);
 
     @Select({"<script>",
-            "select id from t_market_commodity_detail where sid = #{sid} and aid = #{aid} and cdate = #{cdate}",
+            "select id from t_market_commodity_detail where aid = #{aid} and cdate = #{cdate}",
             "</script>"})
-    List<Integer> findIds(int sid, int aid, Date cdate);
+    List<Integer> findIds(int aid, Date cdate);
 
     @Select({"<script>",
-            "select count(t1.id) from t_market_commodity t1 left join t_market_commodity_detail t2",
-            "on t1.sid = t2.sid and t1.aid = t2.aid and t1.cid = t2.cid where t1.sid = #{sid}",
-            "and t1.aid = #{aid} <if test='null != search'>and t1.name like #{search}</if>",
+            "select count(t1.id) from t_market_commodity t1 left join t_market_commodity_detail t2 on t1.aid = t2.aid",
+            "and t1.cid = t2.cid where t1.aid = #{aid} <if test='null != search'>and t1.name like #{search}</if>",
             "</script>"})
-    int countDetail(int sid, int aid, String search);
+    int countDetail(int aid, String search);
 
     @Select({"<script>",
             "select t2.id, t1.mid, t1.cid, t1.code, t1.name, t1.remark, t1.price as alarm, t2.price, t2.value from t_market_commodity t1",
-            "left join (select id, sid, aid, cid, price, value, cdate from t_market_commodity_detail where cdate = #{cdate})",
-            "t2 on t1.sid = t2.sid and t1.aid = t2.aid and t1.cid = t2.cid where t1.sid = #{sid} and t1.aid = #{aid}",
-            "<if test='null != search'>and t1.name like #{search}</if> limit #{offset}, #{limit}",
+            "left join (select id, aid, cid, price, value, cdate from t_market_commodity_detail where cdate = #{cdate}) t2",
+            "on t1.aid = t2.aid and t1.cid = t2.cid where t1.aid = #{aid} <if test='null != search'>and t1.name like #{search}</if> limit #{offset}, #{limit}",
             "</script>"})
-    List<MyMarketCommodity> paginationDetail(int offset, int limit, int sid, int aid, Date cdate, String search);
+    List<MyMarketCommodity> paginationDetail(int offset, int limit, int aid, Date cdate, String search);
 
     @Select({"<script>",
             "select t2.cid, t2.code, t2.name, t2.remark, t1.price, t1.value from t_market_commodity_detail t1 left join t_market_commodity t2",
-            "on t1.aid = t2.aid and and t1.cid = t2.cid where t1.sid = #{sid} and t1.aid = #{aid} and t1.cdate = #{cdate}",
+            "on t1.aid = t2.aid and and t1.cid = t2.cid where t1.aid = #{aid} and t1.cdate = #{cdate}",
             "</script>"})
     List<MyMarketCommodity> sale(int aid, Date cdate);
 }

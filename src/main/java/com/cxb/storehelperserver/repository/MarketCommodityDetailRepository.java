@@ -49,8 +49,8 @@ public class MarketCommodityDetailRepository extends BaseRepository<TMarketCommo
         return detail;
     }
 
-    public List<Integer> findIds(int sid, int aid, Date date) {
-        return myMarketCommodityMapper.findIds(sid, aid, new java.sql.Date(date.getTime()));
+    public List<Integer> findIds(int aid, Date date) {
+        return myMarketCommodityMapper.findIds(aid, new java.sql.Date(date.getTime()));
     }
 
     public List<MyMarketReport> findByDate(int gid, int mid, Date start, Date end) {
@@ -61,19 +61,19 @@ public class MarketCommodityDetailRepository extends BaseRepository<TMarketCommo
         return myMarketMapper.selectInCids(gid, mid, cids);
     }
 
-    public int total(int sid, int aid, String search) {
+    public int total(int aid, String search) {
         if (null != search) {
-            return myMarketCommodityMapper.countDetail(sid, aid, "%" + search + "%");
+            return myMarketCommodityMapper.countDetail(aid, "%" + search + "%");
         } else {
-            return myMarketCommodityMapper.countDetail(sid, aid, null);
+            return myMarketCommodityMapper.countDetail(aid, null);
         }
     }
 
-    public List<MyMarketCommodity> pagination(int sid, int aid, int page, int limit, Date date, String search) {
+    public List<MyMarketCommodity> pagination(int aid, int page, int limit, Date date, String search) {
         if (null != search) {
-            return myMarketCommodityMapper.paginationDetail((page - 1) * limit, limit, sid, aid, new java.sql.Date(date.getTime()), "%" + search + "%");
+            return myMarketCommodityMapper.paginationDetail((page - 1) * limit, limit, aid, new java.sql.Date(date.getTime()), "%" + search + "%");
         } else {
-            return myMarketCommodityMapper.paginationDetail((page - 1) * limit, limit, sid, aid, new java.sql.Date(date.getTime()), null);
+            return myMarketCommodityMapper.paginationDetail((page - 1) * limit, limit, aid, new java.sql.Date(date.getTime()), null);
         }
     }
 

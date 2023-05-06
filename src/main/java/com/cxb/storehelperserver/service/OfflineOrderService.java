@@ -68,6 +68,8 @@ public class OfflineOrderService extends BaseService<HashMap> {
                 data.put("id", sc.getId());
                 data.put("cid", sc.getCid());
                 data.put("price", sc.getPrice());
+                data.put("weight", sc.getWeight());
+                data.put("norm", sc.getNorm());
                 data.put("value", sc.getValue());
                 commoditys.add(data);
 

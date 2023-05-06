@@ -27,7 +27,7 @@ import static com.cxb.storehelperserver.util.TypeDefine.OrderType.*;
  */
 @Slf4j
 @RestController
-@RequestMapping("/api/sale")
+@RequestMapping("/api/offline")
 public class OfflineController {
     @Resource
     private OfflineService offlineService;

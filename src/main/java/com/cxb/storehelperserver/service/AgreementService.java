@@ -95,8 +95,8 @@ public class AgreementService {
         // 一键审核
         ret = reviewService.apply(id, order.getGid(), order.getOtype(), oid, batch, reviews);
         if (RestResult.isOk(ret) && review > 0) {
-            ret = reviewShipped(id, oid);
-            if (RestResult.isOk(ret) && storage > 0) {
+            RestResult ret2 = reviewShipped(id, oid);
+            if (RestResult.isOk(ret2) && storage > 0) {
                 // 一键出库
                 if (sid <= 0) {
                     return RestResult.fail("未指定仓库，一键出库失败");
@@ -107,7 +107,10 @@ public class AgreementService {
                 storageOrder.setTid(0);
                 storageOrder.setApply(order.getApply());
                 storageOrder.setApplyTime(order.getApplyTime());
-                return storageService.agreementOut(id, storageOrder, oid, review, commoditys, weights, values, attrs);
+                ret2 = storageService.agreementOut(id, storageOrder, oid, review, commoditys, weights, values, attrs);
+            }
+            if (!RestResult.isOk(ret2)) {
+                return ret2;
             }
         }
         return ret;
@@ -302,8 +305,8 @@ public class AgreementService {
         // 一键审核
         ret = reviewService.apply(id, order.getGid(), order.getOtype(), oid, batch, reviews);
         if (RestResult.isOk(ret) && review > 0) {
-            ret = reviewReturn(id, oid);
-            if (RestResult.isOk(ret) && storage > 0) {
+            RestResult ret2 = reviewReturn(id, oid);
+            if (RestResult.isOk(ret2) && storage > 0) {
                 // 一键入库
                 if (sid <= 0) {
                     return RestResult.fail("未指定仓库，一键入库失败");
@@ -314,7 +317,10 @@ public class AgreementService {
                 storageOrder.setTid(0);
                 storageOrder.setApply(order.getApply());
                 storageOrder.setApplyTime(order.getApplyTime());
-                return storageService.agreementIn(id, storageOrder, oid, review, commoditys, weights, values, attrs);
+                ret2 =  storageService.agreementIn(id, storageOrder, oid, review, commoditys, weights, values, attrs);
+            }
+            if (!RestResult.isOk(ret2)) {
+                return ret2;
             }
         }
         return ret;
@@ -399,28 +405,6 @@ public class AgreementService {
             return RestResult.fail("您没有审核权限");
         }
 
-        // 校验退货订单总价格和总量不能超出履约单
-        TAgreementOrder agreement = agreementOrderRepository.find(pid);
-        if (null == agreement) {
-            return RestResult.fail("未查询到对应的发货单");
-        }
-        int value = agreement.getCurValue() - order.getValue();
-        if (value < 0) {
-            return RestResult.fail("退货商品总件数不能超出发货订单总件数");
-        }
-        BigDecimal price = agreement.getCurPrice().subtract(order.getPrice());
-        if (price.compareTo(BigDecimal.ZERO) < 0) {
-            return RestResult.fail("退货商品总价不能超出发货订单总价");
-        }
-        if (0 == value) {
-            agreement.setComplete(new Byte("1"));
-        }
-        agreement.setCurValue(value);
-        agreement.setCurPrice(price);
-        if (!agreementOrderRepository.update(agreement)) {
-            return RestResult.fail("修改发货单数据失败");
-        }
-
         // 添加审核信息
         Date reviewTime = new Date();
         order.setReview(id);
@@ -462,18 +446,6 @@ public class AgreementService {
         String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
             return RestResult.fail(msg);
-        }
-
-        // 还原扣除的履约单数量
-        TAgreementOrder agreement = agreementOrderRepository.find(pid);
-        if (null == agreement) {
-            return RestResult.fail("未查询到对应的履约单");
-        }
-        agreement.setCurValue(agreement.getCurValue() + order.getValue());
-        agreement.setCurPrice(agreement.getCurPrice().add(order.getPrice()));
-        agreement.setComplete(new Byte("0"));
-        if (!agreementOrderRepository.update(agreement)) {
-            return RestResult.fail("修改履约单数据失败");
         }
 
         RestResult ret = reviewService.revoke(id, gid, order.getOtype(), oid, order.getBatch(), order.getApply(), mp_agreement_return);

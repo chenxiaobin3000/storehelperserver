@@ -21,9 +21,6 @@ public class SetMarketCommodityDetailValid implements IValid {
     @Min(value = 1, message = "公司账号错误")
     private int gid;
 
-    @Min(value = 1, message = "云仓账号错误")
-    private int sid;
-
     @Min(value = 1, message = "平台账号错误")
     private int aid;
 

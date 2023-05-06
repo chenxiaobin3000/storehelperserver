@@ -1,6 +1,7 @@
 package com.cxb.storehelperserver.controller;
 
 import com.cxb.storehelperserver.controller.request.stock.*;
+import com.cxb.storehelperserver.service.StockCloudService;
 import com.cxb.storehelperserver.service.StockService;
 import com.cxb.storehelperserver.util.DateUtil;
 import com.cxb.storehelperserver.util.RestResult;
@@ -27,6 +28,9 @@ import java.util.Date;
 public class StockController {
     @Resource
     private StockService stockService;
+
+    @Resource
+    private StockCloudService stockCloudService;
 
     @Resource
     private DateUtil dateUtil;
@@ -56,5 +60,32 @@ public class StockController {
     @PostMapping("/getStockWeek")
     public RestResult getStockWeek(@Validated @RequestBody GetStockWeekValid req) {
         return stockService.getStockWeek(req.getId(), req.getGid(), req.getSid());
+    }
+
+    @PostMapping("/getCloudList")
+    public RestResult getCloudList(@Validated @RequestBody GetCloudListValid req) {
+        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
+        Date date = null;
+        try {
+            date = simpleDateFormat.parse(req.getDate() + " 00:00:00");
+        } catch (ParseException e) {
+            return RestResult.fail("查询日期转换失败");
+        }
+        return stockCloudService.getStockList(req.getId(), req.getAid(), req.getPage(), req.getLimit(), date, req.getSearch());
+    }
+
+    @PostMapping("/getTodayCloudList")
+    public RestResult getTodayCloudList(@Validated @RequestBody GetTodayCloudListValid req) {
+        return stockCloudService.getTodayStockList(req.getId(), req.getAid(), req.getPage(), req.getLimit(), req.getSearch());
+    }
+
+    @PostMapping("/getCloudDay")
+    public RestResult getCloudDay(@Validated @RequestBody GetCloudDayValid req) {
+        return stockCloudService.getStockDay(req.getId(), req.getGid(), req.getAid());
+    }
+
+    @PostMapping("/getCloudWeek")
+    public RestResult getCloudWeek(@Validated @RequestBody GetCloudWeekValid req) {
+        return stockCloudService.getStockWeek(req.getId(), req.getGid(), req.getAid());
     }
 }

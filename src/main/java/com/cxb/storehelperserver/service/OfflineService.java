@@ -100,8 +100,8 @@ public class OfflineService {
         // 一键审核
         ret = reviewService.apply(id, order.getGid(), order.getOtype(), oid, batch, reviews);
         if (RestResult.isOk(ret) && review > 0) {
-            ret = reviewOffline(id, oid);
-            if (RestResult.isOk(ret) && storage > 0) {
+            RestResult ret2 = reviewOffline(id, oid);
+            if (RestResult.isOk(ret2) && storage > 0) {
                 // 一键出库
                 if (sid <= 0) {
                     return RestResult.fail("未指定仓库，一键出库失败");
@@ -112,7 +112,10 @@ public class OfflineService {
                 storageOrder.setTid(0);
                 storageOrder.setApply(order.getApply());
                 storageOrder.setApplyTime(order.getApplyTime());
-                return storageService.offlineOut(id, storageOrder, oid, review, commoditys, weights, values, attrs);
+                ret2 = storageService.offlineOut(id, storageOrder, oid, review, commoditys, weights, values, attrs);
+            }
+            if (!RestResult.isOk(ret2)) {
+                return ret2;
             }
         }
         return ret;
@@ -308,8 +311,8 @@ public class OfflineService {
         // 一键审核
         ret = reviewService.apply(id, order.getGid(), order.getOtype(), oid, batch, reviews);
         if (RestResult.isOk(ret) && review > 0) {
-            ret = reviewReturn(id, oid);
-            if (RestResult.isOk(ret) && storage > 0) {
+            RestResult ret2 = reviewReturn(id, oid);
+            if (RestResult.isOk(ret2) && storage > 0) {
                 // 一键入库
                 if (sid <= 0) {
                     return RestResult.fail("未指定仓库，一键入库失败");
@@ -320,7 +323,10 @@ public class OfflineService {
                 storageOrder.setTid(0);
                 storageOrder.setApply(order.getApply());
                 storageOrder.setApplyTime(order.getApplyTime());
-                return storageService.offlineIn(id, storageOrder, oid, review, commoditys, weights, values, attrs);
+                ret2 = storageService.offlineIn(id, storageOrder, oid, review, commoditys, weights, values, attrs);
+            }
+            if (!RestResult.isOk(ret2)) {
+                return ret2;
             }
         }
         return ret;
@@ -405,32 +411,11 @@ public class OfflineService {
             return RestResult.fail("您没有审核权限");
         }
 
-        // 校验退货订单总价格和总量不能超出采购单
-        TOfflineOrder offline = offlineOrderRepository.find(pid);
-        if (null == offline) {
-            return RestResult.fail("未查询到对应的销售单");
-        }
-        int value = offline.getCurValue() - order.getValue();
-        if (value < 0) {
-            return RestResult.fail("退货商品总量不能超出销售订单总量");
-        }
-        BigDecimal price = offline.getCurPrice().subtract(order.getPrice());
-        if (price.compareTo(BigDecimal.ZERO) < 0) {
-            return RestResult.fail("退货商品总价不能超出销售订单总价");
-        }
-        if (0 == value) {
-            offline.setComplete(new Byte("1"));
-        }
-        offline.setCurValue(value);
-        offline.setCurPrice(price);
-        if (!offlineOrderRepository.update(offline)) {
-            return RestResult.fail("修改销售单数据失败");
-        }
-
         // 添加审核信息
         Date reviewTime = new Date();
         order.setReview(id);
         order.setReviewTime(reviewTime);
+        order.setComplete(new Byte("1"));
         if (!offlineOrderRepository.update(order)) {
             return RestResult.fail("审核用户订单信息失败");
         }
@@ -461,18 +446,6 @@ public class OfflineService {
         String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
             return RestResult.fail(msg);
-        }
-
-        // 还原扣除的采购单数量
-        TOfflineOrder offline = offlineOrderRepository.find(pid);
-        if (null == offline) {
-            return RestResult.fail("未查询到对应的销售单");
-        }
-        offline.setCurValue(offline.getCurValue() + order.getValue());
-        offline.setCurPrice(offline.getCurPrice().add(order.getPrice()));
-        offline.setComplete(new Byte("0"));
-        if (!offlineOrderRepository.update(offline)) {
-            return RestResult.fail("修改销售单数据失败");
         }
 
         RestResult ret = reviewService.revoke(id, gid, order.getOtype(), oid, order.getBatch(), order.getApply(), mp_offline_return);

@@ -724,6 +724,8 @@ public class OrderService {
         ret.put("curValue", order.getCurValue());
         ret.put("price", order.getPrice());
         ret.put("curPrice", order.getCurPrice());
+        ret.put("pay", order.getPayPrice());
+        ret.put("complete", order.getComplete());
 
         HashMap<String, Object> datas = offlineOrderService.find(order.getId());
         if (null != datas) {
@@ -788,6 +790,7 @@ public class OrderService {
         ret.put("curUnit", order.getCurUnit());
         ret.put("price", order.getPrice());
         ret.put("curPrice", order.getCurPrice());
+        ret.put("complete", order.getComplete());
 
         HashMap<String, Object> datas = productOrderService.find(order.getId());
         if (null != datas) {

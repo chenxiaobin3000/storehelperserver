@@ -54,8 +54,8 @@ public class TypeDefine {
         STORAGE_AGREEMENT_OUT_ORDER(15),    // 生产履约出库订单
         STORAGE_OFFLINE_IN_ORDER(16),       // 生产线下入库订单
         STORAGE_OFFLINE_OUT_ORDER(17),      // 生产线下出库订单
-        STORAGE_DISPATCH_IN_ORDER(18),       // 仓储调度入库订单
-        STORAGE_DISPATCH_OUT_ORDER(19),      // 仓储调度出库订单
+        STORAGE_DISPATCH_IN_ORDER(18),      // 仓储调度入库订单
+        STORAGE_DISPATCH_OUT_ORDER(19),     // 仓储调度出库订单
         STORAGE_LOSS_ORDER(20),             // 仓储损耗订单
         PRODUCT_PROCESS_ORDER(30),          // 生产开始订单
         PRODUCT_COMPLETE_ORDER(31),         // 生产完成订单

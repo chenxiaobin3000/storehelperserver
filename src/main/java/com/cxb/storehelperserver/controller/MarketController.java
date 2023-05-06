@@ -93,7 +93,7 @@ public class MarketController {
         } catch (ParseException e) {
             return RestResult.fail("查询日期转换失败");
         }
-        return marketService.setMarketCommodityList(req.getId(), req.getGid(), req.getSid(), req.getAid(), date, req.getCommoditys(), req.getPrices(), req.getValues());
+        return marketService.setMarketCommodityList(req.getId(), req.getGid(), req.getAid(), date, req.getCommoditys(), req.getPrices(), req.getValues());
     }
 
     @PostMapping("/setMarketCommDetail")
@@ -130,7 +130,7 @@ public class MarketController {
         } catch (ParseException e) {
             return RestResult.fail("查询日期转换失败");
         }
-        return marketService.getMarketCommodityDetail(req.getId(), req.getGid(), req.getPage(), req.getLimit(), req.getSid(), req.getAid(), date, req.getSearch());
+        return marketService.getMarketCommodityDetail(req.getId(), req.getGid(), req.getPage(), req.getLimit(), req.getAid(), date, req.getSearch());
     }
 
     @PostMapping("/getMarketSaleDetail")

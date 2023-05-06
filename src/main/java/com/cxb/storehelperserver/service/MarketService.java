@@ -269,7 +269,7 @@ public class MarketService {
         return RestResult.ok(new PageData(total, datas));
     }
 
-    public RestResult setMarketCommodityList(int id, int gid, int sid, int aid, Date date, List<String> commoditys, List<BigDecimal> prices, List<Integer> values) {
+    public RestResult setMarketCommodityList(int id, int gid, int aid, Date date, List<String> commoditys, List<BigDecimal> prices, List<Integer> values) {
         int size = commoditys.size();
         if (size != prices.size() || size != values.size()) {
             return RestResult.fail("商品信息异常");
@@ -293,7 +293,7 @@ public class MarketService {
         detail.setCdate(date);
 
         // 清空原有数据
-        val ids = marketCommodityDetailRepository.findIds(sid, aid, date);
+        val ids = marketCommodityDetailRepository.findIds(aid, date);
         if (null != ids && !ids.isEmpty()) {
             for (Integer v : ids) {
                 marketCommodityDetailRepository.delete(v);
@@ -371,18 +371,18 @@ public class MarketService {
         return RestResult.ok();
     }
 
-    public RestResult getMarketCommodityDetail(int id, int gid, int page, int limit, int sid, int aid, Date date, String search) {
+    public RestResult getMarketCommodityDetail(int id, int gid, int page, int limit, int aid, Date date, String search) {
         // 验证公司
         String msg = checkService.checkGroup(id, gid);
         if (null != msg) {
             return RestResult.fail(msg);
         }
 
-        int total = marketCommodityDetailRepository.total(sid, aid, search);
+        int total = marketCommodityDetailRepository.total(aid, search);
         if (0 == total) {
             return RestResult.ok(new PageData());
         }
-        val list = marketCommodityDetailRepository.pagination(sid, aid, page, limit, date, search);
+        val list = marketCommodityDetailRepository.pagination(aid, page, limit, date, search);
         if (null == list) {
             return RestResult.fail("未查询到销售信息");
         }

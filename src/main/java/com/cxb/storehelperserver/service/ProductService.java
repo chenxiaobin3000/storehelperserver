@@ -99,8 +99,8 @@ public class ProductService {
         // 一键审核
         ret = reviewService.apply(id, order.getGid(), order.getOtype(), oid, batch, reviews);
         if (RestResult.isOk(ret) && review > 0) {
-            ret = reviewProcess(id, oid);
-            if (RestResult.isOk(ret) && storage > 0) {
+            RestResult ret2 = reviewProcess(id, oid);
+            if (RestResult.isOk(ret2) && storage > 0) {
                 // 一键出库
                 if (sid <= 0) {
                     return RestResult.fail("未指定仓库，一键出库失败");
@@ -111,7 +111,10 @@ public class ProductService {
                 storageOrder.setTid(0);
                 storageOrder.setApply(order.getApply());
                 storageOrder.setApplyTime(order.getApplyTime());
-                return storageService.productOut(id, storageOrder, oid, review, commoditys, weights, values, attrs);
+                ret2 = storageService.productOut(id, storageOrder, oid, review, commoditys, weights, values, attrs);
+            }
+            if (!RestResult.isOk(ret2)) {
+                return ret2;
             }
         }
         return ret;
@@ -291,8 +294,8 @@ public class ProductService {
         // 一键审核
         ret = reviewService.apply(id, order.getGid(), order.getOtype(), oid, batch, reviews);
         if (RestResult.isOk(ret) && review > 0) {
-            ret = reviewComplete(id, oid);
-            if (RestResult.isOk(ret) && storage > 0) {
+            RestResult ret2 = reviewComplete(id, oid);
+            if (RestResult.isOk(ret2) && storage > 0) {
                 // 一键入库
                 if (sid <= 0) {
                     return RestResult.fail("未指定仓库，一键入库失败");
@@ -303,7 +306,10 @@ public class ProductService {
                 storageOrder.setTid(0);
                 storageOrder.setApply(order.getApply());
                 storageOrder.setApplyTime(order.getApplyTime());
-                return storageService.productIn(id, storageOrder, oid, review, commoditys, weights, values, attrs);
+                ret2 = storageService.productIn(id, storageOrder, oid, review, commoditys, weights, values, attrs);
+            }
+            if (!RestResult.isOk(ret2)) {
+                return ret2;
             }
         }
         return ret;
@@ -505,8 +511,8 @@ public class ProductService {
         // 一键审核
         ret = reviewService.apply(id, order.getGid(), order.getOtype(), oid, batch, reviews);
         if (RestResult.isOk(ret) && review > 0) {
-            ret = reviewLoss(id, oid);
-            if (RestResult.isOk(ret) && storage > 0) {
+            RestResult ret2 = reviewLoss(id, oid);
+            if (RestResult.isOk(ret2) && storage > 0) {
                 // 一键出库
                 if (sid <= 0) {
                     return RestResult.fail("未指定仓库，一键出库失败");
@@ -517,7 +523,10 @@ public class ProductService {
                 storageOrder.setTid(0);
                 storageOrder.setApply(order.getApply());
                 storageOrder.setApplyTime(order.getApplyTime());
-                return storageService.productOut(id, storageOrder, oid, review, commoditys, weights, values, attrs);
+                ret2 = storageService.productOut(id, storageOrder, oid, review, commoditys, weights, values, attrs);
+            }
+            if (!RestResult.isOk(ret2)) {
+                return ret2;
             }
         }
         return ret;
