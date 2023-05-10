@@ -16,6 +16,7 @@ import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -35,16 +36,19 @@ public class StockCloudService {
     private CheckService checkService;
 
     @Resource
+    private SaleOrderService saleOrderService;
+
+    @Resource
     private StockCloudRepository stockCloudRepository;
 
     @Resource
     private StockCloudDayRepository stockCloudDayRepository;
 
     @Resource
-    private AgreementCommodityRepository agreementCommodityRepository;
+    private SaleCommodityRepository saleCommodityRepository;
 
     @Resource
-    private SaleCommodityRepository saleCommodityRepository;
+    private AgreementCommodityRepository agreementCommodityRepository;
 
     @Resource
     private MarketCommodityRepository marketCommodityRepository;
@@ -290,7 +294,7 @@ public class StockCloudService {
             int cid = c.getCid();
             BigDecimal price = c.getPrice();
             int value = c.getValue();
-            if (!stockCloudRepository.insert(gid, aid, order.getOtype(), order.getId(), cid, add ? price : price.negate(), c.getNorm(), add ? value : -value, order.getApplyTime())) {
+            if (!stockCloudRepository.insert(gid, aid, order.getOtype(), order.getId(), cid, add ? price : price.negate(), add ? value : -value, order.getApplyTime())) {
                 log.warn("增加库存明细信息失败:" + cid);
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                 return "增加库存明细信息失败";
@@ -309,8 +313,9 @@ public class StockCloudService {
         }
         for (TSaleCommodity c : saleCommodities) {
             int cid = c.getCid();
-            BigDecimal price = c.getPrice();
             int value = c.getValue();
+            // 加的时候用订单库存价格
+            BigDecimal price = c.getSprice();
             // 校验库存
             if (!add) {
                 TStockCloudDay stock = getStockCommodity(gid, aid, cid);
@@ -319,14 +324,24 @@ public class StockCloudService {
                     TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                     return "查询库存明细信息失败";
                 }
-                if (stock.getValue() < value) {
+                int svalue = stock.getValue();
+                if (svalue < value) {
                     log.warn("库存件数明细信息失败:" + cid + "," + stock.getValue() + "," + value);
                     TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                     return "库存件数明细信息失败";
                 }
+                // 减的时候用库存价格
+                price = stock.getPrice();
+                if (value != svalue) {
+                    price = price.multiply(new BigDecimal(value)).divide(new BigDecimal(svalue), 2, RoundingMode.DOWN);
+                }
+                c.setSprice(price);
             }
-            if (!stockCloudRepository.insert(gid, aid, order.getOtype(), order.getId(), cid,
-                    add ? price : price.negate(), c.getNorm(), add ? value : -value, order.getApplyTime())) {
+            if (!add) {
+                saleOrderService.update(order.getId(), saleCommodities, null);
+            }
+
+            if (!stockCloudRepository.insert(gid, aid, order.getOtype(), order.getId(), cid, add ? price : price.negate(), add ? value : -value, order.getApplyTime())) {
                 log.warn("增加库存明细信息失败:" + cid);
                 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                 return "增加库存明细信息失败";

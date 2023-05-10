@@ -59,6 +59,94 @@ public class CommodityService {
     @Resource
     private UserGroupRepository userGroupRepository;
 
+    public RestResult addCommodityList(int id, int gid, List<String> codes, List<String> names, List<Integer> cids, List<String> remarks, List<String> storages, int attrNum,
+                                       List<String> attr1, List<String> attr2, List<String> attr3, List<String> attr4, List<String> attr5, List<String> attr6, List<String> attr7, List<String> attr8) {
+        // 验证公司
+        String msg = checkService.checkGroup(id, gid);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+        int size = codes.size();
+        if (size != names.size() || size != cids.size() || size != remarks.size() || size != attr1.size()) {
+            return RestResult.fail("导入信息异常");
+        }
+        if ((attrNum > 2 && size != attr2.size()) || (attrNum > 3 && size != attr3.size()) || (attrNum > 4 && size != attr4.size())
+                || (attrNum > 5 && size != attr5.size()) || (attrNum > 6 && size != attr6.size()) || (attrNum > 7 && size != attr7.size()) || (attrNum > 8 && size != attr8.size())) {
+            return RestResult.fail("导入信息异常");
+        }
+
+        // 检测属性数量是否匹配
+        List<TAttributeTemplate> attributeTemplates = attributeTemplateRepository.find(gid);
+        if (null == attributeTemplates) {
+            return RestResult.fail("商品属性模板信息失败");
+        }
+
+        List<String> attributes = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
+            String code = codes.get(i);
+            TCommodity commodity = new TCommodity();
+            commodity.setGid(gid);
+            commodity.setCode(code);
+            commodity.setName(names.get(i));
+            commodity.setCid(cids.get(i));
+            commodity.setRemark(remarks.get(i));
+
+            // 商品名重名检测
+            if (commodityRepository.checkCode(gid, code, 0)) {
+                return RestResult.fail("商品编号已存在: " + names.get(i));
+            }
+            if (!commodityRepository.insert(commodity)) {
+                return RestResult.fail("添加商品信息失败");
+            }
+
+            // 属性
+            attributes.clear();
+            attributes.add(attr1.get(i));
+            if (attrNum > 1) {
+                attributes.add(attr2.get(i));
+                if (attrNum > 2) {
+                    attributes.add(attr3.get(i));
+                    if (attrNum > 3) {
+                        attributes.add(attr4.get(i));
+                        if (attrNum > 4) {
+                            attributes.add(attr5.get(i));
+                            if (attrNum > 5) {
+                                attributes.add(attr6.get(i));
+                                if (attrNum > 6) {
+                                    attributes.add(attr7.get(i));
+                                    if (attrNum > 7) {
+                                        attributes.add(attr8.get(i));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if (!commodityAttrRepository.update(commodity.getId(), attributes)) {
+                return RestResult.fail("添加商品属性失败");
+            }
+
+            // 关联仓库
+            String ss = storages.get(i);
+            if (!ss.isEmpty()) {
+                String[] list = ss.split(",");
+                val sids = new ArrayList<Integer>();
+                for (String s : list) {
+                    int sid = Integer.parseInt(s);
+                    if (null == storageRepository.find(sid)) {
+                        return RestResult.fail("未查询到仓库信息:" + names.get(i));
+                    }
+                    sids.add(sid);
+                }
+                if (!commodityStorageRepository.update(commodity.getId(), sids)) {
+                    return RestResult.fail("添加商品关联仓库失败:" + names.get(i));
+                }
+            }
+        }
+        return RestResult.ok();
+    }
+
     public RestResult addCommodity(int id, TCommodity commodity, List<String> attributes) {
         // 验证公司
         String msg = checkService.checkGroup(id, commodity.getGid());
@@ -232,6 +320,7 @@ public class CommodityService {
             if (null != stock) {
                 tmp.put("sprice", stock.getPrice());
                 tmp.put("sweight", stock.getWeight());
+                tmp.put("snorm", stock.getNorm());
                 tmp.put("svalue", stock.getValue());
             }
         }

@@ -64,6 +64,7 @@ public class ProductOrderService extends BaseService<HashMap> {
                 data.put("cid", sc.getCid());
                 data.put("price", sc.getPrice());
                 data.put("weight", sc.getWeight());
+                data.put("norm", sc.getNorm());
                 data.put("value", sc.getValue());
                 commoditys.add(data);
 
@@ -131,33 +132,35 @@ public class ProductOrderService extends BaseService<HashMap> {
             return "生成订单商品数据失败";
         }
 
-        // 删除多余附件
-        val productAttachments = productAttachmentRepository.findByOid(oid);
-        if (null != productAttachments) {
-            for (TProductAttachment attr : productAttachments) {
-                boolean find = false;
-                for (Integer aid : attrs) {
-                    if (attr.getId().equals(aid)) {
-                        find = true;
-                        break;
+        if (null != attrs && !attrs.isEmpty()) {
+            // 删除多余附件
+            val productAttachments = productAttachmentRepository.findByOid(oid);
+            if (null != productAttachments) {
+                for (TProductAttachment attr : productAttachments) {
+                    boolean find = false;
+                    for (Integer aid : attrs) {
+                        if (attr.getId().equals(aid)) {
+                            find = true;
+                            break;
+                        }
                     }
-                }
-                if (!find) {
-                    if (!productAttachmentRepository.delete(oid, attr.getId())) {
-                        return "删除订单附件失败";
+                    if (!find) {
+                        if (!productAttachmentRepository.delete(oid, attr.getId())) {
+                            return "删除订单附件失败";
+                        }
                     }
                 }
             }
-        }
 
-        // 添加新附件
-        for (Integer attr : attrs) {
-            TProductAttachment productAttachment = productAttachmentRepository.find(attr);
-            if (null != productAttachment) {
-                if (null == productAttachment.getOid() || 0 == productAttachment.getOid()) {
-                    productAttachment.setOid(oid);
-                    if (!productAttachmentRepository.update(productAttachment)) {
-                        return "添加订单附件失败";
+            // 添加新附件
+            for (Integer attr : attrs) {
+                TProductAttachment productAttachment = productAttachmentRepository.find(attr);
+                if (null != productAttachment) {
+                    if (null == productAttachment.getOid() || 0 == productAttachment.getOid()) {
+                        productAttachment.setOid(oid);
+                        if (!productAttachmentRepository.update(productAttachment)) {
+                            return "添加订单附件失败";
+                        }
                     }
                 }
             }

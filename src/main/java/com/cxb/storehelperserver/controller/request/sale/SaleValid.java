@@ -31,7 +31,4 @@ public class SaleValid implements IValid {
 
     @Min(value = 0, message = "一键审核错误")
     private int review;
-
-    @Min(value = 0, message = "异常标志错误")
-    private int fine;
 }

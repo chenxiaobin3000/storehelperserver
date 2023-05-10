@@ -7,6 +7,7 @@ import com.cxb.storehelperserver.repository.mapper.MyStockMapper;
 import com.cxb.storehelperserver.repository.model.MyStockCommodity;
 import com.cxb.storehelperserver.repository.model.MyStockReport;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
@@ -37,29 +38,25 @@ public class StockRepository extends BaseRepository<TStock> {
     }
 
     public List<MyStockCommodity> findHistoryAll(int gid, int sid, Date start, Date end) {
-        return myStockMapper.selectHistory_all(gid, sid, new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
+        val list = myStockMapper.selectHistory_all(gid, sid, new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
+        for (MyStockCommodity c : list) {
+            String norm = c.getNorm();
+            if (!norm.isEmpty()) {
+                c.setNorm(norm.split(",")[0]);
+            }
+        }
+        return list;
     }
 
     public List<MyStockCommodity> findHistory(int gid, int sid, int cid, Date start, Date end) {
-        return myStockMapper.selectHistory(gid, sid, cid, new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
-    }
-
-    public int total(int gid, int sid, Date start, Date end, String search) {
-        if (null != search) {
-            return myStockMapper.count(gid, sid, start, end, "%" + search + "%");
-        } else {
-            TStockExample example = new TStockExample();
-            example.or().andGidEqualTo(gid).andSidEqualTo(sid).andCdateGreaterThanOrEqualTo(start).andCdateLessThanOrEqualTo(end);
-            return (int) stockMapper.countByExample(example);
+        val list = myStockMapper.selectHistory(gid, sid, cid, new java.sql.Date(start.getTime()), new java.sql.Date(end.getTime()));
+        for (MyStockCommodity c : list) {
+            String norm = c.getNorm();
+            if (!norm.isEmpty()) {
+                c.setNorm(norm.split(",")[0]);
+            }
         }
-    }
-
-    public List<MyStockCommodity> pagination(int gid, int sid, int page, int limit, Date start, Date end, String search) {
-        String key = null;
-        if (null != search) {
-            key = "%" + search + "%";
-        }
-        return myStockMapper.pagination((page - 1) * limit, limit, gid, sid, start, end, key);
+        return list;
     }
 
     public boolean insert(int gid, int sid, int otype, Integer oid, int cid, BigDecimal price, int weight, String norm, int value, Date cdate) {

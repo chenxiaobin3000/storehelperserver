@@ -4,7 +4,6 @@ import com.cxb.storehelperserver.model.*;
 import com.cxb.storehelperserver.repository.*;
 import com.cxb.storehelperserver.repository.model.MyMarketCommodity;
 import com.cxb.storehelperserver.repository.model.MyMarketSaleInfo;
-import com.cxb.storehelperserver.repository.model.MyStockCommodity;
 import com.cxb.storehelperserver.service.model.PageData;
 import com.cxb.storehelperserver.util.DateUtil;
 import com.cxb.storehelperserver.util.RestResult;
@@ -37,6 +36,9 @@ public class MarketService {
 
     @Resource
     private StockService stockService;
+
+    @Resource
+    private StockCloudService stockCloudService;
 
     @Resource
     private MarketCommodityRepository marketCommodityRepository;
@@ -229,9 +231,8 @@ public class MarketService {
         // 属性
         val datas = new ArrayList<HashMap<String, Object>>();
         for (MyMarketCommodity c : list) {
-            val tmp = createCommodity(c);
+            val tmp = createCommodity(gid, aid, c);
             datas.add(tmp);
-
         }
         return RestResult.ok(new PageData(total, datas));
     }
@@ -255,7 +256,7 @@ public class MarketService {
         // 属性
         val datas = new ArrayList<HashMap<String, Object>>();
         for (MyMarketCommodity c : list) {
-            val tmp = createCommodity(c);
+            val tmp = createCommodity(gid, aid, c);
             datas.add(tmp);
 
             // 库存
@@ -263,6 +264,7 @@ public class MarketService {
             if (null != stock) {
                 tmp.put("sprice", stock.getPrice());
                 tmp.put("sweight", stock.getWeight());
+                tmp.put("snorm", stock.getNorm());
                 tmp.put("svalue", stock.getValue());
             }
         }
@@ -378,7 +380,7 @@ public class MarketService {
             return RestResult.fail(msg);
         }
 
-        int total = marketCommodityDetailRepository.total(aid, search);
+        int total = marketCommodityDetailRepository.total(aid, date, search);
         if (0 == total) {
             return RestResult.ok(new PageData());
         }
@@ -409,6 +411,13 @@ public class MarketService {
                 tmp.put("ccode", commodity.getCode());
                 tmp.put("cname", commodity.getName());
                 tmp.put("cremark", commodity.getRemark());
+            }
+
+            // 库存
+            TStockCloudDay stock = stockCloudService.getStockCommodity(gid, aid, c.getCid());
+            if (null != stock) {
+                tmp.put("sprice", stock.getPrice());
+                tmp.put("svalue", stock.getValue());
             }
         }
         return RestResult.ok(new PageData(total, datas));
@@ -510,7 +519,7 @@ public class MarketService {
         return RestResult.ok(new PageData(total, datas));
     }
 
-    private HashMap<String, Object> createCommodity(MyMarketCommodity c) {
+    private HashMap<String, Object> createCommodity(int gid, int aid, MyMarketCommodity c) {
         int cid = c.getCid();
         val tmp = new HashMap<String, Object>();
         tmp.put("id", c.getId());
@@ -579,6 +588,13 @@ public class MarketService {
                 }
             }
             tmp.put("accounts", list3);
+        }
+
+        // 库存
+        TStockCloudDay stock = stockCloudService.getStockCommodity(gid, aid, c.getCid());
+        if (null != stock) {
+            tmp.put("sprice", stock.getPrice());
+            tmp.put("svalue", stock.getValue());
         }
         return tmp;
     }

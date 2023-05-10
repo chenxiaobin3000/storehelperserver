@@ -158,38 +158,35 @@ public class OfflineOrderService extends BaseService<HashMap> {
             return "生成订单商品信息失败";
         }
 
-        // 没有附件直接返回
-        if (null == attrs) {
-            return null;
-        }
-
-        // 删除多余附件
-        val offlineAttachments = offlineAttachmentRepository.findByOid(oid);
-        if (null != offlineAttachments) {
-            for (TOfflineAttachment attr : offlineAttachments) {
-                boolean find = false;
-                for (Integer aid : attrs) {
-                    if (attr.getId().equals(aid)) {
-                        find = true;
-                        break;
+        if (null != attrs && !attrs.isEmpty()) {
+            // 删除多余附件
+            val offlineAttachments = offlineAttachmentRepository.findByOid(oid);
+            if (null != offlineAttachments) {
+                for (TOfflineAttachment attr : offlineAttachments) {
+                    boolean find = false;
+                    for (Integer aid : attrs) {
+                        if (attr.getId().equals(aid)) {
+                            find = true;
+                            break;
+                        }
                     }
-                }
-                if (!find) {
-                    if (!offlineAttachmentRepository.delete(oid, attr.getId())) {
-                        return "删除订单附件失败";
+                    if (!find) {
+                        if (!offlineAttachmentRepository.delete(oid, attr.getId())) {
+                            return "删除订单附件失败";
+                        }
                     }
                 }
             }
-        }
 
-        // 添加新附件
-        for (Integer attr : attrs) {
-            TOfflineAttachment offlineAttachment = offlineAttachmentRepository.find(attr);
-            if (null != offlineAttachment) {
-                if (null == offlineAttachment.getOid() || 0 == offlineAttachment.getOid()) {
-                    offlineAttachment.setOid(oid);
-                    if (!offlineAttachmentRepository.update(offlineAttachment)) {
-                        return "添加订单附件失败";
+            // 添加新附件
+            for (Integer attr : attrs) {
+                TOfflineAttachment offlineAttachment = offlineAttachmentRepository.find(attr);
+                if (null != offlineAttachment) {
+                    if (null == offlineAttachment.getOid() || 0 == offlineAttachment.getOid()) {
+                        offlineAttachment.setOid(oid);
+                        if (!offlineAttachmentRepository.update(offlineAttachment)) {
+                            return "添加订单附件失败";
+                        }
                     }
                 }
             }

@@ -655,10 +655,10 @@ public class OrderService {
         ret.put("type", order.getOtype());
         ret.put("id", order.getId());
         ret.put("batch", order.getBatch());
-        ret.put("value", order.getValue());
-        ret.put("curValue", order.getCurValue());
         ret.put("price", order.getPrice());
         ret.put("curPrice", order.getCurPrice());
+        ret.put("value", order.getValue());
+        ret.put("curValue", order.getCurValue());
         ret.put("complete", order.getComplete());
 
         HashMap<String, Object> datas = agreementOrderService.find(order.getId());
@@ -720,11 +720,11 @@ public class OrderService {
         ret.put("type", order.getOtype());
         ret.put("id", order.getId());
         ret.put("batch", order.getBatch());
-        ret.put("value", order.getValue());
-        ret.put("curValue", order.getCurValue());
         ret.put("price", order.getPrice());
         ret.put("curPrice", order.getCurPrice());
         ret.put("pay", order.getPayPrice());
+        ret.put("value", order.getValue());
+        ret.put("curValue", order.getCurValue());
         ret.put("complete", order.getComplete());
 
         HashMap<String, Object> datas = offlineOrderService.find(order.getId());
@@ -786,10 +786,10 @@ public class OrderService {
         ret.put("type", order.getOtype());
         ret.put("id", order.getId());
         ret.put("batch", order.getBatch());
-        ret.put("unit", order.getUnit());
-        ret.put("curUnit", order.getCurUnit());
         ret.put("price", order.getPrice());
         ret.put("curPrice", order.getCurPrice());
+        ret.put("unit", order.getUnit());
+        ret.put("curUnit", order.getCurUnit());
         ret.put("complete", order.getComplete());
 
         HashMap<String, Object> datas = productOrderService.find(order.getId());
@@ -844,11 +844,11 @@ public class OrderService {
         ret.put("type", order.getOtype());
         ret.put("id", order.getId());
         ret.put("batch", order.getBatch());
-        ret.put("unit", order.getUnit());
-        ret.put("curUnit", order.getCurUnit());
         ret.put("price", order.getPrice());
         ret.put("curPrice", order.getCurPrice());
         ret.put("pay", order.getPayPrice());
+        ret.put("unit", order.getUnit());
+        ret.put("curUnit", order.getCurUnit());
         ret.put("complete", order.getComplete());
 
         HashMap<String, Object> datas = purchaseOrderService.find(order.getId());
@@ -913,8 +913,8 @@ public class OrderService {
         ret.put("type", order.getOtype());
         ret.put("id", order.getId());
         ret.put("batch", order.getBatch());
-        ret.put("value", order.getValue());
         ret.put("price", order.getPrice());
+        ret.put("value", order.getValue());
         ret.put("pay", order.getPayPrice());
         ret.put("fine", order.getFine());
         val saleType = saleTypeRepository.find(order.getTid());
@@ -928,6 +928,12 @@ public class OrderService {
             ret.put("attrs", datas.get("attrs"));
             ret.put("total", datas.get("total"));
             ret.put("remarks", datas.get("remarks"));
+        }
+
+        TMarketAccount account = marketAccountRepository.find(order.getAid());
+        if (null != account) {
+            ret.put("maccount", account.getAccount());
+            ret.put("mremark", account.getRemark());
         }
 
         SimpleDateFormat dateFormat = dateUtil.getDateFormat();
@@ -956,8 +962,9 @@ public class OrderService {
         ret.put("type", order.getOtype());
         ret.put("id", order.getId());
         ret.put("batch", order.getBatch());
-        ret.put("unit", order.getUnit());
         ret.put("price", order.getPrice());
+        ret.put("unit", order.getUnit());
+        ret.put("value", order.getValue());
 
         HashMap<String, Object> datas = storageOrderService.find(order.getId());
         if (null != datas) {

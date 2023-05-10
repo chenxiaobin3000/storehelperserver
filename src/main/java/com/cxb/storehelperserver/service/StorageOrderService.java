@@ -133,33 +133,35 @@ public class StorageOrderService extends BaseService<HashMap> {
             return "生成订单商品信息失败";
         }
 
-        // 删除多余附件
-        val storageAttachments = storageAttachmentRepository.findByOid(oid);
-        if (null != storageAttachments) {
-            for (TStorageAttachment attr : storageAttachments) {
-                boolean find = false;
-                for (Integer aid : attrs) {
-                    if (attr.getId().equals(aid)) {
-                        find = true;
-                        break;
+        if (null != attrs && !attrs.isEmpty()) {
+            // 删除多余附件
+            val storageAttachments = storageAttachmentRepository.findByOid(oid);
+            if (null != storageAttachments) {
+                for (TStorageAttachment attr : storageAttachments) {
+                    boolean find = false;
+                    for (Integer aid : attrs) {
+                        if (attr.getId().equals(aid)) {
+                            find = true;
+                            break;
+                        }
                     }
-                }
-                if (!find) {
-                    if (!storageAttachmentRepository.delete(oid, attr.getId())) {
-                        return "删除订单附件失败";
+                    if (!find) {
+                        if (!storageAttachmentRepository.delete(oid, attr.getId())) {
+                            return "删除订单附件失败";
+                        }
                     }
                 }
             }
-        }
 
-        // 添加新附件
-        for (Integer attr : attrs) {
-            TStorageAttachment storageAttachment = storageAttachmentRepository.find(attr);
-            if (null != storageAttachment) {
-                if (null == storageAttachment.getOid() || 0 == storageAttachment.getOid()) {
-                    storageAttachment.setOid(oid);
-                    if (!storageAttachmentRepository.update(storageAttachment)) {
-                        return "添加订单附件失败";
+            // 添加新附件
+            for (Integer attr : attrs) {
+                TStorageAttachment storageAttachment = storageAttachmentRepository.find(attr);
+                if (null != storageAttachment) {
+                    if (null == storageAttachment.getOid() || 0 == storageAttachment.getOid()) {
+                        storageAttachment.setOid(oid);
+                        if (!storageAttachmentRepository.update(storageAttachment)) {
+                            return "添加订单附件失败";
+                        }
                     }
                 }
             }

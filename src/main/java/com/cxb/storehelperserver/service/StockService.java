@@ -46,6 +46,9 @@ public class StockService {
     private CommodityAttrRepository commodityAttrRepository;
 
     @Resource
+    private CommodityRepository commodityRepository;
+
+    @Resource
     private UserGroupRepository userGroupRepository;
 
     @Resource
@@ -73,10 +76,58 @@ public class StockService {
             for (MyStockCommodity c : commodities) {
                 day.setPrice(day.getPrice().add(c.getPrice()));
                 day.setWeight(day.getWeight() + c.getWeight());
+                day.setNorm(c.getNorm());
                 day.setValue(day.getValue() + c.getValue());
             }
         }
         return day;
+    }
+
+    public RestResult setStockList(int id, int sid, Date date, List<String> codes, List<String> names, List<BigDecimal> prices, List<Integer> weights, List<String> norms, List<Integer> values) {
+        // 获取公司信息
+        TUserGroup group = userGroupRepository.find(id);
+        if (null == group) {
+            return RestResult.fail("获取公司信息失败");
+        }
+
+        Date today = dateUtil.getEndTime(dateUtil.addOneDay(new Date(), -1));
+        if (date.after(today)) {
+            return RestResult.fail("只能导入今日之前的数据");
+        }
+
+        TStorage storage = storageRepository.find(sid);
+        if (null == storage) {
+            return RestResult.fail("获取仓库信息失败");
+        }
+        if (!group.getGid().equals(storage.getGid())) {
+            return RestResult.fail("只能获取本公司信息");
+        }
+
+        int size = codes.size();
+        if (size != names.size() || size != prices.size() || size != weights.size() || size != values.size()) {
+            return RestResult.fail("导入信息异常");
+        }
+
+        // 导入数据
+        int gid = group.getGid();
+        for (int i = 0; i < size; i++) {
+            String code = codes.get(i);
+            TCommodity c = commodityRepository.findByCode(code);
+            if (null == c) {
+                return RestResult.fail("未查询到商品：" + names.get(i));
+            }
+            if (!c.getName().equals(names.get(i))) {
+                return RestResult.fail("商品编号与名称不匹配：" + names.get(i));
+            }
+            int cid = c.getId();
+            val day = stockDayRepository.find(sid, cid, date);
+            if (null == day) {
+                if (!stockDayRepository.insert(gid, sid, cid, prices.get(i), weights.get(i), norms.get(i), values.get(i), date)) {
+                    return RestResult.fail("导入商品失败：" + names.get(i));
+                }
+            }
+        }
+        return RestResult.ok();
     }
 
     public RestResult getStockList(int id, int sid, int page, int limit, Date date, String search) {
@@ -126,6 +177,9 @@ public class StockService {
                             c.setPrice(c.getPrice().add(c2.getPrice()));
                             c.setWeight(c.getWeight() + c2.getWeight());
                             c.setValue(c.getValue() + c2.getValue());
+                            if (null == c.getNorm()) {
+                                c.setNorm(c2.getNorm());
+                            }
                             break;
                         }
                     }
@@ -160,7 +214,6 @@ public class StockService {
         if (null == group) {
             return RestResult.fail("获取公司信息失败");
         }
-        int gid = group.getGid();
 
         // 昨日数据
         val data = new HashMap<String, Object>();
@@ -183,6 +236,7 @@ public class StockService {
                 tmp.put("remark", c.getRemark());
                 tmp.put("price", c.getPrice());
                 tmp.put("weight", c.getWeight());
+                tmp.put("norm", c.getNorm());
                 tmp.put("value", c.getValue());
 
                 // 属性
@@ -199,7 +253,7 @@ public class StockService {
 
         // 加上今日变化量
         Date tomorrow = dateUtil.addOneDay(today, 1);
-        val commodities2 = stockRepository.findHistoryAll(gid, sid, today, tomorrow);
+        val commodities2 = stockRepository.findHistoryAll(group.getGid(), sid, today, tomorrow);
         if (null != commodities2 && !commodities2.isEmpty()) {
             for (MyStockCommodity c2 : commodities2) {
                 boolean find = false;
@@ -227,6 +281,7 @@ public class StockService {
                     tmp.put("remark", c2.getRemark());
                     tmp.put("price", c2.getPrice());
                     tmp.put("weight", c2.getWeight());
+                    tmp.put("norm", c2.getNorm());
                     tmp.put("value", c2.getValue());
 
                     // 属性
@@ -364,7 +419,7 @@ public class StockService {
                     }
                 }
                 // 添加库存数据
-                stockDayRepository.insert(gid, sid, cid, yesterday.getPrice(), yesterday.getWeight(), yesterday.getValue(), tmp);
+                stockDayRepository.insert(gid, sid, cid, yesterday.getPrice(), yesterday.getWeight(), yesterday.getNorm(), yesterday.getValue(), tmp);
                 tmp = dateUtil.addOneDay(tmp, 1);
             }
         }

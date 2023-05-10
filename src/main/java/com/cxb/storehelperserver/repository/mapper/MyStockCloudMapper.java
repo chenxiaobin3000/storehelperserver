@@ -45,8 +45,8 @@ public interface MyStockCloudMapper {
     List<MyStockCommodity> selectHistory_all(int gid, int aid, Date start, Date end);
 
     @Select({"<script>",
-            "select t1.gid, t1.aid, t1.cid, sum(t1.price) as price, sum(t1.weight) as weight, sum(t1.value) as value,",
-            "date(t1.cdate) as date, t2.code, t2.name, t2.cid as ctid, t2.remark from t_stock_cloud t1 left join t_commodity t2 on t1.cid = t2.id",
+            "select t1.gid, t1.aid, t1.cid, sum(t1.price) as price, sum(t1.value) as value, date(t1.cdate) as date,",
+            "t2.code, t2.name, t2.cid as ctid, t2.remark from t_stock_cloud t1 left join t_commodity t2 on t1.cid = t2.id",
             "where t1.gid = #{gid} and t1.aid = #{aid} and t1.cid = #{cid} and cdate <![CDATA[ >= ]]> #{start}",
             "and cdate <![CDATA[ <= ]]> #{end} group by t1.cid, date order by t1.cid, date",
             "</script>"})

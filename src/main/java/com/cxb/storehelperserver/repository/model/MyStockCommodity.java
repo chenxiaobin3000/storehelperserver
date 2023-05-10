@@ -19,6 +19,8 @@ public class MyStockCommodity {
 
     private Integer weight;
 
+    private String norm;
+
     private Integer value;
 
     private Date date;

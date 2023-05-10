@@ -61,11 +61,11 @@ public class MarketCommodityDetailRepository extends BaseRepository<TMarketCommo
         return myMarketMapper.selectInCids(gid, mid, cids);
     }
 
-    public int total(int aid, String search) {
+    public int total(int aid, Date date, String search) {
         if (null != search) {
-            return myMarketCommodityMapper.countDetail(aid, "%" + search + "%");
+            return myMarketCommodityMapper.countDetail(aid, new java.sql.Date(date.getTime()), "%" + search + "%");
         } else {
-            return myMarketCommodityMapper.countDetail(aid, null);
+            return myMarketCommodityMapper.countDetail(aid, new java.sql.Date(date.getTime()), null);
         }
     }
 

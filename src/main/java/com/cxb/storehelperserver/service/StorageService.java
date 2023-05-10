@@ -244,7 +244,6 @@ public class StorageService {
         }
         int unit = purchase.getCurUnit() - order.getUnit();
         if (unit < 0) {
-            log.info("---------"+ purchase.getCurUnit()+ "------"+ order.getUnit()+ "------"+ unit);
             return RestResult.fail("入库商品总量不能超出采购订单总量");
         }
         BigDecimal price = purchase.getCurPrice().subtract(order.getPrice());

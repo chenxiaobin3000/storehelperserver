@@ -35,6 +35,18 @@ public class StockController {
     @Resource
     private DateUtil dateUtil;
 
+    @PostMapping("/setStockList")
+    public RestResult setStockList(@Validated @RequestBody SetStockListValid req) {
+        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
+        Date date = null;
+        try {
+            date = simpleDateFormat.parse(req.getDate() + " 00:00:00");
+        } catch (ParseException e) {
+            return RestResult.fail("查询日期转换失败");
+        }
+        return stockService.setStockList(req.getId(), req.getSid(), date, req.getCodes(), req.getNames(), req.getPrices(), req.getWeights(), req.getNorms(), req.getValues());
+    }
+
     @PostMapping("/getStockList")
     public RestResult getStockList(@Validated @RequestBody GetStockListValid req) {
         SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();

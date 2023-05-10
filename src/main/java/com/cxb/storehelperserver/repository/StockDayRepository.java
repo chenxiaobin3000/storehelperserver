@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -37,9 +38,20 @@ public class StockDayRepository extends BaseRepository<TStockDay> {
     }
 
     public TStockDay find(int sid, int cid, Date date) {
+        SimpleDateFormat simpleDateFormat = dateUtil.getSimpleDateFormat();
+        String dateString = simpleDateFormat.format(date);
+        TStockDay day = getCache(joinKey(dateString, sid, cid), TStockDay.class);
+        if (null != day) {
+            return day;
+        }
+
         TStockDayExample example = new TStockDayExample();
         example.or().andSidEqualTo(sid).andCidEqualTo(cid).andCdateEqualTo(date);
-        return stockDayMapper.selectOneByExample(example);
+        day = stockDayMapper.selectOneByExample(example);
+        if (null != day) {
+            setCache(joinKey(dateString, sid, cid), day);
+        }
+        return day;
     }
 
     public List<MyStockReport> findReport(int gid, int sid, Date start, Date end) {
@@ -75,13 +87,14 @@ public class StockDayRepository extends BaseRepository<TStockDay> {
         return myStockDayMapper.pagination_all((page - 1) * limit, limit, sid, new java.sql.Date(date.getTime()), key);
     }
 
-    public boolean insert(int gid, int sid, int cid, BigDecimal price, int weight, int value, Date cdate) {
+    public boolean insert(int gid, int sid, int cid, BigDecimal price, int weight, String norm, int value, Date cdate) {
         TStockDay row = new TStockDay();
         row.setGid(gid);
         row.setSid(sid);
         row.setCid(cid);
         row.setPrice(price);
         row.setWeight(weight);
+        row.setNorm(norm);
         row.setValue(value);
         row.setCdate(cdate);
         return stockDayMapper.insert(row) > 0;

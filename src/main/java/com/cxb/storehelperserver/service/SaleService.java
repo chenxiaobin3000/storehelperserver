@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -112,10 +113,8 @@ public class SaleService {
                 return RestResult.fail("库存商品件数不足:" + cid);
             }
 
-            if (stock.getValue() < c.getValue()) {
-                c.setValue(stock.getValue());
-            }
             c.setPrice(c.getPrice().multiply(new BigDecimal(c.getValue())));
+            c.setSprice(stock.getPrice().multiply(new BigDecimal(c.getValue())).divide(new BigDecimal(stock.getValue()), 2, RoundingMode.DOWN));
 
             total = total + c.getValue();
             price = price.add(c.getPrice());
@@ -474,18 +473,28 @@ public class SaleService {
         if (size != prices.size() || size != values.size()) {
             return RestResult.fail("商品信息异常");
         }
+        int gid = order.getGid();
+        int aid = order.getAid();
         int total = 0;
         BigDecimal price = new BigDecimal(0);
         for (int i = 0; i < size; i++) {
             TSaleCommodity c = new TSaleCommodity();
-            c.setCid(commoditys.get(i));
+            int cid = commoditys.get(i);
+            c.setCid(cid);
             c.setPrice(prices.get(i));
             c.setValue(values.get(i));
             list.add(c);
 
+            TStockCloudDay stock = stockCloudService.getStockCommodity(gid, aid, cid);
+            if (null == stock) {
+                return RestResult.fail("未查询到库存类型:" + cid);
+            }
+            // 总成本价
+            c.setSprice(stock.getPrice().multiply(new BigDecimal(c.getValue())).multiply(new BigDecimal(c.getValue()))
+                    .divide(new BigDecimal(stock.getValue()), 2, RoundingMode.DOWN));
+
             total = total + c.getValue();
             price = price.add(c.getPrice());
-
         }
         order.setValue(total);
         order.setPrice(price);

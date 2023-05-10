@@ -25,6 +25,12 @@ public class CommodityController {
     @Resource
     private CommodityService commodityService;
 
+    @PostMapping("/addCommodityList")
+    public RestResult addCommodityList(@Validated @RequestBody AddCommodityListValid req) {
+        return commodityService.addCommodityList(req.getId(), req.getGid(), req.getCodes(), req.getNames(), req.getCids(), req.getRemarks(), req.getStorages(),
+                req.getAttr(), req.getAttr1(), req.getAttr2(), req.getAttr3(), req.getAttr4(), req.getAttr5(), req.getAttr6(), req.getAttr7(), req.getAttr8());
+    }
+
     @PostMapping("/addCommodity")
     public RestResult addCommodity(@Validated @RequestBody AddCommodityValid req) {
         TCommodity commodity = new TCommodity();

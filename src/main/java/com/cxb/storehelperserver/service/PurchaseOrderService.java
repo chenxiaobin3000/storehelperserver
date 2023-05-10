@@ -158,33 +158,35 @@ public class PurchaseOrderService extends BaseService<HashMap> {
             return "生成订单商品信息失败";
         }
 
-        // 删除多余附件
-        val purchaseAttachments = purchaseAttachmentRepository.findByOid(oid);
-        if (null != purchaseAttachments) {
-            for (TPurchaseAttachment attr : purchaseAttachments) {
-                boolean find = false;
-                for (Integer aid : attrs) {
-                    if (attr.getId().equals(aid)) {
-                        find = true;
-                        break;
+        if (null != attrs && !attrs.isEmpty()) {
+            // 删除多余附件
+            val purchaseAttachments = purchaseAttachmentRepository.findByOid(oid);
+            if (null != purchaseAttachments) {
+                for (TPurchaseAttachment attr : purchaseAttachments) {
+                    boolean find = false;
+                    for (Integer aid : attrs) {
+                        if (attr.getId().equals(aid)) {
+                            find = true;
+                            break;
+                        }
                     }
-                }
-                if (!find) {
-                    if (!purchaseAttachmentRepository.delete(oid, attr.getId())) {
-                        return "删除订单附件失败";
+                    if (!find) {
+                        if (!purchaseAttachmentRepository.delete(oid, attr.getId())) {
+                            return "删除订单附件失败";
+                        }
                     }
                 }
             }
-        }
 
-        // 添加新附件
-        for (Integer attr : attrs) {
-            TPurchaseAttachment purchaseAttachment = purchaseAttachmentRepository.find(attr);
-            if (null != purchaseAttachment) {
-                if (null == purchaseAttachment.getOid() || 0 == purchaseAttachment.getOid()) {
-                    purchaseAttachment.setOid(oid);
-                    if (!purchaseAttachmentRepository.update(purchaseAttachment)) {
-                        return "添加订单附件失败";
+            // 添加新附件
+            for (Integer attr : attrs) {
+                TPurchaseAttachment purchaseAttachment = purchaseAttachmentRepository.find(attr);
+                if (null != purchaseAttachment) {
+                    if (null == purchaseAttachment.getOid() || 0 == purchaseAttachment.getOid()) {
+                        purchaseAttachment.setOid(oid);
+                        if (!purchaseAttachmentRepository.update(purchaseAttachment)) {
+                            return "添加订单附件失败";
+                        }
                     }
                 }
             }

@@ -28,22 +28,6 @@ public class OfflineCommodityRepository extends BaseRepository<List> {
         init("offlineComm::");
     }
 
-    public TOfflineCommodity findOne(int oid, int cid) {
-        List<TOfflineCommodity> offlineCommoditys = getCache(oid, List.class);
-        if (null != offlineCommoditys) {
-            for (TOfflineCommodity c : offlineCommoditys) {
-                if (c.getCid() == cid) {
-                    return c;
-                }
-            }
-        }
-
-        // 缓存没有就查询数据库
-        TOfflineCommodityExample example = new TOfflineCommodityExample();
-        example.or().andOidEqualTo(oid).andCidEqualTo(cid);
-        return offlineCommodityMapper.selectOneByExample(example);
-    }
-
     public List<TOfflineCommodity> find(int oid) {
         List<TOfflineCommodity> offlineCommoditys = getCache(oid, List.class);
         if (null != offlineCommoditys) {

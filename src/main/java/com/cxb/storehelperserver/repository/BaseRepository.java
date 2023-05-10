@@ -27,8 +27,12 @@ public class BaseRepository<Model> {
         return String.valueOf(id) + "::" + String.valueOf(id2) + "::" + String.valueOf(id3);
     }
 
-    protected String joinKey(int id, int id2, int id3, int id4) {
-        return String.valueOf(id) + "::" + String.valueOf(id2) + "::" + String.valueOf(id3) + "::" + String.valueOf(id4);
+    protected String joinKey(String id, int id2) {
+        return id + "::" + String.valueOf(id2);
+    }
+
+    protected String joinKey(String id, int id2, int id3) {
+        return id + "::" + String.valueOf(id2) + "::" + String.valueOf(id3);
     }
 
     /**

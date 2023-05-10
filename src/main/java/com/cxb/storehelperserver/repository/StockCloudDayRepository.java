@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -37,9 +38,21 @@ public class StockCloudDayRepository extends BaseRepository<TStockCloudDay> {
     }
 
     public TStockCloudDay find(int aid, int cid, Date date) {
+        SimpleDateFormat simpleDateFormat = dateUtil.getSimpleDateFormat();
+        String dateString = simpleDateFormat.format(date);
+        TStockCloudDay day = getCache(joinKey(dateString, aid, cid), TStockCloudDay.class);
+        if (null != day) {
+            return day;
+        }
+
+        // 缓存没有就查询数据库
         TStockCloudDayExample example = new TStockCloudDayExample();
         example.or().andAidEqualTo(aid).andCidEqualTo(cid).andCdateEqualTo(date);
-        return stockCloudDayMapper.selectOneByExample(example);
+        day = stockCloudDayMapper.selectOneByExample(example);
+        if (null != day) {
+            setCache(joinKey(dateString, aid, cid), day);
+        }
+        return day;
     }
 
     public List<MyStockReport> findReport(int aid, Date start, Date end) {

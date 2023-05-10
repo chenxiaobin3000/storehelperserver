@@ -158,33 +158,35 @@ public class AgreementOrderService extends BaseService<HashMap> {
             return "生成订单商品信息失败";
         }
 
-        // 删除多余附件
-        val agreementAttachments = agreementAttachmentRepository.findByOid(oid);
-        if (null != agreementAttachments) {
-            for (TAgreementAttachment attr : agreementAttachments) {
-                boolean find = false;
-                for (Integer aid : attrs) {
-                    if (attr.getId().equals(aid)) {
-                        find = true;
-                        break;
+        if (null != attrs && !attrs.isEmpty()) {
+            // 删除多余附件
+            val agreementAttachments = agreementAttachmentRepository.findByOid(oid);
+            if (null != agreementAttachments) {
+                for (TAgreementAttachment attr : agreementAttachments) {
+                    boolean find = false;
+                    for (Integer aid : attrs) {
+                        if (attr.getId().equals(aid)) {
+                            find = true;
+                            break;
+                        }
                     }
-                }
-                if (!find) {
-                    if (!agreementAttachmentRepository.delete(oid, attr.getId())) {
-                        return "删除订单附件失败";
+                    if (!find) {
+                        if (!agreementAttachmentRepository.delete(oid, attr.getId())) {
+                            return "删除订单附件失败";
+                        }
                     }
                 }
             }
-        }
 
-        // 添加新附件
-        for (Integer attr : attrs) {
-            TAgreementAttachment agreementAttachment = agreementAttachmentRepository.find(attr);
-            if (null != agreementAttachment) {
-                if (null == agreementAttachment.getOid() || 0 == agreementAttachment.getOid()) {
-                    agreementAttachment.setOid(oid);
-                    if (!agreementAttachmentRepository.update(agreementAttachment)) {
-                        return "添加订单附件失败";
+            // 添加新附件
+            for (Integer attr : attrs) {
+                TAgreementAttachment agreementAttachment = agreementAttachmentRepository.find(attr);
+                if (null != agreementAttachment) {
+                    if (null == agreementAttachment.getOid() || 0 == agreementAttachment.getOid()) {
+                        agreementAttachment.setOid(oid);
+                        if (!agreementAttachmentRepository.update(agreementAttachment)) {
+                            return "添加订单附件失败";
+                        }
                     }
                 }
             }

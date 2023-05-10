@@ -28,22 +28,6 @@ public class AgreementCommodityRepository extends BaseRepository<List> {
         init("agreeComm::");
     }
 
-    public TAgreementCommodity findOne(int oid, int cid) {
-        List<TAgreementCommodity> agreementCommoditys = getCache(oid, List.class);
-        if (null != agreementCommoditys) {
-            for (TAgreementCommodity c : agreementCommoditys) {
-                if (c.getCid() == cid) {
-                    return c;
-                }
-            }
-        }
-
-        // 缓存没有就查询数据库
-        TAgreementCommodityExample example = new TAgreementCommodityExample();
-        example.or().andOidEqualTo(oid).andCidEqualTo(cid);
-        return agreementCommodityMapper.selectOneByExample(example);
-    }
-
     public List<TAgreementCommodity> find(int oid) {
         List<TAgreementCommodity> agreementCommoditys = getCache(oid, List.class);
         if (null != agreementCommoditys) {
