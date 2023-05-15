@@ -206,13 +206,13 @@ public class StorageController {
                 order.setOtype(STORAGE_PURCHASE_OUT_ORDER.getValue());
                 return storageService.purchaseOut(req.getId(), order, req.getOid(), req.getReview(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
             case STORAGE_PRODUCT_OUT_ORDER:
-                order.setOtype(STORAGE_PURCHASE_OUT_ORDER.getValue());
+                order.setOtype(STORAGE_PRODUCT_OUT_ORDER.getValue());
                 return storageService.productOut(req.getId(), order, req.getOid(), req.getReview(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
             case STORAGE_AGREEMENT_OUT_ORDER:
-                order.setOtype(STORAGE_PURCHASE_OUT_ORDER.getValue());
+                order.setOtype(STORAGE_AGREEMENT_OUT_ORDER.getValue());
                 return storageService.agreementOut(req.getId(), order, req.getOid(), req.getReview(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
             case STORAGE_OFFLINE_OUT_ORDER:
-                order.setOtype(STORAGE_PURCHASE_OUT_ORDER.getValue());
+                order.setOtype(STORAGE_OFFLINE_OUT_ORDER.getValue());
                 return storageService.offlineOut(req.getId(), order, req.getOid(), req.getReview(), req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
             default:
                 return RestResult.fail("未知订单类型");

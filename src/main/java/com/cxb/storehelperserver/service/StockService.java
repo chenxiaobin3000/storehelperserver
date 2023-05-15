@@ -147,31 +147,33 @@ public class StockService {
         val data = new HashMap<String, Object>();
         date = dateUtil.getStartTime(date);
         Date today = dateUtil.getStartTime(new Date());
+        int total = commodityStorageRepository.total(sid, search);
+        if (0 == total) {
+            return RestResult.ok(new PageData());
+        }
         if (today.equals(date)) {
             // 昨日数据
-            int total = commodityStorageRepository.total(sid, search);
-            if (0 == total) {
-                return RestResult.ok(new PageData());
-            }
             Date yesterday = dateUtil.addOneDay(today, -1);
             val commodities = stockDayRepository.paginationAll(sid, page, limit, yesterday, search);
             if (null == commodities) {
                 return RestResult.fail("获取商品信息失败");
+            }
+            for (MyStockCommodity c : commodities) {
+                if (null == c.getPrice()) {
+                    c.setPrice(new BigDecimal(0));
+                }
+                if (null == c.getWeight()) {
+                    c.setWeight(0);
+                }
+                if (null == c.getValue()) {
+                    c.setValue(0);
+                }
             }
             // 加上今日变化量
             Date tomorrow = dateUtil.addOneDay(today, 1);
             val commodities2 = stockRepository.findHistoryAll(gid, sid, today, tomorrow);
             if (null != commodities2 && !commodities2.isEmpty()) {
                 for (MyStockCommodity c : commodities) {
-                    if (null == c.getPrice()) {
-                        c.setPrice(new BigDecimal(0));
-                    }
-                    if (null == c.getWeight()) {
-                        c.setWeight(0);
-                    }
-                    if (null == c.getValue()) {
-                        c.setValue(0);
-                    }
                     for (MyStockCommodity c2 : commodities2) {
                         if (c2.getCid().equals(c.getCid())) {
                             c.setPrice(c.getPrice().add(c2.getPrice()));
@@ -189,13 +191,20 @@ public class StockService {
             data.put("list", commodities);
         } else {
             // 往期数据取快照
-            int total = commodityStorageRepository.total(sid, search);
-            if (0 == total) {
-                return RestResult.ok(new PageData());
-            }
             val commodities = stockDayRepository.paginationAll(sid, page, limit, date, search);
             if (null == commodities) {
                 return RestResult.fail("获取商品信息失败");
+            }
+            for (MyStockCommodity c : commodities) {
+                if (null == c.getPrice()) {
+                    c.setPrice(new BigDecimal(0));
+                }
+                if (null == c.getWeight()) {
+                    c.setWeight(0);
+                }
+                if (null == c.getValue()) {
+                    c.setValue(0);
+                }
             }
             data.put("total", total);
             data.put("list", commodities);
@@ -399,6 +408,7 @@ public class StockService {
             Date tmp = dateUtil.getStartTime(start);
             yesterday.setPrice(new BigDecimal(0));
             yesterday.setWeight(0);
+            yesterday.setNorm("");
             yesterday.setValue(0);
             while (tmp.before(stop)) {
                 // 已有数据就忽略
@@ -406,6 +416,7 @@ public class StockService {
                 if (null != day) {
                     yesterday.setPrice(day.getPrice());
                     yesterday.setWeight(day.getWeight());
+                    yesterday.setNorm(day.getNorm());
                     yesterday.setValue(day.getValue());
                     tmp = dateUtil.addOneDay(tmp, 1);
                     continue;
@@ -415,6 +426,7 @@ public class StockService {
                     if (c.getDate().equals(tmp)) {
                         yesterday.setPrice(yesterday.getPrice().add(c.getPrice()));
                         yesterday.setWeight(yesterday.getWeight() + c.getWeight());
+                        yesterday.setNorm(c.getNorm());
                         yesterday.setValue(yesterday.getValue() + c.getValue());
                     }
                 }

@@ -62,6 +62,7 @@ public class SaleOrderService extends BaseService<HashMap> {
                 val data = new HashMap<String, Object>();
                 data.put("id", sc.getId());
                 data.put("cid", sc.getCid());
+                data.put("sprice", sc.getSprice());
                 data.put("price", sc.getPrice());
                 data.put("value", sc.getValue());
                 commoditys.add(data);

@@ -96,6 +96,8 @@ public class UploadService {
             case STORAGE_AGREEMENT_OUT_ORDER:
             case STORAGE_OFFLINE_IN_ORDER:
             case STORAGE_OFFLINE_OUT_ORDER:
+            case STORAGE_DISPATCH_IN_ORDER:
+            case STORAGE_DISPATCH_OUT_ORDER:
             case STORAGE_LOSS_ORDER:
                 TStorageAttachment storageAttachment = storageAttachmentRepository.insert(0, imagesrc, path, name);
                 if (null == storageAttachment) {

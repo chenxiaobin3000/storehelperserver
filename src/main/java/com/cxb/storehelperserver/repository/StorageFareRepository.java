@@ -1,6 +1,7 @@
 package com.cxb.storehelperserver.repository;
 
 import com.cxb.storehelperserver.mapper.TStorageFareMapper;
+import com.cxb.storehelperserver.model.TProductFare;
 import com.cxb.storehelperserver.model.TStorageFare;
 import com.cxb.storehelperserver.model.TStorageFareExample;
 import com.cxb.storehelperserver.repository.mapper.MyFareMapper;
@@ -11,6 +12,9 @@ import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+
+import com.cxb.storehelperserver.util.TypeDefine.ReviewType;
+import com.cxb.storehelperserver.util.TypeDefine.CompleteType;
 
 /**
  * desc: 仓储物流费用仓库
@@ -48,6 +52,14 @@ public class StorageFareRepository extends BaseRepository<List> {
             setCache(oid, storageFares);
         }
         return storageFares;
+    }
+
+    public int total(int gid, int sid, int type, ReviewType review, CompleteType complete, Date start, Date end) {
+        return myFareMapper.countStorageOrder(gid, sid, type, review.getValue(), complete.getValue(), start, end);
+    }
+
+    public List<TStorageFare> pagination(int gid, int sid, int type, int page, int limit, ReviewType review, CompleteType complete, Date start, Date end) {
+        return myFareMapper.paginationStorageOrder((page - 1) * limit, limit, gid, sid, type, review.getValue(), complete.getValue(), start, end);
     }
 
     public boolean insert(int oid, String ship, String code, String phone, BigDecimal fare, String remark, Date cdate) {

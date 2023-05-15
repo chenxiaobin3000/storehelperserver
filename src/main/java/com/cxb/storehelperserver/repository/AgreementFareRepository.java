@@ -12,6 +12,9 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
+import com.cxb.storehelperserver.util.TypeDefine.ReviewType;
+import com.cxb.storehelperserver.util.TypeDefine.CompleteType;
+
 /**
  * desc: 履约物流费用仓库
  * auth: cxb
@@ -48,6 +51,14 @@ public class AgreementFareRepository extends BaseRepository<List> {
             setCache(oid, agreementFares);
         }
         return agreementFares;
+    }
+
+    public int total(int gid, int aid, int sid, int type, ReviewType review, CompleteType complete, Date start, Date end) {
+        return myFareMapper.countAgreementOrder(gid, aid, sid, type, review.getValue(), complete.getValue(), start, end);
+    }
+
+    public List<TAgreementFare> pagination(int gid, int aid, int sid, int type, int page, int limit, ReviewType review, CompleteType complete, Date start, Date end) {
+        return myFareMapper.paginationAgreementOrder((page - 1) * limit, limit, gid, aid, sid, type, review.getValue(), complete.getValue(), start, end);
     }
 
     public boolean insert(int oid, String ship, String code, String phone, BigDecimal fare, String remark, Date cdate) {

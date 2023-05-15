@@ -604,7 +604,7 @@ public class OrderService {
         return RestResult.ok(new PageData(total, list2));
     }
 
-    private HashMap<String, Object> createOrder(int type, int oid) {
+    public  HashMap<String, Object> createOrder(int type, int oid) {
         switch (OrderType.valueOf(type)) {
             case PURCHASE_PURCHASE_ORDER:
             case PURCHASE_RETURN_ORDER: {
@@ -619,6 +619,8 @@ public class OrderService {
             case STORAGE_AGREEMENT_OUT_ORDER:
             case STORAGE_OFFLINE_IN_ORDER:
             case STORAGE_OFFLINE_OUT_ORDER:
+            case STORAGE_DISPATCH_IN_ORDER:
+            case STORAGE_DISPATCH_OUT_ORDER:
             case STORAGE_LOSS_ORDER: {
                 TStorageOrder o = storageOrderRepository.find(oid);
                 return createStorageOrder(o);

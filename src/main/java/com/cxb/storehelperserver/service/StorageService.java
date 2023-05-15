@@ -209,7 +209,7 @@ public class StorageService {
         if (0 == pid) {
             return RestResult.fail("未查询到采购单信息");
         }
-        if (!purchaseStorageRepository.delete(oid, pid)) {
+        if (!purchaseStorageRepository.delete(pid, oid)) {
             return RestResult.fail("删除采购入库信息失败");
         }
         return delOrder(id, oid);
@@ -436,7 +436,7 @@ public class StorageService {
         if (0 == pid) {
             return RestResult.fail("未查询到退货单信息");
         }
-        if (!purchaseStorageRepository.delete(oid, pid)) {
+        if (!purchaseStorageRepository.delete(pid, oid)) {
             return RestResult.fail("删除退货出库信息失败");
         }
         return delOrder(id, oid);
@@ -663,7 +663,7 @@ public class StorageService {
         if (0 == pid) {
             return RestResult.fail("未查询到生产单信息");
         }
-        if (!productStorageRepository.delete(oid, pid)) {
+        if (!productStorageRepository.delete(pid, oid)) {
             return RestResult.fail("删除生产入库信息失败");
         }
         return delOrder(id, oid);
@@ -870,7 +870,7 @@ public class StorageService {
         if (0 == pid) {
             return RestResult.fail("未查询到生产单信息");
         }
-        if (!productStorageRepository.delete(oid, pid)) {
+        if (!productStorageRepository.delete(pid, oid)) {
             return RestResult.fail("删除生产出库信息失败");
         }
         return delOrder(id, oid);
@@ -1077,7 +1077,7 @@ public class StorageService {
         if (0 == pid) {
             return RestResult.fail("未查询到履约单信息");
         }
-        if (!agreementStorageRepository.delete(oid, pid)) {
+        if (!agreementStorageRepository.delete(pid, oid)) {
             return RestResult.fail("删除履约入库信息失败");
         }
         return delOrder(id, oid);
@@ -1304,7 +1304,7 @@ public class StorageService {
         if (0 == pid) {
             return RestResult.fail("未查询到履约单信息");
         }
-        if (!agreementStorageRepository.delete(oid, pid)) {
+        if (!agreementStorageRepository.delete(pid, oid)) {
             return RestResult.fail("删除履约出库信息失败");
         }
         return delOrder(id, oid);
@@ -1531,7 +1531,7 @@ public class StorageService {
         if (0 == pid) {
             return RestResult.fail("未查询到退货单信息");
         }
-        if (!offlineStorageRepository.delete(oid, pid)) {
+        if (!offlineStorageRepository.delete(pid, oid)) {
             return RestResult.fail("删除退货入库信息失败");
         }
         return delOrder(id, oid);
@@ -1758,7 +1758,7 @@ public class StorageService {
         if (0 == pid) {
             return RestResult.fail("未查询到销售单信息");
         }
-        if (!offlineStorageRepository.delete(oid, pid)) {
+        if (!offlineStorageRepository.delete(pid, oid)) {
             return RestResult.fail("删除销售出库信息失败");
         }
         return delOrder(id, oid);
@@ -1958,7 +1958,7 @@ public class StorageService {
         if (0 == pid) {
             return RestResult.fail("未查询到采购单信息");
         }
-        if (!purchaseStorageRepository.delete(oid, pid)) {
+        if (!purchaseStorageRepository.delete(pid, oid)) {
             return RestResult.fail("删除采购入库信息失败");
         }
         return delOrder(id, oid);
@@ -2112,7 +2112,7 @@ public class StorageService {
         if (0 == pid) {
             return RestResult.fail("未查询到退货单信息");
         }
-        if (!purchaseStorageRepository.delete(oid, pid)) {
+        if (!purchaseStorageRepository.delete(pid, oid)) {
             return RestResult.fail("删除退货出库信息失败");
         }
         return delOrder(id, oid);
