@@ -55,15 +55,7 @@ public class OfflineController {
 
     @PostMapping("/setOffline")
     public RestResult setOffline(@Validated @RequestBody SetOfflineValid req) {
-        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
-        Date applyTime = null;
-        try {
-            applyTime = simpleDateFormat.parse(req.getDate());
-        } catch (ParseException e) {
-            return RestResult.fail("订单制单日期转换失败");
-        }
-        return offlineService.setOffline(req.getId(), req.getOid(), req.getAid(), applyTime, req.getCommoditys(),
-                req.getPrices(), req.getWeights(), req.getNorms(), req.getValues(), req.getAttrs());
+        return offlineService.setOffline(req.getId(), req.getOid(), req.getCommoditys(), req.getPrices(), req.getWeights(), req.getNorms(), req.getValues());
     }
 
     @PostMapping("/delOffline")
@@ -104,14 +96,7 @@ public class OfflineController {
 
     @PostMapping("/setReturn")
     public RestResult setReturn(@Validated @RequestBody SetReturnValid req) {
-        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
-        Date applyTime = null;
-        try {
-            applyTime = simpleDateFormat.parse(req.getDate());
-        } catch (ParseException e) {
-            return RestResult.fail("订单制单日期转换失败");
-        }
-        return offlineService.setReturn(req.getId(), req.getOid(), applyTime, req.getCommoditys(), req.getPrices(), req.getWeights(), req.getValues(), req.getAttrs());
+        return offlineService.setReturn(req.getId(), req.getOid(), req.getCommoditys(), req.getPrices(), req.getWeights(), req.getValues());
     }
 
     @PostMapping("/delReturn")

@@ -119,8 +119,7 @@ public class AgreementService {
     /**
      * desc: 履约发货修改
      */
-    public RestResult setShipped(int id, int oid, int aid, Date applyTime, List<Integer> commoditys, List<BigDecimal> prices,
-                                 List<Integer> weights, List<String> norms, List<Integer> values, List<Integer> attrs) {
+    public RestResult setShipped(int id, int oid, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<String> norms, List<Integer> values) {
         // 已经审核的订单不能修改
         TAgreementOrder order = agreementOrderRepository.find(oid);
         if (null == order) {
@@ -133,8 +132,6 @@ public class AgreementService {
             return RestResult.fail("只能修改自己的订单");
         }
 
-        order.setAid(aid);
-        order.setApplyTime(applyTime);
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_agreement_shipped, reviews);
         if (null != ret) {
@@ -150,7 +147,7 @@ public class AgreementService {
         if (!agreementOrderRepository.update(order)) {
             return RestResult.fail("生成发货订单失败");
         }
-        String msg = agreementOrderService.update(oid, comms, attrs);
+        String msg = agreementOrderService.update(oid, comms, null);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -317,7 +314,7 @@ public class AgreementService {
                 storageOrder.setTid(0);
                 storageOrder.setApply(order.getApply());
                 storageOrder.setApplyTime(order.getApplyTime());
-                ret2 =  storageService.agreementIn(id, storageOrder, oid, review, commoditys, weights, values, attrs);
+                ret2 = storageService.agreementIn(id, storageOrder, oid, review, commoditys, weights, values, attrs);
             }
             if (!RestResult.isOk(ret2)) {
                 return ret2;
@@ -329,7 +326,7 @@ public class AgreementService {
     /**
      * desc: 履约退货修改
      */
-    public RestResult setReturn(int id, int oid, Date applyTime, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
+    public RestResult setReturn(int id, int oid, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<Integer> values) {
         // 已经审核的订单不能修改
         TAgreementOrder order = agreementOrderRepository.find(oid);
         if (null == order) {
@@ -348,7 +345,6 @@ public class AgreementService {
             return RestResult.fail("未查询到发货单信息");
         }
 
-        order.setApplyTime(applyTime);
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_agreement_return, reviews);
         if (null != ret) {
@@ -364,7 +360,7 @@ public class AgreementService {
         if (!agreementOrderRepository.update(order)) {
             return RestResult.fail("生成退货订单失败");
         }
-        String msg = agreementOrderService.update(oid, comms, attrs);
+        String msg = agreementOrderService.update(oid, comms, null);
         if (null != msg) {
             return RestResult.fail(msg);
         }

@@ -53,15 +53,7 @@ public class AgreementController {
 
     @PostMapping("/setShipped")
     public RestResult setShipped(@Validated @RequestBody SetShippedValid req) {
-        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
-        Date applyTime = null;
-        try {
-            applyTime = simpleDateFormat.parse(req.getDate());
-        } catch (ParseException e) {
-            return RestResult.fail("订单制单日期转换失败");
-        }
-        return agreementService.setShipped(req.getId(), req.getOid(), req.getAid(), applyTime, req.getCommoditys(),
-                req.getPrices(), req.getWeights(), req.getNorms(), req.getValues(), req.getAttrs());
+        return agreementService.setShipped(req.getId(), req.getOid(), req.getCommoditys(), req.getPrices(), req.getWeights(), req.getNorms(), req.getValues());
     }
 
     @PostMapping("/delShipped")
@@ -96,14 +88,7 @@ public class AgreementController {
 
     @PostMapping("/setReturn")
     public RestResult setReturn(@Validated @RequestBody SetReturnValid req) {
-        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
-        Date applyTime = null;
-        try {
-            applyTime = simpleDateFormat.parse(req.getDate());
-        } catch (ParseException e) {
-            return RestResult.fail("订单制单日期转换失败");
-        }
-        return agreementService.setReturn(req.getId(), req.getOid(), applyTime, req.getCommoditys(), req.getPrices(), req.getWeights(), req.getValues(), req.getAttrs());
+        return agreementService.setReturn(req.getId(), req.getOid(), req.getCommoditys(), req.getPrices(), req.getWeights(), req.getValues());
     }
 
     @PostMapping("/delReturn")

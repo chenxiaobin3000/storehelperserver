@@ -23,13 +23,6 @@ public class SetReturnValid implements IValid {
     @Min(value = 1, message = "订单编号错误")
     private int oid;
 
-    @Min(value = 1, message = "销售单号错误")
-    private int rid;
-
-    @NotEmpty(message = "请输入订单制单日期")
-    @Length(min = 19, max = 19, message = "订单制单日期格式错误")
-    private String date;
-
     @Size(min = 1, message = "商品id不能为空")
     private List<Integer> commoditys;
 
@@ -41,6 +34,4 @@ public class SetReturnValid implements IValid {
 
     @Size(min = 1, message = "商品数量不能为空")
     private List<Integer> values;
-
-    private List<Integer> attrs;
 }

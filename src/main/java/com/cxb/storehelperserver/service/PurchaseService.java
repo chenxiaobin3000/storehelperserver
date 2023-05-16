@@ -120,7 +120,7 @@ public class PurchaseService {
     /**
      * desc: 原料采购仓储修改
      */
-    public RestResult setPurchase(int id, int oid, int supplier, Date applyTime, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<String> norms, List<Integer> values, List<Integer> attrs) {
+    public RestResult setPurchase(int id, int oid, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<String> norms, List<Integer> values) {
         // 已经审核的订单不能修改
         TPurchaseOrder order = purchaseOrderRepository.find(oid);
         if (null == order) {
@@ -133,8 +133,6 @@ public class PurchaseService {
             return RestResult.fail("只能修改自己的订单");
         }
 
-        order.setSupplier(supplier);
-        order.setApplyTime(applyTime);
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_purchase_purchase, reviews);
         if (null != ret) {
@@ -150,7 +148,7 @@ public class PurchaseService {
         if (!purchaseOrderRepository.update(order)) {
             return RestResult.fail("生成采购订单失败");
         }
-        String msg = purchaseOrderService.update(oid, comms, attrs);
+        String msg = purchaseOrderService.update(oid, comms, null);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -338,7 +336,7 @@ public class PurchaseService {
                 storageOrder.setTid(0);
                 storageOrder.setApply(order.getApply());
                 storageOrder.setApplyTime(order.getApplyTime());
-                ret2 =  storageService.purchaseOut(id, storageOrder, oid, review, commoditys, weights, values, attrs);
+                ret2 = storageService.purchaseOut(id, storageOrder, oid, review, commoditys, weights, values, attrs);
             }
             if (!RestResult.isOk(ret2)) {
                 return ret2;
@@ -350,7 +348,7 @@ public class PurchaseService {
     /**
      * desc: 原料退货修改
      */
-    public RestResult setReturn(int id, int oid, Date applyTime, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
+    public RestResult setReturn(int id, int oid, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<Integer> values) {
         // 已经审核的订单不能修改
         TPurchaseOrder order = purchaseOrderRepository.find(oid);
         if (null == order) {
@@ -369,7 +367,6 @@ public class PurchaseService {
             return RestResult.fail("未查询到采购单信息");
         }
 
-        order.setApplyTime(applyTime);
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_purchase_return, reviews);
         if (null != ret) {
@@ -385,7 +382,7 @@ public class PurchaseService {
         if (!purchaseOrderRepository.update(order)) {
             return RestResult.fail("生成退货订单失败");
         }
-        String msg = purchaseOrderService.update(oid, comms, attrs);
+        String msg = purchaseOrderService.update(oid, comms, null);
         if (null != msg) {
             return RestResult.fail(msg);
         }

@@ -124,8 +124,7 @@ public class OfflineService {
     /**
      * desc: 线下销售修改
      */
-    public RestResult setOffline(int id, int oid, int aid, Date applyTime, List<Integer> commoditys, List<BigDecimal> prices,
-                                 List<Integer> weights, List<String> norms, List<Integer> values, List<Integer> attrs) {
+    public RestResult setOffline(int id, int oid, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<String> norms, List<Integer> values) {
         // 已经审核的订单不能修改
         TOfflineOrder order = offlineOrderRepository.find(oid);
         if (null == order) {
@@ -138,8 +137,6 @@ public class OfflineService {
             return RestResult.fail("只能修改自己的订单");
         }
 
-        order.setAid(aid);
-        order.setApplyTime(applyTime);
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_offline_offline, reviews);
         if (null != ret) {
@@ -155,7 +152,7 @@ public class OfflineService {
         if (!offlineOrderRepository.update(order)) {
             return RestResult.fail("生成销售订单失败");
         }
-        String msg = offlineOrderService.update(oid, comms, attrs);
+        String msg = offlineOrderService.update(oid, comms, null);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -335,7 +332,7 @@ public class OfflineService {
     /**
      * desc: 销售退货修改
      */
-    public RestResult setReturn(int id, int oid, Date applyTime, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
+    public RestResult setReturn(int id, int oid, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<Integer> values) {
         // 已经审核的订单不能修改
         TOfflineOrder order = offlineOrderRepository.find(oid);
         if (null == order) {
@@ -354,7 +351,6 @@ public class OfflineService {
             return RestResult.fail("未查询到销售单信息");
         }
 
-        order.setApplyTime(applyTime);
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_offline_return, reviews);
         if (null != ret) {
@@ -370,7 +366,7 @@ public class OfflineService {
         if (!offlineOrderRepository.update(order)) {
             return RestResult.fail("生成退货订单失败");
         }
-        String msg = offlineOrderService.update(oid, comms, attrs);
+        String msg = offlineOrderService.update(oid, comms, null);
         if (null != msg) {
             return RestResult.fail(msg);
         }

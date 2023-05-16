@@ -158,7 +158,7 @@ public class StorageService {
     /**
      * desc: 采购入库修改
      */
-    public RestResult setPurchaseIn(int id, int type, int oid, Date applyTime, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
+    public RestResult setPurchaseIn(int id, int type, int oid, List<Integer> commoditys, List<Integer> weights, List<Integer> values) {
         // 已经审核的订单不能修改
         TStorageOrder order = storageOrderRepository.find(oid);
         if (null == order) {
@@ -180,7 +180,6 @@ public class StorageService {
             return RestResult.fail("未查询到采购单信息");
         }
 
-        order.setApplyTime(applyTime);
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_storage_purchase_in, reviews);
         if (null != ret) {
@@ -196,7 +195,7 @@ public class StorageService {
         if (!storageOrderRepository.update(order)) {
             return RestResult.fail("生成入库订单失败");
         }
-        String msg = storageOrderService.update(oid, comms, attrs);
+        String msg = storageOrderService.update(oid, comms, null);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -385,7 +384,7 @@ public class StorageService {
     /**
      * desc: 采购出库修改
      */
-    public RestResult setPurchaseOut(int id, int type, int oid, Date applyTime, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
+    public RestResult setPurchaseOut(int id, int type, int oid, List<Integer> commoditys, List<Integer> weights, List<Integer> values) {
         // 已经审核的订单不能修改
         TStorageOrder order = storageOrderRepository.find(oid);
         if (null == order) {
@@ -407,7 +406,6 @@ public class StorageService {
             return RestResult.fail("未查询到退货单信息");
         }
 
-        order.setApplyTime(applyTime);
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_storage_purchase_out, reviews);
         if (null != ret) {
@@ -423,7 +421,7 @@ public class StorageService {
         if (!storageOrderRepository.update(order)) {
             return RestResult.fail("生成出库订单失败");
         }
-        String msg = storageOrderService.update(oid, comms, attrs);
+        String msg = storageOrderService.update(oid, comms, null);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -612,7 +610,7 @@ public class StorageService {
     /**
      * desc: 生产入库修改
      */
-    public RestResult setProductIn(int id, int type, int oid, Date applyTime, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
+    public RestResult setProductIn(int id, int type, int oid, List<Integer> commoditys, List<Integer> weights, List<Integer> values) {
         // 已经审核的订单不能修改
         TStorageOrder order = storageOrderRepository.find(oid);
         if (null == order) {
@@ -634,7 +632,6 @@ public class StorageService {
             return RestResult.fail("未查询到生产单信息");
         }
 
-        order.setApplyTime(applyTime);
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_storage_product_in, reviews);
         if (null != ret) {
@@ -650,7 +647,7 @@ public class StorageService {
         if (!storageOrderRepository.update(order)) {
             return RestResult.fail("生成入库订单失败");
         }
-        String msg = storageOrderService.update(oid, comms, attrs);
+        String msg = storageOrderService.update(oid, comms, null);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -819,7 +816,7 @@ public class StorageService {
     /**
      * desc: 生产出库修改
      */
-    public RestResult setProductOut(int id, int type, int oid, Date applyTime, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
+    public RestResult setProductOut(int id, int type, int oid, List<Integer> commoditys, List<Integer> weights, List<Integer> values) {
         // 已经审核的订单不能修改
         TStorageOrder order = storageOrderRepository.find(oid);
         if (null == order) {
@@ -841,7 +838,6 @@ public class StorageService {
             return RestResult.fail("未查询到生产单信息");
         }
 
-        order.setApplyTime(applyTime);
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_storage_product_out, reviews);
         if (null != ret) {
@@ -857,7 +853,7 @@ public class StorageService {
         if (!storageOrderRepository.update(order)) {
             return RestResult.fail("生成出库订单失败");
         }
-        String msg = storageOrderService.update(oid, comms, attrs);
+        String msg = storageOrderService.update(oid, comms, null);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -1026,7 +1022,7 @@ public class StorageService {
     /**
      * desc: 履约入库修改
      */
-    public RestResult setAgreementIn(int id, int type, int oid, Date applyTime, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
+    public RestResult setAgreementIn(int id, int type, int oid, List<Integer> commoditys, List<Integer> weights, List<Integer> values) {
         // 已经审核的订单不能修改
         TStorageOrder order = storageOrderRepository.find(oid);
         if (null == order) {
@@ -1048,7 +1044,6 @@ public class StorageService {
             return RestResult.fail("未查询到履约单信息");
         }
 
-        order.setApplyTime(applyTime);
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_storage_agreement_in, reviews);
         if (null != ret) {
@@ -1064,7 +1059,7 @@ public class StorageService {
         if (!storageOrderRepository.update(order)) {
             return RestResult.fail("生成入库订单失败");
         }
-        String msg = storageOrderService.update(oid, comms, attrs);
+        String msg = storageOrderService.update(oid, comms, null);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -1253,7 +1248,7 @@ public class StorageService {
     /**
      * desc: 履约出库修改
      */
-    public RestResult setAgreementOut(int id, int type, int oid, Date applyTime, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
+    public RestResult setAgreementOut(int id, int type, int oid, List<Integer> commoditys, List<Integer> weights, List<Integer> values) {
         // 已经审核的订单不能修改
         TStorageOrder order = storageOrderRepository.find(oid);
         if (null == order) {
@@ -1275,7 +1270,6 @@ public class StorageService {
             return RestResult.fail("未查询到履约单信息");
         }
 
-        order.setApplyTime(applyTime);
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_storage_agreement_out, reviews);
         if (null != ret) {
@@ -1291,7 +1285,7 @@ public class StorageService {
         if (!storageOrderRepository.update(order)) {
             return RestResult.fail("生成出库订单失败");
         }
-        String msg = storageOrderService.update(oid, comms, attrs);
+        String msg = storageOrderService.update(oid, comms, null);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -1480,7 +1474,7 @@ public class StorageService {
     /**
      * desc: 线下销售入库修改
      */
-    public RestResult setOfflineIn(int id, int type, int oid, Date applyTime, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
+    public RestResult setOfflineIn(int id, int type, int oid, List<Integer> commoditys, List<Integer> weights, List<Integer> values) {
         // 已经审核的订单不能修改
         TStorageOrder order = storageOrderRepository.find(oid);
         if (null == order) {
@@ -1502,7 +1496,6 @@ public class StorageService {
             return RestResult.fail("未查询到退货单信息");
         }
 
-        order.setApplyTime(applyTime);
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_storage_offline_in, reviews);
         if (null != ret) {
@@ -1518,7 +1511,7 @@ public class StorageService {
         if (!storageOrderRepository.update(order)) {
             return RestResult.fail("生成入库订单失败");
         }
-        String msg = storageOrderService.update(oid, comms, attrs);
+        String msg = storageOrderService.update(oid, comms, null);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -1707,7 +1700,7 @@ public class StorageService {
     /**
      * desc: 线下销售出库修改
      */
-    public RestResult setOfflineOut(int id, int type, int oid, Date applyTime, List<Integer> commoditys, List<Integer> weights, List<Integer> values, List<Integer> attrs) {
+    public RestResult setOfflineOut(int id, int type, int oid, List<Integer> commoditys, List<Integer> weights, List<Integer> values) {
         // 已经审核的订单不能修改
         TStorageOrder order = storageOrderRepository.find(oid);
         if (null == order) {
@@ -1729,7 +1722,6 @@ public class StorageService {
             return RestResult.fail("未查询到销售单信息");
         }
 
-        order.setApplyTime(applyTime);
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_storage_offline_out, reviews);
         if (null != ret) {
@@ -1745,7 +1737,7 @@ public class StorageService {
         if (!storageOrderRepository.update(order)) {
             return RestResult.fail("生成出库订单失败");
         }
-        String msg = storageOrderService.update(oid, comms, attrs);
+        String msg = storageOrderService.update(oid, comms, null);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -1916,7 +1908,7 @@ public class StorageService {
     /**
      * desc: 调度入库修改
      */
-    public RestResult setDispatchIn(int id, int oid, Date applyTime, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<String> norms, List<Integer> values, List<Integer> attrs) {
+    public RestResult setDispatchIn(int id, int oid, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<String> norms, List<Integer> values) {
         // 已经审核的订单不能修改
         TStorageOrder order = storageOrderRepository.find(oid);
         if (null == order) {
@@ -1929,7 +1921,6 @@ public class StorageService {
             return RestResult.fail("只能修改自己的订单");
         }
 
-        order.setApplyTime(applyTime);
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_storage_dispatch_in, reviews);
         if (null != ret) {
@@ -1945,7 +1936,7 @@ public class StorageService {
         if (!storageOrderRepository.update(order)) {
             return RestResult.fail("生成入库订单失败");
         }
-        String msg = storageOrderService.update(oid, comms, attrs);
+        String msg = storageOrderService.update(oid, comms, null);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -2070,7 +2061,7 @@ public class StorageService {
     /**
      * desc: 调度出库修改
      */
-    public RestResult setDispatchOut(int id, int oid, Date applyTime, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<String> norms, List<Integer> values, List<Integer> attrs) {
+    public RestResult setDispatchOut(int id, int oid, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<String> norms, List<Integer> values) {
         // 已经审核的订单不能修改
         TStorageOrder order = storageOrderRepository.find(oid);
         if (null == order) {
@@ -2083,7 +2074,6 @@ public class StorageService {
             return RestResult.fail("只能修改自己的订单");
         }
 
-        order.setApplyTime(applyTime);
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_storage_dispatch_out, reviews);
         if (null != ret) {
@@ -2099,7 +2089,7 @@ public class StorageService {
         if (!storageOrderRepository.update(order)) {
             return RestResult.fail("生成出库订单失败");
         }
-        String msg = storageOrderService.update(oid, comms, attrs);
+        String msg = storageOrderService.update(oid, comms, null);
         if (null != msg) {
             return RestResult.fail(msg);
         }
@@ -2247,7 +2237,7 @@ public class StorageService {
     /**
      * desc: 仓储损耗修改
      */
-    public RestResult setLoss(int id, int oid, Date applyTime, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<String> norms, List<Integer> values, List<Integer> attrs) {
+    public RestResult setLoss(int id, int oid, List<Integer> commoditys, List<BigDecimal> prices, List<Integer> weights, List<String> norms, List<Integer> values) {
         // 已经审核的订单不能修改
         TStorageOrder order = storageOrderRepository.find(oid);
         if (null == order) {
@@ -2260,7 +2250,6 @@ public class StorageService {
             return RestResult.fail("只能修改自己的订单");
         }
 
-        order.setApplyTime(applyTime);
         val reviews = new ArrayList<Integer>();
         RestResult ret = check(id, order, mp_storage_loss, reviews);
         if (null != ret) {
@@ -2299,7 +2288,7 @@ public class StorageService {
         if (!storageOrderRepository.update(order)) {
             return RestResult.fail("生成损耗订单失败");
         }
-        String msg = storageOrderService.update(oid, comms, attrs);
+        String msg = storageOrderService.update(oid, comms, null);
         if (null != msg) {
             return RestResult.fail(msg);
         }

@@ -55,14 +55,7 @@ public class PurchaseController {
 
     @PostMapping("/setPurchase")
     public RestResult setPurchase(@Validated @RequestBody SetPurchaseValid req) {
-        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
-        Date applyTime = null;
-        try {
-            applyTime = simpleDateFormat.parse(req.getDate());
-        } catch (ParseException e) {
-            return RestResult.fail("订单制单日期转换失败");
-        }
-        return purchaseService.setPurchase(req.getId(), req.getOid(), req.getSupplier(), applyTime, req.getCommoditys(), req.getPrices(), req.getWeights(), req.getNorms(), req.getValues(), req.getAttrs());
+        return purchaseService.setPurchase(req.getId(), req.getOid(), req.getCommoditys(), req.getPrices(), req.getWeights(), req.getNorms(), req.getValues());
     }
 
     @PostMapping("/delPurchase")
@@ -109,14 +102,7 @@ public class PurchaseController {
 
     @PostMapping("/setReturn")
     public RestResult setReturn(@Validated @RequestBody SetReturnValid req) {
-        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
-        Date applyTime = null;
-        try {
-            applyTime = simpleDateFormat.parse(req.getDate());
-        } catch (ParseException e) {
-            return RestResult.fail("订单制单日期转换失败");
-        }
-        return purchaseService.setReturn(req.getId(), req.getOid(), applyTime, req.getCommoditys(), req.getPrices(), req.getWeights(), req.getValues(), req.getAttrs());
+        return purchaseService.setReturn(req.getId(), req.getOid(), req.getCommoditys(), req.getPrices(), req.getWeights(), req.getValues());
     }
 
     @PostMapping("/delReturn")

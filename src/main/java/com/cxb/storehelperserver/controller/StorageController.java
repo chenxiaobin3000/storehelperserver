@@ -120,22 +120,15 @@ public class StorageController {
 
     @PostMapping("/setIn")
     public RestResult setIn(@Validated @RequestBody SetInValid req) {
-        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
-        Date applyTime = null;
-        try {
-            applyTime = simpleDateFormat.parse(req.getDate());
-        } catch (ParseException e) {
-            return RestResult.fail("订单制单日期转换失败");
-        }
         switch (OrderType.valueOf(req.getType())) {
             case STORAGE_PURCHASE_IN_ORDER:
-                return storageService.setPurchaseIn(req.getId(), req.getType(), req.getOid(), applyTime, req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
+                return storageService.setPurchaseIn(req.getId(), req.getType(), req.getOid(), req.getCommoditys(), req.getWeights(), req.getValues());
             case STORAGE_PRODUCT_IN_ORDER:
-                return storageService.setProductIn(req.getId(), req.getType(), req.getOid(), applyTime, req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
+                return storageService.setProductIn(req.getId(), req.getType(), req.getOid(), req.getCommoditys(), req.getWeights(), req.getValues());
             case STORAGE_AGREEMENT_IN_ORDER:
-                return storageService.setAgreementIn(req.getId(), req.getType(), req.getOid(), applyTime, req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
+                return storageService.setAgreementIn(req.getId(), req.getType(), req.getOid(), req.getCommoditys(), req.getWeights(), req.getValues());
             case STORAGE_OFFLINE_IN_ORDER:
-                return storageService.setOfflineIn(req.getId(), req.getType(), req.getOid(), applyTime, req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
+                return storageService.setOfflineIn(req.getId(), req.getType(), req.getOid(), req.getCommoditys(), req.getWeights(), req.getValues());
             default:
                 return RestResult.fail("未知订单类型");
         }
@@ -221,22 +214,15 @@ public class StorageController {
 
     @PostMapping("/setOut")
     public RestResult setOut(@Validated @RequestBody SetOutValid req) {
-        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
-        Date applyTime = null;
-        try {
-            applyTime = simpleDateFormat.parse(req.getDate());
-        } catch (ParseException e) {
-            return RestResult.fail("订单制单日期转换失败");
-        }
         switch (OrderType.valueOf(req.getType())) {
             case STORAGE_PURCHASE_OUT_ORDER:
-                return storageService.setPurchaseOut(req.getId(), req.getType(), req.getOid(), applyTime, req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
+                return storageService.setPurchaseOut(req.getId(), req.getType(), req.getOid(), req.getCommoditys(), req.getWeights(), req.getValues());
             case STORAGE_PRODUCT_OUT_ORDER:
-                return storageService.setProductOut(req.getId(), req.getType(), req.getOid(), applyTime, req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
+                return storageService.setProductOut(req.getId(), req.getType(), req.getOid(), req.getCommoditys(), req.getWeights(), req.getValues());
             case STORAGE_AGREEMENT_OUT_ORDER:
-                return storageService.setAgreementOut(req.getId(), req.getType(), req.getOid(), applyTime, req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
+                return storageService.setAgreementOut(req.getId(), req.getType(), req.getOid(), req.getCommoditys(), req.getWeights(), req.getValues());
             case STORAGE_OFFLINE_OUT_ORDER:
-                return storageService.setOfflineOut(req.getId(), req.getType(), req.getOid(), applyTime, req.getCommoditys(), req.getWeights(), req.getValues(), req.getAttrs());
+                return storageService.setOfflineOut(req.getId(), req.getType(), req.getOid(), req.getCommoditys(), req.getWeights(), req.getValues());
             default:
                 return RestResult.fail("未知订单类型");
         }
@@ -309,14 +295,7 @@ public class StorageController {
 
     @PostMapping("/setDispatchIn")
     public RestResult setDispatchIn(@Validated @RequestBody SetDispatchInValid req) {
-        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
-        Date applyTime = null;
-        try {
-            applyTime = simpleDateFormat.parse(req.getDate());
-        } catch (ParseException e) {
-            return RestResult.fail("订单制单日期转换失败");
-        }
-        return storageService.setDispatchIn(req.getId(), req.getOid(), applyTime, req.getCommoditys(), req.getPrices(), req.getWeights(), req.getNorms(), req.getValues(), req.getAttrs());
+        return storageService.setDispatchIn(req.getId(), req.getOid(), req.getCommoditys(), req.getPrices(), req.getWeights(), req.getNorms(), req.getValues());
     }
 
     @PostMapping("/delDispatchIn")
@@ -353,14 +332,7 @@ public class StorageController {
 
     @PostMapping("/setDispatchOut")
     public RestResult setDispatchOut(@Validated @RequestBody SetDispatchOutValid req) {
-        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
-        Date applyTime = null;
-        try {
-            applyTime = simpleDateFormat.parse(req.getDate());
-        } catch (ParseException e) {
-            return RestResult.fail("订单制单日期转换失败");
-        }
-        return storageService.setDispatchOut(req.getId(), req.getOid(), applyTime, req.getCommoditys(), req.getPrices(), req.getWeights(), req.getNorms(), req.getValues(), req.getAttrs());
+        return storageService.setDispatchOut(req.getId(), req.getOid(), req.getCommoditys(), req.getPrices(), req.getWeights(), req.getNorms(), req.getValues());
     }
 
     @PostMapping("/delDispatchOut")
@@ -397,14 +369,7 @@ public class StorageController {
 
     @PostMapping("/setLoss")
     public RestResult setLoss(@Validated @RequestBody SetLossValid req) {
-        SimpleDateFormat simpleDateFormat = dateUtil.getDateFormat();
-        Date applyTime = null;
-        try {
-            applyTime = simpleDateFormat.parse(req.getDate());
-        } catch (ParseException e) {
-            return RestResult.fail("订单制单日期转换失败");
-        }
-        return storageService.setLoss(req.getId(), req.getOid(), applyTime, req.getCommoditys(), req.getPrices(), req.getWeights(), req.getNorms(), req.getValues(), req.getAttrs());
+        return storageService.setLoss(req.getId(), req.getOid(), req.getCommoditys(), req.getPrices(), req.getWeights(), req.getNorms(), req.getValues());
     }
 
     @PostMapping("/delLoss")
