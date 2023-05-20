@@ -59,7 +59,7 @@ public class StorageRepository extends BaseRepository<TStorage> {
 
     public List<TStorage> pagination(int gid, int page, int limit, String search) {
         TStorageExample example = new TStorageExample();
-        if (null == search) {
+        if (null == search || search.isEmpty()) {
             example.or().andGidEqualTo(gid);
         } else {
             example.or().andGidEqualTo(gid).andNameLike("%" + search + "%");

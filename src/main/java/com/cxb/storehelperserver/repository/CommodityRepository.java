@@ -4,9 +4,11 @@ import com.cxb.storehelperserver.mapper.TCommodityMapper;
 import com.cxb.storehelperserver.model.TCommodity;
 import com.cxb.storehelperserver.model.TCommodityExample;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -44,10 +46,15 @@ public class CommodityRepository extends BaseRepository<TCommodity> {
         return commodityMapper.selectOneByExample(example);
     }
 
-    public TCommodity search(String name) {
+    public List<Integer> search(String name) {
         TCommodityExample example = new TCommodityExample();
         example.or().andNameLike("%" + name + "%");
-        return commodityMapper.selectOneByExample(example);
+        val commodity = commodityMapper.selectByExample(example);
+        val ret = new ArrayList<Integer>();
+        for (TCommodity c : commodity) {
+            ret.add(c.getId());
+        }
+        return ret;
     }
 
     public int total(int gid, String search) {
@@ -71,7 +78,7 @@ public class CommodityRepository extends BaseRepository<TCommodity> {
 
     public List<TCommodity> pagination(int gid, int page, int limit, String search) {
         TCommodityExample example = new TCommodityExample();
-        if (null == search) {
+        if (null == search || search.isEmpty()) {
             example.or().andGidEqualTo(gid);
         } else {
             example.or().andGidEqualTo(gid).andNameLike("%" + search + "%");

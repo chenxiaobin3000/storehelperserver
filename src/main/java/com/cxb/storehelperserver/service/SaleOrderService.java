@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -98,27 +99,27 @@ public class SaleOrderService extends BaseService<HashMap> {
         return datas;
     }
 
-    public int total(int gid, int type, ReviewType review, String date, String search) {
-        if (null == search) {
-            return saleOrderRepository.total(gid, type, review, date);
+    public int total(int gid, int type, ReviewType review, Date start, Date end, String search) {
+        if (null == search || search.isEmpty()) {
+            return saleOrderRepository.total(gid, type, review, start, end);
         } else {
-            TCommodity commodity = commodityRepository.search(search);
-            if (null == commodity) {
+            val ids = commodityRepository.search(search);
+            if (null == ids || ids.isEmpty()) {
                 return 0;
             }
-            return saleCommodityRepository.total(gid, type, review, date, commodity.getId());
+            return saleCommodityRepository.total(gid, type, review, start, end, ids);
         }
     }
 
-    public List<TSaleOrder> pagination(int gid, int type, int page, int limit, ReviewType review, String date, String search) {
-        if (null == search) {
-            return saleOrderRepository.pagination(gid, type, page, limit, review, date);
+    public List<TSaleOrder> pagination(int gid, int type, int page, int limit, ReviewType review, Date start, Date end, String search) {
+        if (null == search || search.isEmpty()) {
+            return saleOrderRepository.pagination(gid, type, page, limit, review, start, end);
         } else {
-            TCommodity commodity = commodityRepository.search(search);
-            if (null == commodity) {
+            val ids = commodityRepository.search(search);
+            if (null == ids || ids.isEmpty()) {
                 return null;
             }
-            return saleCommodityRepository.pagination(gid, type, page, limit, review, date, commodity.getId());
+            return saleCommodityRepository.pagination(gid, type, page, limit, review, start, end, ids);
         }
     }
 

@@ -46,10 +46,10 @@ public class PurchaseOrderRepository extends BaseRepository<TPurchaseOrder> {
         return purchaseOrder;
     }
 
-    public int total(int gid, int type, ReviewType review, CompleteType complete, String date) {
+    public int total(int gid, int type, ReviewType review, CompleteType complete, Date start, Date end) {
         TPurchaseOrderExample example = new TPurchaseOrderExample();
         TPurchaseOrderExample.Criteria criteria = example.createCriteria();
-        criteria.andGidEqualTo(gid).andOtypeEqualTo(type);
+        criteria.andGidEqualTo(gid).andOtypeEqualTo(type).andApplyTimeGreaterThanOrEqualTo(start).andApplyTimeLessThan(end);
         switch (complete) {
             case COMPLETE_HAS:
                 criteria.andCompleteEqualTo(new Byte("1"));
@@ -59,9 +59,6 @@ public class PurchaseOrderRepository extends BaseRepository<TPurchaseOrder> {
                 break;
             default:
                 break;
-        }
-        if (null != date) {
-            criteria.andBatchLike("%" + date + "%");
         }
         switch (review) {
             case REVIEW_HAS:
@@ -76,10 +73,10 @@ public class PurchaseOrderRepository extends BaseRepository<TPurchaseOrder> {
         return (int) purchaseOrderMapper.countByExample(example);
     }
 
-    public List<TPurchaseOrder> pagination(int gid, int type, int page, int limit, ReviewType review, CompleteType complete, String date) {
+    public List<TPurchaseOrder> pagination(int gid, int type, int page, int limit, ReviewType review, CompleteType complete, Date start, Date end) {
         TPurchaseOrderExample example = new TPurchaseOrderExample();
         TPurchaseOrderExample.Criteria criteria = example.createCriteria();
-        criteria.andGidEqualTo(gid).andOtypeEqualTo(type);
+        criteria.andGidEqualTo(gid).andOtypeEqualTo(type).andApplyTimeGreaterThanOrEqualTo(start).andApplyTimeLessThan(end);
         switch (complete) {
             case COMPLETE_HAS:
                 criteria.andCompleteEqualTo(new Byte("1"));
@@ -89,9 +86,6 @@ public class PurchaseOrderRepository extends BaseRepository<TPurchaseOrder> {
                 break;
             default:
                 break;
-        }
-        if (null != date) {
-            criteria.andBatchLike("%" + date + "%");
         }
         switch (review) {
             case REVIEW_HAS:

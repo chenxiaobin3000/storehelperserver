@@ -4,12 +4,13 @@ import com.cxb.storehelperserver.mapper.TPurchaseCommodityMapper;
 import com.cxb.storehelperserver.model.TPurchaseCommodity;
 import com.cxb.storehelperserver.model.TPurchaseCommodityExample;
 import com.cxb.storehelperserver.model.TPurchaseOrder;
-import com.cxb.storehelperserver.repository.mapper.MyCommodityCountMapper;
+import com.cxb.storehelperserver.repository.mapper.MyCommodityMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 import static com.cxb.storehelperserver.util.TypeDefine.CompleteType;
@@ -27,7 +28,7 @@ public class PurchaseCommodityRepository extends BaseRepository<List> {
     private TPurchaseCommodityMapper purchaseCommodityMapper;
 
     @Resource
-    private MyCommodityCountMapper myCommodityCountMapper;
+    private MyCommodityMapper myCommodityMapper;
 
     public PurchaseCommodityRepository() {
         init("purComm::");
@@ -50,15 +51,15 @@ public class PurchaseCommodityRepository extends BaseRepository<List> {
     }
 
     public BigDecimal count(int oid) {
-        return myCommodityCountMapper.count_purchase(oid);
+        return myCommodityMapper.count_purchase(oid);
     }
 
-    public int total(int gid, int type, ReviewType review, CompleteType complete, String search, int cid) {
-        return 0;
+    public int total(int gid, int type, ReviewType review, CompleteType complete, Date start, Date end, List<Integer> ids) {
+        return myCommodityMapper.countByPurchase(gid, type, review.getValue(), complete.getValue(), start, end, ids);
     }
 
-    public List<TPurchaseOrder> pagination(int gid, int type, int page, int limit, ReviewType review, CompleteType complete, String date, int cid) {
-        return null;
+    public List<TPurchaseOrder> pagination(int gid, int type, int page, int limit, ReviewType review, CompleteType complete, Date start, Date end, List<Integer> ids) {
+        return myCommodityMapper.paginationByPurchase(gid, type, (page - 1) * limit, limit, review.getValue(), complete.getValue(), start, end, ids);
     }
 
     // 注意：数据被缓存在PurchaseCommodityService，所以不能直接调用该函数

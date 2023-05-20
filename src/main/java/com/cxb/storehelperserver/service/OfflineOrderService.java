@@ -12,6 +12,7 @@ import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -125,27 +126,27 @@ public class OfflineOrderService extends BaseService<HashMap> {
         return datas;
     }
 
-    public int total(int gid, int aid, int type, ReviewType review, CompleteType complete, String date, String search) {
-        if (null == search) {
-            return offlineOrderRepository.total(gid, aid, type, review, date);
+    public int total(int gid, int aid, int type, ReviewType review, CompleteType complete, Date start, Date end, String search) {
+        if (null == search || search.isEmpty()) {
+            return offlineOrderRepository.total(gid, aid, type, review, start, end);
         } else {
-            TCommodity commodity = commodityRepository.search(search);
-            if (null == commodity) {
+            val ids = commodityRepository.search(search);
+            if (null == ids || ids.isEmpty()) {
                 return 0;
             }
-            return offlineCommodityRepository.total(gid, aid, type, review, complete, date, commodity.getId());
+            return offlineCommodityRepository.total(gid, aid, type, review, complete, start, end, ids);
         }
     }
 
-    public List<TOfflineOrder> pagination(int gid, int aid, int type, int page, int limit, ReviewType review, CompleteType complete, String date, String search) {
-        if (null == search) {
-            return offlineOrderRepository.pagination(gid, aid, type, page, limit, review, date);
+    public List<TOfflineOrder> pagination(int gid, int aid, int type, int page, int limit, ReviewType review, CompleteType complete, Date start, Date end, String search) {
+        if (null == search || search.isEmpty()) {
+            return offlineOrderRepository.pagination(gid, aid, type, page, limit, review, start, end);
         } else {
-            TCommodity commodity = commodityRepository.search(search);
-            if (null == commodity) {
+            val ids = commodityRepository.search(search);
+            if (null == ids || ids.isEmpty()) {
                 return null;
             }
-            return offlineCommodityRepository.pagination(gid, aid, type, page, limit, review, complete, date, commodity.getId());
+            return offlineCommodityRepository.pagination(gid, aid, type, page, limit, review, complete, start, end, ids);
         }
     }
 

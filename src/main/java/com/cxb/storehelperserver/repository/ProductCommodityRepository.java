@@ -4,10 +4,12 @@ import com.cxb.storehelperserver.mapper.TProductCommodityMapper;
 import com.cxb.storehelperserver.model.TProductCommodity;
 import com.cxb.storehelperserver.model.TProductCommodityExample;
 import com.cxb.storehelperserver.model.TProductOrder;
+import com.cxb.storehelperserver.repository.mapper.MyCommodityMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 
 import static com.cxb.storehelperserver.util.TypeDefine.ReviewType;
@@ -22,6 +24,9 @@ import static com.cxb.storehelperserver.util.TypeDefine.ReviewType;
 public class ProductCommodityRepository extends BaseRepository<List> {
     @Resource
     private TProductCommodityMapper productCommodityMapper;
+
+    @Resource
+    private MyCommodityMapper myCommodityMapper;
 
     public ProductCommodityRepository() {
         init("productComm::");
@@ -43,12 +48,12 @@ public class ProductCommodityRepository extends BaseRepository<List> {
         return productCommoditys;
     }
 
-    public int total(int gid, int type, ReviewType review, String search, int cid) {
-        return 0;
+    public int total(int gid, int type, ReviewType review, Date start, Date end, List<Integer> ids) {
+        return myCommodityMapper.countByProduct(gid, type, review.getValue(), start, end, ids);
     }
 
-    public List<TProductOrder> pagination(int gid, int type, int page, int limit, ReviewType review, String date, int cid) {
-        return null;
+    public List<TProductOrder> pagination(int gid, int type, int page, int limit, ReviewType review, Date start, Date end, List<Integer> ids) {
+        return myCommodityMapper.paginationByProduct(gid, type, (page - 1) * limit, limit, review.getValue(), start, end, ids);
     }
 
     // 注意：数据被缓存在ProductCommodityService，所以不能直接调用该函数

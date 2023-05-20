@@ -59,7 +59,7 @@ public class SupplierRepository extends BaseRepository<TSupplier> {
 
     public List<TSupplier> pagination(int gid, int page, int limit, String search) {
         TSupplierExample example = new TSupplierExample();
-        if (null == search) {
+        if (null == search || search.isEmpty()) {
             example.or().andGidEqualTo(gid);
         } else {
             example.or().andGidEqualTo(gid).andNameLike("%" + search + "%");

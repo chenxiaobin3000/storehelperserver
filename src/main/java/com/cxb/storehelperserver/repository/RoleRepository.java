@@ -75,7 +75,7 @@ public class RoleRepository extends BaseRepository<TRole> {
 
     public List<TRole> all(int gid, String search) {
         TRoleExample example = new TRoleExample();
-        if (null == search) {
+        if (null == search || search.isEmpty()) {
             example.or().andGidEqualTo(gid);
         } else {
             example.or().andGidEqualTo(gid).andNameLike("%" + search + "%");

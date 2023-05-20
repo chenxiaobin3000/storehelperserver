@@ -52,15 +52,12 @@ public class AgreementOrderRepository extends BaseRepository<TAgreementOrder> {
         return agreementOrderMapper.selectByExample(example);
     }
 
-    public int total(int gid, int aid, int type, ReviewType review, CompleteType complete, String date) {
+    public int total(int gid, int aid, int type, ReviewType review, CompleteType complete, Date start, Date end) {
         TAgreementOrderExample example = new TAgreementOrderExample();
         TAgreementOrderExample.Criteria criteria = example.createCriteria();
-        criteria.andGidEqualTo(gid).andOtypeEqualTo(type);
+        criteria.andGidEqualTo(gid).andOtypeEqualTo(type).andApplyTimeGreaterThanOrEqualTo(start).andApplyTimeLessThan(end);
         if (aid > 0) {
             criteria.andAidEqualTo(aid);
-        }
-        if (null != date) {
-            criteria.andBatchLike("%" + date + "%");
         }
         switch (review) {
             case REVIEW_HAS:
@@ -85,15 +82,12 @@ public class AgreementOrderRepository extends BaseRepository<TAgreementOrder> {
         return (int) agreementOrderMapper.countByExample(example);
     }
 
-    public List<TAgreementOrder> pagination(int gid, int aid, int type, int page, int limit, ReviewType review, CompleteType complete, String date) {
+    public List<TAgreementOrder> pagination(int gid, int aid, int type, int page, int limit, ReviewType review, CompleteType complete, Date start, Date end) {
         TAgreementOrderExample example = new TAgreementOrderExample();
         TAgreementOrderExample.Criteria criteria = example.createCriteria();
-        criteria.andGidEqualTo(gid).andOtypeEqualTo(type);
+        criteria.andGidEqualTo(gid).andOtypeEqualTo(type).andApplyTimeGreaterThanOrEqualTo(start).andApplyTimeLessThan(end);
         if (aid > 0) {
             criteria.andAidEqualTo(aid);
-        }
-        if (null != date) {
-            criteria.andBatchLike("%" + date + "%");
         }
         switch (review) {
             case REVIEW_HAS:

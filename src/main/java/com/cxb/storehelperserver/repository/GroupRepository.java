@@ -61,7 +61,7 @@ public class GroupRepository extends BaseRepository<TGroup> {
 
     public List<TGroup> pagination(int page, int limit, String search) {
         TGroupExample example = new TGroupExample();
-        if (null == search) {
+        if (null == search || search.isEmpty()) {
             example.or().andDtimeIsNull(); // 软删除
         } else {
             example.or().andDtimeIsNull().andNameLike("%" + search + "%"); // 软删除

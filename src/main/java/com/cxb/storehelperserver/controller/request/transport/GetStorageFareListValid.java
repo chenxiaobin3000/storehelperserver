@@ -31,7 +31,7 @@ public class GetStorageFareListValid implements IValid {
     @Min(value = 0, message = "完成状态错误")
     private int complete;
 
-    @Length(max = 10, message = "订单制单日期格式错误")
+    @Length(min = 10, max = 10, message = "订单制单日期格式错误")
     private String date;
 
     @Min(value = 1, message = "页面编号错误")

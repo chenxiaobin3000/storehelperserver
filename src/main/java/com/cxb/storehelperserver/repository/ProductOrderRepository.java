@@ -45,13 +45,10 @@ public class ProductOrderRepository extends BaseRepository<TProductOrder> {
         return productOrder;
     }
 
-    public int total(int gid, int type, ReviewType review, String date) {
+    public int total(int gid, int type, ReviewType review, Date start, Date end) {
         TProductOrderExample example = new TProductOrderExample();
         TProductOrderExample.Criteria criteria = example.createCriteria();
-        criteria.andGidEqualTo(gid).andOtypeEqualTo(type);
-        if (null != date) {
-            criteria.andBatchLike("%" + date + "%");
-        }
+        criteria.andGidEqualTo(gid).andOtypeEqualTo(type).andApplyTimeGreaterThanOrEqualTo(start).andApplyTimeLessThan(end);
         switch (review) {
             case REVIEW_HAS:
                 criteria.andReviewIsNotNull();
@@ -65,13 +62,10 @@ public class ProductOrderRepository extends BaseRepository<TProductOrder> {
         return (int) productOrderMapper.countByExample(example);
     }
 
-    public List<TProductOrder> pagination(int gid, int type, int page, int limit, ReviewType review, String date) {
+    public List<TProductOrder> pagination(int gid, int type, int page, int limit, ReviewType review, Date start, Date end) {
         TProductOrderExample example = new TProductOrderExample();
         TProductOrderExample.Criteria criteria = example.createCriteria();
-        criteria.andGidEqualTo(gid).andOtypeEqualTo(type);
-        if (null != date) {
-            criteria.andBatchLike("%" + date + "%");
-        }
+        criteria.andGidEqualTo(gid).andOtypeEqualTo(type).andApplyTimeGreaterThanOrEqualTo(start).andApplyTimeLessThan(end);
         switch (review) {
             case REVIEW_HAS:
                 criteria.andReviewIsNotNull();

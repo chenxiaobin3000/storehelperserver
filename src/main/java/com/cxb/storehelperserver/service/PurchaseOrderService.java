@@ -12,6 +12,7 @@ import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -125,27 +126,27 @@ public class PurchaseOrderService extends BaseService<HashMap> {
         return datas;
     }
 
-    public int total(int gid, int type, ReviewType review, CompleteType complete, String date, String search) {
-        if (null == search) {
-            return purchaseOrderRepository.total(gid, type, review, complete, date);
+    public int total(int gid, int type, ReviewType review, CompleteType complete, Date start, Date end, String search) {
+        if (null == search || search.isEmpty()) {
+            return purchaseOrderRepository.total(gid, type, review, complete, start, end);
         } else {
-            TCommodity commodity = commodityRepository.search(search);
-            if (null == commodity) {
+            val ids = commodityRepository.search(search);
+            if (null == ids || ids.isEmpty()) {
                 return 0;
             }
-            return purchaseCommodityRepository.total(gid, type, review, complete, date, commodity.getId());
+            return purchaseCommodityRepository.total(gid, type, review, complete, start, end, ids);
         }
     }
 
-    public List<TPurchaseOrder> pagination(int gid, int type, int page, int limit, ReviewType review, CompleteType complete, String date, String search) {
-        if (null == search) {
-            return purchaseOrderRepository.pagination(gid, type, page, limit, review, complete, date);
+    public List<TPurchaseOrder> pagination(int gid, int type, int page, int limit, ReviewType review, CompleteType complete, Date start, Date end, String search) {
+        if (null == search || search.isEmpty()) {
+            return purchaseOrderRepository.pagination(gid, type, page, limit, review, complete, start, end);
         } else {
-            TCommodity commodity = commodityRepository.search(search);
-            if (null == commodity) {
+            val ids = commodityRepository.search(search);
+            if (null == ids || ids.isEmpty()) {
                 return null;
             }
-            return purchaseCommodityRepository.pagination(gid, type, page, limit, review, complete, date, commodity.getId());
+            return purchaseCommodityRepository.pagination(gid, type, page, limit, review, complete, start, end, ids);
         }
     }
 

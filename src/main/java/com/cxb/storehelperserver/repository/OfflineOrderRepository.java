@@ -52,15 +52,12 @@ public class OfflineOrderRepository extends BaseRepository<TOfflineOrder> {
         return offlineOrderMapper.selectByExample(example);
     }
 
-    public int total(int gid, int aid, int type, ReviewType review, String date) {
+    public int total(int gid, int aid, int type, ReviewType review, Date start, Date end) {
         TOfflineOrderExample example = new TOfflineOrderExample();
         TOfflineOrderExample.Criteria criteria = example.createCriteria();
-        criteria.andGidEqualTo(gid).andOtypeEqualTo(type);
+        criteria.andGidEqualTo(gid).andOtypeEqualTo(type).andApplyTimeGreaterThanOrEqualTo(start).andApplyTimeLessThan(end);
         if (aid > 0) {
             criteria.andAidEqualTo(aid);
-        }
-        if (null != date) {
-            criteria.andBatchLike("%" + date + "%");
         }
         switch (review) {
             case REVIEW_HAS:
@@ -75,15 +72,12 @@ public class OfflineOrderRepository extends BaseRepository<TOfflineOrder> {
         return (int) offlineOrderMapper.countByExample(example);
     }
 
-    public List<TOfflineOrder> pagination(int gid, int aid, int type, int page, int limit, ReviewType review, String date) {
+    public List<TOfflineOrder> pagination(int gid, int aid, int type, int page, int limit, ReviewType review, Date start, Date end) {
         TOfflineOrderExample example = new TOfflineOrderExample();
         TOfflineOrderExample.Criteria criteria = example.createCriteria();
-        criteria.andGidEqualTo(gid).andOtypeEqualTo(type);
+        criteria.andGidEqualTo(gid).andOtypeEqualTo(type).andApplyTimeGreaterThanOrEqualTo(start).andApplyTimeLessThan(end);
         if (aid > 0) {
             criteria.andAidEqualTo(aid);
-        }
-        if (null != date) {
-            criteria.andBatchLike("%" + date + "%");
         }
         switch (review) {
             case REVIEW_HAS:

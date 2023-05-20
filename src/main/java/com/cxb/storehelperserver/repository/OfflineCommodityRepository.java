@@ -4,10 +4,12 @@ import com.cxb.storehelperserver.mapper.TOfflineCommodityMapper;
 import com.cxb.storehelperserver.model.TOfflineCommodity;
 import com.cxb.storehelperserver.model.TOfflineCommodityExample;
 import com.cxb.storehelperserver.model.TOfflineOrder;
+import com.cxb.storehelperserver.repository.mapper.MyCommodityMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 
 import static com.cxb.storehelperserver.util.TypeDefine.CompleteType;
@@ -23,6 +25,9 @@ import static com.cxb.storehelperserver.util.TypeDefine.ReviewType;
 public class OfflineCommodityRepository extends BaseRepository<List> {
     @Resource
     private TOfflineCommodityMapper offlineCommodityMapper;
+
+    @Resource
+    private MyCommodityMapper myCommodityMapper;
 
     public OfflineCommodityRepository() {
         init("offlineComm::");
@@ -44,12 +49,12 @@ public class OfflineCommodityRepository extends BaseRepository<List> {
         return offlineCommoditys;
     }
 
-    public int total(int gid, int aid, int type, ReviewType review, CompleteType complete, String search, int cid) {
-        return 0;
+    public int total(int gid, int aid, int type, ReviewType review, CompleteType complete, Date start, Date end, List<Integer> ids) {
+        return myCommodityMapper.countByOffline(gid, aid, type, review.getValue(), complete.getValue(), start, end, ids);
     }
 
-    public List<TOfflineOrder> pagination(int gid, int aid, int type, int page, int limit, ReviewType review, CompleteType complete, String date, int cid) {
-        return null;
+    public List<TOfflineOrder> pagination(int gid, int aid, int type, int page, int limit, ReviewType review, CompleteType complete, Date start, Date end, List<Integer> ids) {
+        return myCommodityMapper.paginationByOffline(gid, aid, type, (page - 1) * limit, limit, review.getValue(), complete.getValue(), start, end, ids);
     }
 
     // 注意：数据被缓存在OfflineCommodityService，所以不能直接调用该函数

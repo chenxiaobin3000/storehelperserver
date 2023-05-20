@@ -35,7 +35,7 @@ public class GetAgreementOrderValid implements IValid {
     @Min(value = 0, message = "完成状态错误")
     private int complete;
 
-    @Length(max = 10, message = "订单制单日期格式错误")
+    @Length(min = 10, max = 10, message = "订单制单日期格式错误")
     private String date;
 
     @Length(max = 16, message = "搜索内容不能大于16个字符")

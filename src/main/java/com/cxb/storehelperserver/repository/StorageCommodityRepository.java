@@ -4,12 +4,13 @@ import com.cxb.storehelperserver.mapper.TStorageCommodityMapper;
 import com.cxb.storehelperserver.model.TStorageCommodity;
 import com.cxb.storehelperserver.model.TStorageCommodityExample;
 import com.cxb.storehelperserver.model.TStorageOrder;
-import com.cxb.storehelperserver.repository.mapper.MyCommodityCountMapper;
+import com.cxb.storehelperserver.repository.mapper.MyCommodityMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 import static com.cxb.storehelperserver.util.TypeDefine.ReviewType;
@@ -26,7 +27,7 @@ public class StorageCommodityRepository extends BaseRepository<List> {
     private TStorageCommodityMapper storageCommodityMapper;
 
     @Resource
-    private MyCommodityCountMapper myCommodityCountMapper;
+    private MyCommodityMapper myCommodityMapper;
 
     public StorageCommodityRepository() {
         init("storageComm::");
@@ -49,15 +50,15 @@ public class StorageCommodityRepository extends BaseRepository<List> {
     }
 
     public BigDecimal count(int oid) {
-        return myCommodityCountMapper.count_storage(oid);
+        return myCommodityMapper.count_storage(oid);
     }
 
-    public int total(int gid, int type, ReviewType review, String search, int cid) {
-        return 0;
+    public int total(int gid, int type, ReviewType review, Date start, Date end, List<Integer> ids) {
+        return myCommodityMapper.countByStorage(gid, type, review.getValue(), start, end, ids);
     }
 
-    public List<TStorageOrder> pagination(int gid, int type, int page, int limit, ReviewType review, String date, int cid) {
-        return null;
+    public List<TStorageOrder> pagination(int gid, int type, int page, int limit, ReviewType review, Date start, Date end, List<Integer> ids) {
+        return myCommodityMapper.paginationByStorage(gid, type, (page - 1) * limit, limit, review.getValue(), start, end, ids);
     }
 
     // 注意：数据被缓存在StorageCommodityService，所以不能直接调用该函数

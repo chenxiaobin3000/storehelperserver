@@ -417,18 +417,18 @@ public class OrderService {
         return RestResult.fail("不支持添加运费");
     }
 
-    public RestResult getAgreementOrder(int id, int aid, int type, int page, int limit, ReviewType review, CompleteType complete, String date, String search) {
+    public RestResult getAgreementOrder(int id, int aid, int type, int page, int limit, ReviewType review, CompleteType complete, Date start, Date end, String search) {
         // 获取公司信息
         TUserGroup group = userGroupRepository.find(id);
         if (null == group) {
             return RestResult.fail("获取公司信息失败");
         }
 
-        int total = agreementOrderService.total(group.getGid(), aid, type, review, complete, date, search);
+        int total = agreementOrderService.total(group.getGid(), aid, type, review, complete, start, end, search);
         if (0 == total) {
             return RestResult.ok(new PageData());
         }
-        val list = agreementOrderService.pagination(group.getGid(), aid, type, page, limit, review, complete, date, search);
+        val list = agreementOrderService.pagination(group.getGid(), aid, type, page, limit, review, complete, start, end, search);
         val list2 = new ArrayList<HashMap<String, Object>>();
         if (null != list && !list.isEmpty()) {
             for (TAgreementOrder o : list) {
@@ -439,18 +439,18 @@ public class OrderService {
         return RestResult.ok(new PageData(total, list2));
     }
 
-    public RestResult getOfflineOrder(int id, int aid, int type, int page, int limit, ReviewType review, CompleteType complete, String date, String search) {
+    public RestResult getOfflineOrder(int id, int aid, int type, int page, int limit, ReviewType review, CompleteType complete, Date start, Date end, String search) {
         // 获取公司信息
         TUserGroup group = userGroupRepository.find(id);
         if (null == group) {
             return RestResult.fail("获取公司信息失败");
         }
 
-        int total = offlineOrderService.total(group.getGid(), aid, type, review, complete, date, search);
+        int total = offlineOrderService.total(group.getGid(), aid, type, review, complete, start, end, search);
         if (0 == total) {
             return RestResult.ok(new PageData());
         }
-        val list = offlineOrderService.pagination(group.getGid(), aid, type, page, limit, review, complete, date, search);
+        val list = offlineOrderService.pagination(group.getGid(), aid, type, page, limit, review, complete, start, end, search);
         val list2 = new ArrayList<HashMap<String, Object>>();
         if (null != list && !list.isEmpty()) {
             for (TOfflineOrder o : list) {
@@ -461,18 +461,18 @@ public class OrderService {
         return RestResult.ok(new PageData(total, list2));
     }
 
-    public RestResult getProductOrder(int id, int type, int page, int limit, ReviewType review, String date, String search) {
+    public RestResult getProductOrder(int id, int type, int page, int limit, ReviewType review, Date start, Date end, String search) {
         // 获取公司信息
         TUserGroup group = userGroupRepository.find(id);
         if (null == group) {
             return RestResult.fail("获取公司信息失败");
         }
 
-        int total = productOrderService.total(group.getGid(), type, review, date, search);
+        int total = productOrderService.total(group.getGid(), type, review, start, end, search);
         if (0 == total) {
             return RestResult.ok(new PageData());
         }
-        val list = productOrderService.pagination(group.getGid(), type, page, limit, review, date, search);
+        val list = productOrderService.pagination(group.getGid(), type, page, limit, review, start, end, search);
         val list2 = new ArrayList<HashMap<String, Object>>();
         if (null != list && !list.isEmpty()) {
             for (TProductOrder o : list) {
@@ -483,18 +483,18 @@ public class OrderService {
         return RestResult.ok(new PageData(total, list2));
     }
 
-    public RestResult getPurchaseOrder(int id, int type, int page, int limit, ReviewType review, CompleteType complete, String date, String search) {
+    public RestResult getPurchaseOrder(int id, int type, int page, int limit, ReviewType review, CompleteType complete, Date start, Date end, String search) {
         // 获取公司信息
         TUserGroup group = userGroupRepository.find(id);
         if (null == group) {
             return RestResult.fail("获取公司信息失败");
         }
 
-        int total = purchaseOrderService.total(group.getGid(), type, review, complete, date, search);
+        int total = purchaseOrderService.total(group.getGid(), type, review, complete, start, end, search);
         if (0 == total) {
             return RestResult.ok(new PageData());
         }
-        val list = purchaseOrderService.pagination(group.getGid(), type, page, limit, review, complete, date, search);
+        val list = purchaseOrderService.pagination(group.getGid(), type, page, limit, review, complete, start, end, search);
         val list2 = new ArrayList<HashMap<String, Object>>();
         if (null != list && !list.isEmpty()) {
             for (TPurchaseOrder o : list) {
@@ -505,18 +505,18 @@ public class OrderService {
         return RestResult.ok(new PageData(total, list2));
     }
 
-    public RestResult getStorageOrder(int id, int type, int page, int limit, ReviewType review, String date, String search) {
+    public RestResult getStorageOrder(int id, int type, int page, int limit, ReviewType review, Date start, Date end, String search) {
         // 获取公司信息
         TUserGroup group = userGroupRepository.find(id);
         if (null == group) {
             return RestResult.fail("获取公司信息失败");
         }
 
-        int total = storageOrderService.total(group.getGid(), type, review, date, search);
+        int total = storageOrderService.total(group.getGid(), type, review, start, end, search);
         if (0 == total) {
             return RestResult.ok(new PageData());
         }
-        List<TStorageOrder> list = storageOrderService.pagination(group.getGid(), type, page, limit, review, date, search);
+        List<TStorageOrder> list = storageOrderService.pagination(group.getGid(), type, page, limit, review, start, end, search);
         val list2 = new ArrayList<HashMap<String, Object>>();
         if (null != list && !list.isEmpty()) {
             for (TStorageOrder o : list) {
@@ -527,18 +527,18 @@ public class OrderService {
         return RestResult.ok(new PageData(total, list2));
     }
 
-    public RestResult getSaleOrder(int id, int type, int page, int limit, ReviewType review, String date, String search) {
+    public RestResult getSaleOrder(int id, int type, int page, int limit, ReviewType review, Date start, Date end, String search) {
         // 获取公司信息
         TUserGroup group = userGroupRepository.find(id);
         if (null == group) {
             return RestResult.fail("获取公司信息失败");
         }
 
-        int total = saleOrderService.total(group.getGid(), type, review, date, search);
+        int total = saleOrderService.total(group.getGid(), type, review, start, end, search);
         if (0 == total) {
             return RestResult.ok(new PageData());
         }
-        val list = saleOrderService.pagination(group.getGid(), type, page, limit, review, date, search);
+        val list = saleOrderService.pagination(group.getGid(), type, page, limit, review, start, end, search);
         val list2 = new ArrayList<HashMap<String, Object>>();
         if (null != list && !list.isEmpty()) {
             for (TSaleOrder o : list) {
@@ -604,7 +604,7 @@ public class OrderService {
         return RestResult.ok(new PageData(total, list2));
     }
 
-    public  HashMap<String, Object> createOrder(int type, int oid) {
+    public HashMap<String, Object> createOrder(int type, int oid) {
         switch (OrderType.valueOf(type)) {
             case PURCHASE_PURCHASE_ORDER:
             case PURCHASE_RETURN_ORDER: {

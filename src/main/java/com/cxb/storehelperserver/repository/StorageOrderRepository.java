@@ -45,14 +45,11 @@ public class StorageOrderRepository extends BaseRepository<TStorageOrder> {
         return storageOrder;
     }
 
-    public int total(int gid, int type, ReviewType review, String date) {
+    public int total(int gid, int type, ReviewType review, Date start, Date end) {
         // 包含搜索的不缓存
         TStorageOrderExample example = new TStorageOrderExample();
         TStorageOrderExample.Criteria criteria = example.createCriteria();
-        criteria.andGidEqualTo(gid).andOtypeEqualTo(type);
-        if (null != date) {
-            criteria.andBatchLike("%" + date + "%");
-        }
+        criteria.andGidEqualTo(gid).andOtypeEqualTo(type).andApplyTimeGreaterThanOrEqualTo(start).andApplyTimeLessThan(end);
         switch (review) {
             case REVIEW_HAS:
                 criteria.andReviewIsNotNull();
@@ -66,13 +63,10 @@ public class StorageOrderRepository extends BaseRepository<TStorageOrder> {
         return (int) storageOrderMapper.countByExample(example);
     }
 
-    public List<TStorageOrder> pagination(int gid, int type, int page, int limit, ReviewType review, String date) {
+    public List<TStorageOrder> pagination(int gid, int type, int page, int limit, ReviewType review, Date start, Date end) {
         TStorageOrderExample example = new TStorageOrderExample();
         TStorageOrderExample.Criteria criteria = example.createCriteria();
-        criteria.andGidEqualTo(gid).andOtypeEqualTo(type);
-        if (null != date) {
-            criteria.andBatchLike("%" + date + "%");
-        }
+        criteria.andGidEqualTo(gid).andOtypeEqualTo(type).andApplyTimeGreaterThanOrEqualTo(start).andApplyTimeLessThan(end);
         switch (review) {
             case REVIEW_HAS:
                 criteria.andReviewIsNotNull();
