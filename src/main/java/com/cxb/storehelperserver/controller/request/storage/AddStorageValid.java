@@ -24,7 +24,7 @@ public class AddStorageValid implements IValid {
     private String area;
 
     @NotEmpty(message = "请输入仓库名称")
-    @Length(min = 4, message = "仓库名称长度不能小于4个字符")
+    @Length(min = 2, message = "仓库名称长度不能小于2个字符")
     @Length(max = 32, message = "仓库名称长度不能大于32个字符")
     private String name;
 

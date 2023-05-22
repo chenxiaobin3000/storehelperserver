@@ -17,14 +17,14 @@ import java.util.List;
 public interface MyStockDayMapper {
     @Select({"<script>",
             "select count(t1.id) from t_stock_day t1 left join t_commodity t2 on t1.cid = t2.id where t1.sid = #{sid}",
-            "and t1.cdate = #{date} <if test='null != search'>and t2.name like #{search}</if>",
+            "and t1.cdate = #{date} <if test='null != search'>and (t2.code like #{search} or t2.name like #{search})</if>",
             "</script>"})
     int count(int sid, Date date, String search);
 
     @Select({"<script>",
             "select t1.id, t1.gid, t1.sid, t1.cid, t1.price, t1.weight, t1.norm, t1.value, t2.code, t2.name, t2.cid as ctid, t2.remark",
             "from t_stock_day t1 left join t_commodity t2 on t1.cid = t2.id where t1.sid = #{sid}",
-            "and t1.cdate = #{date} <if test='null != search'>and t2.name like #{search}</if> limit #{offset}, #{limit}",
+            "and t1.cdate = #{date} <if test='null != search'>and (t2.code like #{search} or t2.name like #{search})</if> limit #{offset}, #{limit}",
             "</script>"})
     List<MyStockCommodity> pagination(int offset, int limit, int sid, Date date, String search);
 
@@ -32,7 +32,7 @@ public interface MyStockDayMapper {
             "select t2.id, t2.gid, t2.sid, t1.cid, t2.price, t2.weight, t2.norm, t2.value, t3.code, t3.name, t3.cid as ctid, t3.remark",
             "from t_commodity_storage t1 left join (select id, gid, sid, cid, price, weight, norm, value, cdate from t_stock_day",
             "where sid = #{sid} and cdate = #{date}) t2 on t1.cid = t2.cid left join t_commodity t3 on t1.cid = t3.id",
-            "where t1.sid = #{sid} <if test='null != search'>and t3.name like #{search}</if> limit #{offset}, #{limit}",
+            "where t1.sid = #{sid} <if test='null != search'>and (t3.code like #{search} or t3.name like #{search})</if> limit #{offset}, #{limit}",
             "</script>"})
     List<MyStockCommodity> pagination_all(int offset, int limit, int sid, Date date, String search);
 

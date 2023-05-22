@@ -18,7 +18,7 @@ public interface MyStockCloudMapper {
     @Select({"<script>",
             "select count(t1.id) from t_stock_cloud t1 left join t_commodity t2 on t1.cid = t2.id where t1.gid = #{gid}",
             "and t1.aid = #{aid} and t1.cdate <![CDATA[ >= ]]> #{start} and t1.cdate <![CDATA[ <= ]]> #{end}",
-            "<if test='null != search'>and t2.name like #{search}</if> group by t1.cid",
+            "<if test='null != search'>and (t2.code like #{search} or t2.name like #{search})</if> group by t1.cid",
             "</script>"})
     int count(int gid, int aid, Date start, Date end, String search);
 
@@ -26,7 +26,7 @@ public interface MyStockCloudMapper {
             "select t1.gid, t1.aid, t1.cid, sum(t1.price) as price, sum(t1.value) as value, t2.code, t2.name,",
             "t2.cid as ctid, t2.remark from t_stock_cloud t1 left join t_commodity t2 on t1.cid = t2.id where t1.gid = #{gid}",
             "and t1.aid = #{aid} and t1.cdate <![CDATA[ >= ]]> #{start} and t1.cdate <![CDATA[ <= ]]> #{end}",
-            "<if test='null != search'>and t2.name like #{search}</if> group by t1.cid limit #{offset}, #{limit}",
+            "<if test='null != search'>and (t2.code like #{search} or t2.name like #{search})</if> group by t1.cid limit #{offset}, #{limit}",
             "</script>"})
     List<MyStockCommodity> pagination(int offset, int limit, int gid, int aid, Date start, Date end, String search);
 
