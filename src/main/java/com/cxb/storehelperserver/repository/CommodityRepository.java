@@ -61,7 +61,11 @@ public class CommodityRepository extends BaseRepository<TCommodity> {
         // 包含搜索的不缓存
         if (null != search) {
             TCommodityExample example = new TCommodityExample();
-            example.or().andGidEqualTo(gid).andNameLike("%" + search + "%");
+            TCommodityExample.Criteria criteria = example.createCriteria();
+            criteria.andGidEqualTo(gid).andCodeLike("%" + search + "%");
+            TCommodityExample.Criteria criteria2 = example.createCriteria();
+            criteria2.andGidEqualTo(gid).andNameLike("%" + search + "%");
+            example.or(criteria2);
             return (int) commodityMapper.countByExample(example);
         } else {
             int total = getTotalCache(gid);
@@ -81,7 +85,11 @@ public class CommodityRepository extends BaseRepository<TCommodity> {
         if (null == search || search.isEmpty()) {
             example.or().andGidEqualTo(gid);
         } else {
-            example.or().andGidEqualTo(gid).andNameLike("%" + search + "%");
+            TCommodityExample.Criteria criteria = example.createCriteria();
+            criteria.andGidEqualTo(gid).andCodeLike("%" + search + "%");
+            TCommodityExample.Criteria criteria2 = example.createCriteria();
+            criteria2.andGidEqualTo(gid).andNameLike("%" + search + "%");
+            example.or(criteria2);
         }
         example.setOffset((page - 1) * limit);
         example.setLimit(limit);

@@ -34,7 +34,7 @@ public class SetMarketCommodityValid implements IValid {
 
     @NotEmpty(message = "请输入对接商品名称")
     @Length(min = 2, message = "对接商品名称长度不能小于2个字符")
-    @Length(max = 16, message = "对接商品名称长度不能大于16个字符")
+    @Length(max = 38, message = "对接商品名称长度不能大于38个字符")
     private String name;
 
     @Length(max = 16, message = "对接商品备注长度不能大于16个字符")

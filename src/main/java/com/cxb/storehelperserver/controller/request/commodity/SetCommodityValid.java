@@ -33,7 +33,7 @@ public class SetCommodityValid implements IValid {
 
     @NotEmpty(message = "请输入商品名称")
     @Length(min = 2, message = "商品名称长度不能小于2个字符")
-    @Length(max = 16, message = "商品名称长度不能大于16个字符")
+    @Length(max = 38, message = "商品名称长度不能大于38个字符")
     private String name;
 
     @Min(value = 1, message = "商品品类错误")

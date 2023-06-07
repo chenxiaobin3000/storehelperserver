@@ -189,6 +189,40 @@ public class MarketService {
         return RestResult.ok();
     }
 
+    public RestResult setAccountCommodity(int id, int gid, int aid, List<Integer> ids, List<String> codes, List<String> names, List<String> remarks, List<BigDecimal> alarms) {
+        // 验证公司
+        String msg = checkService.checkGroup(id, gid);
+        if (null != msg) {
+            return RestResult.fail(msg);
+        }
+        TMarketAccount account = marketAccountRepository.find(aid);
+        if (null == account) {
+            return RestResult.fail("未查询到账号信息");
+        }
+
+        int size = ids.size();
+        if (size != codes.size() || size != names.size() || size != remarks.size() || size != alarms.size()) {
+            return RestResult.fail("商品信息异常");
+        }
+
+        TMarketCommodity commodity = new TMarketCommodity();
+        commodity.setGid(gid);
+        commodity.setMid(account.getMid());
+        commodity.setAid(aid);
+        for (int i = 0; i < size; i++) {
+            commodity.setId(0);
+            commodity.setCid(ids.get(i));
+            commodity.setCode(codes.get(i));
+            commodity.setName(names.get(i));
+            commodity.setRemark(remarks.get(i));
+            commodity.setPrice(alarms.get(i));
+            if (!marketCommodityRepository.update(commodity)) {
+                return RestResult.fail("修改对接商品信息失败");
+            }
+        }
+        return RestResult.ok();
+    }
+
     public RestResult delMarketCommodity(int id, int gid, int aid, int cid) {
         // 验证公司
         String msg = checkService.checkGroup(id, gid);

@@ -64,6 +64,11 @@ public class MarketController {
         return marketService.setMarketCommodity(req.getId(), req.getGid(), req.getAid(), req.getCid(), req.getCode(), req.getName(), req.getRemark(), req.getPrice());
     }
 
+    @PostMapping("/setAccountCommodity")
+    public RestResult setAccountCommodity(@Validated @RequestBody SetAccountCommodityValid req) {
+        return marketService.setAccountCommodity(req.getId(), req.getGid(), req.getAid(), req.getCommoditys(), req.getCodes(), req.getNames(), req.getRemarks(), req.getAlarms());
+    }
+
     @PostMapping("/delMarketCommodity")
     public RestResult delMarketCommodity(@Validated @RequestBody DelMarketCommodityValid req) {
         return marketService.delMarketCommodity(req.getId(), req.getGid(), req.getAid(), req.getCid());
