@@ -1,4 +1,4 @@
-package com.cxb.storehelperserver.service.model;
+package com.cxb.storehelperserver.util;
 
 import lombok.Data;
 

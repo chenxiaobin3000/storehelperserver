@@ -90,11 +90,3 @@ store-app:
     openreg: false
     # 新增账号默认密码
     defaultpwd: e10adc3949ba59abbe56e057f20f883e
-    # 上传临时目录
-    uploadpath: /Users/chenxiaobin/Downloads/tmp/
-    # 图片服务器id
-    imagesrc: 1
-    # 图片地址
-    imagepath: s/
-    # 计算库存间隔天数上限
-    stockday: 3

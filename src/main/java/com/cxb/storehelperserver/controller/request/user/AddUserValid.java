@@ -26,6 +26,9 @@ public class AddUserValid implements IValid {
     @Length(min = 11, max = 11, message = "手机号格式错误")
     private String phone;
 
+    @Min(value = 1, message = "部门信息错误")
+    private int did;
+
     @Min(value = 1, message = "角色信息错误")
     private int rid;
 }

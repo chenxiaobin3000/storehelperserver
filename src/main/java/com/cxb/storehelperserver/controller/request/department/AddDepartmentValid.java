@@ -17,9 +17,6 @@ public class AddDepartmentValid implements IValid {
     @Min(value = 1, message = "账号错误")
     private int id;
 
-    @Min(value = 1, message = "公司账号错误")
-    private int gid;
-
     @NotEmpty(message = "请输入部门名称")
     @Length(min = 1, message = "部门名称长度不能小于1个字符")
     @Length(max = 16, message = "部门名称长度不能大于16个字符")

@@ -41,16 +41,20 @@ public class RoleRepository extends BaseRepository<TRole> {
         return role;
     }
 
-    public List<TRole> findByGroup(int gid) {
-        List<TRole> roles = List.class.cast(redisTemplate.opsForValue().get(cacheName + cacheGroupName + gid));
+    public List<TRole> all(String search) {
+        List<TRole> roles = List.class.cast(redisTemplate.opsForValue().get(cacheName + cacheGroupName));
         if (null != roles) {
             return roles;
         }
         TRoleExample example = new TRoleExample();
-        example.or().andGidEqualTo(gid);
-        roles = roleMapper.selectByExample(example);
-        if (null != roles) {
-            redisTemplate.opsForValue().set(cacheName + cacheGroupName + gid, roles);
+        if (null == search || search.isEmpty()) {
+            roles = roleMapper.selectByExample(example);
+            if (null != roles) {
+                redisTemplate.opsForValue().set(cacheName + cacheGroupName, roles);
+            }
+        } else {
+            example.or().andNameLike("%" + search + "%");
+            roles = roleMapper.selectByExample(example);
         }
         return roles;
     }
@@ -58,13 +62,9 @@ public class RoleRepository extends BaseRepository<TRole> {
     /*
      * desc: 判断公司是否存在角色
      */
-    public boolean check(int gid, String name, int id) {
+    public boolean check(String name, int id) {
         TRoleExample example = new TRoleExample();
-        if (null == name) {
-            example.or().andGidEqualTo(gid);
-        } else {
-            example.or().andGidEqualTo(gid).andNameEqualTo(name);
-        }
+        example.or().andNameEqualTo(name);
         if (0 == id) {
             return null != roleMapper.selectOneByExample(example);
         } else {
@@ -73,20 +73,10 @@ public class RoleRepository extends BaseRepository<TRole> {
         }
     }
 
-    public List<TRole> all(int gid, String search) {
-        TRoleExample example = new TRoleExample();
-        if (null == search || search.isEmpty()) {
-            example.or().andGidEqualTo(gid);
-        } else {
-            example.or().andGidEqualTo(gid).andNameLike("%" + search + "%");
-        }
-        return roleMapper.selectByExample(example);
-    }
-
     public boolean insert(TRole row) {
         if (roleMapper.insert(row) > 0) {
             setCache(row.getId(), row);
-            delCache(cacheGroupName + row.getGid());
+            delCache(cacheGroupName);
             return true;
         }
         return false;
@@ -95,7 +85,7 @@ public class RoleRepository extends BaseRepository<TRole> {
     public boolean update(TRole row) {
         if (roleMapper.updateByPrimaryKey(row) > 0) {
             setCache(row.getId(), row);
-            delCache(cacheGroupName + row.getGid());
+            delCache(cacheGroupName);
             return true;
         }
         return false;
@@ -106,7 +96,7 @@ public class RoleRepository extends BaseRepository<TRole> {
         if (null == role) {
             return false;
         }
-        delCache(cacheGroupName + role.getGid());
+        delCache(cacheGroupName);
         delCache(id);
         return roleMapper.deleteByPrimaryKey(id) > 0;
     }

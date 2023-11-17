@@ -16,9 +16,6 @@ public class GetRoleListValid implements IValid {
     @Min(value = 1, message = "账号错误")
     private int id;
 
-    @Min(value = 1, message = "公司账号错误")
-    private int gid;
-
     @Length(max = 16, message = "搜索内容不能大于16个字符")
     private String search;
 }

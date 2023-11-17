@@ -19,16 +19,10 @@ public class AddRoleValid implements IValid {
     @Min(value = 1, message = "账号错误")
     private int id;
 
-    @Min(value = 1, message = "公司账号错误")
-    private int gid;
-
     @NotEmpty(message = "请输入角色名称")
     @Length(min = 2, message = "角色名称长度不能小于2个字符")
     @Length(max = 16, message = "角色名称长度不能大于16个字符")
     private String name;
-
-    @Length(max = 32, message = "角色描述长度不能大于32个字符")
-    private String desc;
 
     @NotEmpty(message = "请选择角色权限")
     @Size(min = 1, message = "请至少选择一个角色权限")

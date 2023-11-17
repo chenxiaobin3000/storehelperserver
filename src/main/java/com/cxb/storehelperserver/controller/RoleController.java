@@ -22,38 +22,34 @@ public class RoleController {
     @Resource
     private RoleService roleService;
 
-    @PostMapping("/addRole")
-    public RestResult addRole(@Validated @RequestBody AddRoleValid req) {
+    @PostMapping("/add")
+    public RestResult add(@Validated @RequestBody AddRoleValid req) {
         TRole role = new TRole();
-        role.setGid(req.getGid());
         role.setName(req.getName());
-        role.setDescription(req.getDesc());
-        return roleService.addRole(req.getId(), role, req.getPermissions());
+        return roleService.add(req.getId(), role, req.getPermissions());
     }
 
-    @PostMapping("/setRole")
-    public RestResult setRole(@Validated @RequestBody SetRoleValid req) {
+    @PostMapping("/set")
+    public RestResult set(@Validated @RequestBody SetRoleValid req) {
         TRole role = new TRole();
         role.setId(req.getRid());
-        role.setGid(req.getGid());
         role.setName(req.getName());
-        role.setDescription(req.getDesc());
-        return roleService.setRole(req.getId(), role, req.getPermissions());
+        return roleService.set(req.getId(), role, req.getPermissions());
     }
 
-    @PostMapping("/delRole")
-    public RestResult delRole(@Validated @RequestBody DelRoleValid req) {
-        return roleService.delRole(req.getId(), req.getRid());
+    @PostMapping("/del")
+    public RestResult del(@Validated @RequestBody DelRoleValid req) {
+        return roleService.del(req.getId(), req.getRid());
     }
 
-    @PostMapping("/getRole")
-    public RestResult getRole(@Validated @RequestBody GetRoleValid req) {
-        return roleService.getRole(req.getId(), req.getRid());
+    @PostMapping("/get")
+    public RestResult get(@Validated @RequestBody GetRoleValid req) {
+        return roleService.get(req.getId(), req.getRid());
     }
 
-    @PostMapping("/getRoleList")
-    public RestResult getRoleList(@Validated @RequestBody GetRoleListValid req) {
-        return roleService.getRoleList(req.getId(), req.getGid(), req.getSearch());
+    @PostMapping("/getList")
+    public RestResult getList(@Validated @RequestBody GetRoleListValid req) {
+        return roleService.getList(req.getId(), req.getSearch());
     }
 
     @PostMapping("/getUserRole")
@@ -64,10 +60,5 @@ public class RoleController {
     @PostMapping("/setUserRole")
     public RestResult setUserRole(@Validated @RequestBody SetUserRoleValid req) {
         return roleService.setUserRole(req.getId(), req.getUid(), req.getRid());
-    }
-
-    @PostMapping("/getGroupRole")
-    public RestResult getGroupRole(@Validated @RequestBody GetGroupRoleValid req) {
-        return roleService.getGroupRole(req.getId());
     }
 }

@@ -24,48 +24,48 @@ public class UserController {
     /**
      * desc: 添加用户信息
      */
-    @PostMapping("/addUser")
-    public RestResult addUser(@Validated @RequestBody AddUserValid req) {
-        return userService.addUser(req.getId(), req.getAccount(), req.getPhone(), req.getRid());
+    @PostMapping("/add")
+    public RestResult add(@Validated @RequestBody AddUserValid req) {
+        return userService.add(req.getId(), req.getAccount(), req.getPhone(), req.getDid(), req.getRid());
     }
 
     /**
      * desc: 设置用户信息
      */
-    @PostMapping("/setUser")
-    public RestResult setUser(@Validated @RequestBody SetUserValid req) {
-        return userService.setUser(req.getId(), req.getUid(), req.getName(), req.getPhone());
+    @PostMapping("/set")
+    public RestResult set(@Validated @RequestBody SetUserValid req) {
+        return userService.set(req.getId(), req.getUid(), req.getName(), req.getPhone());
     }
 
     /**
      * desc: 删除用户信息，仅将用户移除公司
      */
-    @PostMapping("/delUser")
-    public RestResult delUser(@Validated @RequestBody DelUserValid req) {
-        return userService.delUser(req.getId(), req.getUid());
+    @PostMapping("/del")
+    public RestResult del(@Validated @RequestBody DelUserValid req) {
+        return userService.del(req.getId(), req.getUid());
     }
 
     /**
      * desc: 获取用户信息
      */
-    @PostMapping("/getUser")
-    public RestResult getUser(@Validated @RequestBody GetUserValid req) {
-        return userService.getUser(req.getId());
+    @PostMapping("/get")
+    public RestResult get(@Validated @RequestBody GetUserValid req) {
+        return userService.get(req.getId());
     }
 
     /**
      * desc: 获取用户信息
      */
-    @PostMapping("/getUserByPhone")
-    public RestResult getUserByPhone(@Validated @RequestBody GetUserByPhoneValid req) {
-        return userService.getUserByPhone(req.getId(), req.getPhone());
+    @PostMapping("/getByPhone")
+    public RestResult getByPhone(@Validated @RequestBody GetUserByPhoneValid req) {
+        return userService.getByPhone(req.getId(), req.getPhone());
     }
 
     /**
      * desc: 获取用户信息列表
      */
-    @PostMapping("/getUserList")
-    public RestResult getUserList(@Validated @RequestBody GetUserListValid req) {
-        return userService.getUserList(req.getId(), req.getPage(), req.getLimit(), req.getSearch());
+    @PostMapping("/getList")
+    public RestResult getList(@Validated @RequestBody GetUserListValid req) {
+        return userService.getList(req.getId(), req.getPage(), req.getLimit(), req.getSearch());
     }
 }

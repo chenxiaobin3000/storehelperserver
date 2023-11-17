@@ -67,7 +67,7 @@ public class AccountRepository extends BaseRepository<TAccount> {
         return false;
     }
 
-    public boolean updatePassword(int uid, String password) {
+    public boolean update(int uid, String password) {
         TAccount account = find(uid);
         if (null == account) {
             return false;

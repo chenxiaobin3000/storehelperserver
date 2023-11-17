@@ -38,31 +38,28 @@ public class StorageRepository extends BaseRepository<TStorage> {
         return storage;
     }
 
-    public int total(int gid, String search) {
+    public int total(String search) {
         // 包含搜索的不缓存
         if (null != search) {
             TStorageExample example = new TStorageExample();
-            example.or().andGidEqualTo(gid).andNameLike("%" + search + "%");
+            example.or().andNameLike("%" + search + "%");
             return (int) storageMapper.countByExample(example);
         } else {
-            int total = getTotalCache(gid);
+            int total = getTotalCache(0);
             if (0 != total) {
                 return total;
             }
             TStorageExample example = new TStorageExample();
-            example.or().andGidEqualTo(gid);
             total = (int) storageMapper.countByExample(example);
-            setTotalCache(gid, total);
+            setTotalCache(0, total);
             return total;
         }
     }
 
-    public List<TStorage> pagination(int gid, int page, int limit, String search) {
+    public List<TStorage> pagination(int page, int limit, String search) {
         TStorageExample example = new TStorageExample();
-        if (null == search || search.isEmpty()) {
-            example.or().andGidEqualTo(gid);
-        } else {
-            example.or().andGidEqualTo(gid).andNameLike("%" + search + "%");
+        if (null != search && !search.isEmpty()) {
+            example.or().andNameLike("%" + search + "%");
         }
         example.setOffset((page - 1) * limit);
         example.setLimit(limit);
@@ -72,9 +69,9 @@ public class StorageRepository extends BaseRepository<TStorage> {
     /*
      * desc: 判断公司是否存在仓库
      */
-    public boolean check(int gid, String name, int id) {
+    public boolean check(String name, int id) {
         TStorageExample example = new TStorageExample();
-        example.or().andGidEqualTo(gid).andNameEqualTo(name);
+        example.or().andNameEqualTo(name);
         if (0 == id) {
             return null != storageMapper.selectOneByExample(example);
         } else {
@@ -86,7 +83,7 @@ public class StorageRepository extends BaseRepository<TStorage> {
     public boolean insert(TStorage row) {
         if (storageMapper.insert(row) > 0) {
             setCache(row.getId(), row);
-            delTotalCache(row.getGid());
+            delTotalCache(0);
             return true;
         }
         return false;
@@ -106,7 +103,7 @@ public class StorageRepository extends BaseRepository<TStorage> {
             return false;
         }
         delCache(id);
-        delTotalCache(storage.getGid());
+        delTotalCache(0);
         return storageMapper.deleteByPrimaryKey(id) > 0;
     }
 }

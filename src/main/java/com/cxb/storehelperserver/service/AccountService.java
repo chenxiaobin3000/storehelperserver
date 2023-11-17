@@ -2,9 +2,7 @@ package com.cxb.storehelperserver.service;
 
 import com.cxb.storehelperserver.model.TAccount;
 import com.cxb.storehelperserver.model.TUser;
-import com.cxb.storehelperserver.model.TUserGroup;
 import com.cxb.storehelperserver.repository.AccountRepository;
-import com.cxb.storehelperserver.repository.UserGroupRepository;
 import com.cxb.storehelperserver.repository.UserRepository;
 import com.cxb.storehelperserver.util.RestResult;
 import lombok.extern.slf4j.Slf4j;
@@ -38,9 +36,6 @@ public class AccountService {
 
     @Resource
     private UserRepository userRepository;
-
-    @Resource
-    private UserGroupRepository userGroupRepository;
 
     @Value("${store-app.config.openreg}")
     private boolean openreg;
@@ -105,6 +100,10 @@ public class AccountService {
     }
 
     public RestResult setPassword(int id, String oldPassword, String newPassword) {
+        // 权限校验
+        if (!checkService.checkRolePermission(id, system_setpassword)) {
+            return RestResult.fail("本账号没有相关的权限，请联系管理员");
+        }
         TAccount account = accountRepository.find(id);
         if (null == account) {
             return RestResult.fail("获取账号信息失败");
@@ -112,26 +111,18 @@ public class AccountService {
         if (!account.getPassword().equals(oldPassword)) {
             return RestResult.fail("原始密码错误");
         }
-        if (!accountRepository.updatePassword(id, newPassword)) {
+        if (!accountRepository.update(id, newPassword)) {
             return RestResult.fail("重置密码失败");
         }
         return RestResult.ok();
     }
 
     public RestResult resetPwd(int id, int uid) {
-        // 操作员必须同公司用户
-        TUserGroup group = userGroupRepository.find(id);
-        TUserGroup group2 = userGroupRepository.find(uid);
-        if (null == group || null == group2 || !group2.getGid().equals(group.getGid())) {
-            return RestResult.fail("操作仅限本公司");
-        }
-
         // 权限校验
-        if (!checkService.checkRolePermission(id, user_resetpwd)) {
+        if (!checkService.checkRolePermission(id, system_resetpwd)) {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
-
-        if (!accountRepository.updatePassword(uid, defaultpwd)) {
+        if (!accountRepository.update(uid, defaultpwd)) {
             return RestResult.fail("重置密码失败");
         }
         return RestResult.ok();

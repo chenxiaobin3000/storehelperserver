@@ -1,12 +1,10 @@
 package com.cxb.storehelperserver.service;
 
 import com.cxb.storehelperserver.model.TDepartment;
-import com.cxb.storehelperserver.model.TUserDepartment;
-import com.cxb.storehelperserver.model.TUserGroup;
+import com.cxb.storehelperserver.model.TUser;
 import com.cxb.storehelperserver.repository.DepartmentRepository;
-import com.cxb.storehelperserver.repository.UserDepartmentRepository;
-import com.cxb.storehelperserver.repository.UserGroupRepository;
-import com.cxb.storehelperserver.service.model.PageData;
+import com.cxb.storehelperserver.repository.UserRepository;
+import com.cxb.storehelperserver.util.PageData;
 import com.cxb.storehelperserver.util.RestResult;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -36,20 +34,16 @@ public class DepartmentService {
     private DepartmentRepository departmentRepository;
 
     @Resource
-    private UserDepartmentRepository userDepartmentRepository;
+    private UserRepository userRepository;
 
-    @Resource
-    private UserGroupRepository userGroupRepository;
-
-    public RestResult addDepartment(int id, TDepartment department) {
-        // 验证公司
-        String msg = checkService.checkGroup(id, department.getGid());
-        if (null != msg) {
-            return RestResult.fail(msg);
+    public RestResult add(int id, TDepartment department) {
+        // 权限校验
+        if (!checkService.checkRolePermission(id, system_department)) {
+            return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
         // 部门名重名检测
-        if (departmentRepository.check(department.getGid(), department.getName(), 0)) {
+        if (departmentRepository.check(department.getName(), 0)) {
             return RestResult.fail("部门名称已存在");
         }
 
@@ -59,15 +53,14 @@ public class DepartmentService {
         return RestResult.ok();
     }
 
-    public RestResult setDepartment(int id, TDepartment department) {
-        // 验证公司
-        String msg = checkService.checkGroup(id, department.getGid());
-        if (null != msg) {
-            return RestResult.fail(msg);
+    public RestResult set(int id, TDepartment department) {
+        // 权限校验
+        if (!checkService.checkRolePermission(id, system_department)) {
+            return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
         // 部门名重名检测
-        if (departmentRepository.check(department.getGid(), department.getName(), department.getId())) {
+        if (departmentRepository.check(department.getName(), department.getId())) {
             return RestResult.fail("部门名称已存在");
         }
 
@@ -77,16 +70,15 @@ public class DepartmentService {
         return RestResult.ok();
     }
 
-    public RestResult delDepartment(int id, int cid) {
+    public RestResult del(int id, int cid) {
+        // 权限校验
+        if (!checkService.checkRolePermission(id, system_department)) {
+            return RestResult.fail("本账号没有相关的权限，请联系管理员");
+        }
+
         TDepartment department = departmentRepository.find(cid);
         if (null == department) {
             return RestResult.fail("要删除的部门不存在");
-        }
-
-        // 验证公司
-        String msg = checkService.checkGroup(id, department.getGid());
-        if (null != msg) {
-            return RestResult.fail(msg);
         }
 
         // 存在子部门，不能删除
@@ -100,26 +92,24 @@ public class DepartmentService {
         return RestResult.ok();
     }
 
-    public RestResult getGroupDepartmentList(int id) {
-        // 获取公司信息
-        TUserGroup group = userGroupRepository.find(id);
-        if (null == group) {
-            return RestResult.fail("获取公司信息失败");
+    public RestResult getList(int id) {
+        // 权限校验
+        if (!checkService.checkRolePermission(id, system_department)) {
+            return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
         val data = new HashMap<String, Object>();
-        data.put("list", departmentRepository.findByGroup(group.getGid()));
+        data.put("list", departmentRepository.all());
         return RestResult.ok(data);
     }
 
-    public RestResult getGroupDepartmentTree(int id) {
-        // 获取公司信息
-        TUserGroup group = userGroupRepository.find(id);
-        if (null == group) {
-            return RestResult.fail("获取公司信息失败");
+    public RestResult getTree(int id) {
+        // 权限校验
+        if (!checkService.checkRolePermission(id, system_department)) {
+            return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
-        List<TDepartment> categories = departmentRepository.findByGroup(group.getGid());
+        List<TDepartment> categories = departmentRepository.all();
         if (null == categories) {
             return RestResult.fail("获取部门信息失败");
         }
@@ -157,29 +147,20 @@ public class DepartmentService {
         return RestResult.ok(new PageData(0, datas));
     }
 
-    public RestResult setUserDepartment(int id, int uid, int gid, int did) {
-        // 操作员必须同公司用户
-        TUserGroup group = userGroupRepository.find(id);
-        if (!group.getGid().equals(gid)) {
-            return RestResult.fail("操作仅限本公司");
-        }
-
+    public RestResult setUserDepartment(int id, int uid, int did) {
         // 权限校验
-        if (!checkService.checkRolePermission(id, user_userlist)) {
+        if (!checkService.checkRolePermission(id, system_department)) {
             return RestResult.fail("本账号没有相关的权限，请联系管理员");
         }
 
         // 已存在就修改，不存在就新增
-        TUserDepartment department = userDepartmentRepository.find(uid);
-        if (null == department) {
-            if (!userDepartmentRepository.insert(uid, did)) {
-                return RestResult.fail("关联部门失败");
-            }
-        } else {
-            department.setDid(did);
-            if (!userDepartmentRepository.update(department)) {
-                return RestResult.fail("修改关联部门失败");
-            }
+        TUser user = userRepository.find(uid);
+        if (null == user) {
+            return RestResult.fail("用户不存在");
+        }
+        user.setDid(did);
+        if (!userRepository.update(user)) {
+            return RestResult.fail("修改关联部门失败");
         }
         return RestResult.ok();
     }

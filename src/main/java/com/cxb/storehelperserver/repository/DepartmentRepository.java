@@ -41,17 +41,16 @@ public class DepartmentRepository extends BaseRepository<TDepartment> {
         return department;
     }
 
-    public List<TDepartment> findByGroup(int gid) {
-        List<TDepartment> departments = List.class.cast(redisTemplate.opsForValue().get(cacheName + cacheGroupName + gid));
+    public List<TDepartment> all() {
+        List<TDepartment> departments = List.class.cast(redisTemplate.opsForValue().get(cacheName + cacheGroupName));
         if (null != departments) {
             return departments;
         }
         TDepartmentExample example = new TDepartmentExample();
-        example.or().andGidEqualTo(gid);
         example.setOrderByClause("level asc");
         departments = departmentMapper.selectByExample(example);
         if (null != departments) {
-            redisTemplate.opsForValue().set(cacheName + cacheGroupName + gid, departments);
+            redisTemplate.opsForValue().set(cacheName + cacheGroupName, departments);
         }
         return departments;
     }
@@ -59,9 +58,9 @@ public class DepartmentRepository extends BaseRepository<TDepartment> {
     /*
      * desc: 判断公司是否存在部门
      */
-    public boolean check(int gid, String name, int id) {
+    public boolean check(String name, int id) {
         TDepartmentExample example = new TDepartmentExample();
-        example.or().andGidEqualTo(gid).andNameEqualTo(name);
+        example.or().andNameEqualTo(name);
         if (0 == id) {
             return null != departmentMapper.selectOneByExample(example);
         } else {
@@ -73,7 +72,7 @@ public class DepartmentRepository extends BaseRepository<TDepartment> {
     public boolean insert(TDepartment row) {
         if (departmentMapper.insert(row) > 0) {
             setCache(row.getId(), row);
-            delCache(cacheGroupName + row.getGid());
+            delCache(cacheGroupName);
             return true;
         }
         return false;
@@ -82,7 +81,7 @@ public class DepartmentRepository extends BaseRepository<TDepartment> {
     public boolean update(TDepartment row) {
         if (departmentMapper.updateByPrimaryKey(row) > 0) {
             setCache(row.getId(), row);
-            delCache(cacheGroupName + row.getGid());
+            delCache(cacheGroupName);
             return true;
         }
         return false;
@@ -93,7 +92,7 @@ public class DepartmentRepository extends BaseRepository<TDepartment> {
         if (null == department) {
             return false;
         }
-        delCache(cacheGroupName + department.getGid());
+        delCache(cacheGroupName);
         delCache(id);
         return departmentMapper.deleteByPrimaryKey(id) > 0;
     }

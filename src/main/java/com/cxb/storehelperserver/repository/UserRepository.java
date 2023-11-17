@@ -3,7 +3,6 @@ package com.cxb.storehelperserver.repository;
 import com.cxb.storehelperserver.mapper.TUserMapper;
 import com.cxb.storehelperserver.model.TUser;
 import com.cxb.storehelperserver.model.TUserExample;
-import com.cxb.storehelperserver.repository.mapper.MyUserMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
@@ -20,9 +19,6 @@ import java.util.List;
 public class UserRepository extends BaseRepository<TUser> {
     @Resource
     private TUserMapper userMapper;
-
-    @Resource
-    private MyUserMapper myUserMapper;
 
     private final String cachePhone;
 
@@ -59,48 +55,32 @@ public class UserRepository extends BaseRepository<TUser> {
         return null;
     }
 
-    public int total(int gid, String search) {
+    public int total(String search) {
         // 包含搜索的不缓存
         if (null != search) {
-            if (0 == gid) {
-                TUserExample example = new TUserExample();
-                example.or().andNameLike("%" + search + "%");
-                return (int) userMapper.countByExample(example);
-            } else {
-                return myUserMapper.countByExample(gid, "%" + search + "%");
-            }
+            TUserExample example = new TUserExample();
+            example.or().andNameLike("%" + search + "%");
+            return (int) userMapper.countByExample(example);
         } else {
             int total = getTotalCache(0);
             if (0 != total) {
                 return total;
             }
-            if (0 == gid) {
-                TUserExample example = new TUserExample();
-                total = (int) userMapper.countByExample(example);
-            } else {
-                total = myUserMapper.countByExample(gid, null);
-            }
+            TUserExample example = new TUserExample();
+            total = (int) userMapper.countByExample(example);
             setTotalCache(0, total);
             return total;
         }
     }
 
-    public List<TUser> pagination(int page, int limit, int gid, String search) {
-        if (0 == gid) {
-            TUserExample example = new TUserExample();
-            if (null != search) {
-                example.or().andNameLike("%" + search + "%");
-            }
-            example.setOffset((page - 1) * limit);
-            example.setLimit(limit);
-            return userMapper.selectByExample(example);
-        } else {
-            if (null != search) {
-                return myUserMapper.selectByExample((page - 1) * limit, limit, gid, "%" + search + "%");
-            } else {
-                return myUserMapper.selectByExample((page - 1) * limit, limit, gid, null);
-            }
+    public List<TUser> pagination(int page, int limit, String search) {
+        TUserExample example = new TUserExample();
+        if (null != search) {
+            example.or().andNameLike("%" + search + "%");
         }
+        example.setOffset((page - 1) * limit);
+        example.setLimit(limit);
+        return userMapper.selectByExample(example);
     }
 
     public TUser insert(String account, String phone) {
@@ -131,5 +111,15 @@ public class UserRepository extends BaseRepository<TUser> {
             return true;
         }
         return false;
+    }
+
+    public boolean delete(int id) {
+        TUser user = find(id);
+        if (null == user) {
+            return false;
+        }
+        delCache(id);
+        delCache(cachePhone + user.getPhone());
+        return userMapper.deleteByPrimaryKey(id) > 0;
     }
 }

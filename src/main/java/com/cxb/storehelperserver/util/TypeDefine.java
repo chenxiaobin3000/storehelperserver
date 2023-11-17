@@ -129,25 +129,16 @@ public class TypeDefine {
     // 财务记录类型
     public enum FinanceAction {
         FINANCE_PURCHASE_PAY(1),        // 采购进货
-        FINANCE_PURCHASE_FARE(2),       // 采购进货运费
-        FINANCE_PURCHASE_RET(3),        // 采购退货
-        FINANCE_PURCHASE_FARE2(4),      // 采购退货运费
-
-        FINANCE_STORAGE_MGR(10),        // 仓储管理费
-        FINANCE_STORAGE_FARE(11),       // 仓储调度运费
-        FINANCE_STORAGE_OFFLINE(12),    // 线下销售
-        FINANCE_STORAGE_FARE2(13),      // 线下运费
-        FINANCE_STORAGE_BACK(14),       // 线下销售退货
-        FINANCE_STORAGE_FARE3(15),      // 线下退货运费
-
-        FINANCE_PRODUCT_PAY(20),        // 生产成本
-
-        FINANCE_AGREEMENT_FARE(30),     // 履约发货物流
-        FINANCE_AGREEMENT_FARE2(31),    // 履约退款物流
-
-        FINANCE_MARKET_SALE(40),        // 线上销售
-
-        FINANCE_GROUP_OTHER(50);        // 经营费用
+        FINANCE_PURCHASE_RET(2),        // 采购退货
+        FINANCE_SALE(3),                // 线上销售
+        FINANCE_OFFLINE_PAY(4),         // 线下销售
+        FINANCE_OFFLINE_RET(5),         // 线下退货
+        FINANCE_PURCHASE_FARE(10),      // 采购物流费用
+        FINANCE_OFFLINE_FARE(11),       // 线下物流费用
+        FINANCE_AGREEMENT_FARE(12),     // 履约物流费用
+        FINANCE_PRODUCT_FARE(13),       // 生产物流费用
+        FINANCE_STORAGE_FARE(14),       // 仓储物流费用
+        FINANCE_GROUP(20);              // 经营费用
 
         private int value = 0;
 
@@ -160,37 +151,25 @@ public class TypeDefine {
                 case 1:
                     return FINANCE_PURCHASE_PAY;
                 case 2:
-                    return FINANCE_PURCHASE_FARE;
-                case 3:
                     return FINANCE_PURCHASE_RET;
+                case 3:
+                    return FINANCE_SALE;
                 case 4:
-                    return FINANCE_PURCHASE_FARE2;
-
+                    return FINANCE_OFFLINE_PAY;
+                case 5:
+                    return FINANCE_OFFLINE_RET;
                 case 10:
-                    return FINANCE_STORAGE_MGR;
+                    return FINANCE_PURCHASE_FARE;
                 case 11:
-                    return FINANCE_STORAGE_FARE;
+                    return FINANCE_OFFLINE_FARE;
                 case 12:
-                    return FINANCE_STORAGE_OFFLINE;
-                case 13:
-                    return FINANCE_STORAGE_FARE2;
-                case 14:
-                    return FINANCE_STORAGE_BACK;
-                case 15:
-                    return FINANCE_STORAGE_FARE3;
-
-                case 20:
-                    return FINANCE_PRODUCT_PAY;
-
-                case 30:
                     return FINANCE_AGREEMENT_FARE;
-                case 31:
-                    return FINANCE_AGREEMENT_FARE2;
-
-                case 40:
-                    return FINANCE_MARKET_SALE;
+                case 13:
+                    return FINANCE_PRODUCT_FARE;
+                case 14:
+                    return FINANCE_STORAGE_FARE;
             }
-            return FINANCE_GROUP_OTHER;
+            return FINANCE_GROUP;
         }
 
         public int getValue() {

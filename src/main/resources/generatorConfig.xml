@@ -48,7 +48,6 @@
 
         <!-- 需要生成的表 -->
         <table tableName="t\_%">
-            <ignoreColumn column="ctime"/>
             <ignoreColumn column="utime"/>
         </table>
     </context>

@@ -25,44 +25,42 @@ public class DepartmentController {
     @Resource
     private DepartmentService departmentService;
 
-    @PostMapping("/addDepartment")
-    public RestResult addDepartment(@Validated @RequestBody AddDepartmentValid req) {
+    @PostMapping("/add")
+    public RestResult add(@Validated @RequestBody AddDepartmentValid req) {
         TDepartment department = new TDepartment();
-        department.setGid(req.getGid());
         department.setName(req.getName());
         department.setParent(req.getParent());
         department.setLevel(req.getLevel());
-        return departmentService.addDepartment(req.getId(), department);
+        return departmentService.add(req.getId(), department);
     }
 
-    @PostMapping("/setDepartment")
-    public RestResult setDepartment(@Validated @RequestBody SetDepartmentValid req) {
+    @PostMapping("/set")
+    public RestResult set(@Validated @RequestBody SetDepartmentValid req) {
         TDepartment department = new TDepartment();
         department.setId(req.getPid());
-        department.setGid(req.getGid());
         department.setName(req.getName());
         department.setParent(req.getParent());
         department.setLevel(req.getLevel());
-        return departmentService.setDepartment(req.getId(), department);
+        return departmentService.set(req.getId(), department);
     }
 
-    @PostMapping("/delDepartment")
-    public RestResult delDepartment(@Validated @RequestBody DelDepartmentValid req) {
-        return departmentService.delDepartment(req.getId(), req.getPid());
+    @PostMapping("/del")
+    public RestResult del(@Validated @RequestBody DelDepartmentValid req) {
+        return departmentService.del(req.getId(), req.getPid());
     }
 
-    @PostMapping("/getGroupDepartmentList")
-    public RestResult getGroupDepartmentList(@Validated @RequestBody GetGroupDepartmentValid req) {
-        return departmentService.getGroupDepartmentList(req.getId());
+    @PostMapping("/getList")
+    public RestResult getList(@Validated @RequestBody GetGroupDepartmentValid req) {
+        return departmentService.getList(req.getId());
     }
 
-    @PostMapping("/getGroupDepartmentTree")
-    public RestResult getGroupDepartmentTree(@Validated @RequestBody GetGroupDepartmentValid req) {
-        return departmentService.getGroupDepartmentTree(req.getId());
+    @PostMapping("/getTree")
+    public RestResult getTree(@Validated @RequestBody GetGroupDepartmentValid req) {
+        return departmentService.getTree(req.getId());
     }
 
     @PostMapping("/setUserDepartment")
     public RestResult setUserDepartment(@Validated @RequestBody SetUserDepartmentValid req) {
-        return departmentService.setUserDepartment(req.getId(), req.getUid(), req.getGid(), req.getDid());
+        return departmentService.setUserDepartment(req.getId(), req.getUid(), req.getDid());
     }
 }
