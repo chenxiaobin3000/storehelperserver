@@ -54,12 +54,12 @@ public class StorageController {
     }
 
     @PostMapping("/get")
-    public RestResult get(@Validated @RequestBody GetGroupStorageValid req) {
+    public RestResult get(@Validated @RequestBody GetStorageValid req) {
         return storageService.get(req.getId(), req.getPage(), req.getLimit(), req.getSearch());
     }
 
     @PostMapping("/getAll")
-    public RestResult getAll(@Validated @RequestBody GetGroupAllStorageValid req) {
+    public RestResult getAll(@Validated @RequestBody GetAllStorageValid req) {
         return storageService.getAll(req.getId());
     }
 }

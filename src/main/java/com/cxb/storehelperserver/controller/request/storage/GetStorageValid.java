@@ -12,7 +12,7 @@ import javax.validation.constraints.Min;
  * date: 2022/12/21
  */
 @Data
-public class GetGroupStorageValid implements IValid {
+public class GetStorageValid implements IValid {
     @Min(value = 1, message = "账号错误")
     private int id;
 

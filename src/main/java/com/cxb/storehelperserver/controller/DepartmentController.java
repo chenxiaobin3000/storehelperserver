@@ -50,12 +50,12 @@ public class DepartmentController {
     }
 
     @PostMapping("/getList")
-    public RestResult getList(@Validated @RequestBody GetGroupDepartmentValid req) {
+    public RestResult getList(@Validated @RequestBody GetDepartmentValid req) {
         return departmentService.getList(req.getId());
     }
 
     @PostMapping("/getTree")
-    public RestResult getTree(@Validated @RequestBody GetGroupDepartmentValid req) {
+    public RestResult getTree(@Validated @RequestBody GetDepartmentValid req) {
         return departmentService.getTree(req.getId());
     }
 
