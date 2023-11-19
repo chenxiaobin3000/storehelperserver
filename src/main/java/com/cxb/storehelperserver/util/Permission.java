@@ -11,6 +11,9 @@ public class Permission {
     static public final int dashboard_admin = 101;
     static public final int dashboard_userinfo = 102;
 
+    static public final int commodity = 900;
+    static public final int commodity_category = 901;
+
     static public final int system = 1000;
     static public final int system_resetpwd = 1001;
     static public final int system_department = 1002;
@@ -19,5 +22,4 @@ public class Permission {
     static public final int system_setpassword = 1005;
     static public final int system_storage = 1106;
     static public final int system_supplier = 1107;
-    static public final int system_account = 1108;
 }
